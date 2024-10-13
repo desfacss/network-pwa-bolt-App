@@ -89,6 +89,21 @@ export const protectedRoutes = [
     //     component: React.lazy(() => import('views/auth-views/authentication/register')),
     // },
     {
+        key: 'tasks',
+        path: `${APP_PREFIX_PATH}/tasks`,
+        component: React.lazy(() => import('views/pages/Tasks')),
+    },
+    {
+        key: 'jobs',
+        path: `${APP_PREFIX_PATH}/jobs`,
+        component: React.lazy(() => import('views/pages/Jobs')),
+    },
+    {
+        key: 'projects',
+        path: `${APP_PREFIX_PATH}/projects`,
+        component: React.lazy(() => import('views/pages/Projects')),
+    },
+    {
         key: 'clients',
         path: `${APP_PREFIX_PATH}/clients`,
         component: React.lazy(() => import('views/pages/Clients')),// /Clients is view table/card, /client/:id is view detail page

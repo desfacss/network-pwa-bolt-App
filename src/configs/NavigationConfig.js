@@ -45,6 +45,30 @@ const dashBoardNavTree = [{
       submenu: []
     },
     {
+      key: 'projects',
+      path: `${APP_PREFIX_PATH}/projects`,
+      title: 'Projects',
+      icon: UserOutlined,
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'jobs',
+      path: `${APP_PREFIX_PATH}/jobs`,
+      title: 'Jobs',
+      icon: UserOutlined,
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'tasks',
+      path: `${APP_PREFIX_PATH}/tasks`,
+      title: 'Tasks',
+      icon: UserOutlined,
+      breadcrumb: false,
+      submenu: []
+    },
+    {
       key: 'businesses',
       path: `${APP_PREFIX_PATH}/businesses`,
       title: 'Business Directory',

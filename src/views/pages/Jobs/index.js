@@ -5,9 +5,9 @@ import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 
-const Clients = () => {
+const Jobs = () => {
     const componentRef = useRef(null);
-    const [clients, setClients] = useState([]);
+    const [jobs, setJobs] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [schema, setSchema] = useState();
@@ -17,7 +17,7 @@ const Clients = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_clients_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_jobs_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)
@@ -27,16 +27,16 @@ const Clients = () => {
 
     useEffect(() => {
         getForms()
-        fetchClients();
+        fetchJobs();
     }, []);
 
-    const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*');
+    const fetchJobs = async () => {
+        let { data, error } = await supabase.from('jobs').select('*');
         if (data) {
-            setClients(data);
+            setJobs(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch clients" });
+            notification.error({ message: "Failed to fetch jobs" });
         }
     };
 
@@ -46,29 +46,29 @@ const Clients = () => {
             console.log("Pyload", values)
             // Update existing service
             const { data, error } = await supabase
-                .from('clients')
+                .from('jobs')
                 .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
-                notification.success({ message: "Client updated successfully" });
+                notification.success({ message: "Job updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update client" });
+                notification.error({ message: "Failed to update job" });
             }
         } else {
-            // Add new client
+            // Add new job
             const { data, error } = await supabase
-                .from('clients')
+                .from('jobs')
                 .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
-                notification.success({ message: "Client added successfully" });
+                notification.success({ message: "Job added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add client" });
+                notification.error({ message: "Failed to add job" });
             }
         }
-        fetchClients();
+        fetchJobs();
         setIsDrawerOpen(false);
         form.resetFields();
     };
@@ -85,50 +85,50 @@ const Clients = () => {
     };
 
     const handleDelete = async (id) => {
-        const { error } = await supabase.from('clients').delete().eq('id', id);
+        const { error } = await supabase.from('jobs').delete().eq('id', id);
         if (!error) {
-            notification.success({ message: "Client deleted successfully" });
-            fetchClients();
+            notification.success({ message: "Job deleted successfully" });
+            fetchJobs();
         } else {
-            notification.error({ message: "Failed to delete Client" });
+            notification.error({ message: "Failed to delete Job" });
         }
     };
 
     const columns = [
         {
             title: 'Name',
-            dataIndex: ['details', 'name'],
-            key: 'name',
+            dataIndex: ['details', 'job_name'],
+            key: 'job_name',
         },
         {
-            title: 'Contact Person',
-            dataIndex: ['details', 'primary_contact_name'],
-            key: 'primary_contact_name',
+            title: 'Client Name',
+            dataIndex: ['details', 'client_name'],
+            key: 'client_name',
         },
         {
-            title: 'Phone',
-            dataIndex: ['details', 'phone'],
-            key: 'phone',
+            title: 'Cost',
+            dataIndex: ['details', 'job_cost'],
+            key: 'job_cost',
         },
         {
-            title: 'Email',
-            dataIndex: ['details', 'email'],
-            key: 'email',
+            title: 'Manager',
+            dataIndex: ['details', 'job_head'],
+            key: 'job_head',
         },
         {
-            title: 'Zip',
-            dataIndex: ['details', 'zip'],
-            key: 'zip',
+            title: 'Users',
+            dataIndex: ['details', 'job_users'],
+            key: 'job_users',
         },
         {
-            title: 'State',
-            dataIndex: ['details', 'state'],
-            key: 'state',
+            title: 'Description',
+            dataIndex: ['details', 'description'],
+            key: 'description',
         },
         {
-            title: 'Address',
-            dataIndex: ['details', 'address'],
-            key: 'address',
+            title: 'Service',
+            dataIndex: ['details', 'service_id'],
+            key: 'service_id',
         },
         {
             title: 'Actions',
@@ -162,18 +162,18 @@ const Clients = () => {
                     onClick={() => setIsDrawerOpen(true)}
                     style={{ marginBottom: "16px" }}
                 >
-                    Add Client
+                    Add Job
                 </Button>
                 <Table
                     columns={columns}
-                    dataSource={clients}
+                    dataSource={jobs}
                     rowKey={(record) => record.id}
-                    loading={!clients}
+                    loading={!jobs}
                     pagination={false}
                 />
             </div>
             <Drawer footer={null} width={500} //size="large"
-                title={editItem ? "Edit Client" : "Add Client"}
+                title={editItem ? "Edit Job" : "Add Job"}
                 open={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
                 onOk={() => form.submit()}
@@ -187,4 +187,4 @@ const Clients = () => {
     );
 };
 
-export default Clients;
+export default Jobs;

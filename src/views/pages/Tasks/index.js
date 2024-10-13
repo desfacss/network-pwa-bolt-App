@@ -5,9 +5,9 @@ import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 
-const Clients = () => {
+const Tasks = () => {
     const componentRef = useRef(null);
-    const [clients, setClients] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [schema, setSchema] = useState();
@@ -17,7 +17,7 @@ const Clients = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_clients_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_tasks_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)
@@ -27,16 +27,16 @@ const Clients = () => {
 
     useEffect(() => {
         getForms()
-        fetchClients();
+        fetchTasks();
     }, []);
 
-    const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*');
+    const fetchTasks = async () => {
+        let { data, error } = await supabase.from('tasks').select('*');
         if (data) {
-            setClients(data);
+            setTasks(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch clients" });
+            notification.error({ message: "Failed to fetch tasks" });
         }
     };
 
@@ -46,29 +46,29 @@ const Clients = () => {
             console.log("Pyload", values)
             // Update existing service
             const { data, error } = await supabase
-                .from('clients')
+                .from('tasks')
                 .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
-                notification.success({ message: "Client updated successfully" });
+                notification.success({ message: "Task updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update client" });
+                notification.error({ message: "Failed to update task" });
             }
         } else {
-            // Add new client
+            // Add new task
             const { data, error } = await supabase
-                .from('clients')
+                .from('tasks')
                 .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
-                notification.success({ message: "Client added successfully" });
+                notification.success({ message: "Task added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add client" });
+                notification.error({ message: "Failed to add task" });
             }
         }
-        fetchClients();
+        fetchTasks();
         setIsDrawerOpen(false);
         form.resetFields();
     };
@@ -85,50 +85,50 @@ const Clients = () => {
     };
 
     const handleDelete = async (id) => {
-        const { error } = await supabase.from('clients').delete().eq('id', id);
+        const { error } = await supabase.from('tasks').delete().eq('id', id);
         if (!error) {
-            notification.success({ message: "Client deleted successfully" });
-            fetchClients();
+            notification.success({ message: "Task deleted successfully" });
+            fetchTasks();
         } else {
-            notification.error({ message: "Failed to delete Client" });
+            notification.error({ message: "Failed to delete Task" });
         }
     };
 
     const columns = [
         {
             title: 'Name',
-            dataIndex: ['details', 'name'],
-            key: 'name',
+            dataIndex: ['details', 'task_name'],
+            key: 'task_name',
         },
         {
-            title: 'Contact Person',
-            dataIndex: ['details', 'primary_contact_name'],
-            key: 'primary_contact_name',
+            title: 'Client Name',
+            dataIndex: ['details', 'client_name'],
+            key: 'client_name',
         },
         {
-            title: 'Phone',
-            dataIndex: ['details', 'phone'],
-            key: 'phone',
+            title: 'Cost',
+            dataIndex: ['details', 'task_cost'],
+            key: 'task_cost',
         },
         {
-            title: 'Email',
-            dataIndex: ['details', 'email'],
-            key: 'email',
+            title: 'Manager',
+            dataIndex: ['details', 'task_head'],
+            key: 'task_head',
         },
         {
-            title: 'Zip',
-            dataIndex: ['details', 'zip'],
-            key: 'zip',
+            title: 'Users',
+            dataIndex: ['details', 'task_users'],
+            key: 'task_users',
         },
         {
-            title: 'State',
-            dataIndex: ['details', 'state'],
-            key: 'state',
+            title: 'Description',
+            dataIndex: ['details', 'description'],
+            key: 'description',
         },
         {
-            title: 'Address',
-            dataIndex: ['details', 'address'],
-            key: 'address',
+            title: 'Service',
+            dataIndex: ['details', 'service_id'],
+            key: 'service_id',
         },
         {
             title: 'Actions',
@@ -162,18 +162,18 @@ const Clients = () => {
                     onClick={() => setIsDrawerOpen(true)}
                     style={{ marginBottom: "16px" }}
                 >
-                    Add Client
+                    Add Task
                 </Button>
                 <Table
                     columns={columns}
-                    dataSource={clients}
+                    dataSource={tasks}
                     rowKey={(record) => record.id}
-                    loading={!clients}
+                    loading={!tasks}
                     pagination={false}
                 />
             </div>
             <Drawer footer={null} width={500} //size="large"
-                title={editItem ? "Edit Client" : "Add Client"}
+                title={editItem ? "Edit Task" : "Add Task"}
                 open={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
                 onOk={() => form.submit()}
@@ -187,4 +187,4 @@ const Clients = () => {
     );
 };
 
-export default Clients;
+export default Tasks;
