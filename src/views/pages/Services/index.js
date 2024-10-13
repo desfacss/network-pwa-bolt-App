@@ -47,7 +47,7 @@ const Services = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('services')
-                .update({ details: values, organization_id: session?.user?.organization_id })
+                .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -60,7 +60,7 @@ const Services = () => {
             // Add new service
             const { data, error } = await supabase
                 .from('services')
-                .insert([{ details: values, organization_id: session?.user?.organization_id }]);
+                .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
                 notification.success({ message: "Service added successfully" });

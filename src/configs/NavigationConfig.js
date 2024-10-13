@@ -31,7 +31,15 @@ const dashBoardNavTree = [{
     {
       key: 'users',
       path: `${APP_PREFIX_PATH}/users`,
-      title: 'User Directory',
+      title: 'Services',
+      icon: UserOutlined,
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'clients',
+      path: `${APP_PREFIX_PATH}/clients`,
+      title: 'Clients',
       icon: UserOutlined,
       breadcrumb: false,
       submenu: []
