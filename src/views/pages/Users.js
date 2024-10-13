@@ -2,6 +2,7 @@ import { Card, Input } from 'antd';
 import { useNavigate } from 'react-router-dom'; // Use this for navigation
 import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useState } from 'react';
+import Services from './Services/index';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -32,15 +33,16 @@ const Users = () => {
     return (
         <div>
             {/* Search bar */}
-            <Input
+            <Services />
+            {/* <Input
                 placeholder="Search by first or last name"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ marginBottom: 20, width: '300px' }}
-            />
+            /> */}
 
             {/* Display user cards */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+            {/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
                 {filteredUsers.map(user => (
                     <Card
                         key={user.id}
@@ -75,7 +77,7 @@ const Users = () => {
                         ) : null}
                     </Card>
                 ))}
-            </div>
+            </div> */}
         </div>
     );
 };

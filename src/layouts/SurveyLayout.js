@@ -51,7 +51,7 @@ const SurveyLayout = ({ children }) => {
 								<div>
 									<img src="/img/ibcn.png" alt="logo" style={{ height: '200px' }} />
 								</div><br /><br /><br /><br />
-								<h1 className="text-white">IBCN 2025 Nagarathar Business Insights Survey</h1>
+								<h1 className="text-white">IBCN 2025 Nagarathar TimeTrack</h1>
 							</Col>
 						</Row>
 						<div className="d-flex justify-content-end pb-4">

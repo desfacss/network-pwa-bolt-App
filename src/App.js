@@ -18,22 +18,54 @@ const themes = {
 };
 
 function App() {
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      // setSession(session)
-      store.dispatch(setSession(session));
-    })
 
+  useEffect(() => {
+    // Fetch the session and user data
+    const fetchUserData = async (session) => {
+      if (!session || !session.user) return;
+
+      // Fetch user data from the users table
+      const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+
+      if (error) {
+        console.error('Error fetching user data:', error);
+        return;
+      }
+
+      // Update session.user with the fetched user data
+      const updatedSession = {
+        ...session,
+        user: {
+          ...session.user,
+          ...data, // Add the fetched user data here
+        },
+      };
+      console.log("Session", updatedSession)
+      // Dispatch the updated session to Redux
+      store.dispatch(setSession(updatedSession));
+    };
+
+    // Get the initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        fetchUserData(session);
+      }
+    });
+
+    // Listen for authentication state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      // setSession(session)
-      console.log("Supabase Event", _event, session)
-      store.dispatch(setSession(session));
-    })
+      // console.log('Supabase Event', _event);
+      if (session) {
+        fetchUserData(session);
+      }
+    });
 
-    return () => subscription.unsubscribe()
-  }, [supabase])
+    // Cleanup subscription on component unmount
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
 
   return (
     <div className="App">

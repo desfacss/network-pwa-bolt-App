@@ -22,7 +22,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
     useEffect(() => {
         const getEnums = async () => {
-            let { data, error } = await supabase.from('enum').select('*')
+            let { data, error } = await supabase.from('enums').select('*')
             if (data) {
                 console.log("Enums", data)
                 setEnums(data)
@@ -59,46 +59,46 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     }, [schemas, enums]);
 
     const onSubmit = async (e) => {
-        console.log("Payload", schema?.db_schema?.table, schema?.db_schema?.column, e?.formData)
+        // console.log("Payload", schema?.db_schema?.table, schema?.db_schema?.column, e?.formData)
+        onFinish(e?.formData)
+        // if (schema?.db_schema?.multiple_rows === true) {
+        //     if (updateId) {
+        //         const { data, error } = await supabase.from(schema?.db_schema?.table)
+        //             .upsert([
+        //                 {
+        //                     id: updateId,
+        //                     user_id: userId,
+        //                     [schema?.db_schema?.column]: e?.formData // Send each value separately
+        //                 },
+        //             ], { onConflict: 'id' });
+        //         if (error) {
+        //             return console.log("Error", error);
+        //         }
+        //     } else {
+        //         const { data, error } = await supabase.from(schema?.db_schema?.table)
+        //             .insert([
+        //                 {
+        //                     user_id: userId,
+        //                     [schema?.db_schema?.column]: e?.formData // Send each value separately
+        //                 },
+        //             ]);
+        //         if (error) {
+        //             return console.log("Error", error);
+        //         }
+        //     }
+        // } else {
+        //     const { data, error } = await supabase.from(schema?.db_schema?.table)
+        //         .upsert([
+        //             {
+        //                 user_id: userId,
+        //                 [schema?.db_schema?.column]: e?.formData // Send each value separately
+        //             },
+        //         ], { onConflict: 'user_id' });
+        //     if (error) {
+        //         return console.log("Error", error);
+        //     }
+        // }
 
-        if (schema?.db_schema?.multiple_rows === true) {
-            if (updateId) {
-                const { data, error } = await supabase.from(schema?.db_schema?.table)
-                    .upsert([
-                        {
-                            id: updateId,
-                            user_id: userId,
-                            [schema?.db_schema?.column]: e?.formData // Send each value separately
-                        },
-                    ], { onConflict: 'id' });
-                if (error) {
-                    return console.log("Error", error);
-                }
-            } else {
-                const { data, error } = await supabase.from(schema?.db_schema?.table)
-                    .insert([
-                        {
-                            user_id: userId,
-                            [schema?.db_schema?.column]: e?.formData // Send each value separately
-                        },
-                    ]);
-                if (error) {
-                    return console.log("Error", error);
-                }
-            }
-        } else {
-            const { data, error } = await supabase.from(schema?.db_schema?.table)
-                .upsert([
-                    {
-                        user_id: userId,
-                        [schema?.db_schema?.column]: e?.formData // Send each value separately
-                    },
-                ], { onConflict: 'user_id' });
-            if (error) {
-                return console.log("Error", error);
-            }
-        }
-        onFinish()
     }
     console.log("Schemas", schemas, formData, updateId)
 
@@ -120,7 +120,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                     //     ],
                     // }
                 }
-                formData={formData}
+                formData={formData && formData}
                 onSubmit={onSubmit}
                 onError={log('errors')}
             // onChange={log('changed')}

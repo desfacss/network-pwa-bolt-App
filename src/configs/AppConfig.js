@@ -4,7 +4,7 @@ import {
   DIR_LTR,
 } from "constants/ThemeConstant";
 
-export const APP_NAME = "Business Insights Survey";
+export const APP_NAME = "TimeTrack";
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 export const APP_PREFIX_PATH = "/app";
 export const AUTH_PREFIX_PATH = "/auth";
