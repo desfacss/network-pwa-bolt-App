@@ -42,8 +42,8 @@ const Clients = () => {
 
     const handleAddOrEdit = async (values) => {
         // const { service_name, cost, duration, description } = values;
+        console.log("Pyload", values)
         if (editItem) {
-            console.log("Pyload", values)
             // Update existing service
             const { data, error } = await supabase
                 .from('clients')

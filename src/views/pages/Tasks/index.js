@@ -33,6 +33,7 @@ const Tasks = () => {
     const fetchTasks = async () => {
         let { data, error } = await supabase.from('tasks').select('*');
         if (data) {
+            console.log("Tasks", tasks)
             setTasks(data);
         }
         if (error) {
@@ -42,12 +43,12 @@ const Tasks = () => {
 
     const handleAddOrEdit = async (values) => {
         // const { service_name, cost, duration, description } = values;
+        console.log("Pyload", values)
         if (editItem) {
-            console.log("Pyload", values)
             // Update existing service
             const { data, error } = await supabase
                 .from('tasks')
-                .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .update({ details: { ...values, user_id: session?.user?.id, user_name: session?.user?.details?.firstName + " " + session?.user?.details?.lastName }, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -60,7 +61,7 @@ const Tasks = () => {
             // Add new task
             const { data, error } = await supabase
                 .from('tasks')
-                .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+                .insert([{ details: { ...values, user_id: session?.user?.id, user_name: session?.user?.details?.firstName + " " + session?.user?.details?.lastName }, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
                 notification.success({ message: "Task added successfully" });
@@ -101,35 +102,46 @@ const Tasks = () => {
             key: 'task_name',
         },
         {
-            title: 'Client Name',
-            dataIndex: ['details', 'client_name'],
-            key: 'client_name',
+            title: 'Date',
+            dataIndex: ['details', 'date'],
+            key: 'date',
         },
         {
-            title: 'Cost',
-            dataIndex: ['details', 'task_cost'],
-            key: 'task_cost',
+            title: 'From Time',
+            dataIndex: ['details', 'from_time'],
+            key: 'from_time',
         },
         {
-            title: 'Manager',
-            dataIndex: ['details', 'task_head'],
-            key: 'task_head',
+            title: 'To Time',
+            dataIndex: ['details', 'to_time'],
+            key: 'to_time',
         },
         {
-            title: 'Users',
-            dataIndex: ['details', 'task_users'],
-            key: 'task_users',
+            title: 'project',
+            dataIndex: ['details', 'project_id'],
+            key: 'project_id',
         },
         {
-            title: 'Description',
-            dataIndex: ['details', 'description'],
-            key: 'description',
+            title: 'Job',
+            dataIndex: ['details', 'job_id'],
+            key: 'job_id',
         },
         {
-            title: 'Service',
-            dataIndex: ['details', 'service_id'],
-            key: 'service_id',
+            title: 'Billable',
+            dataIndex: ['details', 'billable'],
+            key: 'billable',
+            render: (billable) => (billable ? 'Yes' : 'No'),
         },
+        {
+            title: 'User',
+            dataIndex: ['details', 'user_name'],
+            key: 'user_name',
+        },
+        // {
+        //     title: 'Description',
+        //     dataIndex: ['details', 'description'],
+        //     key: 'description',
+        // },
         {
             title: 'Actions',
             key: 'actions',

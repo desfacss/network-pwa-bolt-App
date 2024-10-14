@@ -17,7 +17,7 @@ const Projects = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_projects_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_projects_form_trial").single()
         console.log("A", data)
         if (data) {
             console.log(data)
@@ -42,8 +42,8 @@ const Projects = () => {
 
     const handleAddOrEdit = async (values) => {
         // const { service_name, cost, duration, description } = values;
+        console.log("Pyload", values)
         if (editItem) {
-            console.log("Pyload", values)
             // Update existing service
             const { data, error } = await supabase
                 .from('projects')

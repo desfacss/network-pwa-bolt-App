@@ -42,8 +42,8 @@ const Jobs = () => {
 
     const handleAddOrEdit = async (values) => {
         // const { service_name, cost, duration, description } = values;
+        console.log("Pyload", values)
         if (editItem) {
-            console.log("Pyload", values)
             // Update existing service
             const { data, error } = await supabase
                 .from('jobs')
@@ -102,33 +102,34 @@ const Jobs = () => {
         },
         {
             title: 'Client Name',
-            dataIndex: ['details', 'client_name'],
-            key: 'client_name',
+            dataIndex: ['details', 'project'],
+            key: 'project',
         },
         {
-            title: 'Cost',
-            dataIndex: ['details', 'job_cost'],
-            key: 'job_cost',
+            title: 'Start Date',
+            dataIndex: ['details', 'start_date'],
+            key: 'start_date',
         },
         {
-            title: 'Manager',
-            dataIndex: ['details', 'job_head'],
-            key: 'job_head',
+            title: 'End Date',
+            dataIndex: ['details', 'end_date'],
+            key: 'end_date',
         },
         {
-            title: 'Users',
-            dataIndex: ['details', 'job_users'],
-            key: 'job_users',
+            title: 'Hours',
+            dataIndex: ['details', 'hours'],
+            key: 'hours',
         },
         {
-            title: 'Description',
-            dataIndex: ['details', 'description'],
-            key: 'description',
+            title: 'Billable',
+            dataIndex: ['details', 'billable'],
+            key: 'billable',
+            render: (billable) => (billable ? 'Yes' : 'No'),
         },
         {
-            title: 'Service',
-            dataIndex: ['details', 'service_id'],
-            key: 'service_id',
+            title: 'Status',
+            dataIndex: ['details', 'status'],
+            key: 'status',
         },
         {
             title: 'Actions',

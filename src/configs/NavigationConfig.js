@@ -20,17 +20,17 @@ const dashBoardNavTree = [{
     //   breadcrumb: false,
     //   submenu: []
     // },
+    // {
+    //   key: 'profile',
+    //   path: `${APP_PREFIX_PATH}/profile`,
+    //   title: 'My Profile',
+    //   icon: DashboardOutlined,
+    //   breadcrumb: false,
+    //   submenu: []
+    // },
     {
-      key: 'profile',
-      path: `${APP_PREFIX_PATH}/profile`,
-      title: 'My Profile',
-      icon: DashboardOutlined,
-      breadcrumb: false,
-      submenu: []
-    },
-    {
-      key: 'users',
-      path: `${APP_PREFIX_PATH}/users`,
+      key: 'services',
+      path: `${APP_PREFIX_PATH}/services`,
       title: 'Services',
       icon: UserOutlined,
       breadcrumb: false,
@@ -68,38 +68,38 @@ const dashBoardNavTree = [{
       breadcrumb: false,
       submenu: []
     },
-    {
-      key: 'businesses',
-      path: `${APP_PREFIX_PATH}/businesses`,
-      title: 'Business Directory',
-      icon: UserOutlined,
-      breadcrumb: false,
-      submenu: []
-    },
-    {
-      key: 'networking',
-      path: `${APP_PREFIX_PATH}/networking`,
-      title: 'Networking',
-      icon: ContainerOutlined,
-      breadcrumb: false,
-      submenu: []
-    },
-    {
-      key: 'chat',
-      path: `${APP_PREFIX_PATH}/chat`,
-      title: 'Chat',
-      icon: FundProjectionScreenOutlined,
-      breadcrumb: false,
-      submenu: []
-    },
-    {
-      key: 'poll',
-      path: `${APP_PREFIX_PATH}/poll`,
-      title: 'Poll',
-      icon: SlidersOutlined,
-      breadcrumb: false,
-      submenu: []
-    },
+    // {
+    //   key: 'businesses',
+    //   path: `${APP_PREFIX_PATH}/businesses`,
+    //   title: 'Business Directory',
+    //   icon: UserOutlined,
+    //   breadcrumb: false,
+    //   submenu: []
+    // },
+    // {
+    //   key: 'networking',
+    //   path: `${APP_PREFIX_PATH}/networking`,
+    //   title: 'Networking',
+    //   icon: ContainerOutlined,
+    //   breadcrumb: false,
+    //   submenu: []
+    // },
+    // {
+    //   key: 'chat',
+    //   path: `${APP_PREFIX_PATH}/chat`,
+    //   title: 'Chat',
+    //   icon: FundProjectionScreenOutlined,
+    //   breadcrumb: false,
+    //   submenu: []
+    // },
+    // {
+    //   key: 'poll',
+    //   path: `${APP_PREFIX_PATH}/poll`,
+    //   title: 'Poll',
+    //   icon: SlidersOutlined,
+    //   breadcrumb: false,
+    //   submenu: []
+    // },
 
 
 

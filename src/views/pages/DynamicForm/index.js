@@ -30,33 +30,139 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
         }
         getEnums()
     }, [])
-    useEffect(() => {
-        const replaceEnums = (obj) => {
-            Object.keys(obj).forEach((key) => {
-                if (key === "enum") {
-                    // Find the matching enum object by 'name' from the enums array
-                    const enumName = obj[key];  // `enum` should be a string, not an array
-                    const foundEnum = enums?.find((e) => e.name === enumName);
 
-                    if (foundEnum) {
-                        obj[key] = foundEnum?.options;  // Replace the enum values with the options
+    useEffect(() => {
+        const fetchDataForDropdown = async (table, column) => {
+            try {
+                let { data, error } = await supabase
+                    .from(table)
+                    .select(column.includes('.') ? `${column} ->>` : column);
+
+                if (error) {
+                    console.error("Error fetching data from Supabase:", error);
+                    return [];
+                }
+
+                if (column.includes('.')) {
+                    const [outerKey, innerKey] = column.split('.');
+                    return data.map((item) => item[outerKey]?.[innerKey]).filter(Boolean);
+                } else {
+                    return data.map((item) => item[column]);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                return [];
+            }
+        };
+
+        const replaceEnums = async (obj) => {
+            const keys = Object.keys(obj);
+            for (let key of keys) {
+                const enumValue = obj[key]?.enum;
+
+                if (enumValue) {
+                    if (typeof enumValue === 'string') {
+                        // Handle the old case where `enum` is a string and needs to match an entry in `enums`
+                        const foundEnum = enums?.find((e) => e.name === enumValue);
+                        if (foundEnum) {
+                            obj[key] = {
+                                type: "string",
+                                title: obj[key].title,
+                                enum: foundEnum.options
+                            };
+                        }
+                    } else if (typeof enumValue === 'object' && enumValue.table && enumValue.column) {
+                        // Handle the new case where `enum` is an object with a table and column
+                        const options = await fetchDataForDropdown(enumValue.table, enumValue.column);
+                        obj[key] = {
+                            type: "string",
+                            title: obj[key].title,
+                            enum: options
+                        };
                     }
                 }
 
-                // If the value is an object, recursively traverse it
                 if (typeof obj[key] === "object" && obj[key] !== null) {
-                    replaceEnums(obj[key]);
+                    await replaceEnums(obj[key]);
                 }
-            });
+            }
         };
 
-        if (schemas && enums) {
-            const schemaCopy = JSON.parse(JSON.stringify(schemas)); // Make a deep copy of schemas
-            replaceEnums(schemaCopy);
-            console.log("Updated schema", schemaCopy);  // Check if the schema is updated correctly
-            setSchema(schemaCopy);  // Set the updated schema to state
-        }
+        const updateSchema = async () => {
+            if (schemas && enums) {
+                const schemaCopy = JSON.parse(JSON.stringify(schemas));
+                await replaceEnums(schemaCopy);
+                console.log("Updated schema", schemaCopy);
+                setSchema(schemaCopy);
+            }
+        };
+
+        updateSchema();
     }, [schemas, enums]);
+
+
+    // useEffect(() => {
+    //     const fetchDataForDropdown = async (table, column) => {
+    //         try {
+    //             // Fetch data from Supabase based on the specified table
+    //             let { data, error } = await supabase
+    //                 .from(table)
+    //                 .select(column.includes('.') ? `${column} ->>` : column);
+
+    //             if (error) {
+    //                 console.error("Error fetching data from Supabase:", error);
+    //                 return [];
+    //             }
+
+    //             // If the column is nested (e.g., "detail.name"), extract the nested value
+    //             if (column.includes('.')) {
+    //                 const [outerKey, innerKey] = column.split('.');
+    //                 return data.map((item) => item[outerKey]?.[innerKey]).filter(Boolean);
+    //             } else {
+    //                 // Directly extract the column value
+    //                 return data.map((item) => item[column]);
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching data:", error);
+    //             return [];
+    //         }
+    //     };
+
+    //     const replaceEnumsWithFetchedData = async (obj) => {
+    //         const keys = Object.keys(obj);
+    //         for (let key of keys) {
+    //             const enumValue = obj[key]?.enum;
+    //             if (enumValue && typeof enumValue === 'object' && enumValue.table && enumValue.column) {
+    //                 // Fetch data based on the specified table and column
+    //                 const options = await fetchDataForDropdown(enumValue.table, enumValue.column);
+
+    //                 // Update the schema field with the format expected by react-jsonschema-form
+    //                 obj[key] = {
+    //                     type: "string",
+    //                     title: obj[key].title,
+    //                     enum: options
+    //                 };
+    //             }
+
+    //             // If the value is an object, recursively traverse it
+    //             if (typeof obj[key] === "object" && obj[key] !== null) {
+    //                 await replaceEnumsWithFetchedData(obj[key]);
+    //             }
+    //         }
+    //     };
+
+    //     const updateSchema = async () => {
+    //         if (schemas) {
+    //             const schemaCopy = JSON.parse(JSON.stringify(schemas)); // Make a deep copy of schemas
+    //             await replaceEnumsWithFetchedData(schemaCopy);
+    //             console.log("Updated schema", schemaCopy);  // Verify the updated schema structure
+    //             setSchema(schemaCopy);  // Set the updated schema to state
+    //         }
+    //     };
+
+    //     updateSchema();
+    // }, [schemas]);
+
 
     const onSubmit = async (e) => {
         // console.log("Payload", schema?.db_schema?.table, schema?.db_schema?.column, e?.formData)
