@@ -47,7 +47,7 @@ const Jobs = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('jobs')
-                .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .update({ details: values, job_name: values?.job_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -60,7 +60,7 @@ const Jobs = () => {
             // Add new job
             const { data, error } = await supabase
                 .from('jobs')
-                .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+                .insert([{ details: values, job_name: values?.job_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
                 notification.success({ message: "Job added successfully" });
@@ -71,6 +71,7 @@ const Jobs = () => {
         fetchJobs();
         setIsDrawerOpen(false);
         form.resetFields();
+        setEditItem()
     };
 
     const handleEdit = (record) => {
@@ -176,7 +177,7 @@ const Jobs = () => {
             <Drawer footer={null} width={500} //size="large"
                 title={editItem ? "Edit Job" : "Add Job"}
                 open={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
+                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >

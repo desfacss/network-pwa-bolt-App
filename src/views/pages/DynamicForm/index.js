@@ -34,20 +34,26 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     useEffect(() => {
         const fetchDataForDropdown = async (table, column) => {
             try {
+                // Replace "-" with "." to handle nested JSONB fields
+                const normalizedColumn = column.replace('-', '.');
+
+                // Fetch data from Supabase based on the specified table
                 let { data, error } = await supabase
                     .from(table)
-                    .select(column.includes('.') ? `${column} ->>` : column);
+                    .select(normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn);
 
                 if (error) {
                     console.error("Error fetching data from Supabase:", error);
                     return [];
                 }
 
-                if (column.includes('.')) {
-                    const [outerKey, innerKey] = column.split('.');
+                // If the column is nested (e.g., "details.name"), extract the nested value
+                if (normalizedColumn.includes('.')) {
+                    const [outerKey, innerKey] = normalizedColumn.split('.');
                     return data.map((item) => item[outerKey]?.[innerKey]).filter(Boolean);
                 } else {
-                    return data.map((item) => item[column]);
+                    // Directly extract the column value
+                    return data.map((item) => item[normalizedColumn]);
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -99,6 +105,76 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
         updateSchema();
     }, [schemas, enums]);
+
+
+    // useEffect(() => {
+    //     const fetchDataForDropdown = async (table, column) => {
+    //         try {
+    //             let { data, error } = await supabase
+    //                 .from(table)
+    //                 .select(column.includes('.') ? `${column} ->>` : column);
+
+    //             if (error) {
+    //                 console.error("Error fetching data from Supabase:", error);
+    //                 return [];
+    //             }
+
+    //             if (column.includes('.')) {
+    //                 const [outerKey, innerKey] = column.split('.');
+    //                 return data.map((item) => item[outerKey]?.[innerKey]).filter(Boolean);
+    //             } else {
+    //                 return data.map((item) => item[column]);
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching data:", error);
+    //             return [];
+    //         }
+    //     };
+
+    //     const replaceEnums = async (obj) => {
+    //         const keys = Object.keys(obj);
+    //         for (let key of keys) {
+    //             const enumValue = obj[key]?.enum;
+
+    //             if (enumValue) {
+    //                 if (typeof enumValue === 'string') {
+    //                     // Handle the old case where `enum` is a string and needs to match an entry in `enums`
+    //                     const foundEnum = enums?.find((e) => e.name === enumValue);
+    //                     if (foundEnum) {
+    //                         obj[key] = {
+    //                             type: "string",
+    //                             title: obj[key].title,
+    //                             enum: foundEnum.options
+    //                         };
+    //                     }
+    //                 } else if (typeof enumValue === 'object' && enumValue.table && enumValue.column) {
+    //                     // Handle the new case where `enum` is an object with a table and column
+    //                     const options = await fetchDataForDropdown(enumValue.table, enumValue.column);
+    //                     obj[key] = {
+    //                         type: "string",
+    //                         title: obj[key].title,
+    //                         enum: options
+    //                     };
+    //                 }
+    //             }
+
+    //             if (typeof obj[key] === "object" && obj[key] !== null) {
+    //                 await replaceEnums(obj[key]);
+    //             }
+    //         }
+    //     };
+
+    //     const updateSchema = async () => {
+    //         if (schemas && enums) {
+    //             const schemaCopy = JSON.parse(JSON.stringify(schemas));
+    //             await replaceEnums(schemaCopy);
+    //             console.log("Updated schema", schemaCopy);
+    //             setSchema(schemaCopy);
+    //         }
+    //     };
+
+    //     updateSchema();
+    // }, [schemas, enums]);
 
 
     // useEffect(() => {

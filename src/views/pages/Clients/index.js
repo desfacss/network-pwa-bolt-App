@@ -47,7 +47,7 @@ const Clients = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('clients')
-                .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .update({ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -60,7 +60,7 @@ const Clients = () => {
             // Add new client
             const { data, error } = await supabase
                 .from('clients')
-                .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+                .insert([{ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
                 notification.success({ message: "Client added successfully" });
@@ -71,6 +71,7 @@ const Clients = () => {
         fetchClients();
         setIsDrawerOpen(false);
         form.resetFields();
+        setEditItem()
     };
 
     const handleEdit = (record) => {
@@ -175,7 +176,7 @@ const Clients = () => {
             <Drawer footer={null} width={500} //size="large"
                 title={editItem ? "Edit Client" : "Add Client"}
                 open={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
+                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >

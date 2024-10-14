@@ -47,7 +47,7 @@ const Projects = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('projects')
-                .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .update({ details: values, project_name: values?.project_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -60,7 +60,7 @@ const Projects = () => {
             // Add new project
             const { data, error } = await supabase
                 .from('projects')
-                .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+                .insert([{ details: values, project_name: values?.project_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
                 notification.success({ message: "Project added successfully" });
@@ -71,6 +71,7 @@ const Projects = () => {
         fetchProjects();
         setIsDrawerOpen(false);
         form.resetFields();
+        setEditItem()
     };
 
     const handleEdit = (record) => {
@@ -119,6 +120,7 @@ const Projects = () => {
             title: 'Users',
             dataIndex: ['details', 'project_users'],
             key: 'project_users',
+            render: (project_users) => project_users?.join(', '),
         },
         {
             title: 'Description',
@@ -175,7 +177,7 @@ const Projects = () => {
             <Drawer footer={null} width={500} //size="large"
                 title={editItem ? "Edit Project" : "Add Project"}
                 open={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
+                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >

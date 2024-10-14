@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Modal, Form, Input } from "antd";
+import { Button, Card, notification, Table, Modal, Form, Input, Drawer } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -47,7 +47,7 @@ const Services = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('services')
-                .update({ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .update({ details: values, service_name: values?.service_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -60,7 +60,7 @@ const Services = () => {
             // Add new service
             const { data, error } = await supabase
                 .from('services')
-                .insert([{ details: values, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+                .insert([{ details: values, service_name: values?.service_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
                 notification.success({ message: "Service added successfully" });
@@ -71,6 +71,7 @@ const Services = () => {
         fetchServices();
         setIsModalOpen(false);
         form.resetFields();
+        setEditItem()
     };
 
     const handleEdit = (record) => {
@@ -191,10 +192,10 @@ const Services = () => {
                     pagination={false}
                 />
             </div>
-            <Modal
+            <Drawer width={600} footer={null}
                 title={editItem ? "Edit Service" : "Add Service"}
                 open={isModalOpen}
-                onCancel={() => setIsModalOpen(false)}
+                onClose={() => { setIsModalOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
@@ -235,7 +236,7 @@ const Services = () => {
                         <Input.TextArea />
                     </Form.Item> */}
                 {/* </Form> */}
-            </Modal>
+            </Drawer>
         </Card>
     );
 };

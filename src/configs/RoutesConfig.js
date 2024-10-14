@@ -89,6 +89,11 @@ export const protectedRoutes = [
     //     component: React.lazy(() => import('views/auth-views/authentication/register')),
     // },
     {
+        key: 'schedule',
+        path: `${APP_PREFIX_PATH}/schedule`,
+        component: React.lazy(() => import('views/pages/Schedule')),
+    },
+    {
         key: 'services',
         path: `${APP_PREFIX_PATH}/services`,
         component: React.lazy(() => import('views/pages/Services')),
@@ -121,7 +126,7 @@ export const protectedRoutes = [
     {
         key: 'profile',
         path: `${APP_PREFIX_PATH}/profile`,
-        component: React.lazy(() => import('views/pages/Profile')),
+        component: React.lazy(() => import('views/pages/Profile/index')),
     },
     {
         key: 'survey',
@@ -217,7 +222,7 @@ export const protectedRoutes = [
     {
         key: 'profile',
         path: `${APP_PREFIX_PATH}/profile`,
-        component: React.lazy(() => import('views/pages/Profile')),
+        component: React.lazy(() => import('views/pages/Profile/indexe')),
     },
     {
         key: 'poll',

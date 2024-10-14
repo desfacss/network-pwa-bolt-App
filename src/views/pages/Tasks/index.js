@@ -72,6 +72,7 @@ const Tasks = () => {
         fetchTasks();
         setIsDrawerOpen(false);
         form.resetFields();
+        setEditItem()
     };
 
     const handleEdit = (record) => {
@@ -171,7 +172,7 @@ const Tasks = () => {
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
+                    onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                     style={{ marginBottom: "16px" }}
                 >
                     Add Task

@@ -15,6 +15,8 @@ import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
 
 export const LoginForm = (props) => {
   const [linkSent, setLinkSent] = useState(false)
+  const [magiclink, setMagicLink] = useState(false)
+
   const navigate = useNavigate();
 
   const {
@@ -45,9 +47,10 @@ export const LoginForm = (props) => {
     // signIn(values);
     const { data, error } = await supabase.auth.signInWithPassword(values);
     if (!error) {
-      console.log('Logged In', data);
-      navigate(`${AUTH_PREFIX_PATH}/update_survey`)
+      console.log('Logged In', data, values);
+      // navigate(`${AUTH_PREFIX_PATH}/update_survey`)
     } else {
+      console.log('Error', values);
       return notification.error({ message: "Invalid credentials" })
     }
   };
@@ -60,6 +63,11 @@ export const LoginForm = (props) => {
     //     console.error(error)
     //     return
     //   }
+    if (!magiclink) {
+      onLogin(values)
+      return
+    }
+    showLoading();
     setLinkSent(true)
     const redirectTo = window.location.href.slice(0, -5) + 'update_survey'
     console.log(redirectTo)
@@ -174,7 +182,7 @@ export const LoginForm = (props) => {
         >
           <Input prefix={<MailOutlined className="text-primary" />} />
         </Form.Item>
-        {/* <Form.Item
+        {!magiclink && <Form.Item
           // tooltip={"Refer your email"}
           name="password"
           label={
@@ -187,8 +195,8 @@ export const LoginForm = (props) => {
               <span>Password</span>
               {true && (
                 <span
-                  onClick={() => onForgetPasswordClick}
-                  className="cursor-pointer font-size-sm font-weight-normal text-muted"
+                  onClick={() => setMagicLink(true)}
+                  className="ml-2 cursor-pointer font-size-sm font-weight-normal text-muted"
                 >
                   Forget Password?
                 </span>
@@ -203,15 +211,18 @@ export const LoginForm = (props) => {
           ]}
         >
           <Input.Password prefix={<LockOutlined className="text-primary" />} />
-        </Form.Item> */}
+        </Form.Item>}
         <Form.Item>
 
+          {/* {magiclink ? <><Button type="primary" htmlType="submit" block disabled={linkSent}>
+            Send login link to email
+          </Button>{linkSent && "Check your Email/Spam folder"}</> :
+            <Button onClick={onLogin} type='primary' htmlType="submit" block>
+              Login
+            </Button>} */}
           <Button type="primary" htmlType="submit" block disabled={linkSent}>
-            Send login link to email
+            {magiclink ? "Send login link to email" : "Login"}
           </Button>{linkSent && "Check your Email/Spam folder"}
-          {/* <Button onClick={sendLink} type='primary' block>
-            Send login link to email
-          </Button> */}
         </Form.Item>
         {/* {
 					otherSignIn ? renderOtherSignIn : null

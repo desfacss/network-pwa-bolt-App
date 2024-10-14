@@ -20,14 +20,22 @@ const dashBoardNavTree = [{
     //   breadcrumb: false,
     //   submenu: []
     // },
-    // {
-    //   key: 'profile',
-    //   path: `${APP_PREFIX_PATH}/profile`,
-    //   title: 'My Profile',
-    //   icon: DashboardOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
+    {
+      key: 'profile',
+      path: `${APP_PREFIX_PATH}/profile`,
+      title: 'My Profile',
+      icon: DashboardOutlined,
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'schedule',
+      path: `${APP_PREFIX_PATH}/schedule`,
+      title: 'Schedule',
+      icon: UserOutlined,
+      breadcrumb: false,
+      submenu: []
+    },
     {
       key: 'services',
       path: `${APP_PREFIX_PATH}/services`,

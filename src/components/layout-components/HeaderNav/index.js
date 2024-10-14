@@ -32,7 +32,7 @@ import { Button, Col, Form, Input, Modal, notification, Row, Select, Typography 
 // import { getCurrentDateTimeString } from "components/common/utils/utils";
 // import PlaceTrade from "components/common/PlaceTrade";
 // import { getPositionsSummary } from "store/slices/positionsSlice";
-import { useLocation } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 // import { setSession } from "store/slices/authSlice";
 // import { store } from "store";
 import { supabase } from "configs/SupabaseConfig";
@@ -44,6 +44,7 @@ export const HeaderNav = (props) => {
   const { isMobile, profileData } = props;
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const onLogOut = async () => {
     const { error } = await supabase.auth.signOut({ scope: 'local' });
@@ -51,6 +52,7 @@ export const HeaderNav = (props) => {
       console.error('Error signing out:', error.message);
       notification.error({ message: 'Error signing out' })
     }
+    navigate('app/login')
   }
   // useEffect(() => {
   //   if (location.pathname === "/app/dashboards/default") {
