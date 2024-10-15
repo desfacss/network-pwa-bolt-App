@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Timeline from 'react-calendar-timeline';
+import Timeline, { TimelineHeaders, DateHeader } from 'react-calendar-timeline';
 import moment from 'moment';
 import 'react-calendar-timeline/lib/Timeline.css';
 import { Card, notification, Select, Typography } from 'antd';
@@ -191,7 +191,9 @@ const Schedule = () => {
             </label>
 
             {/* Timeline */}
-            {(data && views) && <Timeline className='mt-2'
+            {(data && views) && <Timeline className='mt-2' calendarHeaderStyle={{ backgroundColor: "#3498db", color: "#ffffff" }}
+                // sidebarWidth={15}
+                // sidebarContent={<div>Above The Left</div>}
                 groups={views && views[viewType]}
                 items={items}
                 defaultTimeStart={timeRange[zoomLevel]?.start}
@@ -202,6 +204,24 @@ const Schedule = () => {
                 minZoom={60 * 60 * 1000}  // Minimum zoom level: 1 hour
                 maxZoom={24 * 60 * 60 * 1000 * 7}  // Maximum zoom level: 1 week
             />}
+            {/* <TimelineHeaders>
+                    <DateHeader
+                        unit="primaryHeader"
+                        style={{
+                            backgroundColor: "#3b5998", // Set your desired background color
+                            color: "#ffffff", // Set text color
+                        }}
+                    />
+                    <DateHeader
+                        unit="day"
+                        style={{
+                            backgroundColor: "#8b9dc3",
+                            color: "#ffffff",
+                        }}
+                    />
+                </TimelineHeaders>
+            </Timeline> */}
+
         </Card>
     );
 };

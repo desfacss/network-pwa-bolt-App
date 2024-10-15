@@ -157,15 +157,17 @@ const Jobs = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <div className="table-responsive" ref={componentRef}>
+            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+                <h2 style={{ margin: 0 }}>Jobs</h2>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
                     onClick={() => setIsDrawerOpen(true)}
-                    style={{ marginBottom: "16px" }}
                 >
                     Add Job
                 </Button>
+            </div>
+            <div className="table-responsive" ref={componentRef}>
                 <Table
                     columns={columns}
                     dataSource={jobs}

@@ -21,22 +21,10 @@ import {
 } from "constants/ThemeConstant";
 import utils from "utils";
 import { Button, Col, Form, Input, Modal, notification, Row, Select, Typography } from "antd";
-// import {
-//   getBrokerPortfolios,
-//   selectPortfolio,
-//   getBrokerAccounts,
-//   selectAccount,
-//   setSelectedDate
-// } from "store/slices/profileSlice";
-// import { newPosition } from "store/slices/positionsBookSlice";
-// import { getCurrentDateTimeString } from "components/common/utils/utils";
-// import PlaceTrade from "components/common/PlaceTrade";
-// import { getPositionsSummary } from "store/slices/positionsSlice";
+import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
+
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-// import { setSession } from "store/slices/authSlice";
-// import { store } from "store";
 import { supabase } from "configs/SupabaseConfig";
-// import PlaceBot from "components/common/PlaceBot";
 
 export const HeaderNav = (props) => {
   const { Option } = Select;
@@ -51,14 +39,10 @@ export const HeaderNav = (props) => {
     if (error) {
       console.error('Error signing out:', error.message);
       notification.error({ message: 'Error signing out' })
+      return
     }
-    navigate('app/login')
+    navigate(`${APP_PREFIX_PATH}/login`)
   }
-  // useEffect(() => {
-  //   if (location.pathname === "/app/dashboards/default") {
-  //     // Reload the header component
-  //   }
-  // }, [location]);
 
   const dispatch = useDispatch();
 
@@ -77,66 +61,8 @@ export const HeaderNav = (props) => {
     userData,
     selectedDate
   } = useSelector((state) => state?.profile);
-  // const { positionsSummary } = useSelector((state) => state?.positions);
-  // console.log("User", userData)
-  // Show only loggedIn accounts
+
   const brokerAccounts = brokerAccountsList?.filter((account) => account?.broker_login_status === true)
-
-  // useEffect(() => {
-  //   dispatch(getBrokerAccounts());
-  // }, []);
-
-  // useEffect(() => {
-  //   if (!!brokerAccounts?.length && !selectedAccount) {
-  //     const lastUpdatedElement = brokerAccounts.reduce((prev, current) => {
-  //       if (!prev || new Date(current.updated_at) > new Date(prev.updated_at)) {
-  //         return current;
-  //       }
-  //       return prev;
-  //     }, null);
-  //     dispatch(selectAccount(lastUpdatedElement));
-  //   }
-  // }, [brokerAccounts]);
-
-  // useEffect(() => {
-  //   if (selectedAccount?.id) {
-  //     dispatch(getBrokerPortfolios(selectedAccount?.id));
-  //   }
-  // }, [selectedAccount]);
-
-  // useEffect(() => {
-  //   dispatch(
-  //     selectPortfolio(
-  //       brokerPortfolios?.find((item) => !!item?.is_primary) ||
-  //       brokerPortfolios?.[0]
-  //     )
-  //   );
-  // }, [brokerPortfolios]);
-
-
-  // useEffect(() => {
-  //   if (selectedPortfolio?.id) {
-  //     dispatch(getPositionsSummary(selectedPortfolio?.id));
-  //   }
-  // }, [selectedPortfolio]);
-
-  // const onChangeAccount = (id) => {
-  //   const selectedAccount = brokerAccounts?.find((item) => item?.id === id);
-  //   dispatch(selectAccount(selectedAccount));
-  // };
-
-  // const onChangePortfolio = (id) => {
-  //   const selectedPortfolio = brokerPortfolios?.find((item) => item?.id === id);
-  //   dispatch(selectPortfolio(selectedPortfolio));
-  // };
-
-  // const onSearchActive = () => {
-  //   setSearchActive(true);
-  // };
-
-  // const onSearchClose = () => {
-  //   setSearchActive(false);
-  // };
 
   const onToggle = () => {
     if (!isMobile) {
@@ -170,14 +96,6 @@ export const HeaderNav = (props) => {
       return `${SIDE_NAV_WIDTH}px`;
     }
   };
-
-  // useEffect(() => {
-  //   if (!isMobile) {
-  //     onSearchClose();
-  //   }
-  // });
-
-
 
   // Generate date options
   const today = new Date();

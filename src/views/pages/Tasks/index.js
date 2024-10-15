@@ -48,7 +48,7 @@ const Tasks = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('tasks')
-                .update({ details: { ...values, user_id: session?.user?.id, user_name: session?.user?.details?.firstName + " " + session?.user?.details?.lastName }, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .update({ details: { ...values, user_id: editItem?.details.user_id, user_name: editItem?.details?.user_name }, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -76,6 +76,7 @@ const Tasks = () => {
     };
 
     const handleEdit = (record) => {
+        // console.log("Edit item", record)
         setEditItem(record);
         form.setFieldsValue({
             service_name: record.details.service_name,
@@ -168,15 +169,17 @@ const Tasks = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <div className="table-responsive" ref={componentRef}>
+            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+                <h2 style={{ margin: 0 }}>Tasks</h2>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
-                    onClose={() => { setIsDrawerOpen(false); setEditItem() }}
-                    style={{ marginBottom: "16px" }}
+                    onClick={() => setIsDrawerOpen(true)}
                 >
                     Add Task
                 </Button>
+            </div>
+            <div className="table-responsive" ref={componentRef}>
                 <Table
                     columns={columns}
                     dataSource={tasks}
@@ -188,7 +191,7 @@ const Tasks = () => {
             <Drawer footer={null} width={500} //size="large"
                 title={editItem ? "Edit Task" : "Add Task"}
                 open={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
+                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
