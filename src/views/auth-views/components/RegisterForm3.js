@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 // import { LockOutlined, MailOutlined, UserOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber } from "antd";
-import { signUp, showAuthMessage, showLoading, hideAuthMessage } from "store/slices/authSlice";
+import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
 // import App from "views/pages/Market/Steps";
 // import { registrationType } from 'constants/registrationType';
 import { APP_PREFIX_PATH, SURVEY_PREFIX_PATH } from "configs/AppConfig";
 import DynamicForm from "views/pages/DynamicForm";
+import { store } from "store";
 
 export const RegisterForm = (props) => {
   // const [isSubmitted, setIsSubmitted] = useState(false);
@@ -111,7 +112,35 @@ export const RegisterForm = (props) => {
 
       }
     }
+    const fetchUserData = async (session) => {
+      if (!session || !session.user) return;
 
+      // Fetch user data from the users table
+      const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+
+      if (error) {
+        console.error('Error fetching user data:', error);
+        return;
+      }
+
+      // Update session.user with the fetched user data
+      const updatedSession = {
+        ...session,
+        user: {
+          ...session.user,
+          ...data, // Add the fetched user data here
+        },
+      };
+      console.log("Session", updatedSession)
+      // Dispatch the updated session to Redux
+      store.dispatch(setSession(updatedSession));
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        fetchUserData(session);
+      }
+    });
   };
 
   // const signOut = async () => {
@@ -155,7 +184,6 @@ export const RegisterForm = (props) => {
     </div>
   );
 };
-
 
 const mapStateToProps = ({ auth }) => {
   const { loading, message, showMessage, token, redirect } = auth;

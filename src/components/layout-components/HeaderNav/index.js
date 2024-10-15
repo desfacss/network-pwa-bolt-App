@@ -25,6 +25,8 @@ import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from "configs/SupabaseConfig";
+import { setSession } from "store/slices/authSlice";
+import { store } from "store";
 
 export const HeaderNav = (props) => {
   const { Option } = Select;
@@ -41,6 +43,7 @@ export const HeaderNav = (props) => {
       notification.error({ message: 'Error signing out' })
       return
     }
+    store.dispatch(setSession())
     navigate(`${APP_PREFIX_PATH}/login`)
   }
 

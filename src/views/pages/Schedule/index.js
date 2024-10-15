@@ -4,6 +4,7 @@ import moment from 'moment';
 import 'react-calendar-timeline/lib/Timeline.css';
 import { Card, notification, Select, Typography } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
+import './Schedule.css';
 
 const { Option } = Select;
 const { Title } = Typography;

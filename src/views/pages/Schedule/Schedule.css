@@ -1,0 +1,38 @@
+/* schedule.css */
+
+.react-calendar-timeline .rct-dateHeader-primary {
+    background-color: #e6f7ff !important; 
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+    color: #000000 !important; 
+}
+
+.react-calendar-timeline .rct-dateHeader {
+    background-color: #e6f7ff !important; 
+}
+
+/* primary date header background and text color */
+.react-calendar-timeline .rct-dateHeader-primary {
+    background-color: #e6f7ff !important; 
+    /* border-left: 1px solid #bbb; */
+    /* border-right: 1px solid #bbb; */
+    color: #fff; 
+}
+
+/* root background and border */
+.react-calendar-timeline .rct-header-root {
+    background: #e6f7ff !important; 
+    /* border-bottom: 1px solid #bbb; */
+}
+
+.react-calendar-timeline .rct-dateHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    /* border-bottom: 1px solid #bbb; */
+    cursor: pointer;
+    font-size: 14px;
+    background-color: #f0f0f0;
+    /* border-left: 1px solid #bbb; */
+}

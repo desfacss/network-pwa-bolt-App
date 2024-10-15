@@ -1,10 +1,9 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form } from "antd";
+import { Button, Card, notification, Table, Modal, Form, Input, Drawer } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteFilled, UnorderedListOutlined, AppstoreOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
-import './Services.css'; // Add a CSS file to style the cards grid
 
 const Services = () => {
     const componentRef = useRef(null);
@@ -12,7 +11,6 @@ const Services = () => {
     const [editItem, setEditItem] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [schema, setSchema] = useState();
-    const [viewMode, setViewMode] = useState('card'); // Toggle between 'card' and 'list' view
 
     const { session } = useSelector((state) => state.auth);
 
@@ -20,13 +18,15 @@ const Services = () => {
 
     const getForms = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_services_form").single()
+        console.log("A", data)
         if (data) {
+            console.log(data)
             setSchema(data)
         }
     }
 
     useEffect(() => {
-        getForms();
+        getForms()
         fetchServices();
     }, []);
 
@@ -41,15 +41,13 @@ const Services = () => {
     };
 
     const handleAddOrEdit = async (values) => {
+        console.log("Pyload", values)
+        // const { service_name, cost, duration, description } = values;
         if (editItem) {
+            // Update existing service
             const { data, error } = await supabase
                 .from('services')
-                .update({
-                    details: values,
-                    service_name: values?.service_name,
-                    organization_id: session?.user?.organization_id,
-                    organization_name: session?.user?.details?.orgName
-                })
+                .update({ details: values, service_name: values?.service_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -59,6 +57,7 @@ const Services = () => {
                 notification.error({ message: "Failed to update service" });
             }
         } else {
+            // Add new service
             const { data, error } = await supabase
                 .from('services')
                 .insert([{ details: values, service_name: values?.service_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
@@ -72,7 +71,7 @@ const Services = () => {
         fetchServices();
         setIsModalOpen(false);
         form.resetFields();
-        setEditItem();
+        setEditItem()
     };
 
     const handleEdit = (record) => {
@@ -112,6 +111,18 @@ const Services = () => {
             dataIndex: ['details', 'duration'],
             key: 'duration',
         },
+        // {
+        //     title: 'Equipment',
+        //     dataIndex: ['details', 'equipment'],
+        //     key: 'equipment',
+        //     render: (equipment) => equipment?.join(', '), // Display as a comma-separated list
+        // },
+        // {
+        //     title: 'Materials',
+        //     dataIndex: ['details', 'materials'],
+        //     key: 'materials',
+        //     render: (materials) => materials?.join(', '), // Display as a comma-separated list
+        // },
         {
             title: 'Description',
             dataIndex: ['details', 'description'],
@@ -121,13 +132,19 @@ const Services = () => {
             title: 'Availability',
             dataIndex: ['details', 'availability'],
             key: 'availability',
-            render: (availability) => availability?.join(', '),
+            render: (availability) => availability?.join(', '), // Display as a comma-separated list
         },
+        // {
+        //     title: 'Target Areas',
+        //     dataIndex: ['details', 'target_areas'],
+        //     key: 'target_areas',
+        //     render: (targetAreas) => targetAreas?.join(', '), // Display as a comma-separated list
+        // },
         {
             title: 'Special Offers',
             dataIndex: ['details', 'special_offers'],
             key: 'special_offers',
-            render: (specialOffers) => specialOffers?.discount,
+            render: (specialOffers) => specialOffers?.discount, // Display the discount detail
         },
         {
             title: 'Actions',
@@ -152,79 +169,75 @@ const Services = () => {
         },
     ];
 
+    const onFinish = () => {
+
+    }
+
     return (
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Services</h2>
-                <div>
-                    <Button
-                        icon={viewMode === 'card' ? <UnorderedListOutlined /> : <AppstoreOutlined />}
-                        style={{ marginRight: "10px" }}
-                        onClick={() => setViewMode(viewMode === 'card' ? 'list' : 'card')}
-                    />
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        Add Service
-                    </Button>
-                </div>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsModalOpen(true)}
+                >
+                    Add Service
+                </Button>
             </div>
-            <div ref={componentRef}>
-                {viewMode === 'card' ? (
-                    <div className="services-card-grid">
-                        {services.map((service) => (
-                            <Card
-                                key={service.id}
-                                title={service.details?.service_name}
-                                className="service-card"
-                                extra={
-                                    <div className="card-actions">
-                                        <Button
-                                            type="primary"
-                                            icon={<EditFilled />}
-                                            size="small"
-                                            className="mr-2"
-                                            onClick={() => handleEdit(service)}
-                                        />
-                                        <Button
-                                            type="danger"
-                                            icon={<DeleteFilled />}
-                                            size="small"
-                                            onClick={() => handleDelete(service.id)}
-                                        />
-                                    </div>
-                                }
-                            >
-                                <p><b>Cost/Hr:</b> {service.details?.cost}</p>
-                                <p><b>Duration:</b> {service.details?.duration}</p>
-                                <p><b>Description:</b> {service.details?.description}</p>
-                                <p><b>Availability:</b> {service.details?.availability?.join(', ')}</p>
-                                <p><b>Special Offers:</b> {service.details?.special_offers?.discount}</p>
-                            </Card>
-                        ))}
-                    </div>
-                ) : (
-                    <Table
-                        columns={columns}
-                        dataSource={services}
-                        rowKey={(record) => record.id}
-                        loading={!services}
-                        pagination={false}
-                    />
-                )}
+            <div className="table-responsive" ref={componentRef}>
+                <Table
+                    columns={columns}
+                    dataSource={services}
+                    rowKey={(record) => record.id}
+                    loading={!services}
+                    pagination={false}
+                />
             </div>
-            <Drawer
-                width={600}
-                footer={null}
+            <Drawer width={600} footer={null}
                 title={editItem ? "Edit Service" : "Add Service"}
                 open={isModalOpen}
                 onClose={() => { setIsModalOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
-                <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem?.details} />
+                {/* <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleAddOrEdit}
+                > */}
+                <DynamicForm schemas={schema}
+                    onFinish={handleAddOrEdit}
+                    formData={editItem && editItem?.details} />
+                {/* <Form.Item
+                        name="service_name"
+                        label="Service Name"
+                        rules={[{ required: true, message: "Please enter service name" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="cost"
+                        label="Cost"
+                        rules={[{ required: true, message: "Please enter cost" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="duration"
+                        label="Duration"
+                        rules={[{ required: true, message: "Please enter duration" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="description"
+                        label="Description"
+                        rules={[{ required: true, message: "Please enter description" }]}
+                    >
+                        <Input.TextArea />
+                    </Form.Item> */}
+                {/* </Form> */}
             </Drawer>
         </Card>
     );
