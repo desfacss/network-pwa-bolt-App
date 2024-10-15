@@ -2,10 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { TEMPLATE } from "constants/ThemeConstant";
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from "@ant-design/icons";
+import { LeftOutlined, InfoCircleOutlined, RightOutlined, UserOutlined } from "@ant-design/icons";
 import Logo from "../Logo";
 // import NavProfile from "../NavProfile";
 import Header from "./Header";
@@ -20,7 +17,7 @@ import {
   SIDE_NAV_WIDTH,
 } from "constants/ThemeConstant";
 import utils from "utils";
-import { Button, Col, Form, Input, Modal, notification, Row, Select, Typography } from "antd";
+import { Button, Col, Form, Input, Modal, notification, Row, Select, Tooltip, Typography } from "antd";
 import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -122,9 +119,33 @@ export const HeaderNav = (props) => {
             <NavItem onClick={onToggle} mode={navMode}>
               <div className="d-flex align-items-center">
                 {navCollapsed || isMobile ? (
-                  <MenuUnfoldOutlined className="nav-icon" />
+                  <>
+                    <RightOutlined className="nav-icon" style={{ color: '#ffffff' }} />
+                    <Input
+                      placeholder="Search Tasks..." style={{ width: 300 }}
+                      prefix={
+                        <UserOutlined
+                          style={{
+                            color: 'rgba(0,0,0,.25)'
+                          }}
+                        />
+                      }
+                    />
+                  </>
                 ) : (
-                  <MenuFoldOutlined className="nav-icon" />
+                  <>
+                    <LeftOutlined className="nav-icon" style={{ color: '#ffffff' }} />
+                    <Input
+                      placeholder="Search Tasks..." style={{ width: 300 }}
+                      prefix={
+                        <UserOutlined
+                          style={{
+                            color: 'rgba(0,0,0,.25)'
+                          }}
+                        />
+                      }
+                    />
+                  </>
                 )}
               </div>
             </NavItem>

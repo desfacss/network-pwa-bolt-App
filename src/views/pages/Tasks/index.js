@@ -1,6 +1,6 @@
 import { Button, Card, notification, Table, Drawer, Form, Input } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteFilled } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
@@ -157,8 +157,8 @@ const Tasks = () => {
                         onClick={() => handleEdit(record)}
                     />
                     <Button
-                        type="danger"
-                        icon={<DeleteFilled />}
+                        type="primary" ghost
+                        icon={<DeleteOutlined />}
                         size="small"
                         onClick={() => handleDelete(record.id)}
                     />

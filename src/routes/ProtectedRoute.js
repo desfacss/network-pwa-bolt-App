@@ -8,31 +8,18 @@ import {
 	SURVEY_PREFIX_PATH,
 	APP_PREFIX_PATH
 } from 'configs/AppConfig'
-import { supabase } from 'configs/SupabaseConfig';
+// import { supabase } from 'configs/SupabaseConfig';
 
 const ProtectedRoute = () => {
 	console.log("PR")
 	const location = useLocation();
-	const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
-	// const [session, setSession] = useState(null)
-
-	// useEffect(() => {
-	// 	supabase.auth.getSession().then(({ data: { session } }) => {
-	// 		setSession(session)
-	// 	})
-	// 	const {
-	// 		data: { subscription },
-	// 	} = supabase.auth.onAuthStateChange((_event, session) => {
-	// 		setSession(session)
-	// 	})
-	// 	return () => subscription.unsubscribe()
-	// }, [])
+	// const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
 	const { token, session } = useSelector(state => state.auth)
 	if (!session) {
 		// return <Navigate to={`${AUTH_PREFIX_PATH}${UNAUTHENTICATED_ENTRY}?${REDIRECT_URL_KEY}=${location.pathname}`} replace />;
 		// return <Navigate to={`${AUTH_PREFIX_PATH}/register`} replace />;
-		return <Navigate to={`${PREFIX_PATH}/login`} replace />;
+		return <Navigate to={`${APP_PREFIX_PATH}/login`} replace />;
 	}
 
 	return <Outlet />

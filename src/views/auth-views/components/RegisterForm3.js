@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 // import { LockOutlined, MailOutlined, UserOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber } from "antd";
 import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
 // import App from "views/pages/Market/Steps";
 // import { registrationType } from 'constants/registrationType';
@@ -51,7 +51,6 @@ export const RegisterForm = (props) => {
     getEnums();
   }, []);
 
-  const navigate = useNavigate();
   const surveyLayout = location.pathname.startsWith("/survey")
   const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
@@ -166,9 +165,9 @@ export const RegisterForm = (props) => {
           <>
             <h2 className="mb-4">User Registration</h2>
             <p>
-          Alredy Registered ? {" "}
-          <a href={`http://localhost:3000${PREFIX_PATH}/login`}>Login here...</a>
-        </p>
+              Alredy Registered ? {" "}
+              <Link to={`${APP_PREFIX_PATH}/login`}>Login here...</Link>
+            </p>
             {/* {schema &&  */}
             <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />
             {signIn && <>

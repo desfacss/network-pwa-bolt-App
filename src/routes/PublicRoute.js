@@ -26,7 +26,7 @@ const PublicRoute = () => {
 	const { token, session } = useSelector(state => state.auth)
 
 	// return session ? <Navigate to={AUTHENTICATED_ENTRY} /> : <Outlet />
-	return session ? <Navigate to={'/app'} /> : <Outlet />
+	return session ? <Navigate to={'/app/services'} /> : <Outlet />
 }
 
 export default PublicRoute

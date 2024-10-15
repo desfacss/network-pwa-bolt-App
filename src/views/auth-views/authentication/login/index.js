@@ -2,11 +2,12 @@ import React from "react";
 import LoginForm from "../../components/LoginForm";
 import { Col, Row } from "antd";
 // import IBCNLayout from "components/layout-components/IBCNLayout";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { APP_PREFIX_PATH, SURVEY_PREFIX_PATH } from "configs/AppConfig";
 
 const LoginTwo = (props) => {
   const location = useLocation();
+
   const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
   return (
     <Row justify="center">
@@ -14,7 +15,7 @@ const LoginTwo = (props) => {
         <h1>Sign In</h1>
         <p>
           New User ? {" "}
-          <a href={`http://localhost:3000${PREFIX_PATH}/register`}>Register here...</a>
+          <Link to={`${APP_PREFIX_PATH}/register`}>Register here...</Link>
         </p>
         <div className="mt-4">
           <LoginForm {...props} />

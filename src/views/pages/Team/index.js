@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form } from "antd";
+import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -19,7 +19,7 @@ const Services = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_services_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_users_form").single()
         if (data) {
             setSchema(data)
         }
@@ -31,7 +31,7 @@ const Services = () => {
     }, []);
 
     const fetchServices = async () => {
-        let { data, error } = await supabase.from('services').select('*');
+        let { data, error } = await supabase.from('users').select('*');
         if (data) {
             setServices(data);
         }
@@ -98,54 +98,74 @@ const Services = () => {
 
     const columns = [
         {
-            title: 'Service Name',
-            dataIndex: ['details', 'service_name'],
-            key: 'service_name',
+            title: 'First Name',
+            dataIndex: ['details', 'firstName'],
+            key: 'firstName',
         },
         {
-            title: <>Cost/Hr{'\u00A0'}(INR)</>,
-            dataIndex: ['details', 'cost'],
-            key: 'cost',
+            title: 'Last Name',
+            dataIndex: ['details', 'lastName'],
+            key: 'lastName',
         },
         {
-            title: 'Duration',
-            dataIndex: ['details', 'duration'],
-            key: 'duration',
+            title: 'Email',
+            dataIndex: ['details', 'email'],
+            key: 'email',
         },
         {
-            title: 'Description',
-            dataIndex: ['details', 'description'],
-            key: 'description',
+            title: 'Mobile',
+            dataIndex: ['details', 'mobile'],
+            key: 'mobile',
         },
         {
-            title: 'Availability',
-            dataIndex: ['details', 'availability'],
-            key: 'availability',
-            render: (availability) => availability?.join(', '),
+            title: 'Role',
+            dataIndex: ['details', 'role'],
+            key: 'role',
         },
-        {
-            title: 'Special Offers',
-            dataIndex: ['details', 'special_offers'],
-            key: 'special_offers',
-            render: (specialOffers) => specialOffers?.discount,
-        },
+        // {
+        //     title: <>Cost/Hr{'\u00A0'}(INR)</>,
+        //     dataIndex: ['details', 'cost'],
+        //     key: 'cost',
+        // },
+        // {
+        //     title: 'Duration',
+        //     dataIndex: ['details', 'duration'],
+        //     key: 'duration',
+        // },
+        // {
+        //     title: 'Description',
+        //     dataIndex: ['details', 'description'],
+        //     key: 'description',
+        // },
+        // {
+        //     title: 'Availability',
+        //     dataIndex: ['details', 'availability'],
+        //     key: 'availability',
+        //     render: (availability) => availability?.join(', '),
+        // },
+        // {
+        //     title: 'Special Offers',
+        //     dataIndex: ['details', 'special_offers'],
+        //     key: 'special_offers',
+        //     render: (specialOffers) => specialOffers?.discount,
+        // },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
+                    <Button disabled={true}
                         type="primary"
                         icon={<EditFilled />}
                         size="small"
                         className="mr-2"
-                        onClick={() => handleEdit(record)}
+                    // onClick={() => handleEdit(record)}
                     />
-                    <Button
+                    <Button disabled={true}
                         type="primary" ghost
                         icon={<DeleteOutlined />}
                         size="small"
-                        onClick={() => handleDelete(record.id)}
+                    // onClick={() => handleDelete(record.id)}
                     />
                 </div>
             ),
@@ -155,7 +175,7 @@ const Services = () => {
     return (
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-                <h2 style={{ margin: 0 }}>Services</h2>
+                <h2 style={{ margin: 0 }}>Manage Team</h2>
                 <div>
                     <Button
                         icon={viewMode === 'card' ? <UnorderedListOutlined /> : <AppstoreOutlined />}
@@ -167,7 +187,7 @@ const Services = () => {
                         icon={<PlusOutlined />}
                         onClick={() => setIsModalOpen(true)}
                     >
-                        Add Service
+                        Invite User
                     </Button>
                 </div>
             </div>
@@ -177,31 +197,40 @@ const Services = () => {
                         {services.map((service) => (
                             <Card
                                 key={service.id}
-                                title={service.details?.service_name}
-                                className="service-card"
-                                extra={
-                                    <div className="card-actions">
-                                        <Button
-                                            type="primary"
-                                            icon={<EditFilled />}
-                                            size="small"
-                                            className="mr-2"
-                                            onClick={() => handleEdit(service)}
-                                        />
-                                        <Button
-                                            type="primary" ghost
-                                            icon={<DeleteOutlined />}
-                                            size="small"
-                                            onClick={() => handleDelete(service.id)}
-                                        />
+                                title={
+                                    <div className="service-card-title">
+                                        <Avatar size={80}
+                                            src={service.details?.profileImage}
+                                            alt={service.details?.firstName[0]}
+                                        >{service.details?.firstName[0]}</Avatar>
+                                        {/* {service.details?.firstName} */}
                                     </div>
                                 }
+                                // title={service.details?.service_name}
+                                className="service-card"
+                            // extra={
+                            //     <div className="card-actions">
+                            //         <Button
+                            //             type="primary"
+                            //             icon={<EditFilled />}
+                            //             size="small"
+                            //             className="mr-2"
+                            //             onClick={() => handleEdit(service)}
+                            //         />
+                            //         <Button
+                            //             type="primary" ghost
+                            // icon={<DeleteOutlined />}
+                            // size="small"
+                            //             onClick={() => handleDelete(service.id)}
+                            //         />
+                            //     </div>
+                            // }
                             >
-                                <p><b>Cost/Hr:</b> {service.details?.cost}</p>
-                                <p><b>Duration:</b> {service.details?.duration}</p>
-                                <p><b>Description:</b> {service.details?.description}</p>
-                                <p><b>Availability:</b> {service.details?.availability?.join(', ')}</p>
-                                <p><b>Special Offers:</b> {service.details?.special_offers?.discount}</p>
+                                <p><b>First Name:</b> {service.details?.firstName}</p>
+                                <p><b>Last Name:</b> {service.details?.lastName}</p>
+                                <p><b>Email:</b> {service.details?.email}</p>
+                                <p><b>Mobile:</b> {service.details?.mobile}</p>
+                                <p><b>Role:</b> {service.details?.role}</p>
                             </Card>
                         ))}
                     </div>
@@ -218,7 +247,7 @@ const Services = () => {
             <Drawer
                 width={600}
                 footer={null}
-                title={editItem ? "Edit Service" : "Add Service"}
+                title={editItem ? "Edit User Details" : "Invite User"}
                 open={isModalOpen}
                 onClose={() => { setIsModalOpen(false); setEditItem() }}
                 onOk={() => form.submit()}

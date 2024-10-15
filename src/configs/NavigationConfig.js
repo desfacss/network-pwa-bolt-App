@@ -2,7 +2,6 @@ import {
   DashboardOutlined, SlidersOutlined, AreaChartOutlined, FundOutlined, HeatMapOutlined, UserOutlined, FundProjectionScreenOutlined, FilePptOutlined, ReadOutlined, IdcardOutlined, ContainerOutlined, RadarChartOutlined
 } from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig'
-// import { signOut } from "store/slices/authSlice";
 
 const dashBoardNavTree = [{
   key: 'dashboards',
@@ -12,35 +11,11 @@ const dashBoardNavTree = [{
   breadcrumb: false,
   isGroupTitle: true,
   submenu: [
-    // {
-    //   key: 'dashboards-Livetrade',
-    //   path: `${APP_PREFIX_PATH}/dashboards/live-trade`,
-    //   title: 'Live Trade',
-    //   icon: FundOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    {
-      key: 'profile',
-      path: `${APP_PREFIX_PATH}/profile`,
-      title: 'My Profile',
-      icon: DashboardOutlined,
-      breadcrumb: false,
-      submenu: []
-    },
-    {
-      key: 'schedule',
-      path: `${APP_PREFIX_PATH}/schedule`,
-      title: 'Schedule',
-      icon: UserOutlined,
-      breadcrumb: false,
-      submenu: []
-    },
     {
       key: 'services',
       path: `${APP_PREFIX_PATH}/services`,
       title: 'Services',
-      icon: UserOutlined,
+      icon: SlidersOutlined, // Changed to SlidersOutlined
       breadcrumb: false,
       submenu: []
     },
@@ -48,7 +23,7 @@ const dashBoardNavTree = [{
       key: 'clients',
       path: `${APP_PREFIX_PATH}/clients`,
       title: 'Clients',
-      icon: UserOutlined,
+      icon: IdcardOutlined, // Changed to IdcardOutlined
       breadcrumb: false,
       submenu: []
     },
@@ -56,15 +31,19 @@ const dashBoardNavTree = [{
       key: 'projects',
       path: `${APP_PREFIX_PATH}/projects`,
       title: 'Projects',
-      icon: UserOutlined,
+      icon: FundOutlined, // Changed to FundOutlined
       breadcrumb: false,
       submenu: []
     },
+    // {
+    //   key: 'separator-1',
+    //   type: 'separator'
+    // },
     {
       key: 'jobs',
       path: `${APP_PREFIX_PATH}/jobs`,
       title: 'Jobs',
-      icon: UserOutlined,
+      icon: FilePptOutlined, // Changed to FilePptOutlined
       breadcrumb: false,
       submenu: []
     },
@@ -72,126 +51,51 @@ const dashBoardNavTree = [{
       key: 'tasks',
       path: `${APP_PREFIX_PATH}/tasks`,
       title: 'Tasks',
-      icon: UserOutlined,
+      icon: ContainerOutlined, // Changed to ContainerOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'schedule',
+      path: `${APP_PREFIX_PATH}/schedule`,
+      title: 'Schedule',
+      icon: ReadOutlined, // Changed to ReadOutlined
       breadcrumb: false,
       submenu: []
     },
     // {
-    //   key: 'businesses',
-    //   path: `${APP_PREFIX_PATH}/businesses`,
-    //   title: 'Business Directory',
-    //   icon: UserOutlined,
+    //   key: 'Settings',
+    //   title: 'Settings',
+    //   icon: HeatMapOutlined, // Changed to HeatMapOutlined
     //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'networking',
-    //   path: `${APP_PREFIX_PATH}/networking`,
-    //   title: 'Networking',
-    //   icon: ContainerOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'chat',
-    //   path: `${APP_PREFIX_PATH}/chat`,
-    //   title: 'Chat',
-    //   icon: FundProjectionScreenOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'poll',
-    //   path: `${APP_PREFIX_PATH}/poll`,
-    //   title: 'Poll',
-    //   icon: SlidersOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-
-
-
-    // {
-    //   key: 'dashboards-Order-Book',
-    //   path: `${APP_PREFIX_PATH}/order_book`,
-    //   title: 'Orders',
-    //   icon: ReadOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-Position-Book',
-    //   path: `${APP_PREFIX_PATH}/position_book`,
-    //   title: 'Position Book',
-    //   icon: FilePptOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-trade_analysis',
-    //   path: `${APP_PREFIX_PATH}/trading_view_chart`,
-    //   title: 'Trade Analysis',
-    //   icon: SlidersOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-Strategy-builder',
-    //   path: `${APP_PREFIX_PATH}/strategy-builder`,
-    //   title: 'Strategy Builder',
-    //   icon: HeatMapOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-market-view',
-    //   path: `${APP_PREFIX_PATH}/market_view`,
-    //   title: 'Market View',
-    //   icon: SlidersOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-heat-map',
-    //   path: `${APP_PREFIX_PATH}/heat_map`,
-    //   title: 'Sector View',
-    //   icon: RadarChartOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-screener-ticker',
-    //   path: `${APP_PREFIX_PATH}/screener_ticker`,
-    //   title: 'Screener',
-    //   icon: FundOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-tv-chart',
-    //   path: `${APP_PREFIX_PATH}/tv_chart`,
-    //   title: 'Advanced Chart',
-    //   icon: AreaChartOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-Broker',
-    //   path: `${APP_PREFIX_PATH}/broker`,
-    //   title: 'Broker',
-    //   icon: IdcardOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'dashboards-Portfolio',
-    //   path: `${APP_PREFIX_PATH}/portfolio`,
-    //   title: 'Portfolio',
-    //   icon: HeatMapOutlined,
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
+    //   submenu: [
+    {
+      key: 'settings',
+      // path: `${APP_PREFIX_PATH}/team`,
+      title: '',
+      // icon: UserOutlined, // Kept as UserOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'team',
+      path: `${APP_PREFIX_PATH}/team`,
+      title: 'Manage Team',
+      icon: UserOutlined, // Kept as UserOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'profile',
+      path: `${APP_PREFIX_PATH}/profile`,
+      title: 'My Profile',
+      icon: FundProjectionScreenOutlined, // Changed to FundProjectionScreenOutlined
+      breadcrumb: false,
+      submenu: []
+    }
   ]
+  // }
+  // ]
 }]
 
 const navigationConfig = [
