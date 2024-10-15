@@ -27,12 +27,12 @@ export const RegisterForm = (props) => {
 
   const formData = {
     // "role": "Admin",
-    "lastName": "raikar",
-    "firstName": "ganesh",
-    "mobile": 7897897897,
-    "orgName": "new",
-    "email": "ganeshmr3003@gmail.com",
-    "password": "121212"
+    // "lastName": "raikar",
+    // "firstName": "ganesh",
+    // "mobile": 7897897897,
+    // "orgName": "new",
+    // "email": "ganeshmr3003@gmail.com",
+    // "password": "121212"
   }
 
   const location = useLocation();
@@ -120,7 +120,7 @@ export const RegisterForm = (props) => {
   // };
 
   return (
-    <>
+    <div style={{ width: '50%', margin: '0 auto' }}> {/* Container with 50% width at the topmost level */}
       {/* <Button onClick={signOut}>
         Sign Out
       </Button> */}
@@ -135,22 +135,27 @@ export const RegisterForm = (props) => {
             </Col>
           </Row> :
           <>
-            <h2 className="mb-4">TimeTrack</h2>
+            <h2 className="mb-4">User Registration</h2>
+            <p>
+          Alredy Registered ? {" "}
+          <a href={`http://localhost:3000${PREFIX_PATH}/login`}>Login here...</a>
+        </p>
             {/* {schema &&  */}
             <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />
             {signIn && <>
               User email already added!,Please
               <a href="/auth/login"> Login and Continue</a><br /><br />
-              if you are facing any issue, <a href="mailto:ibcnblr@gmail.com">ibcnblr@gmail.com</a>
+              For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a>
             </>
             }
           </>
         }
       </>
       {/* )} */}
-    </>
+    </div>
   );
 };
+
 
 const mapStateToProps = ({ auth }) => {
   const { loading, message, showMessage, token, redirect } = auth;

@@ -14,7 +14,7 @@ const LoginTwo = (props) => {
         <h1>Sign In</h1>
         <p>
           New User ? {" "}
-          <a href={`http://localhost:3000${PREFIX_PATH}/register`}>Start Survey</a>
+          <a href={`http://localhost:3000${PREFIX_PATH}/register`}>Register here...</a>
         </p>
         <div className="mt-4">
           <LoginForm {...props} />

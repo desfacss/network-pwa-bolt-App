@@ -47,7 +47,7 @@ const Survey = (props) => {
 
     return (
         <>
-            <h1>IBCN 2025 Nagarathar TimeTrack</h1>
+            <h1>TimeTrack</h1>
             <p>
                 The Nagarathar community has a robust history of entrepreneurial success in finance, trade, and various business ventures, characterized by sharp business acumen, philanthropy, and adaptability. To uphold this legacy and in the context of newer business models and emerging opportunities, it's crucial to understand the entrepreneurship and business landscape within our community, as well as the aspirations of our members.
             </p>
@@ -71,11 +71,11 @@ const Survey = (props) => {
                 </Button>
                 {!loggedin ?
                     <p className='pt-2'>
-                        If you are already registered, <a onClick={signIn} >Login here</a>
+                        If you are already registered, <a onClick={signIn} >Login here...</a>
                     </p>
                     :
                     <p className='pt-2'>
-                        New User, click here to <a onClick={signOut}>Start Survey</a>
+                        New User, click here to <a onClick={signOut}>Register Here...</a>
                     </p>
                 }
                 {/* <br></br> */}

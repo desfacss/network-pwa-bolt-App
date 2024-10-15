@@ -39,7 +39,7 @@ const SurveyLayout = ({ children }) => {
 						}}
 					>
 						<div className="text-right">
-							<img src="/img/knba.png" alt="logo" style={{ height: '80px' }} />
+							{/* <img src="/img/knba.png" alt="logo" style={{ height: '80px' }} /> */}
 						</div>
 						<Row justify="center">
 							<Col xs={0} sm={0} md={0} lg={20}>
@@ -49,9 +49,14 @@ const SurveyLayout = ({ children }) => {
 									alt=""
 								/>
 								<div>
-									<img src="/img/ibcn.png" alt="logo" style={{ height: '200px' }} />
+									{/* <img src="/img/ibcn.png" alt="logo" style={{ height: '200px' }} /> */}
 								</div><br /><br /><br /><br />
-								<h1 className="text-white">IBCN 2025 Nagarathar TimeTrack</h1>
+								<h1 className="text-white">TimeTrack</h1><br /><br /><br />
+
+								<h3 className="text-white">
+    {/* &ldquo;Effective planning turns intentions into actions. Schedule your way to success one step at a time&rdquo; */}
+	&rdquo; Track every minute, optimize your day. Time well-managed is progress well-earned &rdquo;
+</h3>
 							</Col>
 						</Row>
 						<div className="d-flex justify-content-end pb-4">

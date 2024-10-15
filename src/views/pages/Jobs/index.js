@@ -102,7 +102,7 @@ const Jobs = () => {
             key: 'job_name',
         },
         {
-            title: 'Client Name',
+            title: 'Project Name',
             dataIndex: ['details', 'project'],
             key: 'project',
         },

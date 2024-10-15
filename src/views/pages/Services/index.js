@@ -102,7 +102,7 @@ const Services = () => {
             key: 'service_name',
         },
         {
-            title: 'Cost',
+            title: <>Cost/Hr{'\u00A0'}(INR)</>,
             dataIndex: ['details', 'cost'],
             key: 'cost',
         },
@@ -111,18 +111,18 @@ const Services = () => {
             dataIndex: ['details', 'duration'],
             key: 'duration',
         },
-        {
-            title: 'Equipment',
-            dataIndex: ['details', 'equipment'],
-            key: 'equipment',
-            render: (equipment) => equipment?.join(', '), // Display as a comma-separated list
-        },
-        {
-            title: 'Materials',
-            dataIndex: ['details', 'materials'],
-            key: 'materials',
-            render: (materials) => materials?.join(', '), // Display as a comma-separated list
-        },
+        // {
+        //     title: 'Equipment',
+        //     dataIndex: ['details', 'equipment'],
+        //     key: 'equipment',
+        //     render: (equipment) => equipment?.join(', '), // Display as a comma-separated list
+        // },
+        // {
+        //     title: 'Materials',
+        //     dataIndex: ['details', 'materials'],
+        //     key: 'materials',
+        //     render: (materials) => materials?.join(', '), // Display as a comma-separated list
+        // },
         {
             title: 'Description',
             dataIndex: ['details', 'description'],
@@ -134,12 +134,12 @@ const Services = () => {
             key: 'availability',
             render: (availability) => availability?.join(', '), // Display as a comma-separated list
         },
-        {
-            title: 'Target Areas',
-            dataIndex: ['details', 'target_areas'],
-            key: 'target_areas',
-            render: (targetAreas) => targetAreas?.join(', '), // Display as a comma-separated list
-        },
+        // {
+        //     title: 'Target Areas',
+        //     dataIndex: ['details', 'target_areas'],
+        //     key: 'target_areas',
+        //     render: (targetAreas) => targetAreas?.join(', '), // Display as a comma-separated list
+        // },
         {
             title: 'Special Offers',
             dataIndex: ['details', 'special_offers'],

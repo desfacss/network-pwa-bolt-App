@@ -229,7 +229,7 @@ export const LoginForm = (props) => {
 				} */}
         {extra}
       </Form>
-      if you are facing any issue, Contact: <a href="mailto:ibcnblr@gmail.com">ibcnblr@gmail.com</a>
+      For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a>
     </>
   );
 };
