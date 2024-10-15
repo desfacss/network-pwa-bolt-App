@@ -127,11 +127,11 @@ const Projects = () => {
             dataIndex: ['details', 'description'],
             key: 'description',
         },
-        {
-            title: 'Service',
-            dataIndex: ['details', 'service_name'],
-            key: 'service_name',
-        },
+        // {
+        //     title: 'Service',
+        //     dataIndex: ['details', 'service_name'],
+        //     key: 'service_name',
+        // },
         {
             title: 'Actions',
             key: 'actions',
