@@ -5,6 +5,8 @@ import DynamicForm from '../DynamicForm';
 // import DynamicForm from '../net_app/DynamicForm';
 // import DynamicFormCustom from '../net_app/DynamicFormCustom';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+// import PivotTableComponent from './PT';
+import Timesheet from './AntDTable2';
 
 const { TabPane } = Tabs;
 
@@ -107,6 +109,8 @@ const Profile = () => {
 
     return (
         <Card>
+            <Timesheet />
+            {/* <PivotTableComponent /> */}
             {/* <DynamicFormCustom /> */}
             {(edit && schema) && <Modal footer={null}
                 title={schema?.data_schema?.title || ""}
