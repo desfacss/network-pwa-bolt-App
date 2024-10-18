@@ -51,10 +51,10 @@ const Timesheet = () => {
       ),
     })),
     {
-      title: 'Total Project Hours',
+      title: ' Daily Total',
       key: 'total',
       render: (_, record) => calculateTotalHours(record),
-    },
+    }
   ];
 
   // Calculate total hours for each day (row)
@@ -80,31 +80,55 @@ const Timesheet = () => {
   return (
     <div>
       <Button type="primary" onClick={addNewProject} style={{ marginBottom: 16 }}>
-        Add New Project
+        Add Project Column
       </Button>
       <Table
         columns={columns}
-        dataSource={[...dataSource, { date: 'Daily Total', key: 'total' }]}
+        dataSource={[...dataSource]}
         pagination={false}
         summary={pageData => {
           return (
-            <Table.Summary.Row>
-              <Table.Summary.Cell>Total</Table.Summary.Cell>
-              {projects.map(project => (
-                <Table.Summary.Cell key={project}>
-                  {calculateColumnTotal(project)}
+            <>
+              {/* First Summary Row - Project Total */}
+              <Table.Summary.Row>
+                <Table.Summary.Cell>
+                  <strong>Project Total</strong>
                 </Table.Summary.Cell>
-              ))}
-              <Table.Summary.Cell>
-                {/* Total hours for all projects across all days */}
-                {dataSource.reduce((total, record) => total + calculateTotalHours(record), 0)}
-              </Table.Summary.Cell>
-            </Table.Summary.Row>
+                {projects.map((project, index) => (
+                  <Table.Summary.Cell key={index}>
+                    {calculateColumnTotal(project)}
+                  </Table.Summary.Cell>
+                ))}
+                <Table.Summary.Cell>
+                  {/* Total hours for all projects across all days */}
+                  {dataSource.reduce((total, record) => total + calculateTotalHours(record), 0)}
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+  
+              {/* Second Summary Row - Balance Hours */}
+              <Table.Summary.Row>
+                <Table.Summary.Cell>
+                  <strong>Balance Hours</strong>
+                </Table.Summary.Cell>
+                {projects.map((project, index) => (
+                  <Table.Summary.Cell key={index}>
+                    {/* {calculateBalanceHours(project)} */}
+                    100
+                  </Table.Summary.Cell>
+                ))}
+                <Table.Summary.Cell className="sticky-right">
+                  {/* Total balance hours for all projects */}
+                  {/* {dataSource.reduce((total, record) => total + calculateBalance(record), 0)} */}
+                  {/* 20 */}
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+            </>
           );
         }}
       />
     </div>
   );
+  
 };
 
 export default Timesheet;
