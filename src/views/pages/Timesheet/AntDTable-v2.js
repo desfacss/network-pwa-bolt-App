@@ -51,7 +51,7 @@ const Timesheet = () => {
       return;
     }
     const { data, error } = await supabase
-      .from('x_timesheet_2')
+      .from('x_timesheet_duplicate')
       .select('*')
       .eq('user_id', session.user.id)
       .eq('timesheet_date', currentDate.toISOString())
@@ -62,7 +62,7 @@ const Timesheet = () => {
       setExistingTimesheetId(null);
     } else if (data && data.length > 0) {
       console.log('Existing timesheet:', data[0]);
-      setDataSource(data[0]?.details);
+      // setDataSource(data[0]?.details);
       setExistingTimesheetId(data[0]?.id);
       setDisabled(['Approved'].includes(data[0]?.status));
       const timesheetDetails = data[0]?.details;
@@ -158,11 +158,6 @@ const Timesheet = () => {
     checkExistingTimesheet();
     setDisabled(isTimesheetDisabled(viewMode, currentDate));
     SetHideNext(isHideNext(currentDate));
-    // If viewMode changes, generate new rows
-    if (projects.length > 0) {
-      const newRows = generateRows(projects[0]?.project_name); // Generate rows based on the first project
-      setDataSource(newRows);
-    }
   }, [currentDate, viewMode]);
 
   // Add a new project column
@@ -299,33 +294,33 @@ const Timesheet = () => {
     };
 
     let result;
-    console.log(currentDate, timesheetData);
-    if (existingTimesheetId) {
-      // Update the existing timesheet
-      console.log("update", existingTimesheetId);
-      result = await supabase
-        .from('x_timesheet_2')
-        .update(timesheetData)
-        .eq('id', existingTimesheetId);
-    } else {
-      console.log("create");
-      // Insert a new timesheet
-      result = await supabase
-        .from('x_timesheet_2')
-        .insert([timesheetData]);
-    }
+    console.log(dataSource, currentDate, timesheetData);
+    // if (existingTimesheetId) {
+    //     // Update the existing timesheet
+    //     console.log("update", existingTimesheetId);
+    //     result = await supabase
+    //         .from('x_timesheet_duplicate')
+    //         .update(timesheetData)
+    //         .eq('id', existingTimesheetId);
+    // } else {
+    //     console.log("create");
+    //     // Insert a new timesheet
+    //     result = await supabase
+    //         .from('x_timesheet_duplicate')
+    //         .insert([timesheetData]);
+    // }
 
-    const { data, error } = result;
+    // const { data, error } = result;
 
-    if (error) {
-      message.error(`Failed to submit timesheet: ${error.message}`);
-    } else {
-      message.success('Timesheet submitted successfully.');
-      console.log('Submitted data:', data);
-      if (data?.length > 0) {
-        setExistingTimesheetId(data[0].id); // Update the ID in case of new insertion
-      }
-    }
+    // if (error) {
+    //     message.error(`Failed to submit timesheet: ${error.message}`);
+    // } else {
+    //     message.success('Timesheet submitted successfully.');
+    //     console.log('Submitted data:', data);
+    //     if (data?.length > 0) {
+    //         setExistingTimesheetId(data[0].id); // Update the ID in case of new insertion
+    //     }
+    // }
   };
 
   return (

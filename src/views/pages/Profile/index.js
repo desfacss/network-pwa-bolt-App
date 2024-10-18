@@ -6,7 +6,8 @@ import DynamicForm from '../DynamicForm';
 // import DynamicFormCustom from '../net_app/DynamicFormCustom';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 // import PivotTableComponent from './PT';
-import Timesheet from './AntDTable2';
+import Timesheet from './AntDTable9';
+// import Timesheet1 from './working-static-fixed';
 
 const { TabPane } = Tabs;
 
@@ -110,6 +111,7 @@ const Profile = () => {
     return (
         <Card>
             <Timesheet />
+            {/* <Timesheet1 /> */}
             {/* <PivotTableComponent /> */}
             {/* <DynamicFormCustom /> */}
             {(edit && schema) && <Modal footer={null}
@@ -121,10 +123,11 @@ const Profile = () => {
                 {/* <DynamicForm schema={schema?.data} initialValues={[{ ...formData }]} /> */}
                 <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
             </Modal>}
-            {/* <Card title="">
-                <h3>{reg_info?.firstName} {reg_info?.lastName}</h3>
-                <p>Individual bio goes here,.. Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum </p>
-            </Card> */}
+
+
+
+
+            {/* Profile Start *************************************
             <Card title={
                 <div style={{
                     display: 'flex',
@@ -139,16 +142,21 @@ const Profile = () => {
             }
             >
                 <Descriptions column={1}>
-                    {/* {renderDescriptionItem("First Name", reg_info?.firstName)}
-                    {renderDescriptionItem("Last Name", reg_info?.lastName)} */}
                     {renderDescriptionItem("Name", details?.userName)}
                     {renderDescriptionItem("Email", details?.email)}
                     {renderDescriptionItem("Mobile", details?.mobile)}
                     {renderDescriptionItem("Organization", details?.orgName)}
                     {renderDescriptionItem("Role", details?.role?.replace("_", " "))}
-                    {/* {renderDescriptionItem("User Type", reg_info?.registrationType)} */}
                 </Descriptions>
-            </Card >
+            </Card > 
+            ***************************Profile End*/}
+
+
+
+
+
+
+
             {/* <Card title="Social Media Links">
                 <Descriptions column={1}>
                     {renderDescriptionItem("Twitter", personal_reg_info?.twitter)}

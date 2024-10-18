@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Button, Space, Typography, Select, message, Tree } from 'antd';
+import { Table, Input, Button, Space, Typography, Select, message, Tree, Row, Col } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import './timesheet.css';
@@ -26,6 +26,7 @@ const Timesheet = () => {
     const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
     const [existingTimesheetId, setExistingTimesheetId] = useState(null);
     const [expandedRows, setExpandedRows] = useState({});
+    const [expandeAllRows, setExpandAllRows] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [timesheetData, setTimeSheetData] = useState();
     const [hideNext, SetHideNext] = useState(true);
@@ -265,7 +266,8 @@ const Timesheet = () => {
         date,
         total,
     }));
-
+    const startDate = new Date(currentDate);
+    const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
     const columns = [
         {
             title: 'Project',
@@ -273,14 +275,14 @@ const Timesheet = () => {
             fixed: 'left',
             render: (text, record) => (
                 <Space align="start">
-                    <Button type="link" onClick={() => handleToggleDescription(record.key)}>
+                    {/* <Button type="link" onClick={() => handleToggleDescription(record.key)}>
                         {expandedRows[record.key] ? '-' : '+'}
-                    </Button>
-                    <span>{text}</span>
+                    </Button> */}
+                    <Input defaultValue={text} style={{ width: 200 }} />
                 </Space>
             ),
         },
-        ...Array.from({ length: 7 }, (_, dayIndex) => {
+        ...Array.from({ length: viewMode === 'Monthly' ? daysInMonth : 7 }, (_, dayIndex) => {
             const dateKey = formatDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + dayIndex));
             return {
                 title: dateKey,
@@ -292,7 +294,8 @@ const Timesheet = () => {
                             value={record.dailyEntries[dateKey]?.hours}
                             onChange={(e) => handleHoursChange(rowIndex, dateKey, e.target.value)}
                         /><br />
-                        {expandedRows[record.key] && (
+                        {/* {expandedRows[record.key] && ( */}
+                        {expandeAllRows && (
                             <Input.TextArea disabled={disabled} style={{ width: 180 }} size="small"
                                 value={record.dailyEntries[dateKey]?.description}
                                 onChange={(e) => handleDescriptionChange(rowIndex, dateKey, e.target.value)}
@@ -371,7 +374,50 @@ const Timesheet = () => {
 
     return (
         <>
-            <div>
+            <Row justify="space-between" align="middle">
+                {/* Left-aligned section */}
+                <Col>
+                    {/* <Button onClick={handleAddRow}>Add New Project</Button>
+                    <Select
+                        className="ml-2"
+                        value={viewMode}
+                        onChange={handleViewModeChange}
+                        options={[
+                            { label: 'Weekly', value: 'Weekly' },
+                            { label: 'Monthly', value: 'Monthly' },
+                        ]}
+                    /> */}
+                    <Button onClick={handleAddRow}>Add New Project</Button>
+                    <Select
+                        value={viewMode}
+                        onChange={handleViewModeChange}
+                        options={[
+                            { label: 'Weekly', value: 'Weekly' },
+                            { label: 'Monthly', value: 'Monthly' },
+                        ]}
+                    />
+                </Col>
+                {/* Center-aligned section */}
+                <Col>
+                    {/* <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
+                    <label className="ml-2 mr-2">{formatDate(currentDate)}</label>
+                    {!hideNext && (
+                        <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))}>Next</Button>
+                    )} */}
+                    <Button onClick={goToPrevious}>Previous</Button>
+                    <label className='ml-2 mr-2'>{formatDate(currentDate)}</label>
+                    {!hideNext && <Button onClick={goToNext}>Next</Button>}
+                </Col>
+
+                {/* Right-aligned section */}
+                <Col>
+                    <Button type="primary" onClick={handleSubmit}>Save Draft</Button>
+                    <Button type="primary" onClick={handleSubmit}>Submit</Button>
+                    {/* <Button type="primary" onClick={() => handleSubmit("Draft")} className="mr-2">Save</Button>
+                    <Button type="primary" onClick={() => handleSubmit("Submitted")}>Submit</Button> */}
+                </Col>
+            </Row>
+            {/* <div>
                 <Button onClick={handleAddRow}>Add New Project</Button>
                 <Select
                     value={viewMode}
@@ -385,21 +431,21 @@ const Timesheet = () => {
                 <label className='ml-2 mr-2'>{formatDate(currentDate)}</label>
                 {!hideNext && <Button onClick={goToNext}>Next</Button>}
             </div>
-            <Button type="primary" onClick={handleSubmit}>Submit Timesheet</Button>
+            <Button type="primary" onClick={handleSubmit}>Submit Timesheet</Button> */}
 
             <Table
                 dataSource={dataSource}
                 columns={columns}
                 pagination={false}
-                expandable={{
-                    expandedRowRender: (record) => <Text>{record.description}</Text>,
-                    onExpand: (expanded, record) => {
-                        setExpandedRows({
-                            ...expandedRows,
-                            [record.key]: expanded,
-                        });
-                    },
-                }}
+                // expandable={{
+                //     expandedRowRender: (record) => <Text>{record.description}</Text>,
+                //     onExpand: (expanded, record) => {
+                //         setExpandedRows({
+                //             ...expandedRows,
+                //             [record.key]: expanded,
+                //         });
+                //     },
+                // }}
                 summary={() => (
                     <Table.Summary.Row>
                         <Table.Summary.Cell>Total</Table.Summary.Cell>
@@ -407,7 +453,9 @@ const Timesheet = () => {
                             const dateKey = formatDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + dayIndex));
                             return <Table.Summary.Cell key={dayIndex}>{dailyTotalsArray[dateKey] || 0}</Table.Summary.Cell>;
                         })}
-                        <Table.Summary.Cell>{Object.values(dailyTotalsArray).reduce((acc, curr) => acc + curr, 0)}</Table.Summary.Cell>
+                        {/* <Table.Summary.Cell>{Object.values(dailyTotalsArray).reduce((acc, curr) => acc + curr, 0)}</Table.Summary.Cell> */}
+                        <Table.Summary.Cell></Table.Summary.Cell>
+                        <Table.Summary.Cell></Table.Summary.Cell>
                     </Table.Summary.Row>
                 )}
             // summary={() => (
@@ -434,11 +482,10 @@ const Timesheet = () => {
             //     </Table.Summary>
             // )}
             />
-            {timesheetData && < Tree
+            {/* {timesheetData && < Tree
                 treeData={timesheetData}
                 defaultExpandAll
-            />}
-            <Button onClick={handleAddRow}>Add Row</Button>
+            />} */}
         </>
     );
 };
