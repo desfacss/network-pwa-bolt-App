@@ -1,0 +1,20 @@
+.vertical-header {
+    writing-mode: vertical-rl;
+    /* Text flows vertically right to left (bottom to top) */
+    transform: rotate(180deg);
+    /* Rotate the text to flip it */
+    text-align: center;
+    /* Center the text */
+    height: 100px;
+    /* Adjust height based on design */
+    white-space: nowrap;
+    /* Prevent text from wrapping */
+    overflow: hidden;
+    /* Hide overflowed text */
+    text-overflow: ellipsis;
+    /* Add ellipses for long text */
+    max-height: 100px;
+    /* Set max height to limit text display */
+    max-width: 100px;
+    /* Optional, set width to control header size */
+}

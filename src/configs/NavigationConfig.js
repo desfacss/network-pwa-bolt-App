@@ -63,6 +63,22 @@ const dashBoardNavTree = [{
       breadcrumb: false,
       submenu: []
     },
+    {
+      key: 'timesheet',
+      path: `${APP_PREFIX_PATH}/timesheet`,
+      title: 'Timesheet',
+      icon: ReadOutlined, // Changed to ReadOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'review',
+      path: `${APP_PREFIX_PATH}/review`,
+      title: 'Review',
+      icon: ReadOutlined, // Changed to ReadOutlined
+      breadcrumb: false,
+      submenu: []
+    },
     // {
     //   key: 'Settings',
     //   title: 'Settings',
