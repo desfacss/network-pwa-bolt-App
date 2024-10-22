@@ -312,7 +312,7 @@ const Review = () => {
   };
 
   useEffect(() => {
-    employees && setSelectedEmployeeId(employees[employees?.length - 1]?.id)
+    (employees && !selectedEmployeesId) && setSelectedEmployeeId(employees[employees?.length - 1]?.id)
   }, [employees])
   const handleSubmit = async () => {
     const { data, error } = await supabase.from('x_timesheet_3').update({ status: isApproveModal ? "Approved" : "Rejected" }).eq('id', existingTimesheet.id);
