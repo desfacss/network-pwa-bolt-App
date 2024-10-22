@@ -99,6 +99,11 @@ export const protectedRoutes = [
         component: React.lazy(() => import('views/pages/Timesheet')),
     },
     {
+        key: 'timesheeth',
+        path: `${APP_PREFIX_PATH}/timesheeth`,
+        component: React.lazy(() => import('views/pages/TimesheetH')),
+    },
+    {
         key: 'team',
         path: `${APP_PREFIX_PATH}/team`,
         component: React.lazy(() => import('views/pages/Team')),

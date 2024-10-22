@@ -72,6 +72,14 @@ const dashBoardNavTree = [{
       submenu: []
     },
     {
+      key: 'timesheeth',
+      path: `${APP_PREFIX_PATH}/timesheeth`,
+      title: 'Timesheet-H',
+      icon: ReadOutlined, // Changed to ReadOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
       key: 'review',
       path: `${APP_PREFIX_PATH}/review`,
       title: 'Review',

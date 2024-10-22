@@ -9,6 +9,7 @@ const { Option } = Select;
 const Timesheet = () => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
+  const [submitDisabled, setSubmitDisabled] = useState(false);
   const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
   const [existingTimesheetId, setExistingTimesheetId] = useState(null);
   const [hideNext, setHideNext] = useState(true);
@@ -470,10 +471,16 @@ const Timesheet = () => {
       title: 'Daily Total',
       key: 'total',
       render: (_, record) => {
-        return projects.reduce(
-          (sum, project) => sum + (parseFloat(record.dailyEntries?.[project.project_name]?.hours) || 0),
-          0
-        );
+        var dailyTotal = projects.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.project_name]?.hours) || 0), 0)
+        // var invalid=dailyTotal > 10 || dailyTotal<8
+        var invalid = dailyTotal > 8
+        if (invalid) {
+          setSubmitDisabled(true)
+        }
+        return (
+          <div style={{ color: (invalid) && 'red' }}>
+            {dailyTotal}
+          </div>);
       },
     },
   ];
@@ -535,7 +542,7 @@ const Timesheet = () => {
   // Add the summary to display the project-wise total at the bottom of the table
   const getSummary = () => {
     const projectTotals = {};
-
+    setSubmitDisabled(false)
     // Calculate totals for each project
     Object.keys(projectData).forEach((projectName) => {
       projectTotals[projectName] = projectData[projectName].reduce(
@@ -566,9 +573,14 @@ const Timesheet = () => {
           <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
           {Object.keys(selectedProjectColumns).map((columnIndex) => {
             const projectName = selectedProjectColumns[columnIndex];
+            const { balance, total, color } = calculateBalanceHours(projectName, projectTotals)
+            console.log(color)
             return (
-              <Table.Summary.Cell key={projectName}>
-                {calculateBalanceHours(projectName, projectTotals)}
+              <Table.Summary.Cell key={projectName} style={{ backgroundColor: color }}>
+                {/* {calculateBalanceHours(projectName, projectTotals)} */}
+                <div style={{ color }}>
+                  {balance} of {total}
+                </div>
               </Table.Summary.Cell>
             );
           })}
@@ -596,7 +608,17 @@ const Timesheet = () => {
     // // Calculate balance hours
     // return allocatedHours - projectTotalHours;
     // return { balance: allocatedHours - expensedHours - projectTotals[projectName], total: allocatedHours }
-    return <>{allocatedHours - expensedHours - projectTotals[projectName]} of {allocatedHours}</>
+    var color = null
+    var balance = allocatedHours - expensedHours - projectTotals[projectName]
+
+    if (balance < 0.2 * allocatedHours) {
+      color = 'gold'
+    }
+    if (balance < 0) {
+      color = 'red'
+      setSubmitDisabled(true)
+    }
+    return { balance, total: allocatedHours, color }
   };
 
   // const renderBalanceHoursSummary = () => {
@@ -652,8 +674,8 @@ const Timesheet = () => {
           <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
         </Col>
         <Col>
-          <Button onClick={() => handleSubmit('Draft')}>Save</Button>
-          <Button onClick={() => handleSubmit('Submitted')}>Submit</Button>
+          <Button onClick={() => handleSubmit('Draft')} disabled={submitDisabled}>Save</Button>
+          <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
         </Col>
       </Row>
 
