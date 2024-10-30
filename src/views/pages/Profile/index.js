@@ -7,6 +7,7 @@ import DynamicForm from '../DynamicForm';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 // import PivotTableComponent from './PT';
 import Timesheet from './AntDTable9';
+import { Link } from 'react-router-dom';
 // import Timesheet1 from './working-static-fixed';
 
 const { TabPane } = Tabs;
@@ -110,7 +111,7 @@ const Profile = () => {
 
     return (
         <Card>
-            <Timesheet />
+            {/* <Timesheet /> */}
             {/* <Timesheet1 /> */}
             {/* <PivotTableComponent /> */}
             {/* <DynamicFormCustom /> */}
@@ -127,7 +128,7 @@ const Profile = () => {
 
 
 
-            {/* Profile Start *************************************
+            {/* Profile Start ************************************* */}
             <Card title={
                 <div style={{
                     display: 'flex',
@@ -148,8 +149,9 @@ const Profile = () => {
                     {renderDescriptionItem("Organization", details?.orgName)}
                     {renderDescriptionItem("Role", details?.role?.replace("_", " "))}
                 </Descriptions>
-            </Card > 
-            ***************************Profile End*/}
+            </Card >
+            {userData?.role_type === 'employee' && <Link to='/app/notifications'><Button>Manage Notifications</Button></Link>}
+            {/* ***************************Profile End */}
 
 
 

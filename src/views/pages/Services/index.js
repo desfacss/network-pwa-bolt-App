@@ -174,10 +174,10 @@ const Services = () => {
             <div ref={componentRef}>
                 {viewMode === 'card' ? (
                     <div className="services-card-grid">
-                        {services.map((service) => (
+                        {services?.map((service) => (
                             <Card
-                                key={service.id}
-                                title={service.details?.service_name}
+                                key={service?.id}
+                                title={service?.details?.service_name}
                                 className="service-card"
                                 extra={
                                     <div className="card-actions">
@@ -192,16 +192,16 @@ const Services = () => {
                                             type="primary" ghost
                                             icon={<DeleteOutlined />}
                                             size="small"
-                                            onClick={() => handleDelete(service.id)}
+                                            onClick={() => handleDelete(service?.id)}
                                         />
                                     </div>
                                 }
                             >
-                                <p><b>Cost/Hr:</b> {service.details?.cost}</p>
-                                <p><b>Duration:</b> {service.details?.duration}</p>
-                                <p><b>Description:</b> {service.details?.description}</p>
-                                <p><b>Availability:</b> {service.details?.availability?.join(', ')}</p>
-                                <p><b>Special Offers:</b> {service.details?.special_offers?.discount}</p>
+                                <p><b>Cost/Hr:</b> {service?.details?.cost}</p>
+                                <p><b>Duration:</b> {service?.details?.duration}</p>
+                                <p><b>Description:</b> {service?.details?.description}</p>
+                                <p><b>Availability:</b> {service?.details?.availability?.join(', ')}</p>
+                                <p><b>Special Offers:</b> {service?.details?.special_offers?.discount}</p>
                             </Card>
                         ))}
                     </div>

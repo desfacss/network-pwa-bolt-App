@@ -663,10 +663,10 @@ const Timesheet = () => {
       <Row justify="space-between" align="middle">
         <Col>
           <Button onClick={addNewProject}>Add New Project</Button>
-          <Select defaultValue={viewMode} style={{ width: 120 }} onChange={handleViewModeChange}>
+          {/* <Select defaultValue={viewMode} style={{ width: 120 }} onChange={handleViewModeChange}>
             <Option value="Weekly">Weekly</Option>
             <Option value="Monthly">Monthly</Option>
-          </Select>
+          </Select> */}
         </Col>
         <Col>
           <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>

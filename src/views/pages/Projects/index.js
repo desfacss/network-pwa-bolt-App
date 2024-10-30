@@ -17,7 +17,7 @@ const Projects = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_projects_form_trial").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_projects_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)

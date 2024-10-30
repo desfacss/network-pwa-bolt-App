@@ -2,14 +2,15 @@ import React from 'react';
 import { MoreOutlined, MenuOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Menu, Space } from 'antd';
 // import { CSVLink } from "react-csv";
-// import { useReactToPrint } from 'react-to-print';
+import { useReactToPrint } from 'react-to-print';
 
 
 const DownloadMenu = ({ dataSource, printRef, csvFileName = 'export-to-csv.csv' }) => {
 
-  // const handlePrint = useReactToPrint({
-  //     content: () => printRef?.current,
-  //   });
+  const handlePrint = useReactToPrint({
+    // content: () => printRef?.current,
+    contentRef: printRef
+  });
 
   const items = [
     {
@@ -30,13 +31,13 @@ const DownloadMenu = ({ dataSource, printRef, csvFileName = 'export-to-csv.csv' 
       key: '2',
       label: (
         <a
-          // onClick={handlePrint}
+          onClick={handlePrint}
           className="px-2 py-2">
           {" "}
           Export to PDF{" "}
         </a>
       ),
-      disabled: !(dataSource?.length > 0),
+      // disabled: !(dataSource?.length > 0),
     },
   ];
 

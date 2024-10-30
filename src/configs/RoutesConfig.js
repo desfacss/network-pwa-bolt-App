@@ -88,6 +88,32 @@ export const protectedRoutes = [
     //     path: `${SURVEY_PREFIX_PATH}/register`,
     //     component: React.lazy(() => import('views/auth-views/authentication/register')),
     // },
+
+    {
+        key: 'leave_application',
+        path: `${APP_PREFIX_PATH}/leave_application`,
+        component: React.lazy(() => import('views/pages/LeaveApplication')),
+    },
+    {
+        key: 'locations',
+        path: `${APP_PREFIX_PATH}/locations`,
+        component: React.lazy(() => import('views/pages/Locations')),
+    },
+    {
+        key: 'notifications',
+        path: `${APP_PREFIX_PATH}/notifications`,
+        component: React.lazy(() => import('views/pages/Notifications')),
+    },
+    {
+        key: 'manage_employees',
+        path: `${APP_PREFIX_PATH}/manage_employees`,
+        component: React.lazy(() => import('views/pages/ManageEmployees')),
+    },
+    {
+        key: 'change_password',
+        path: `${APP_PREFIX_PATH}/change_password`,
+        component: React.lazy(() => import('views/auth-views/components/ChangePassword')),
+    },
     {
         key: 'review',
         path: `${APP_PREFIX_PATH}/review`,
@@ -97,6 +123,11 @@ export const protectedRoutes = [
         key: 'timesheet',
         path: `${APP_PREFIX_PATH}/timesheet`,
         component: React.lazy(() => import('views/pages/Timesheet')),
+    },
+    {
+        key: 'expenses',
+        path: `${APP_PREFIX_PATH}/expenses`,
+        component: React.lazy(() => import('views/pages/Expenses')),
     },
     {
         key: 'timesheeth',
@@ -131,7 +162,7 @@ export const protectedRoutes = [
     {
         key: 'projects',
         path: `${APP_PREFIX_PATH}/projects`,
-        component: React.lazy(() => import('views/pages/Projects')),
+        component: React.lazy(() => import('views/pages/Projects2/index')),
     },
     {
         key: 'clients',

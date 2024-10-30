@@ -194,15 +194,15 @@ const Services = () => {
             <div ref={componentRef}>
                 {viewMode === 'card' ? (
                     <div className="services-card-grid">
-                        {services.map((service) => (
+                        {services?.map((service) => (
                             <Card
-                                key={service.id}
+                                key={service?.id}
                                 title={
                                     <div className="service-card-title">
                                         <Avatar size={80}
-                                            src={service.details?.profileImage}
-                                            alt={service.details?.firstName[0]}
-                                        >{service.details?.firstName[0]}</Avatar>
+                                            src={service?.details?.profileImage}
+                                            alt={service && service?.details?.firstName[0] || ""}
+                                        >{service && service?.details?.firstName[0] || ""}</Avatar>
                                         {/* {service.details?.firstName} */}
                                     </div>
                                 }

@@ -6,6 +6,7 @@ import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHi
 import { useSelector } from 'react-redux';
 import { supabase } from 'configs/SupabaseConfig';
 import { WarningOutlined } from '@ant-design/icons';
+// import { sendEmail } from 'components/common/SendEmail';
 const { Option } = Select;
 
 const Review = () => {
@@ -321,6 +322,7 @@ const Review = () => {
       message.error(`Error updating status: ${error}`);
     } else {
       console.log('Status updated successfully:', data);
+      // sendEmail()
       if (isApproveModal) {
         setIsApproveModal(false);
       } else {

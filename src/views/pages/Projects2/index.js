@@ -1,0 +1,377 @@
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { supabase } from "configs/SupabaseConfig";
+import { useSelector } from "react-redux";
+import dayjs from 'dayjs';
+import DynamicTable from "./DynamicTable";
+import ProjectForm from "./DynamicTable3";
+import App from "./A";
+// import App from "./CustomTemplate";
+// import DynamicForm from "../DynamicForm";
+
+const { Option } = Select;
+
+const Projects2 = () => {
+    const componentRef = useRef(null);
+    const [projects, setProjects] = useState([]);
+    const [editItem, setEditItem] = useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [projectUsers, setProjectUsers] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [clients, setClients] = useState([]);
+    const dateFormat = 'YYYY/MM/DD';
+    const [schema, setSchema] = useState();
+
+    const { session } = useSelector((state) => state.auth);
+    const [form] = Form.useForm();
+
+
+    const getForms = async () => {
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "project_form_array").single()
+        console.log("A", data)
+        if (data) {
+            console.log(data)
+            setSchema(data)
+        }
+    }
+
+    useEffect(() => {
+        getForms()
+    }, []);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const { data, error } = await supabase.from('users').select('id, user_name');
+            if (error) {
+                console.error('Error fetching users:', error);
+            } else {
+                console.log("US", data)
+                setUsers(data || []);
+            }
+        };
+        const fetchClients = async () => {
+            const { data, error } = await supabase.from('clients').select('id, name');
+            if (error) {
+                console.error('Error fetching users:', error);
+            } else {
+                console.log("US", data)
+                setClients(data || []);
+            }
+        };
+        fetchClients();
+        fetchUsers();
+    }, []);
+
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
+    const fetchProjects = async () => {
+        let { data, error } = await supabase.from('x_projects').select('*');
+        if (data) {
+            setProjects(data);
+        }
+        if (error) {
+            notification.error({ message: "Failed to fetch projects" });
+        }
+    };
+
+    const handleAddOrEdit = async (values) => {
+        const updatedDetails = {
+            ...values,
+            start_date: values?.start_date?.format(dateFormat),
+            end_date: values?.end_date?.format(dateFormat),
+            project_users: projectUsers
+        };
+        console.log(updatedDetails);
+        if (editItem) {
+            const { data, error } = await supabase
+                .from('x_projects')
+                .update({ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id })
+                .eq('id', editItem.id);
+
+            if (data) {
+                notification.success({ message: "Project updated successfully" });
+                setEditItem(null);
+            } else if (error) {
+                notification.error({ message: "Failed to update project" });
+            }
+        } else {
+            const { data, error } = await supabase
+                .from('x_projects')
+                .insert([{ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id }]);
+
+            if (data) {
+                notification.success({ message: "Project added successfully" });
+            } else if (error) {
+                notification.error({ message: "Failed to add project" });
+            }
+        }
+        fetchProjects();
+        setIsDrawerOpen(false);
+        form.resetFields();
+        setEditItem(null);
+    };
+
+    const handleEdit = (record) => {
+        setEditItem(record);
+        form.setFieldsValue({
+            project_name: record?.details?.project_name,
+            description: record?.details?.description,
+            project_cost: record?.details?.project_cost,
+            is_closed: record?.details?.is_closed,
+            status: record?.details?.status,
+            hrpartner_id: record?.details?.hrpartner_id,
+            client_id: record?.details?.client_id,
+            manager_id: record?.details?.manager_id,
+            start_date: dayjs(record?.details?.start_date, dateFormat),
+            end_date: dayjs(record?.details?.end_date, dateFormat),
+        });
+        setProjectUsers(record.details.project_users || []);
+        setIsDrawerOpen(true);
+    };
+
+    const handleDelete = async (id) => {
+        const { error } = await supabase.from('x_projects').delete().eq('id', id);
+        if (!error) {
+            notification.success({ message: "Project deleted successfully" });
+            fetchProjects();
+        } else {
+            notification.error({ message: "Failed to delete Project" });
+        }
+    };
+
+    const handleUserChange = (index, field, value) => {
+        const updatedUsers = [...projectUsers];
+        updatedUsers[index][field] = value;
+        setProjectUsers(updatedUsers);
+    };
+
+    const addUser = () => {
+        setProjectUsers([...projectUsers, { user_id: "", expensed_hours: "", allocated_hours: "" }]);
+    };
+
+    const removeUser = (index) => {
+        const updatedUsers = projectUsers.filter((_, i) => i !== index);
+        setProjectUsers(updatedUsers);
+    };
+
+    const columns = [
+        {
+            title: 'Name',
+            dataIndex: ['details', 'project_name'],
+            key: 'project_name',
+        },
+        {
+            title: 'Cost',
+            dataIndex: ['details', 'project_cost'],
+            key: 'project_cost',
+        },
+        {
+            title: 'Description',
+            dataIndex: ['details', 'description'],
+            key: 'description',
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+                <div className="d-flex">
+                    <Button
+                        type="primary"
+                        icon={<EditFilled />}
+                        size="small"
+                        className="mr-2"
+                        onClick={() => handleEdit(record)}
+                    />
+                    <Button
+                        type="primary" ghost
+                        icon={<DeleteOutlined />}
+                        size="small"
+                        onClick={() => handleDelete(record.id)}
+                    />
+                </div>
+            ),
+        },
+    ];
+
+    const userColumns = [
+        {
+            title: 'User ID',
+            dataIndex: 'user_id',
+            render: (text, record, index) => (
+                // <Input
+                //     value={text}
+                //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
+                // />
+                <Select placeholder="Select users" value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
+                    {users?.map((user) => (
+                        <Select.Option key={user?.id} value={user?.id}>
+                            {user?.user_name}
+                        </Select.Option>
+                    ))}
+                </Select>
+            ),
+        },
+        {
+            title: 'Expensed Hours',
+            dataIndex: 'expensed_hours',
+            render: (text, record, index) => (
+                <Input
+                    value={text}
+                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)}
+                />
+            ),
+        },
+        {
+            title: 'Allocated Hours',
+            dataIndex: 'allocated_hours',
+            render: (text, record, index) => (
+                <Input
+                    value={text}
+                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)}
+                />
+            ),
+        },
+        {
+            title: 'Start',
+            dataIndex: 'start_date',
+            render: (text, record, index) => (
+                <DatePicker style={{ width: '100%' }} format={dateFormat} onChange={(e) => handleUserChange(index, 'start_date', e?.format(dateFormat))} />
+            ),
+        },
+        {
+            title: 'End',
+            dataIndex: 'end_date',
+            render: (text, record, index) => (
+                <DatePicker style={{ width: '100%' }} format={dateFormat} onChange={(e) => handleUserChange(index, 'end_date', e?.format(dateFormat))} />
+            ),
+        },
+        {
+            title: 'Actions',
+            render: (_, __, index) => (
+                <Button
+                    type="link"
+                    danger
+                    onClick={() => removeUser(index)}
+                >
+                    Remove
+                </Button>
+            ),
+        },
+    ];
+
+    return (
+        <Card bodyStyle={{ padding: "0px" }}>
+            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+                <h2 style={{ margin: 0 }}>Projects 2</h2>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsDrawerOpen(true)}
+                >
+                    Add Project
+                </Button>
+            </div>
+            <div className="table-responsive" ref={componentRef}>
+                <Table
+                    columns={columns}
+                    dataSource={projects}
+                    rowKey={(record) => record.id}
+                    loading={!projects}
+                    pagination={false}
+                />
+            </div>
+            <Drawer //size="large"
+                footer={null}
+                width={1000}
+                title={editItem ? "Edit Project" : "Add Project"}
+                open={isDrawerOpen}
+                onClose={() => { setIsDrawerOpen(false); setEditItem(null); }}
+                onOk={() => form.submit()}
+                okText="Save"
+            >
+                <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
+                    <Form.Item name="project_name" label="Project Name" rules={[{ required: true }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="description" label="Description">
+                        <Input.TextArea />
+                    </Form.Item>
+                    <Form.Item name="project_cost" label="Project Cost">
+                        <Input type="number" />
+                    </Form.Item>
+                    <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
+                        <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="end_date" label="end_date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
+                        <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="status" label="Status" rules={[{ required: true }]}>
+                        <Select>
+                            <Option value="in progress">In Progress</Option>
+                            <Option value="completed">Completed</Option>
+                            <Option value="on hold">On Hold</Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item name="client_id" label="Client ID" rules={[{ required: true }]}>
+                        <Select placeholder="Select users">
+                            {clients?.map((user) => (
+                                <Select.Option key={user?.id} value={user?.id}>
+                                    {user?.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item name="is_closed" label="Is Closed" valuePropName="checked">
+                        <Checkbox />
+                    </Form.Item>
+                    <Form.Item name="manager_id" label="Manager ID">
+                        <Select placeholder="Select Manager">
+                            {users?.map((user) => (
+                                <Select.Option key={user?.id} value={user?.id}>
+                                    {user?.user_name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item name="hrpartner_id" label="HR Partner ID">
+                        <Select placeholder="Select HR partner">
+                            {users?.map((user) => (
+                                <Select.Option key={user?.id} value={user?.id}>
+                                    {user?.user_name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <h3>Project Users</h3>
+                    <Table
+                        columns={userColumns}
+                        dataSource={projectUsers}
+                        pagination={false}
+                        rowKey={(record, index) => index}
+                    />
+                    <Button type="dashed" onClick={addUser} style={{ width: '100%', marginTop: 16 }}>
+                        <PlusOutlined /> Add User
+                    </Button>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" style={{ marginTop: "16px" }}>
+                            {editItem ? "Update Project" : "Add Project"}
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Drawer>
+            {/* {schema && <ProjectForm schema={schema?.data_schema} />} */}
+            <App />
+
+
+            {/* {schema && <DynamicTable schema={schema?.dataSchema} />} */}
+            {/* {schema && <DynamicForm schemas={schema}
+                onFinish={handleAddOrEdit}
+                formData={editItem && editItem?.details} />} */}
+        </Card>
+    );
+};
+
+export default Projects2;

@@ -34,9 +34,12 @@
     "react-resize-detector": "^10.0.1",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.1",
+    "react-sparklines": "^1.7.0",
     "react-timelines": "^2.6.1",
+    "react-to-print": "^3.0.2",
     "redux": "^4.1.1",
     "redux-persist": "^6.0.0",
+    "resend": "^4.0.0",
     "uuid": "^9.0.1"
   },
   "scripts": {

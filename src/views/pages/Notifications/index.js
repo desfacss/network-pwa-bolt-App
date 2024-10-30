@@ -1,0 +1,297 @@
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { supabase } from "configs/SupabaseConfig";
+import DynamicForm from "../DynamicForm";
+import { useSelector } from "react-redux";
+import dayjs from 'dayjs';
+
+const Notifications = () => {
+    // const [form] = Form.useForm();
+    const componentRef = useRef(null);
+    const [notifications, setNotifications] = useState([]);
+    const [editItem, setEditItem] = useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [schema, setSchema] = useState();
+    const [type, setType] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const dateFormat = 'YYYY/MM/DD';
+    // Fetch users from Supabase
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const { data, error } = await supabase.from('users').select('id, user_name');
+            if (error) {
+                console.error('Error fetching users:', error);
+            } else {
+                console.log("US", data)
+                setUsers(data || []);
+            }
+        };
+        fetchUsers();
+    }, []);
+
+    // Fetch locations from Supabase
+    useEffect(() => {
+        const fetchLocations = async () => {
+            const { data, error } = await supabase.from('locations').select('id, name');
+            if (error) {
+                console.error('Error fetching locations:', error);
+            } else {
+                setLocations(data || []);
+            }
+        };
+        fetchLocations();
+    }, []);
+
+
+    const { session } = useSelector((state) => state.auth);
+
+    const [form] = Form.useForm();
+
+    const getForms = async () => {
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_notifications_form").single()
+        console.log("A", data)
+        if (data) {
+            console.log(data)
+            setSchema(data)
+        }
+    }
+
+    useEffect(() => {
+        getForms()
+        fetchNotifications();
+    }, []);
+
+    const fetchNotifications = async () => {
+        let { data, error } = await supabase.from('notifications').select('*');
+        if (data) {
+            console.log("Notifications", data);
+            setNotifications(data);
+        }
+        if (error) {
+            notification.error({ message: "Failed to fetch notifications" });
+        }
+    };
+
+    const handleAddOrEdit = async (values) => {
+        const { type, ...rest } = values;
+        let payload = { ...rest, users: null, locations: null, type: type, expiry: values?.expiry?.format(dateFormat) };
+
+        if (type === 'users') {
+            payload.users = values.users;
+            // delete payload?.locations
+        } else if (type === 'location') {
+            payload.locations = values.locations;
+        }
+        // delete payload?.users
+        // } else if (type === 'public') {
+        //     delete payload?.locations
+        //     delete payload?.users
+        // }
+        console.log("payload", payload);
+        // const { service_name, cost, duration, description } = values;
+        // console.log("Pyload", values)
+        if (editItem) {
+            // Update existing service
+            const { data, error } = await supabase
+                .from('notifications')
+                .update(payload)
+                .eq('id', editItem.id);
+
+            if (data) {
+                notification.success({ message: "Notification updated successfully" });
+                setEditItem(null);
+            } else if (error) {
+                notification.error({ message: "Failed to update notification" });
+            }
+        } else {
+            // Add new notification
+            const { data, error } = await supabase
+                .from('notifications')
+                .insert([payload]);
+
+            if (data) {
+                notification.success({ message: "Notification added successfully" });
+            } else if (error) {
+                notification.error({ message: "Failed to add notification" });
+            }
+        }
+        fetchNotifications();
+        setIsDrawerOpen(false);
+        form.resetFields();
+        setEditItem()
+    };
+
+    const handleEdit = (record) => {
+        setEditItem(record);
+        setType(record?.type)
+        form.setFieldsValue({
+            title: record?.title,
+            message: record?.message,
+            // expiry: record?.expiry,
+            expiry: dayjs(record?.expiry, dateFormat),
+            type: record?.type,
+            users: record?.users,
+            locations: record?.locations,
+        });
+        setIsDrawerOpen(true);
+    };
+
+    const handleDelete = async (id) => {
+        const { error } = await supabase.from('notifications').delete().eq('id', id);
+        if (!error) {
+            notification.success({ message: "Notification deleted successfully" });
+            fetchNotifications();
+        } else {
+            notification.error({ message: "Failed to delete Notification" });
+        }
+    };
+
+    const columns = [
+        {
+            title: 'Title',
+            dataIndex: 'title',
+            key: 'title',
+        },
+        {
+            title: 'Message',
+            dataIndex: 'message',
+            key: 'message',
+        },
+        {
+            title: 'Expiry',
+            dataIndex: 'expiry',
+            key: 'expiry',
+        },
+        // {
+        //     title: 'Users',
+        //     dataIndex: 'users',
+        //     key: 'users',
+        //     render: (users) => users?.join(', '),
+        // },
+        // {
+        //     title: 'Service',
+        //     dataIndex: ['details', 'service_name'],
+        //     key: 'service_name',
+        // },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+                <div className="d-flex">
+                    <Button
+                        type="primary"
+                        icon={<EditFilled />}
+                        size="small"
+                        className="mr-2"
+                        onClick={() => handleEdit(record)}
+                    />
+                    <Button
+                        type="primary" ghost
+                        icon={<DeleteOutlined />}
+                        size="small"
+                        onClick={() => handleDelete(record.id)}
+                    />
+                </div>
+            ),
+        },
+    ];
+    // const onFinish = (values) => {
+    //     const { type, ...rest } = values;
+    //     let payload = { ...rest, type: type, expiry: values?.expiry?.format(dateFormat) };
+
+    //     if (type === 'users') {
+    //         payload.users = values.users;
+    //     } else if (type === 'location') {
+    //         payload.locations = values.locations;
+    //     }
+
+    //     // Send the payload to your backend or Supabase
+    //     console.log('Form submitted:', payload);
+    // };
+    return (
+        <Card bodyStyle={{ padding: "0px" }}>
+            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+                <h2 style={{ margin: 0 }}>Notifications</h2>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsDrawerOpen(true)}
+                >
+                    Add Notification
+                </Button>
+            </div>
+            <div className="table-responsive" ref={componentRef}>
+                <Table
+                    columns={columns}
+                    dataSource={notifications}
+                    rowKey={(record) => record.id}
+                    loading={!notifications}
+                    pagination={false}
+                />
+            </div>
+            <Drawer footer={null} width={500} //size="large"
+                title={editItem ? "Edit Notification" : "Add Notification"}
+                open={isDrawerOpen}
+                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
+                // onOk={() => form.submit()}
+                okText="Save"
+            >
+                <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
+                    <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please enter the title' }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="message" label="Message" rules={[{ required: true, message: 'Please enter the message' }]}>
+                        <Input.TextArea rows={4} />
+                    </Form.Item>
+                    <Form.Item name="expiry" label="Expiry" format={dateFormat} rules={[{ required: true, message: 'Please select the expiry date' }]}>
+                        <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="type" label="Type" rules={[{ required: true, message: 'Please select the type' }]}>
+                        <Select onChange={(value) => setType(value)}>
+                            <Select.Option value="users">Users</Select.Option>
+                            <Select.Option value="public">Public</Select.Option>
+                            <Select.Option value="location">Location</Select.Option>
+                        </Select>
+                    </Form.Item>
+
+                    {/* Conditional inputs based on type */}
+                    {type === 'users' && (
+                        <Form.Item name="users" label="Select Users" rules={[{ required: true, message: 'Please select users' }]}>
+                            <Select mode="multiple" placeholder="Select users">
+                                {users?.map((user) => (
+                                    <Select.Option key={user?.id} value={user?.id}>
+                                        {user?.user_name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    )}
+                    {type === 'location' && (
+                        <Form.Item name="locations" label="Select Locations" rules={[{ required: true, message: 'Please select locations' }]}>
+                            <Select mode="multiple" placeholder="Select locations">
+                                {locations?.map((location) => (
+                                    <Select.Option key={location?.id} value={location?.id}>
+                                        {location?.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    )}
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+                {/* <DynamicForm schemas={schema}
+                    onFinish={handleAddOrEdit}
+                    formData={editItem && editItem?.details} /> */}
+            </Drawer>
+        </Card>
+    );
+};
+
+export default Notifications;

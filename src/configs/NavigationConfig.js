@@ -64,6 +64,14 @@ const dashBoardNavTree = [{
       submenu: []
     },
     {
+      key: 'expenses',
+      path: `${APP_PREFIX_PATH}/expenses`,
+      title: 'Expenses',
+      icon: ReadOutlined, // Changed to ReadOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
       key: 'timesheet',
       path: `${APP_PREFIX_PATH}/timesheet`,
       title: 'Timesheet',
@@ -87,6 +95,14 @@ const dashBoardNavTree = [{
       breadcrumb: false,
       submenu: []
     },
+    {
+      key: 'leave_application',
+      path: `${APP_PREFIX_PATH}/leave_application`,
+      title: 'Leave Application',
+      icon: ReadOutlined, // Changed to ReadOutlined
+      breadcrumb: false,
+      submenu: []
+    },
     // {
     //   key: 'Settings',
     //   title: 'Settings',
@@ -105,6 +121,14 @@ const dashBoardNavTree = [{
       key: 'team',
       path: `${APP_PREFIX_PATH}/team`,
       title: 'Manage Team',
+      icon: UserOutlined, // Kept as UserOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'manage_employees',
+      path: `${APP_PREFIX_PATH}/manage_employees`,
+      title: 'Manage Employees',
       icon: UserOutlined, // Kept as UserOutlined
       breadcrumb: false,
       submenu: []

@@ -58,8 +58,8 @@ export default function ObjectFieldTemplate<
     const isMobile = screens.length === 0 ? false : !screens.includes("lg");
     const spanMultiplier = isMobile ? 2 : 1
 
-    console.log('ObjectFieldTemplate props: ')
-    console.log(props)
+    // console.log('ObjectFieldTemplate props: ')
+    // console.log(props)
     const uiOptions = getUiOptions<T, S, F>(uiSchema);
     const TitleFieldTemplate = getTemplate<'TitleFieldTemplate', T, S, F>('TitleFieldTemplate', registry, uiOptions);
     const DescriptionFieldTemplate = getTemplate<'DescriptionFieldTemplate', T, S, F>(
@@ -118,8 +118,8 @@ export default function ObjectFieldTemplate<
     return (
         <ConfigConsumer>
             {(configProps: ConfigConsumerProps) => {
-                console.log('config props are')
-                console.log(configProps)
+                // console.log('config props are')
+                // console.log(configProps)
                 const { getPrefixCls } = configProps;
                 const prefixCls = getPrefixCls('form');
                 const labelClsBasic = `${prefixCls}-item-label`;

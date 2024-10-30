@@ -16,6 +16,7 @@ import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
 export const LoginForm = (props) => {
   const [linkSent, setLinkSent] = useState(false)
   const [magiclink, setMagicLink] = useState(false)
+  const [changePassword, setChangePassword] = useState(false)
 
   const navigate = useNavigate();
 
@@ -84,8 +85,18 @@ export const LoginForm = (props) => {
     if (data) {
       console.log(data)
       notification.success({
-        message: "If your email ID is registered, You will recieve an email with link to login and update the survey!"
+        message: "If your email ID is registered, You will recieve an email with link to login"
       });
+      // if (changePassword) {
+      //   const { error: updateError } = await supabase
+      //     .from('users')
+      //     .update({ password_confirmed: false })
+      //     .eq('id', session?.user?.id); // Assuming the user.id is the same as the id in the users table
+
+      //   if (updateError) {
+      //     throw updateError;
+      //   }
+      // }
     }
   }
   const onGoogleLogin = () => {
@@ -222,7 +233,11 @@ export const LoginForm = (props) => {
             </Button>} */}
           <Button type="primary" htmlType="submit" block disabled={linkSent}>
             {magiclink ? "Send login link to email" : "Login"}
-          </Button>{linkSent && "Check your Email/Spam folder"}
+          </Button>
+          {/* {magiclink && <Button type="primary" htmlType="submit" block disabled={linkSent} onClick={() => setChangePassword(true)}>
+            Reset password
+          </Button>} */}
+          {linkSent && "Check your Email/Spam folder"}
         </Form.Item>
         {/* {
 					otherSignIn ? renderOtherSignIn : null
