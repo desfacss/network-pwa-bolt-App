@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'antd';
+import { Card, Col, Row, Table } from 'antd';
 
 // const leave_details = {
 //     leaves: {
@@ -47,7 +47,27 @@ const LeaveDetails = ({ leave_details }) => {
         },
     ];
 
-    return <Table dataSource={dataSource} columns={columns} pagination={false} />;
+    // return <Table dataSource={dataSource} columns={columns} pagination={false} />;
+    return (
+        <Row gutter={[16, 16]}>
+            {dataSource.map((leave) => (
+                <Col key={leave.key} xs={24} sm={12} md={8} lg={6}>
+                    <Card>
+                        <div>
+                            <strong>{leave.type}</strong>
+                        </div>
+                        <div>
+                            {leave.remaining !== 'N/A' ? (
+                                `${leave.remaining} of ${leave.min} available`
+                            ) : (
+                                'Not Applicable'
+                            )}
+                        </div>
+                    </Card>
+                </Col>
+            ))}
+        </Row>
+    );
 };
 
 export default LeaveDetails;

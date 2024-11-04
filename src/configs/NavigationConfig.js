@@ -110,7 +110,7 @@ const dashBoardNavTree = [{
     //   breadcrumb: false,
     //   submenu: [
     {
-      key: 'settings',
+      key: 'blank',
       // path: `${APP_PREFIX_PATH}/team`,
       title: '',
       // icon: UserOutlined, // Kept as UserOutlined
@@ -129,6 +129,14 @@ const dashBoardNavTree = [{
       key: 'manage_employees',
       path: `${APP_PREFIX_PATH}/manage_employees`,
       title: 'Manage Employees',
+      icon: UserOutlined, // Kept as UserOutlined
+      breadcrumb: false,
+      submenu: []
+    },
+    {
+      key: 'settings',
+      path: `${APP_PREFIX_PATH}/settings`,
+      title: 'Settings',
       icon: UserOutlined, // Kept as UserOutlined
       breadcrumb: false,
       submenu: []

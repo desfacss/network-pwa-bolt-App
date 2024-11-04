@@ -73,6 +73,7 @@ const SideNavContent = (props) => {
 	const sideNavTheme = useSelector(state => state.theme.sideNavTheme);
 
 	const { userData } = useSelector((state) => state?.profile);
+	const { session } = useSelector((state) => state.auth);
 	const clientSubmenu = ['Dashboard']
 	// if (userData?.role_type === 'client') {
 	// navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => clientSubmenu.includes(item.title))
@@ -88,20 +89,20 @@ const SideNavContent = (props) => {
 	// 	navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position' && !userData?.feature?.viewPosition)
 	// }
 	// METHOD 2
-	if (userData) {
-		navigationConfig[0].submenu = userData?.feature?.viewLiveTrade === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Livetrade')
-		navigationConfig[0].submenu = userData?.feature?.viewPosition == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position')
-		navigationConfig[0].submenu = userData?.feature?.viewPositionBook == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position-Book')
-		navigationConfig[0].submenu = userData?.feature?.viewOrderBook == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Order-Book')
-		navigationConfig[0].submenu = userData?.feature?.viewBroker == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Broker')
-		navigationConfig[0].submenu = userData?.feature?.viewPortfolio == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Portfolio')
-		navigationConfig[0].submenu = userData?.feature?.viewStrategyBuilder == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Strategy-builder')
-		navigationConfig[0].submenu = userData?.feature?.viewTradeAnalysis == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-trade_analysis')
-		navigationConfig[0].submenu = userData?.feature?.viewTvChart == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-tv-chart')
-		navigationConfig[0].submenu = userData?.feature?.viewScreenerTicker == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-screener-ticker')
-		navigationConfig[0].submenu = userData?.feature?.viewScreenerTicker == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-recommendations')
-		navigationConfig[0].submenu = userData?.feature?.viewStrategies == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-strategies')
-		navigationConfig[0].submenu = userData?.feature?.viewMarketView == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-market-view')
+	if (session) {
+		navigationConfig[0].submenu = session?.user?.feature?.viewProjects === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'projects')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewPosition == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewPositionBook == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position-Book')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewOrderBook == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Order-Book')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewBroker == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Broker')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewPortfolio == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Portfolio')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewStrategyBuilder == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Strategy-builder')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewTradeAnalysis == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-trade_analysis')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewTvChart == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-tv-chart')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewScreenerTicker == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-screener-ticker')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewScreenerTicker == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-recommendations')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewStrategies == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-strategies')
+		// navigationConfig[0].submenu = session?.user?.feature?.viewMarketView == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-market-view')
 	}
 
 	const menuItems = useMemo(() => getSideNavMenuItem(navigationConfig), [userData]);

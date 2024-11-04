@@ -122,19 +122,29 @@ const LeaveApplications = () => {
 
     const columns = [
         {
-            title: 'Leave Type',
-            dataIndex: ['details', 'leaveType'],
-            key: 'leaveType',
+            title: 'Application',
+            dataIndex: ['details', 'applicationDate'],
+            key: 'applicationDate',
         },
         {
             title: 'Reason',
             dataIndex: ['details', 'reason'],
             key: 'reason',
+            render: (_, record) => (
+                <>
+                    {record?.details?.reason?.substring(0, 100) + (record?.details?.reason?.length > 100 ? "..." : "")}
+                </>
+            ),
         },
         {
             title: 'Days',
             dataIndex: ['details', 'daysTaken'],
             key: 'daysTaken',
+        },
+        {
+            title: 'Leave Type',
+            dataIndex: ['details', 'leaveType'],
+            key: 'leaveType',
         },
         {
             title: 'status',

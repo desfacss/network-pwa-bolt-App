@@ -90,6 +90,11 @@ export const protectedRoutes = [
     // },
 
     {
+        key: 'settings',
+        path: `${APP_PREFIX_PATH}/settings`,
+        component: React.lazy(() => import('views/pages/Settings')),
+    },
+    {
         key: 'leave_application',
         path: `${APP_PREFIX_PATH}/leave_application`,
         component: React.lazy(() => import('views/pages/LeaveApplication')),

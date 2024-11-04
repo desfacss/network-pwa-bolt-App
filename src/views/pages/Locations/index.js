@@ -47,7 +47,7 @@ const Locations = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('locations')
-                .update({ details: values, location_name: values?.location_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .update({ details: values, name: values?.name }) //, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName 
                 .eq('id', editItem.id);
 
             if (data) {
@@ -60,7 +60,7 @@ const Locations = () => {
             // Add new location
             const { data, error } = await supabase
                 .from('locations')
-                .insert([{ details: values, location_name: values?.location_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+                .insert([{ details: values, name: values?.name }]) //, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
                 notification.success({ message: "Location added successfully" });

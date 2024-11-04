@@ -32,28 +32,58 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     }, [])
 
     useEffect(() => {
-        const fetchDataForDropdown = async (table, column) => {
+
+        const fetchDataForDropdown = async (table, column, filters) => {
             try {
-                // Replace "-" with "." to handle nested JSONB fields
+                // Normalize the column name for JSONB fields
                 const normalizedColumn = column.replace('-', '.');
 
-                // Fetch data from Supabase based on the specified table
-                let { data, error } = await supabase
+                // Initialize the Supabase query
+                let query = supabase
                     .from(table)
-                    .select(normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn);
+                    .select(`id, ${normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn}`);
+                // .select('*');
+                // Iterate over filters and chain them directly onto the query
+                filters?.forEach(filter => {
+                    const { key, operator, value } = filter;
+
+                    // Chain the operator directly if it's a supported Supabase filter method
+                    if (query[operator]) {
+                        // Apply the `.in` operator differently if `value` is an array
+                        if (operator === 'in' && Array.isArray(value)) {
+                            query = query.in(key, value);
+                        } else {
+                            query = query[operator](key, value);
+                        }
+                    } else {
+                        console.warn(`Unsupported filter operator: ${operator}`);
+                    }
+                });
+
+                // Execute the constructed query
+                const { data, error } = await query;
+                console.log("filters,", data);
 
                 if (error) {
                     console.error("Error fetching data from Supabase:", error);
                     return [];
                 }
 
-                // If the column is nested (e.g., "details.name"), extract the nested value
+                // Extract the column values, accounting for nested fields if present
                 if (normalizedColumn.includes('.')) {
                     const [outerKey, innerKey] = normalizedColumn.split('.');
-                    return data.map((item) => item[outerKey]?.[innerKey]).filter(Boolean);
+                    return data//.map((item) => item[outerKey]?.[innerKey]).filter(Boolean);
+                    // return data.map((item) => ({
+                    //     id: item.id,
+                    //     name: item[outerKey]?.[innerKey]
+                    // })).filter(item => item.name !== undefined);
                 } else {
-                    // Directly extract the column value
-                    return data.map((item) => item[normalizedColumn]);
+                    // Directly extract the column value with `id`
+                    return data//.map((item) => item[normalizedColumn]);
+                    // return data.map((item) => ({
+                    //     id: item.id,
+                    //     name: item[normalizedColumn]
+                    // })).filter(item => item.name !== undefined);
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -61,11 +91,68 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
             }
         };
 
+        // const fetchDataForDropdown = async (table, column, filters) => {
+        //     try {
+        //         // Replace "-" with "." to handle nested JSONB fields
+        //         const normalizedColumn = column.replace('-', '.');
+
+        //         // Fetch data from Supabase based on the specified table
+        //         let query = await supabase
+        //             .from(table)
+        //             .select(`id,${normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn}`);
+
+        //         // for (const [key, value] of Object.entries(filters)) {
+        //         //     query = query.eq(key, value);
+        //         // }
+
+        //         // Apply each filter condition passed in the filters array
+        //         console.log("filter", query);
+        //         filters?.forEach(filter => {
+        //             const { key, operator, value } = filter;
+        //             if (query[operator]) {
+        //                 query = query[operator](key, value);
+        //             }
+        //         });
+        //         const { data, error } = query;
+
+        //         if (error) {
+        //             console.error("Error fetching data from Supabase:", error);
+        //             return [];
+        //         }
+
+        //         // If the column is nested (e.g., "details.name"), extract the nested value
+        //         // if (normalizedColumn.includes('.')) {
+        //         //     const [outerKey, innerKey] = normalizedColumn.split('.');
+        //         //     return data.map((item) => item[outerKey]?.[innerKey]).filter(Boolean);
+        //         // } else {
+        //         //     // Directly extract the column value
+        //         //     return data.map((item) => item[normalizedColumn]);
+        //         // }
+        //         if (normalizedColumn.includes('.')) {
+        //             const [outerKey, innerKey] = normalizedColumn.split('.');
+        //             return data.map((item) => ({
+        //                 id: item.id,
+        //                 name: item[outerKey]?.[innerKey]
+        //             })).filter(item => item.value !== undefined);
+        //         } else {
+        //             // Directly extract the column value with `id`
+        //             return data.map((item) => ({
+        //                 id: item.id,
+        //                 name: item[normalizedColumn]
+        //             })).filter(item => item.value !== undefined);
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching data:", error);
+        //         return [];
+        //     }
+        // };
+
         const replaceEnums = async (obj) => {
             const keys = Object.keys(obj);
             for (let key of keys) {
                 const enumValue = obj[key]?.enum;
-
+                const filterConditions = obj[key]?.enum?.filters || [];
+                // filterConditions && console.log("Ob", filterConditions);
                 if (enumValue) {
                     if (typeof enumValue === 'string') {
                         // Handle the old case where `enum` is a string and needs to match an entry in `enums`
@@ -79,11 +166,13 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                         }
                     } else if (typeof enumValue === 'object' && enumValue.table && enumValue.column) {
                         // Handle the new case where `enum` is an object with a table and column
-                        const options = await fetchDataForDropdown(enumValue.table, enumValue.column);
+                        const options = await fetchDataForDropdown(enumValue.table, enumValue.column, filterConditions);
+                        console.log("Op", options);
                         obj[key] = {
                             type: "string",
                             title: obj[key].title,
-                            enum: options
+                            enum: options.map(item => item.id),
+                            enumNames: options.map(item => item.user_name)
                         };
                     }
                 }

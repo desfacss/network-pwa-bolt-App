@@ -1,10 +1,11 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar } from "antd";
+import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import './Services.css'; // Add a CSS file to style the cards grid
+import axios from "axios";
 
 const Services = () => {
     const componentRef = useRef(null);
@@ -41,34 +42,115 @@ const Services = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        if (editItem) {
-            const { data, error } = await supabase
-                .from('services')
-                .update({
-                    details: values,
-                    service_name: values?.service_name,
-                    organization_id: session?.user?.organization_id,
-                    organization_name: session?.user?.details?.orgName
-                })
-                .eq('id', editItem.id);
+        const {
+            email,
+            mobile,
+            firstName,
+            lastName,
+            role_type, manager, hr_contact
+        } = values;
 
-            if (data) {
-                notification.success({ message: "Service updated successfully" });
-                setEditItem(null);
-            } else if (error) {
-                notification.error({ message: "Failed to update service" });
-            }
-        } else {
-            const { data, error } = await supabase
-                .from('services')
-                .insert([{ details: values, service_name: values?.service_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+        const userName = `${firstName} ${lastName}`;
 
-            if (data) {
-                notification.success({ message: "Service added successfully" });
-            } else if (error) {
-                notification.error({ message: "Failed to add service" });
+        try {
+            // Step 1: Check if the user already exists
+            const { data: existingUser, error: checkError } = await supabase
+                .from('users')
+                .select('id')
+                .eq('details->>email', email)
+            // .single();
+
+            if (checkError && checkError.code !== 'PGRST116') {
+                // If the error is not related to "No rows found" (PGRST116), throw the error
+                throw checkError;
             }
+
+            if (existingUser?.length > 0) {
+                // User already exists
+                message.warning('User with this email already exists.');
+                // setLoading(false);
+                return;
+            }
+
+            // Step 2: Send user invite link
+            const { data, error: inviteError } = await axios.post(
+                'https://azzqopnihybgniqzrszl.functions.supabase.co/invite_users',
+                { email },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+
+            if (inviteError) {
+                throw inviteError;
+            }
+
+            // Step 3: Insert new row in the users table
+            const payload = {
+                organization_id: session?.user?.organization_id,
+                role_type,
+                details: {
+                    role_type,
+                    email,
+                    mobile,
+                    orgName: session?.user?.details?.orgName,
+                    lastName,
+                    userName,
+                    firstName,
+                },
+                id: data?.id,
+                user_name: userName,
+                is_manager: role_type === 'manager',
+                is_active: true,
+                manager_id: manager,
+                hr_id: hr_contact,
+                password_confirmed: false,
+            };
+            console.log("Payload", payload);
+            const { error: insertError } = await supabase.from('users').insert([payload]);
+
+            if (insertError) {
+                throw insertError;
+            }
+
+            message.success('User invited and added successfully!');
+        } catch (error) {
+            message.error(error.message || 'An error occurred.');
+        } finally {
+            // setLoading(false);
         }
+
+
+
+        // if (editItem) {
+        //     const { data, error } = await supabase
+        //         .from('services')
+        //         .update({
+        //             details: values,
+        //             service_name: values?.service_name,
+        //             organization_id: session?.user?.organization_id,
+        //             organization_name: session?.user?.details?.orgName
+        //         })
+        //         .eq('id', editItem.id);
+
+        //     if (data) {
+        //         notification.success({ message: "Service updated successfully" });
+        //         setEditItem(null);
+        //     } else if (error) {
+        //         notification.error({ message: "Failed to update service" });
+        //     }
+        // } else {
+        //     const { data, error } = await supabase
+        //         .from('services')
+        //         .insert([{ details: values, service_name: values?.service_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+
+        //     if (data) {
+        //         notification.success({ message: "Service added successfully" });
+        //     } else if (error) {
+        //         notification.error({ message: "Failed to add service" });
+        //     }
+        // }
+
+
+
         fetchServices();
         setIsModalOpen(false);
         form.resetFields();

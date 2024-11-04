@@ -25,22 +25,34 @@ function App() {
       if (!session || !session.user) return;
 
       // Fetch user data from the users table
-      const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+      const { data: userData, error: userError } = await supabase.from('users').select('*').eq('id', session.user.id).single();
 
-      if (error) {
-        console.error('Error fetching user data:', error);
+      if (userError) {
+        console.error('Error fetching user data:', userError);
         return;
       }
 
-      // Update session.user with the fetched user data
+      // Fetch the role feature based on the user's role_type
+      const { data: roleData, error: roleError } = await supabase
+        .from('roles')
+        .select('feature')
+        .eq('role_name', userData.role_type)
+        .single();
+
+      if (roleError) {
+        console.error('Error fetching role data:', roleError);
+      }
+
+      // Combine user data with role feature
       const updatedSession = {
         ...session,
         user: {
-          ...session.user,
-          ...data, // Add the fetched user data here
+          ...userData,
+          feature: roleData?.feature || null, // Add the role feature here
         },
       };
-      console.log("Session", updatedSession)
+      console.log("Session", updatedSession);
+
       // Dispatch the updated session to Redux
       store.dispatch(setSession(updatedSession));
     };
