@@ -54,19 +54,19 @@ const TimesheetSettings = ({ locationId }) => {
         >
             <Collapse defaultActiveKey={["1"]}>
                 {/* 1. Timesheet Approval Workflow */}
-                <Panel header="1. Timesheet Approval Workflow" key="1">
+                <Panel header="Timesheet Approval Workflow" key="1">
                     <Form.Item name={["approvalWorkflow", "enableApproval"]} label="Enable Approval Workflow" valuePropName="checked">
                         <Switch />
                     </Form.Item>
                     <Form.Item name={["approvalWorkflow", "defaultApprover"]} label="Default Approver">
                         <Select>
-                            <Option value="Direct Manager">Direct Manager</Option>
-                            <Option value="HR Manager">HR Manager</Option>
+                            <Option value="Line Manager">Line Manager</Option>
+                            <Option value="HR Partner">HR Partner</Option>
                             <Option value="Admin">Admin</Option>
-                            <Option value="Custom">Custom</Option>
+                            {/* <Option value="Custom">Custom</Option> */}
                         </Select>
                     </Form.Item>
-                    <Form.Item name={["approvalWorkflow", "multiLevelApproval"]} label="Multi-Level Approval" valuePropName="checked">
+                    {/* <Form.Item name={["approvalWorkflow", "multiLevelApproval"]} label="Multi-Level Approval" valuePropName="checked">
                         <Switch />
                     </Form.Item>
                     <Form.Item name={["approvalWorkflow", "approvalLevels"]} label="Approval Levels">
@@ -81,14 +81,14 @@ const TimesheetSettings = ({ locationId }) => {
                     </Form.Item>
                     <Form.Item name={["approvalWorkflow", "autoApprovalRules"]} label="Auto-Approval Rules">
                         <Input />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item name={["approvalWorkflow", "timeLimitForApproval"]} label="Time Limit for Approval (Days)">
                         <InputNumber min={0} />
                     </Form.Item>
                 </Panel>
 
                 {/* 2. Time Entry Rounding */}
-                <Panel header="2. Time Entry Rounding" key="2">
+                <Panel header="Time Entry Rounding" key="2">
                     <Form.Item name={["timeEntryRounding", "roundTimeEntries"]} label="Round Time Entries" valuePropName="checked">
                         <Switch />
                     </Form.Item>
@@ -99,7 +99,7 @@ const TimesheetSettings = ({ locationId }) => {
                             ))}
                         </Select>
                     </Form.Item>
-                    <Form.Item name={["timeEntryRounding", "roundingMethod"]} label="Rounding Method">
+                    {/* <Form.Item name={["timeEntryRounding", "roundingMethod"]} label="Rounding Method">
                         <Select>
                             <Option value="Round Up">Round Up</Option>
                             <Option value="Round Down">Round Down</Option>
@@ -112,43 +112,43 @@ const TimesheetSettings = ({ locationId }) => {
                             <Option value="end">End Time</Option>
                             <Option value="both">Both</Option>
                         </Select>
-                    </Form.Item>
+                    </Form.Item> */}
                 </Panel>
 
                 {/* 3. Default Working Hours */}
-                <Panel header="3. Default Working Hours" key="3">
+                <Panel header="Default Working Hours" key="3">
                     <Form.Item name={["workingHours", "standardDailyHours"]} label="Standard Daily Hours">
                         <InputNumber min={1} max={24} />
                     </Form.Item>
                     <Form.Item name={["workingHours", "standardWeeklyHours"]} label="Standard Weekly Hours">
                         <InputNumber min={1} max={168} />
                     </Form.Item>
-                    <Form.Item name={["workingHours", "shiftPatterns"]} label="Shift Patterns">
+                    {/* <Form.Item name={["workingHours", "shiftPatterns"]} label="Shift Patterns">
                         <Input />
                     </Form.Item>
                     <Form.Item name={["workingHours", "timeZoneDefaults"]} label="Time Zone-Based Defaults" valuePropName="checked">
                         <Switch />
-                    </Form.Item>
+                    </Form.Item> */}
                 </Panel>
 
                 {/* 4. Overtime Tracking */}
-                <Panel header="4. Overtime Tracking" key="4">
+                <Panel header="Overtime Tracking" key="4">
                     <Form.Item name={["overtimeTracking", "enableOvertime"]} label="Enable Overtime" valuePropName="checked">
                         <Switch />
                     </Form.Item>
-                    <Form.Item name={["overtimeTracking", "overtimeRate"]} label="Overtime Rate (%)">
+                    {/* <Form.Item name={["overtimeTracking", "overtimeRate"]} label="Overtime Rate (%)">
                         <InputNumber min={0} max={100} />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item name={["overtimeTracking", "maxOvertimeHours"]} label="Max Overtime Hours">
                         <InputNumber min={0} />
                     </Form.Item>
-                    <Form.Item name={["overtimeTracking", "autoApprovalForOvertime"]} label="Auto Approval for Overtime" valuePropName="checked">
+                    {/* <Form.Item name={["overtimeTracking", "autoApprovalForOvertime"]} label="Auto Approval for Overtime" valuePropName="checked">
                         <Switch />
-                    </Form.Item>
+                    </Form.Item> */}
                 </Panel>
 
                 {/* 5. Break Policy */}
-                <Panel header="5. Break Policy" key="5">
+                <Panel header="Break Policy" key="5">
                     <Form.Item name={["breakPolicy", "enableBreakTracking"]} label="Enable Break Tracking" valuePropName="checked">
                         <Switch />
                     </Form.Item>
@@ -158,7 +158,7 @@ const TimesheetSettings = ({ locationId }) => {
                     <Form.Item name={["breakPolicy", "maxBreakDuration"]} label="Maximum Break Duration (Minutes)">
                         <InputNumber min={0} />
                     </Form.Item>
-                    <Form.Item name={["breakPolicy", "autoDeductBreakTime"]} label="Auto-Deduct Break Time" valuePropName="checked">
+                    {/* <Form.Item name={["breakPolicy", "autoDeductBreakTime"]} label="Auto-Deduct Break Time" valuePropName="checked">
                         <Switch />
                     </Form.Item>
                     <Form.Item name={["breakPolicy", "breakRounding"]} label="Break Time Rounding">
@@ -167,7 +167,7 @@ const TimesheetSettings = ({ locationId }) => {
                             <Option value="Round Down">Round Down</Option>
                             <Option value="Nearest">Nearest</Option>
                         </Select>
-                    </Form.Item>
+                    </Form.Item> */}
                 </Panel>
 
             </Collapse>

@@ -1,11 +1,11 @@
 import { Card } from 'antd'
 import React from 'react'
-import Review from './Review1'
+import Review1 from './Review1'
 
 const index = () => {
     return (
         <Card>
-            <Review />
+            <Review1 />
         </Card>
     )
 }

@@ -9,7 +9,7 @@ import { WarningOutlined } from '@ant-design/icons';
 // import { sendEmail } from 'components/common/SendEmail';
 const { Option } = Select;
 
-const Review = () => {
+const Review1 = () => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
   const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
@@ -409,4 +409,4 @@ const Review = () => {
   );
 };
 
-export default Review;
+export default Review1;
