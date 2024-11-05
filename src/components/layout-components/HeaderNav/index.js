@@ -122,7 +122,7 @@ export const HeaderNav = (props) => {
                 {navCollapsed || isMobile ? (
                   <>
                     <RightOutlined className="nav-icon" style={{ color: '#ffffff' }} />
-                    <Input
+                    {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
                         <UserOutlined
@@ -131,12 +131,12 @@ export const HeaderNav = (props) => {
                           }}
                         />
                       }
-                    />
+                    /> */}
                   </>
                 ) : (
                   <>
                     <LeftOutlined className="nav-icon" style={{ color: '#ffffff' }} />
-                    <Input
+                    {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
                         <UserOutlined
@@ -145,7 +145,7 @@ export const HeaderNav = (props) => {
                           }}
                         />
                       }
-                    />
+                    /> */}
                   </>
                 )}
               </div>

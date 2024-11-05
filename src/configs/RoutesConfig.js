@@ -142,7 +142,7 @@ export const protectedRoutes = [
     {
         key: 'team',
         path: `${APP_PREFIX_PATH}/team`,
-        component: React.lazy(() => import('views/pages/Team')),
+        component: React.lazy(() => import('views/pages/Team/index')),
     },
     {
         key: 'schedule',

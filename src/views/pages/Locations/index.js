@@ -162,7 +162,7 @@ const Locations = () => {
                     pagination={false}
                 />
             </div>
-            <Drawer footer={null} width={500} //size="large"
+            <Drawer footer={null} width={'100%'} //size="large"
                 title={editItem ? "Edit Location" : "Add Location"}
                 open={isDrawerOpen}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}

@@ -3,6 +3,7 @@ import React from 'react'
 import Locations from '../Locations';
 import Organization from './Organization'
 import RoleFeatureEdit from './Roles'
+import TimesheetSettings from './Timesheet';
 
 const { TabPane } = Tabs;
 
@@ -13,19 +14,19 @@ const index = () => {
                 <TabPane tab="Organization" key="1">
                     <Organization />
                 </TabPane>
-                <TabPane tab="Roles" key="2">
+                <TabPane tab="Roles & Permission" key="2">
                     <RoleFeatureEdit />
                 </TabPane>
-                <TabPane tab="Locations" key="3">
+                <TabPane tab="Region & Holidays" key="3">
                     <Locations />
                 </TabPane>
-                <TabPane tab="Timesheet" key="4">
+                <TabPane tab="Timesheet Settings" key="4">
+                    <TimesheetSettings />
+                </TabPane>
+                <TabPane tab="Leave Policy" key="5">
                     <Locations />
                 </TabPane>
-                <TabPane tab="Leave Mgmt" key="5">
-                    <Locations />
-                </TabPane>
-                <TabPane tab="Expense Mgmt" key="6">
+                <TabPane tab="Expense Policy" key="6">
                     <Locations />
                 </TabPane>
             </Tabs>

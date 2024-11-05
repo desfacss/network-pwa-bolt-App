@@ -88,7 +88,7 @@ const Projects2 = () => {
         if (editItem) {
             const { data, error } = await supabase
                 .from('x_projects')
-                .update({ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id })
+                .update({ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -100,7 +100,7 @@ const Projects2 = () => {
         } else {
             const { data, error } = await supabase
                 .from('x_projects')
-                .insert([{ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id }]);
+                .insert([{ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id }]);
 
             if (data) {
                 notification.success({ message: "Project added successfully" });
@@ -265,7 +265,7 @@ const Projects2 = () => {
     return (
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-                <h2 style={{ margin: 0 }}>Projects 2</h2>
+                <h2 style={{ margin: 0 }}>Projects </h2>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
@@ -362,8 +362,12 @@ const Projects2 = () => {
                     </Form.Item>
                 </Form>
             </Drawer>
+
+
+            {/* <App /> */}
+
+
             {/* {schema && <ProjectForm schema={schema?.data_schema} />} */}
-            <App />
 
 
             {/* {schema && <DynamicTable schema={schema?.dataSchema} />} */}

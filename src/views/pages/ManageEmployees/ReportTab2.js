@@ -10,6 +10,7 @@ const TimesheetComponent = ({ data, printRef }) => {
     const [selectedProjectName, setSelectedProjectName] = useState(null);
 
     // Unique user IDs and project names for Select options
+    console.log("UT", data);
     const userIds = [...new Set(data.map((entry) => entry.user_id))];
     const projectNames = [...new Set(data.map((entry) => entry.project_name))];
 
@@ -117,6 +118,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                         style={{ width: 200, marginBottom: 16 }}
                         placeholder="Select User ID"
                         onChange={setSelectedUserId}
+                        value={selectedUserId}
                         allowClear
                     >
                         {userIds.map((id) => (
@@ -129,6 +131,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                 </TabPane>
                 <TabPane tab="By Project" key="byProject">
                     <Select
+                        value={selectedProjectName}
                         style={{ width: 200, marginBottom: 16 }}
                         placeholder="Select Project Name"
                         onChange={setSelectedProjectName}

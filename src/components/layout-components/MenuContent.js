@@ -75,6 +75,7 @@ const SideNavContent = (props) => {
 	const { userData } = useSelector((state) => state?.profile);
 	const { session } = useSelector((state) => state.auth);
 	const clientSubmenu = ['Dashboard']
+	// useEffect(() => {
 	// if (userData?.role_type === 'client') {
 	// navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => clientSubmenu.includes(item.title))
 	// }
@@ -90,6 +91,7 @@ const SideNavContent = (props) => {
 	// }
 	// METHOD 2
 	if (session) {
+		console.log("rt", session.user.feature);
 		navigationConfig[0].submenu = session?.user?.feature?.viewProjects === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'projects')
 		// navigationConfig[0].submenu = session?.user?.feature?.viewPosition == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position')
 		// navigationConfig[0].submenu = session?.user?.feature?.viewPositionBook == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position-Book')
@@ -105,7 +107,9 @@ const SideNavContent = (props) => {
 		// navigationConfig[0].submenu = session?.user?.feature?.viewMarketView == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-market-view')
 	}
 
-	const menuItems = useMemo(() => getSideNavMenuItem(navigationConfig), [userData]);
+	// }, [session])
+
+	const menuItems = useMemo(() => getSideNavMenuItem(navigationConfig), [session]);
 
 	return (
 		<Menu

@@ -10,13 +10,17 @@ import { sendBatchEmail } from './sendBatchEmail';
 // import TimesheetTabs from './ReportTab';
 import TimesheetComponent from './ReportTab2';
 import DownloadMenu from 'components/common/DownloadMenu';
+import dayjs from 'dayjs';
+
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const ManageEmployees = () => {
+    const defaultStartDate = dayjs().subtract(30, 'days');
+    const defaultEndDate = dayjs();
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState();
-    const [dateRange, setDateRange] = useState([null, null]);
+    const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
     const { session } = useSelector((state) => state.auth);
     const dateFormat = 'YYYY/MM/DD';
     const reportDataRef = useRef(null);
@@ -195,7 +199,7 @@ const ManageEmployees = () => {
 
     return (
         <Card>
-            <RangePicker
+            <RangePicker defaultValue={[defaultStartDate, defaultEndDate]}
                 // format={dateFormat} 
                 onChange={(date) => {
                     setDateRange([
@@ -212,7 +216,7 @@ const ManageEmployees = () => {
             {/* <TimesheetTabs /> */}
             {/* <SparklineTable /> */}
             {/* <DailySummaryChart /> */}
-            <Button onClick={sendBatchEmail}>Send email</Button>
+            {/* <Button onClick={sendBatchEmail}>Send email</Button>
             <Form
                 name="manageEmployees"
                 onFinish={onFinish}
@@ -220,14 +224,6 @@ const ManageEmployees = () => {
                 initialValues={{ role: 'employee' }}
             // style={{ maxWidth: 600, margin: '0 auto' }}
             >
-                {/* <Form.Item
-                    label="Organization ID"
-                    name="organization_id"
-                    rules={[{ required: true, message: 'Please enter the organization ID.' }]}
-                >
-                    <Input />
-                </Form.Item> */}
-
                 <Form.Item
                     label="First Name"
                     name="firstName"
@@ -260,14 +256,6 @@ const ManageEmployees = () => {
                     <Input />
                 </Form.Item>
 
-                {/* <Form.Item
-                    label="Organization Name"
-                    name="orgName"
-                    rules={[{ required: true, message: 'Please enter the organization name.' }]}
-                >
-                    <Input />
-                </Form.Item> */}
-
                 <Form.Item
                     label="Role"
                     name="role"
@@ -286,7 +274,7 @@ const ManageEmployees = () => {
                         Invite User
                     </Button>
                 </Form.Item>
-            </Form>
+            </Form> */}
         </Card>
     );
 };

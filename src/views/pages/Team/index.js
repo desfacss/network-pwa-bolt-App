@@ -20,7 +20,7 @@ const Services = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_users_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "invite_users_form").single()
         if (data) {
             setSchema(data)
         }
@@ -279,6 +279,24 @@ const Services = () => {
                         {services?.map((service) => (
                             <Card
                                 key={service?.id}
+                                extra={
+                                    <div className="card-actions">
+                                        <Button disabled={true}
+                                            type="primary"
+                                            icon={<EditFilled />}
+                                            size="small"
+                                            className="mr-2"
+                                            onClick={() => handleEdit(service)}
+                                        />
+                                        <Button disabled={true}
+                                            type="primary" ghost
+                                            icon={<DeleteOutlined />}
+                                            size="small"
+                                        // onClick={() => handleDelete(service?.id)}
+                                        />
+                                    </div>
+                                }
+
                                 title={
                                     <div className="service-card-title">
                                         <Avatar size={80}

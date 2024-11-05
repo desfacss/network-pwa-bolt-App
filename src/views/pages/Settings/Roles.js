@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Checkbox, Button } from 'antd';
+import { Table, Checkbox, Button, message } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 
 const RoleFeatureEdit = () => {
@@ -71,10 +71,11 @@ const RoleFeatureEdit = () => {
                 .eq('id', role.id);
 
             if (error) {
+                message.error('Error updating role:', error);
                 console.error('Error updating role:', error);
             }
         }
-        alert('Changes saved successfully!');
+        message.success('Changes saved successfully!');
     };
 
     return (

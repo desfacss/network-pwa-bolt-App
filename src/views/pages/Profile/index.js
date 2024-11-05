@@ -8,6 +8,7 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 // import PivotTableComponent from './PT';
 import Timesheet from './AntDTable9';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 // import Timesheet1 from './working-static-fixed';
 
 const { TabPane } = Tabs;
@@ -20,6 +21,8 @@ const Profile = () => {
     const [formData, setFormData] = useState();
     const [edit, setEdit] = useState(false);
     const [updateId, setUpdateId] = useState();
+
+    const { session } = useSelector((state) => state.auth);
 
     const getForms = async (formName) => {
         const { data, error } = await supabase.from('forms').select('*').is('form_type', null).eq('name', formName).single()
@@ -80,17 +83,35 @@ const Profile = () => {
         // }
     };
 
-    const onFinish = () => {
-        // const { data, error } = await supabase.from(schema?.db_schema?.table)
-        //         .upsert([
-        //             {
-        //                 user_id: userId,
-        //                 [schema?.db_schema?.column]: e?.formData // Send each value separately
-        //             },
-        //         ], { onConflict: 'user_id' });
-        //     if (error) {
-        //         return console.log("Error", error);
-        //     }
+    // const onFinish = () => {
+    //     const { data, error } = await supabase.from(schema?.db_schema?.table)
+    //             .upsert([
+    //                 {
+    //                     user_id: userId,
+    //                     [schema?.db_schema?.column]: e?.formData // Send each value separately
+    //                 },
+    //             ], { onConflict: 'user_id' });
+    //         if (error) {
+    //             return console.log("Error", error);
+    //         }
+    // };
+
+    const onFinish = async (values) => {
+        console.log("payload", values);
+        const { data, error } = await supabase.from('users')
+            .update({
+                role_type: values?.role_type,
+                user_name: values?.firstName + " " + values?.lastName,
+                details: { ...values, user_name: values?.firstName + " " + values?.lastName },
+            })
+            .eq('id', userId);
+
+        if (error) {
+            console.log("Error", error.message);
+            return;
+        }
+        setEdit(false);
+        getInfo();
     };
 
     const handleOk = () => {
@@ -108,6 +129,14 @@ const Profile = () => {
     const renderDescriptionItem = (label, value) => {
         return value ? <Descriptions.Item label={label}>{value}</Descriptions.Item> : null;
     };
+
+    const changePw = async () => {
+        const { data, error } = await supabase.auth.updateUser({
+            email: "ratedrnagesh28@gmail.com",
+            password: "Test@1234"
+        })
+    }
+
 
     return (
         <Card>
@@ -136,20 +165,21 @@ const Profile = () => {
                     alignItems: 'center'
                 }}>
                     <span className='mr-1'>Personal Info</span>
-                    <Button type="text" ghost icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'profile_form')}>
+                    <Button type="text" ghost icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'self_profile_form')}>
 
                     </Button>
                 </div>
             }
             >
                 <Descriptions column={1}>
-                    {renderDescriptionItem("Name", details?.userName)}
+                    {renderDescriptionItem("Name", details?.user_name)}
                     {renderDescriptionItem("Email", details?.email)}
                     {renderDescriptionItem("Mobile", details?.mobile)}
-                    {renderDescriptionItem("Organization", details?.orgName)}
+                    {/* {renderDescriptionItem("Organization", details?.orgName)} */}
                     {renderDescriptionItem("Role", details?.role?.replace("_", " "))}
                 </Descriptions>
             </Card >
+            <Button onClick={changePw}>Change Password</Button><br />
             {userData?.role_type === 'employee' && <Link to='/app/notifications'><Button>Manage Notifications</Button></Link>}
             {/* ***************************Profile End */}
 
