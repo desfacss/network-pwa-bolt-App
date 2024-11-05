@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -42,11 +42,11 @@ const Projects2 = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('id, user_name');
+            const { data, error } = await supabase.from('users').select('id, user_name,role_type');
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
-                console.log("US", data)
+                console.log("Users", data)
                 setUsers(data || []);
             }
         };
@@ -249,6 +249,13 @@ const Projects2 = () => {
             ),
         },
         {
+            title: 'Rate',
+            dataIndex: 'rate',
+            render: (text, record, index) => (
+                <InputNumber value={text} style={{ width: '100%' }} onChange={(e) => handleUserChange(index, 'rate', e)} />
+            ),
+        },
+        {
             title: 'Actions',
             render: (_, __, index) => (
                 <Button
@@ -329,7 +336,7 @@ const Projects2 = () => {
                     </Form.Item>
                     <Form.Item name="manager_id" label="Manager ID">
                         <Select placeholder="Select Manager">
-                            {users?.map((user) => (
+                            {users?.filter(user => ["hr", "manager", "admin"]?.includes(user.role_type))?.map((user) => (
                                 <Select.Option key={user?.id} value={user?.id}>
                                     {user?.user_name}
                                 </Select.Option>
@@ -338,7 +345,7 @@ const Projects2 = () => {
                     </Form.Item>
                     <Form.Item name="hrpartner_id" label="HR Partner ID">
                         <Select placeholder="Select HR partner">
-                            {users?.map((user) => (
+                            {users?.filter(user => ["hr", "admin"]?.includes(user.role_type))?.map((user) => (
                                 <Select.Option key={user?.id} value={user?.id}>
                                     {user?.user_name}
                                 </Select.Option>

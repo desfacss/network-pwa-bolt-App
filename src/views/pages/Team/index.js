@@ -7,9 +7,9 @@ import { useSelector } from "react-redux";
 import './Services.css'; // Add a CSS file to style the cards grid
 import axios from "axios";
 
-const Services = () => {
+const Users = () => {
     const componentRef = useRef(null);
-    const [services, setServices] = useState([]);
+    const [users, setUsers] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [schema, setSchema] = useState();
@@ -20,7 +20,7 @@ const Services = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "invite_users_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "users_invite_form").single()
         if (data) {
             setSchema(data)
         }
@@ -28,16 +28,16 @@ const Services = () => {
 
     useEffect(() => {
         getForms();
-        fetchServices();
+        fetchUsers();
     }, []);
 
-    const fetchServices = async () => {
+    const fetchUsers = async () => {
         let { data, error } = await supabase.from('users').select('*');
         if (data) {
-            setServices(data);
+            setUsers(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch services" });
+            notification.error({ message: "Failed to fetch users" });
         }
     };
 
@@ -122,36 +122,36 @@ const Services = () => {
 
         // if (editItem) {
         //     const { data, error } = await supabase
-        //         .from('services')
+        //         .from('users')
         //         .update({
         //             details: values,
-        //             service_name: values?.service_name,
+        //             user_name: values?.user_name,
         //             organization_id: session?.user?.organization_id,
         //             organization_name: session?.user?.details?.orgName
         //         })
         //         .eq('id', editItem.id);
 
         //     if (data) {
-        //         notification.success({ message: "Service updated successfully" });
+        //         notification.success({ message: "User updated successfully" });
         //         setEditItem(null);
         //     } else if (error) {
-        //         notification.error({ message: "Failed to update service" });
+        //         notification.error({ message: "Failed to update user" });
         //     }
         // } else {
         //     const { data, error } = await supabase
-        //         .from('services')
-        //         .insert([{ details: values, service_name: values?.service_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+        //         .from('users')
+        //         .insert([{ details: values, user_name: values?.user_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
         //     if (data) {
-        //         notification.success({ message: "Service added successfully" });
+        //         notification.success({ message: "User added successfully" });
         //     } else if (error) {
-        //         notification.error({ message: "Failed to add service" });
+        //         notification.error({ message: "Failed to add user" });
         //     }
         // }
 
 
 
-        fetchServices();
+        fetchUsers();
         setIsModalOpen(false);
         form.resetFields();
         setEditItem();
@@ -160,7 +160,7 @@ const Services = () => {
     const handleEdit = (record) => {
         setEditItem(record);
         form.setFieldsValue({
-            service_name: record.details.service_name,
+            user_name: record.details.user_name,
             cost: record.details.cost,
             duration: record.details.duration,
             description: record.details.description,
@@ -169,12 +169,12 @@ const Services = () => {
     };
 
     const handleDelete = async (id) => {
-        const { error } = await supabase.from('services').delete().eq('id', id);
+        const { error } = await supabase.from('users').delete().eq('id', id);
         if (!error) {
-            notification.success({ message: "Service deleted successfully" });
-            fetchServices();
+            notification.success({ message: "User deleted successfully" });
+            fetchUsers();
         } else {
-            notification.error({ message: "Failed to delete service" });
+            notification.error({ message: "Failed to delete user" });
         }
     };
 
@@ -276,9 +276,9 @@ const Services = () => {
             <div ref={componentRef}>
                 {viewMode === 'card' ? (
                     <div className="services-card-grid">
-                        {services?.map((service) => (
+                        {users?.map((user) => (
                             <Card
-                                key={service?.id}
+                                key={user?.id}
                                 extra={
                                     <div className="card-actions">
                                         <Button disabled={true}
@@ -286,13 +286,13 @@ const Services = () => {
                                             icon={<EditFilled />}
                                             size="small"
                                             className="mr-2"
-                                            onClick={() => handleEdit(service)}
+                                            onClick={() => handleEdit(user)}
                                         />
                                         <Button disabled={true}
                                             type="primary" ghost
                                             icon={<DeleteOutlined />}
                                             size="small"
-                                        // onClick={() => handleDelete(service?.id)}
+                                        // onClick={() => handleDelete(user?.id)}
                                         />
                                     </div>
                                 }
@@ -300,13 +300,13 @@ const Services = () => {
                                 title={
                                     <div className="service-card-title">
                                         <Avatar size={80}
-                                            src={service?.details?.profileImage}
-                                            alt={service && service?.details?.firstName[0] || ""}
-                                        >{service && service?.details?.firstName[0] || ""}</Avatar>
-                                        {/* {service.details?.firstName} */}
+                                            src={user?.details?.profileImage}
+                                            alt={user && user?.details?.firstName[0] || ""}
+                                        >{user && user?.details?.firstName[0] || ""}</Avatar>
+                                        {/* {user.details?.firstName} */}
                                     </div>
                                 }
-                                // title={service.details?.service_name}
+                                // title={user.details?.user_name}
                                 className="service-card"
                             // extra={
                             //     <div className="card-actions">
@@ -315,31 +315,31 @@ const Services = () => {
                             //             icon={<EditFilled />}
                             //             size="small"
                             //             className="mr-2"
-                            //             onClick={() => handleEdit(service)}
+                            //             onClick={() => handleEdit(user)}
                             //         />
                             //         <Button
                             //             type="primary" ghost
                             // icon={<DeleteOutlined />}
                             // size="small"
-                            //             onClick={() => handleDelete(service.id)}
+                            //             onClick={() => handleDelete(user.id)}
                             //         />
                             //     </div>
                             // }
                             >
-                                <p><b>First Name:</b> {service.details?.firstName}</p>
-                                <p><b>Last Name:</b> {service.details?.lastName}</p>
-                                <p><b>Email:</b> {service.details?.email}</p>
-                                <p><b>Mobile:</b> {service.details?.mobile}</p>
-                                <p><b>Role:</b> {service.details?.role}</p>
+                                <p><b>First Name:</b> {user.details?.firstName}</p>
+                                <p><b>Last Name:</b> {user.details?.lastName}</p>
+                                <p><b>Email:</b> {user.details?.email}</p>
+                                <p><b>Mobile:</b> {user.details?.mobile}</p>
+                                <p><b>Role:</b> {user.details?.role}</p>
                             </Card>
                         ))}
                     </div>
                 ) : (
                     <Table
                         columns={columns}
-                        dataSource={services}
+                        dataSource={users}
                         rowKey={(record) => record.id}
-                        loading={!services}
+                        loading={!users}
                         pagination={false}
                     />
                 )}
@@ -359,4 +359,4 @@ const Services = () => {
     );
 };
 
-export default Services;
+export default Users;

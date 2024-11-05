@@ -172,7 +172,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                             type: "string",
                             title: obj[key].title,
                             enum: options.map(item => item.id),
-                            enumNames: options.map(item => item.user_name)
+                            enumNames: options.map(item => item[`${enumValue.column}`])
                         };
                     }
                 }
