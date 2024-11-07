@@ -4,39 +4,13 @@ import { supabase } from 'configs/SupabaseConfig';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const ChangePassword = () => {
+const ChangePassword = ({ onConfirm }) => {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false);
-    console.log("CP")
+
+    const [form] = Form.useForm();
+
     const { session } = useSelector(state => state.auth)
-    // const onFinish = async (values) => {
-    //     const { newPassword, confirmPassword } = values;
-
-    //     if (newPassword !== confirmPassword) {
-    //         message.error('New password and confirmation do not match.');
-    //         return;
-    //     }
-
-    //     setLoading(true);
-
-    //     try {
-    //         const { error } = await supabase.auth.updateUser({
-    //             password: newPassword,
-    //         });
-
-    //         if (error) {
-    //             throw error;
-    //         }
-
-    //         message.success('Password changed successfully!');
-    //         navigate('/app/profile')
-
-    //     } catch (error) {
-    //         message.error(error.message || 'Something went wrong.');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
 
     const onFinish = async (values) => {
         const { newPassword, confirmPassword } = values;
@@ -69,8 +43,9 @@ const ChangePassword = () => {
             }
 
             message.success('Password changed successfully!');
-            navigate('/app/profile');
-
+            // navigate('/app/profile');
+            onConfirm()
+            form.resetFields()
         } catch (error) {
             message.error(error.message || 'Something went wrong.');
         } finally {
@@ -79,8 +54,8 @@ const ChangePassword = () => {
     };
 
     return (
-        <Card>
-            <Form
+        <>
+            <Form form={form}
                 name="changePassword"
                 onFinish={onFinish}
                 layout="vertical"
@@ -108,7 +83,7 @@ const ChangePassword = () => {
                     </Button>
                 </Form.Item>
             </Form>
-        </Card>
+        </>
     );
 };
 

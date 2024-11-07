@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Tabs, Table, Select } from 'antd';
-import { Sparklines, SparklinesBars } from 'react-sparklines';
+import Chart from 'react-apexcharts';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -10,7 +10,6 @@ const TimesheetComponent = ({ data, printRef }) => {
     const [selectedProjectName, setSelectedProjectName] = useState(null);
 
     // Unique user IDs and project names for Select options
-    console.log("UT", data);
     const userIds = [...new Set(data.map((entry) => entry.user_id))];
     const projectNames = [...new Set(data.map((entry) => entry.project_name))];
 
@@ -62,6 +61,27 @@ const TimesheetComponent = ({ data, printRef }) => {
         return Object.values(grouped);
     }, [data, selectedProjectName]);
 
+    // Sparkline options generator
+    const getSparklineOptions = (dates) => {
+        const seriesData = Object.values(dates);
+        return {
+            chart: {
+                type: 'line',
+                sparkline: { enabled: true },
+                toolbar: { show: false },
+                zoom: { enabled: false },
+            },
+            tooltip: {
+                enabled: true,
+                x: { show: false },
+                y: { formatter: (val) => `${val} hrs` },
+            },
+            stroke: { curve: 'smooth' },
+            colors: ['#41c3f9'],
+            series: [{ data: seriesData }],
+        };
+    };
+
     // Columns for "By Employee" tab
     const employeeColumns = [
         {
@@ -74,9 +94,12 @@ const TimesheetComponent = ({ data, printRef }) => {
             dataIndex: 'dates',
             key: 'dates',
             render: (dates) => (
-                <Sparklines data={Object.values(dates)}>
-                    <SparklinesBars style={{ fill: "#41c3f9" }} />
-                </Sparklines>
+                <Chart
+                    options={getSparklineOptions(dates)}
+                    series={getSparklineOptions(dates).series}
+                    type="line"
+                    width="100"
+                />
             ),
         },
         {
@@ -98,9 +121,12 @@ const TimesheetComponent = ({ data, printRef }) => {
             dataIndex: 'dates',
             key: 'dates',
             render: (dates) => (
-                <Sparklines data={Object.values(dates)}>
-                    <SparklinesBars style={{ fill: "#41c3f9" }} />
-                </Sparklines>
+                <Chart
+                    options={getSparklineOptions(dates)}
+                    series={getSparklineOptions(dates).series}
+                    type="line"
+                    width="100"
+                />
             ),
         },
         {
@@ -113,7 +139,7 @@ const TimesheetComponent = ({ data, printRef }) => {
     return (
         <div ref={printRef}>
             <Tabs defaultActiveKey="byEmployee">
-                <TabPane tab="By Employee" key="byEmployee">
+                <TabPane tab="Project Summary" key="byEmployee">
                     <Select
                         style={{ width: 200, marginBottom: 16 }}
                         placeholder="Select User ID"
@@ -129,7 +155,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                     </Select>
                     <Table columns={employeeColumns} dataSource={byEmployeeData} rowKey="project_name" />
                 </TabPane>
-                <TabPane tab="By Project" key="byProject">
+                <TabPane tab="Employee Summary" key="byProject">
                     <Select
                         value={selectedProjectName}
                         style={{ width: 200, marginBottom: 16 }}

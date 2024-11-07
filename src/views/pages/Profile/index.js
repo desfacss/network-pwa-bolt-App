@@ -9,6 +9,7 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import Timesheet from './AntDTable9';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import ChangePassword from 'views/auth-views/components/ChangePassword';
 // import Timesheet1 from './working-static-fixed';
 
 const { TabPane } = Tabs;
@@ -21,6 +22,7 @@ const Profile = () => {
     const [formData, setFormData] = useState();
     const [edit, setEdit] = useState(false);
     const [updateId, setUpdateId] = useState();
+    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
     const { session } = useSelector((state) => state.auth);
 
@@ -137,6 +139,13 @@ const Profile = () => {
         })
     }
 
+    const openChangePasswordModal = () => {
+        setShowChangePasswordModal(true);
+    };
+
+    const closeChangePasswordModal = () => {
+        setShowChangePasswordModal(false);
+    };
 
     return (
         <Card>
@@ -153,10 +162,6 @@ const Profile = () => {
                 {/* <DynamicForm schema={schema?.data} initialValues={[{ ...formData }]} /> */}
                 <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
             </Modal>}
-
-
-
-
             {/* Profile Start ************************************* */}
             <Card title={
                 <div style={{
@@ -179,73 +184,18 @@ const Profile = () => {
                     {renderDescriptionItem("Role", details?.role?.replace("_", " "))}
                 </Descriptions>
             </Card >
-            <Button onClick={changePw}>Change Password</Button><br />
-            {userData?.role_type === 'employee' && <Link to='/app/notifications'><Button>Manage Notifications</Button></Link>}
-            {/* ***************************Profile End */}
-
-
-
-
-
-
-
-            {/* <Card title="Social Media Links">
-                <Descriptions column={1}>
-                    {renderDescriptionItem("Twitter", personal_reg_info?.twitter)}
-                    {renderDescriptionItem("Facebook", personal_reg_info?.facebook)}
-                    {renderDescriptionItem("Instagram", personal_reg_info?.instagram)}
-                    {renderDescriptionItem("LinkedIn", personal_reg_info?.linkedin)}
-                </Descriptions>
-            </Card>
-            <Card title="Currently Working">
-                <Descriptions column={1}>
-                    {renderDescriptionItem("Company Name", ind_reg?.companyName)}
-                    {renderDescriptionItem("Position Title", ind_reg?.positionTitle)}
-                </Descriptions>
-            </Card>
-            <Card title="Networking">
-                <Descriptions column={1}>
-                    {renderDescriptionItem("I Can Offer", networking?.icanoffer?.join(', '))}
-                    {renderDescriptionItem("I'm Looking For", networking?.imlookingfor?.join(', '))}
-                   </Descriptions>
-            </Card>
-            <Tabs defaultActiveKey="0"
-                tabBarExtraContent={{
-                    right: <Button type="primary" ghost onClick={e => showModal(null, 'business_info', null)}>
-                        + Business
-                    </Button>,
-                }}
+            <Modal
+                title="Change Password"
+                visible={showChangePasswordModal}
+                onCancel={closeChangePasswordModal}
+                footer={null}
             >
-                {businessData?.map((business, index) => (
-                    <TabPane tab=
-                        {
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span >{business?.info?.companyName}</span>
-                                <Button type="text" icon={<EditOutlined />} ghost onClick={e => showModal(business?.info, 'business_info', business?.id)}>
-                                   
-                                </Button>
-                            </div>
-                        }
-                        key={`business-${index}`}>
-                        <Card >
-                            <Descriptions column={1}>
-                                {renderDescriptionItem("Position Title", business?.info?.positionTitle)}
-                                {renderDescriptionItem("Industry Sector", business?.info?.industrySector)}
-                                {renderDescriptionItem("Legal Structure", business?.info?.legalStructure)}
-                                {renderDescriptionItem("Innovation Plans", business?.info?.innovationPlans)}
-                                {renderDescriptionItem("Expansion Plans", business?.info?.expansionPlans)}
-                                {renderDescriptionItem("Products/Services", business?.info?.productsOrServices)}
-                                {renderDescriptionItem("Annual Turnover", business?.info?.annualTurnoverRange)}
-                                {renderDescriptionItem("Establishment Year", business?.info?.establishmentYear)}
-                                {renderDescriptionItem("Location", business?.info?.location)}
-                                {renderDescriptionItem("Direct Employment", business?.info?.directEmployment)}
-                                {renderDescriptionItem("Indirect Employment", business?.info?.indirectEmployment)}
-                                {renderDescriptionItem("Nagarathar Involvement", business?.info?.nagaratharInvolvement)}
-                            </Descriptions>
-                        </Card>
-                    </TabPane>
-                ))}
-            </Tabs> */}
+                <ChangePassword onConfirm={closeChangePasswordModal} />
+            </Modal>
+            {/* <Button onClick={changePw}>Change Password</Button><br /> */}
+            <Button onClick={openChangePasswordModal}>Change Password</Button><br />
+            {/* {userData?.role_type === 'employee' && <Link to='/app/notifications'><Button className='mt-3'>Manage Notifications</Button></Link>} */}
+            {/* ***************************Profile End */}
         </Card >
     );
 };

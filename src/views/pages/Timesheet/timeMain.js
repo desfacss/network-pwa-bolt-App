@@ -6,7 +6,7 @@ import { supabase } from 'configs/SupabaseConfig';
 
 const { Option } = Select;
 
-const Timesheet = () => {
+const Timesheet = ({ closeDrawer }) => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(false);
@@ -20,7 +20,11 @@ const Timesheet = () => {
   const { session } = useSelector((state) => state.auth);
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase.from('x_projects').select('*');
+    const { data, error } = await supabase.from('x_projects').select('*')
+      .or(
+        `project_users.cs.{${session?.user?.id}},is_static.eq.true`
+      )
+    // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
       console.log("T", data.slice(0, 2))
@@ -29,11 +33,15 @@ const Timesheet = () => {
       const projectColumns = {};
       const projectDataMap = {};
       data.forEach((project) => {
-        projectColumns[project.project_name] = project.project_name;
-        projectDataMap[project.project_name] = generateRows(project.project_name);
+        projectColumns[project.id] = project.id;
+        projectDataMap[project.id] = generateRows(project.id);
       });
       console.log("TT", projectColumns, projectDataMap)
-      setSelectedProjectColumns(projectColumns);
+      const firstKey = Object.keys(projectColumns)[0];
+
+      // Get the first key-value pair
+      const firstObject = { [firstKey]: data[firstKey] };
+      setSelectedProjectColumns(firstObject);
       setProjectData(projectDataMap);
     } else {
       notification.error({ message: 'Failed to fetch projects' });
@@ -135,6 +143,8 @@ const Timesheet = () => {
       return;
     }
 
+    console.log("PD", projectData)
+
     const timesheetDetails = generateRows(selectedProjectColumns[0]).map(day => {
       const dailyEntry = {
         key: day.key,
@@ -179,6 +189,7 @@ const Timesheet = () => {
 
         if (error) throw error;
         message.success('Timesheet submitted successfully.');
+        closeDrawer()
       }
 
       // Refetch the timesheet data after submission
@@ -241,7 +252,7 @@ const Timesheet = () => {
     const selectedProjects = Object.values(selectedProjectColumns);
     return projects.map((project) => ({
       ...project,
-      disabled: selectedProjects.includes(project.project_name),
+      disabled: selectedProjects.includes(project.id),
     }));
   };
 
@@ -249,7 +260,7 @@ const Timesheet = () => {
   const addNewProject = () => {
     // Find the first project that is not selected
     const unselectedProjects = projects.filter(
-      (project) => !Object.values(selectedProjectColumns).includes(project.project_name)
+      (project) => !Object.values(selectedProjectColumns).includes(project.id)
     );
 
     if (unselectedProjects.length > 0) {
@@ -258,12 +269,12 @@ const Timesheet = () => {
 
       setSelectedProjectColumns((prevState) => ({
         ...prevState,
-        [newProjectIndex]: newProject.project_name,
+        [newProjectIndex]: newProject.id,
       }));
 
       setProjectData((prevData) => ({
         ...prevData,
-        [newProject.project_name]: generateRows(newProject.project_name),
+        [newProject.id]: generateRows(newProject.id),
       }));
     } else {
       notification.warning({ message: 'No more projects available to add.' });
@@ -433,7 +444,7 @@ const Timesheet = () => {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Select defaultValue={projectName} style={{ width: 120 }} onChange={(value) => handleProjectChange(value, columnIndex)} >
               {getAvailableProjects().map((option) => (
-                <Option key={option.project_name} value={option.project_name} disabled={option.disabled}>
+                <Option key={option.id} value={option.id} disabled={option.disabled}>
                   {option.project_name}
                 </Option>
               ))}
@@ -471,7 +482,7 @@ const Timesheet = () => {
       title: 'Daily Total',
       key: 'total',
       render: (_, record) => {
-        var dailyTotal = projects.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.project_name]?.hours) || 0), 0)
+        var dailyTotal = projects.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
         // var invalid=dailyTotal > 10 || dailyTotal<8
         var invalid = dailyTotal > 8
         if (invalid) {
@@ -593,14 +604,14 @@ const Timesheet = () => {
   };
 
   const calculateBalanceHours = (projectName, projectTotals) => {
-    const project = projects.find((p) => p.project_name === projectName);
-    if (!project || !project.details.project_users) return 0;
+    const project = projects.find((p) => p.id === projectName);
+    if (!project || !project?.details?.project_users) return 0;
 
-    const userDetails = project.details.project_users.find(user => user.user_id === session?.user?.id);
+    const userDetails = project?.details?.project_users?.find(user => user.user_id === session?.user?.id);
     if (!userDetails) return 0;
 
-    const allocatedHours = parseInt(userDetails.allocated_hours, 10) || 0;
-    const expensedHours = parseInt(userDetails.expensed_hours, 10) || 0;
+    const allocatedHours = parseInt(userDetails?.allocated_hours, 10) || 0;
+    const expensedHours = parseInt(userDetails?.expensed_hours, 10) || 0;
     // const projectTotalHours = project.details.project_users.reduce((total, user) => {
     //   return total + (parseInt(user.allocated_hours, 10) || 0);
     // }, 0);

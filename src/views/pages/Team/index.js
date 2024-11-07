@@ -1,6 +1,6 @@
 import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
@@ -13,6 +13,8 @@ const Users = () => {
     const [editItem, setEditItem] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [schema, setSchema] = useState();
+    const [clone, setClone] = useState();
+    const [locations, setLocations] = useState();
     const [viewMode, setViewMode] = useState('card'); // Toggle between 'card' and 'list' view
 
     const { session } = useSelector((state) => state.auth);
@@ -25,16 +27,27 @@ const Users = () => {
             setSchema(data)
         }
     }
+    const getLocations = async () => {
+        const { data, error } = await supabase.from('locations').select('*')
+        if (data) {
+            setLocations(data)
+            console.log("Locations", data)
+        }
+    }
 
     useEffect(() => {
         getForms();
+        getLocations();
         fetchUsers();
     }, []);
 
     const fetchUsers = async () => {
-        let { data, error } = await supabase.from('users').select('*');
+        let { data, error } = await supabase.from('users')
+            // .select(`*,location (name), hr:users (user_name), manager:users (user_name)`);
+            .select(`*,location (*), hr:hr_id (id), manager:manager_id (id)`);
         if (data) {
             setUsers(data);
+            console.log("users1", data);
         }
         if (error) {
             notification.error({ message: "Failed to fetch users" });
@@ -47,43 +60,11 @@ const Users = () => {
             mobile,
             firstName,
             lastName,
-            role_type, manager, hr_contact
+            role_type, manager, hr_contact, location, has_resigned, last_date
         } = values;
 
         const userName = `${firstName} ${lastName}`;
-
-        try {
-            // Step 1: Check if the user already exists
-            const { data: existingUser, error: checkError } = await supabase
-                .from('users')
-                .select('id')
-                .eq('details->>email', email)
-            // .single();
-
-            if (checkError && checkError.code !== 'PGRST116') {
-                // If the error is not related to "No rows found" (PGRST116), throw the error
-                throw checkError;
-            }
-
-            if (existingUser?.length > 0) {
-                // User already exists
-                message.warning('User with this email already exists.');
-                // setLoading(false);
-                return;
-            }
-
-            // Step 2: Send user invite link
-            const { data, error: inviteError } = await axios.post(
-                'https://azzqopnihybgniqzrszl.functions.supabase.co/invite_users',
-                { email },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-
-            if (inviteError) {
-                throw inviteError;
-            }
-
-            // Step 3: Insert new row in the users table
+        if (editItem && !clone) {
             const payload = {
                 organization_id: session?.user?.organization_id,
                 role_type,
@@ -94,31 +75,98 @@ const Users = () => {
                     orgName: session?.user?.details?.orgName,
                     lastName,
                     userName,
-                    firstName,
+                    firstName, has_resigned, last_date
                 },
-                id: data?.id,
                 user_name: userName,
                 is_manager: role_type === 'manager',
                 is_active: true,
+                location: location,
+                leave_details: locations?.find(item => item?.id === location)?.leave_settings,
                 manager_id: manager,
                 hr_id: hr_contact,
                 password_confirmed: false,
             };
-            console.log("Payload", payload);
-            const { error: insertError } = await supabase.from('users').insert([payload]);
+            console.log("payload", payload);
+            const { data, error } = await supabase
+                .from('users')
+                .update(payload)
+                .eq('id', editItem.id);
 
-            if (insertError) {
-                throw insertError;
+            if (data) {
+                notification.success({ message: "User updated successfully" });
+                setEditItem(null);
+            } else if (error) {
+                notification.error({ message: "Failed to update user" });
             }
+        } else {
+            try {
+                // Step 1: Check if the user already exists
+                const { data: existingUser, error: checkError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('details->>email', email)
+                // .single();
 
-            message.success('User invited and added successfully!');
-        } catch (error) {
-            message.error(error.message || 'An error occurred.');
-        } finally {
-            // setLoading(false);
+                if (checkError && checkError.code !== 'PGRST116') {
+                    // If the error is not related to "No rows found" (PGRST116), throw the error
+                    throw checkError;
+                }
+
+                if (existingUser?.length > 0) {
+                    // User already exists
+                    message.warning('User with this email already exists.');
+                    // setLoading(false);
+                    return;
+                }
+
+                // Step 2: Send user invite link
+                const { data, error: inviteError } = await axios.post(
+                    'https://azzqopnihybgniqzrszl.functions.supabase.co/invite_users',
+                    { email },
+                    { headers: { 'Content-Type': 'application/json' } }
+                );
+
+                if (inviteError) {
+                    throw inviteError;
+                }
+
+                // Step 3: Insert new row in the users table
+                const payload = {
+                    organization_id: session?.user?.organization_id,
+                    role_type,
+                    details: {
+                        role_type,
+                        email,
+                        mobile,
+                        orgName: session?.user?.details?.orgName,
+                        lastName,
+                        userName,
+                        firstName, has_resigned, last_date
+                    },
+                    id: data?.id,
+                    user_name: userName,
+                    is_manager: role_type === 'manager',
+                    is_active: true,
+                    location: location,
+                    leave_details: locations?.find(item => item?.id === location)?.leave_settings,
+                    manager_id: manager,
+                    hr_id: hr_contact,
+                    password_confirmed: false,
+                };
+                console.log("Payload", payload);
+                const { error: insertError } = await supabase.from('users').insert([payload]);
+
+                if (insertError) {
+                    throw insertError;
+                }
+
+                message.success('User invited and added successfully!');
+            } catch (error) {
+                message.error(error.message || 'An error occurred.');
+            } finally {
+                // setLoading(false);
+            }
         }
-
-
 
         // if (editItem) {
         //     const { data, error } = await supabase
@@ -155,17 +203,43 @@ const Users = () => {
         setIsModalOpen(false);
         form.resetFields();
         setEditItem();
+        setClone();
     };
 
-    const handleEdit = (record) => {
-        setEditItem(record);
-        form.setFieldsValue({
-            user_name: record.details.user_name,
-            cost: record.details.cost,
-            duration: record.details.duration,
-            description: record.details.description,
-        });
+    const handleEdit = (record, copy) => {
+        const item = {
+            ...record?.details,
+            // manager: record?.manager?.id,
+            // hr_contact: record?.hr?.id,
+            // location: record?.location?.id,
+            id: record?.id,
+            manager: record?.manager?.id,
+            hr_contact: record?.hr?.id,
+            location: record?.location?.id,
+        }
+        copy && (delete item?.email)
+        console.log("Up", item, record);
+        setEditItem(item);
+        form.setFieldsValue(item
+            // ...record?.details,
+            // // manager: record?.manager?.id,
+            // // hr_contact: record?.hr?.id,
+            // // location: record?.location?.id,
+
+            // manager: record?.manager?.user_name,
+            // hr_contact: record?.hr?.user_name,
+            // location: record?.location?.name,
+
+            // // role_type: record?.role_type,
+            // // user_name: record.details.user_name,
+            // // cost: record.details.cost,
+            // // duration: record.details.duration,
+            // // description: record.details.description,
+        );
         setIsModalOpen(true);
+        if (copy) {
+            setClone(true)
+        }
     };
 
     const handleDelete = async (id) => {
@@ -267,7 +341,7 @@ const Users = () => {
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => { setEditItem(); setIsModalOpen(true) }}
                     >
                         Invite User
                     </Button>
@@ -281,12 +355,19 @@ const Users = () => {
                                 key={user?.id}
                                 extra={
                                     <div className="card-actions">
-                                        <Button disabled={true}
+                                        <Button //disabled={true}
                                             type="primary"
                                             icon={<EditFilled />}
                                             size="small"
                                             className="mr-2"
                                             onClick={() => handleEdit(user)}
+                                        />
+                                        <Button //disabled={true}
+                                            type="default"
+                                            icon={<CopyFilled />}
+                                            size="small"
+                                            className="mr-2"
+                                            onClick={() => handleEdit(user, true)}
                                         />
                                         <Button disabled={true}
                                             type="primary" ghost
@@ -330,7 +411,7 @@ const Users = () => {
                                 <p><b>Last Name:</b> {user.details?.lastName}</p>
                                 <p><b>Email:</b> {user.details?.email}</p>
                                 <p><b>Mobile:</b> {user.details?.mobile}</p>
-                                <p><b>Role:</b> {user.details?.role}</p>
+                                <p><b>Role:</b> {user.details?.role_type}</p>
                             </Card>
                         ))}
                     </div>
@@ -347,13 +428,13 @@ const Users = () => {
             <Drawer
                 width={600}
                 footer={null}
-                title={editItem ? "Edit User Details" : "Invite User"}
+                title={(editItem && !clone) ? "Edit User Details" : "Invite User"}
                 open={isModalOpen}
-                onClose={() => { setIsModalOpen(false); setEditItem() }}
+                onClose={() => { setIsModalOpen(false); setEditItem(); setClone(false) }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
-                <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem?.details} />
+                <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem} />
             </Drawer>
         </Card>
     );

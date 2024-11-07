@@ -1,6 +1,7 @@
 import Form from "@rjsf/antd";
 // import { RJSFSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
+import { Card } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useEffect, useState } from "react";
 // import { ReactElement } from "react";
@@ -169,7 +170,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                         const options = await fetchDataForDropdown(enumValue.table, enumValue.column, filterConditions);
                         console.log("Op", options);
                         obj[key] = {
-                            type: "string",
+                            type: obj[key]?.type,
                             title: obj[key].title,
                             enum: options.map(item => item.id),
                             enumNames: options.map(item => item[`${enumValue.column}`])

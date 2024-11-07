@@ -131,7 +131,7 @@ const dashBoardNavTree = [{
       submenu: []
     },
     {
-      key: 'blank',
+      key: 'blank2',
       // path: `${APP_PREFIX_PATH}/team`,
       title: '',
       // icon: UserOutlined, // Kept as UserOutlined

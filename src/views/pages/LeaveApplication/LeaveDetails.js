@@ -13,8 +13,8 @@ import { Card, Col, Row, Table } from 'antd';
 // };
 
 const LeaveDetails = ({ leave_details }) => {
-    const dataSource = Object.keys(leave_details.leaves).map((key, index) => {
-        const leave = leave_details.leaves[key];
+    const dataSource = leave_details && Object.keys(leave_details)?.map((key, index) => {
+        const leave = leave_details[key];
         return {
             key: index,
             type: key.charAt(0).toUpperCase() + key.slice(1),
@@ -50,7 +50,7 @@ const LeaveDetails = ({ leave_details }) => {
     // return <Table dataSource={dataSource} columns={columns} pagination={false} />;
     return (
         <Row gutter={[16, 16]}>
-            {dataSource.map((leave) => (
+            {dataSource?.map((leave) => (
                 <Col key={leave.key} xs={24} sm={12} md={8} lg={6}>
                     <Card>
                         <div>

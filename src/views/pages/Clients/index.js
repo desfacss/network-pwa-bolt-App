@@ -31,7 +31,7 @@ const Clients = () => {
     }, []);
 
     const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*');
+        let { data, error } = await supabase.from('clients').select('*').eq('is_static', false);
         if (data) {
             setClients(data);
         }

@@ -17,6 +17,7 @@ const Projects2 = () => {
     const [projects, setProjects] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isInvalid, setIsInvalid] = useState(false);
     const [projectUsers, setProjectUsers] = useState([]);
     const [users, setUsers] = useState([]);
     const [clients, setClients] = useState([]);
@@ -68,7 +69,7 @@ const Projects2 = () => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('x_projects').select('*');
+        let { data, error } = await supabase.from('x_projects').select('*').eq('is_static', false);
         if (data) {
             setProjects(data);
         }
@@ -78,6 +79,13 @@ const Projects2 = () => {
     };
 
     const handleAddOrEdit = async (values) => {
+        setIsInvalid(false)
+        console.log("PU", projectUsers)
+        const validData = validateData(projectUsers)
+        if (!validData) {
+            setIsInvalid(true)
+            return
+        }
         const updatedDetails = {
             ...values,
             start_date: values?.start_date?.format(dateFormat),
@@ -88,7 +96,7 @@ const Projects2 = () => {
         if (editItem) {
             const { data, error } = await supabase
                 .from('x_projects')
-                .update({ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id })
+                .update({ details: updatedDetails, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -100,7 +108,7 @@ const Projects2 = () => {
         } else {
             const { data, error } = await supabase
                 .from('x_projects')
-                .insert([{ details: updatedDetails, project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id }]);
+                .insert([{ details: updatedDetails, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id }]);
 
             if (data) {
                 notification.success({ message: "Project added successfully" });
@@ -119,7 +127,7 @@ const Projects2 = () => {
         form.setFieldsValue({
             project_name: record?.details?.project_name,
             description: record?.details?.description,
-            project_cost: record?.details?.project_cost,
+            project_hours: record?.details?.project_hours,
             is_closed: record?.details?.is_closed,
             status: record?.details?.status,
             hrpartner_id: record?.details?.hrpartner_id,
@@ -157,6 +165,32 @@ const Projects2 = () => {
         setProjectUsers(updatedUsers);
     };
 
+    function validateData(data) {
+        const requiredFields = ['user_id', 'allocated_hours', 'start_date', 'end_date', 'rate'];
+        const errors = [];
+
+        data.forEach((item, index) => {
+            // Check and update expensed_hours if empty
+            if (item.expensed_hours === "") {
+                item.expensed_hours = "0";
+            }
+            requiredFields.forEach(field => {
+                if (!item[field]) {
+                    errors.push(`Error: Field "${field}" is missing or empty in record ${index + 1}`);
+                }
+            });
+
+        });
+
+        // if (errors.length > 0) {
+        //     console.log(errors.join('\n'));
+        // } else {
+        //     console.log('Data is valid.');
+        // }
+
+        return !(errors.length > 0);
+    }
+
     const columns = [
         {
             title: 'Name',
@@ -164,9 +198,9 @@ const Projects2 = () => {
             key: 'project_name',
         },
         {
-            title: 'Cost',
-            dataIndex: ['details', 'project_cost'],
-            key: 'project_cost',
+            title: 'Hours',
+            dataIndex: ['details', 'project_hours'],
+            key: 'project_hours',
         },
         {
             title: 'Description',
@@ -205,7 +239,7 @@ const Projects2 = () => {
                 //     value={text}
                 //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
                 // />
-                <Select placeholder="Select users" value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
+                <Select placeholder="Select users" style={{ width: '100%' }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
                     {users?.map((user) => (
                         <Select.Option key={user?.id} value={user?.id}>
                             {user?.user_name}
@@ -219,7 +253,7 @@ const Projects2 = () => {
             dataIndex: 'expensed_hours',
             render: (text, record, index) => (
                 <Input
-                    value={text}
+                    value={text} disabled
                     onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)}
                 />
             ),
@@ -249,7 +283,7 @@ const Projects2 = () => {
             ),
         },
         {
-            title: 'Rate',
+            title: 'Rate/hr',
             dataIndex: 'rate',
             render: (text, record, index) => (
                 <InputNumber value={text} style={{ width: '100%' }} onChange={(e) => handleUserChange(index, 'rate', e)} />
@@ -306,7 +340,7 @@ const Projects2 = () => {
                     <Form.Item name="description" label="Description">
                         <Input.TextArea />
                     </Form.Item>
-                    <Form.Item name="project_cost" label="Project Cost">
+                    <Form.Item name="project_hours" label="Project Hours">
                         <Input type="number" />
                     </Form.Item>
                     <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
@@ -366,6 +400,9 @@ const Projects2 = () => {
                         <Button type="primary" htmlType="submit" style={{ marginTop: "16px" }}>
                             {editItem ? "Update Project" : "Add Project"}
                         </Button>
+                        {/* <div style={{ color: 'red' }}>
+                            {isInvalid && "All Fields are Required"}
+                        </div> */}
                     </Form.Item>
                 </Form>
             </Drawer>

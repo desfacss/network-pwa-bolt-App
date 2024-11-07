@@ -50,7 +50,7 @@ const Index = () => {
                         onClose={closeDrawer}
                         visible={drawerVisible}
                     >
-                        <Timesheet />
+                        <Timesheet closeDrawer={closeDrawer} />
                     </Drawer>
                 </TabPane>
                 <TabPane tab="Team Timesheets" key="2">
