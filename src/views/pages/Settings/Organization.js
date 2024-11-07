@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Upload, Select, message } from 'antd';
+import { Form, Input, Button, Upload, Select, message, Row, Col } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { supabase } from 'configs/SupabaseConfig';
-// import { supabase } from '../supabaseClient'; // Adjust your Supabase client import
 
 const { Option } = Select;
 
@@ -111,116 +110,124 @@ const OrganizationSetup = () => {
     return (
         <Form layout="vertical" form={form} onFinish={onFinish}>
             {/* Organization Details */}
-            <Form.Item label="Organization Name" name="organizationName" rules={[{ required: true, message: 'Please input the organization name' }]}>
-                <Input />
-            </Form.Item>
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item label="Organization Name" name="organizationName" rules={[{ required: true, message: 'Please input the organization name' }]}>
+                        <Input disabled />
+                    </Form.Item>
+                </Col>
 
-            <Form.Item label="Organization Logo" name="organizationLogo" valuePropName="fileList" getValueFromEvent={(e) => e.fileList}>
-                <Upload name="logo" action="/upload.do" listType="picture" maxCount={1}>
-                    <Button icon={<UploadOutlined />}>Upload Logo</Button>
-                </Upload>
-            </Form.Item>
+                <Col span={8}>
+                    <Form.Item label="Organization Logo" name="organizationLogo" valuePropName="fileList" getValueFromEvent={(e) => e.fileList}>
+                        <Upload disabled name="logo" action="/upload.do" listType="picture" maxCount={1}>
+                            <Button icon={<UploadOutlined />}>Upload Logo</Button>
+                        </Upload>
+                    </Form.Item>
+                </Col>
+            </Row>
 
-            <Form.Item label="Organization Address" required>
-                <Input.Group compact>
-                    <Form.Item name="street" noStyle rules={[{ required: true, message: 'Street is required' }]}>
-                        <Input style={{ width: '50%' }} placeholder="Street" />
+            {/* Address Section */}
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item label="Street" name="street" rules={[{ required: true, message: 'Street is required' }]}>
+                        <Input placeholder="Street" />
                     </Form.Item>
-                    <Form.Item name="city" noStyle rules={[{ required: true, message: 'City is required' }]}>
-                        <Input style={{ width: '25%' }} placeholder="City" />
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="City" name="city" rules={[{ required: true, message: 'City is required' }]}>
+                        <Input placeholder="City" />
                     </Form.Item>
-                    <Form.Item name="state" noStyle rules={[{ required: true, message: 'State is required' }]}>
-                        <Input style={{ width: '25%' }} placeholder="State" />
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="State" name="state" rules={[{ required: true, message: 'State is required' }]}>
+                        <Input placeholder="State" />
                     </Form.Item>
-                </Input.Group>
-                <Input.Group compact>
-                    <Form.Item name="country" noStyle rules={[{ required: true, message: 'Country is required' }]}>
-                        <Input style={{ width: '50%' }} placeholder="Country" />
+                </Col>
+            </Row>
+
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item label="Country" name="country" rules={[{ required: true, message: 'Country is required' }]}>
+                        <Input placeholder="Country" />
                     </Form.Item>
-                    <Form.Item name="postalCode" noStyle rules={[{ required: true, message: 'Postal Code is required' }]}>
-                        <Input style={{ width: '50%' }} placeholder="Postal Code" />
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="Postal Code" name="postalCode" rules={[{ required: true, message: 'Postal Code is required' }]}>
+                        <Input placeholder="Postal Code" />
                     </Form.Item>
-                </Input.Group>
-            </Form.Item>
+                </Col>
+            </Row>
 
             {/* Primary Contact Information */}
-            <Form.Item label="Primary Contact Information">
-                <Form.Item name="contactName" label="Contact Name" rules={[{ required: true, message: 'Contact Name is required' }]}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name="email" label="Email Address" rules={[{ required: true, type: 'email', message: 'Please input a valid email address' }]}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: 'Phone Number is required' }]}>
-                    <Input />
-                </Form.Item>
-            </Form.Item>
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item label="Contact Name" name="contactName" rules={[{ required: true, message: 'Contact Name is required' }]}>
+                        <Input />
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="Email Address" name="email" rules={[{ required: true, type: 'email', message: 'Please input a valid email address' }]}>
+                        <Input />
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="Phone Number" name="phone" rules={[{ required: true, message: 'Phone Number is required' }]}>
+                        <Input />
+                    </Form.Item>
+                </Col>
+            </Row>
 
             {/* Domain & URL Settings */}
-            <Form.Item label="Domain & URL Settings">
-                <Form.Item name="customDomain" label="Custom Domain">
-                    <Input placeholder="e.g., orgname.appdomain.com or customdomain.com" />
-                </Form.Item>
-                <Form.Item name="loginURL" label="Login URL"
-                // rules={[{ required: true, message: 'Login URL is required' }]}
-                >
-                    <Input disabled />
-                </Form.Item>
-                <Form.Item name="logoutRedirectURL" label="Logout Redirect URL">
-                    <Input disabled />
-                </Form.Item>
-            </Form.Item>
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item label="Custom Domain" name="customDomain">
+                        <Input disabled placeholder="e.g., orgname.appdomain.com or customdomain.com" />
+                    </Form.Item>
+                </Col>
+            </Row>
 
             {/* Regional Settings */}
-            <Form.Item label="Regional Settings">
-                <Form.Item name="baseCurrency" label="Base Currency" rules={[{ required: true, message: 'Please select the base currency' }]}>
-                    <Select placeholder="Select currency">
-                        <Option value="USD">USD</Option>
-                        <Option value="EUR">EUR</Option>
-                        {/* Add more options as needed */}
-                    </Select>
-                </Form.Item>
-                <Form.Item name="supportedCurrencies" label="Supported Currencies">
-                    <Select mode="multiple" placeholder="Select supported currencies">
-                        <Option value="USD">USD</Option>
-                        <Option value="EUR">EUR</Option>
-                        {/* Add more options as needed */}
-                    </Select>
-                </Form.Item>
-                <Form.Item name="baseTimezone" label="Base Timezone" rules={[{ required: true, message: 'Please select the base timezone' }]}>
-                    <Select placeholder="Select timezone">
-                        <Option value="America/New_York">America/New_York</Option>
-                        <Option value="Europe/London">Europe/London</Option>
-                        {/* Add more timezones as needed */}
-                    </Select>
-                </Form.Item>
-                <Form.Item name="allowedTimezones" label="Allowed Timezones">
-                    <Select mode="multiple" placeholder="Select allowed timezones">
-                        <Option value="America/New_York">America/New_York</Option>
-                        <Option value="Europe/London">Europe/London</Option>
-                        {/* Add more timezones as needed */}
-                    </Select>
-                </Form.Item>
-                <Form.Item name="dateFormat" label="Date Format">
-                    <Select>
-                        <Option value="MM/DD/YYYY">MM/DD/YYYY</Option>
-                        <Option value="DD/MM/YYYY">DD/MM/YYYY</Option>
-                    </Select>
-                </Form.Item>
-                <Form.Item name="timeFormat" label="Time Format">
-                    <Select disabled>
-                        <Option value="12">12-hour</Option>
-                        <Option value="24">24-hour</Option>
-                    </Select>
-                </Form.Item>
-                <Form.Item name="workWeekStartDay" label="Work Week Start Day">
-                    <Select>
-                        <Option value="Monday">Monday</Option>
-                        <Option value="Sunday">Sunday</Option>
-                        {/* Add more days as needed */}
-                    </Select>
-                </Form.Item>
-            </Form.Item>
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item label="Base Currency" name="baseCurrency" rules={[{ required: true, message: 'Please select the base currency' }]}>
+                        <Select disabled placeholder="Select currency">
+                            <Option value="GBP">GBP</Option>
+                            {/* Add more options as needed */}
+                        </Select>
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="Base Timezone" name="baseTimezone" rules={[{ required: true, message: 'Please select the base timezone' }]}>
+                        <Select disabled placeholder="Select timezone">
+                            <Option value="UK">UK</Option>
+                        </Select>
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="Date Format" name="dateFormat">
+                        <Select disabled>
+                            <Option value="MM/DD/YYYY">MM/DD/YYYY</Option>
+                        </Select>
+                    </Form.Item>
+                </Col>
+            </Row>
+
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Form.Item label="Time Format" name="timeFormat">
+                        <Select disabled>
+                            <Option value="24">24-hour</Option>
+                        </Select>
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item label="Work Week Start Day" name="workWeekStartDay">
+                        <Select disabled>
+                            <Option value="Monday">Monday</Option>
+                        </Select>
+                    </Form.Item>
+                </Col>
+            </Row>
 
             <Form.Item>
                 <Button type="primary" htmlType="submit" loading={loading}>
