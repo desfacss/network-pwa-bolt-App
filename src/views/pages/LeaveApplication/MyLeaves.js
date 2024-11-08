@@ -20,7 +20,7 @@ const LeaveApplications = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_leave_applications_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_add_edit_form").single()
         if (data) {
             // console.log(data)
             setSchema(data)

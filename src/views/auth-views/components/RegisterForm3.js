@@ -18,7 +18,7 @@ export const RegisterForm = (props) => {
   const [schema, setSchema] = useState();
 
   const getForms = async () => {
-    const { data, error } = await supabase.from('forms').select('*').eq('name', "admin_registration_form").single()
+    const { data, error } = await supabase.from('forms').select('*').eq('name', "user_admin_registration_form").single()
     console.log("A", data)
     if (data) {
       console.log(data)

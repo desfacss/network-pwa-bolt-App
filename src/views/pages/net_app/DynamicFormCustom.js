@@ -21,7 +21,7 @@ const DynamicFormCustom = ({ initialValues }) => {
             }
         }
         const getForms = async (i) => {
-            const { data, error } = await supabase.from('forms').select('*').is('form_type', null).eq('name', 'bus_reg_nested').single()
+            const { data, error } = await supabase.from('forms').select('*').eq('name', 'bus_reg_nested').single()
             if (data) {
                 console.log("D", data)
                 setSchema(data.data)

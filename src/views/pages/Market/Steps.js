@@ -200,7 +200,7 @@ const App = ({ formType, update }) => {
 
     useEffect(() => {
         const getForms = async () => {
-            const { data, error } = await supabase.from('forms').select('*').is('form_type', null)
+            const { data, error } = await supabase.from('forms').select('*')
             if (data) {
 
                 // Function to find the data by name

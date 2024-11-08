@@ -19,7 +19,7 @@ const Services = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_services_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "service_add_edit_form").single()
         if (data) {
             setSchema(data)
         }

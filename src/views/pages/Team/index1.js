@@ -154,7 +154,7 @@ const Services = () => {
 
     const handleEdit = (record) => {
         setEditItem(record);
-        getForms("edit_users_form"); // Load the edit form schema
+        getForms("user_edit_form"); // Load the edit form schema
         form.setFieldsValue({
             firstName: record.details.firstName,
             lastName: record.details.lastName,

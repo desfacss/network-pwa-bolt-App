@@ -27,7 +27,7 @@ const Profile = () => {
     const { session } = useSelector((state) => state.auth);
 
     const getForms = async (formName) => {
-        const { data, error } = await supabase.from('forms').select('*').is('form_type', null).eq('name', formName).single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', formName).single()
         console.log(data, formName)
         if (data) {
             console.log(data)
@@ -170,7 +170,7 @@ const Profile = () => {
                     alignItems: 'center'
                 }}>
                     <span className='mr-1'>Personal Info</span>
-                    <Button type="text" ghost icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'self_profile_form')}>
+                    <Button type="text" ghost icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
 
                     </Button>
                 </div>

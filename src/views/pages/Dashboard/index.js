@@ -15,7 +15,7 @@ import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-const ManageEmployees = () => {
+const Dashboaard = () => {
     const defaultStartDate = dayjs().subtract(30, 'days');
     const defaultEndDate = dayjs();
     const [loading, setLoading] = useState(false);
@@ -279,4 +279,4 @@ const ManageEmployees = () => {
     );
 };
 
-export default ManageEmployees;
+export default Dashboaard;

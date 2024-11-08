@@ -17,7 +17,7 @@ const Clients = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_clients_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "client_add_edit_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)
@@ -31,7 +31,7 @@ const Clients = () => {
     }, []);
 
     const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*').eq('is_static', false);
+        let { data, error } = await supabase.from('clients').select('*').neq('is_static', true);
         if (data) {
             setClients(data);
         }
@@ -121,16 +121,16 @@ const Clients = () => {
             dataIndex: ['details', 'zip'],
             key: 'zip',
         },
-        {
-            title: 'State',
-            dataIndex: ['details', 'state'],
-            key: 'state',
-        },
-        {
-            title: 'Address',
-            dataIndex: ['details', 'address'],
-            key: 'address',
-        },
+        // {
+        //     title: 'State',
+        //     dataIndex: ['details', 'state'],
+        //     key: 'state',
+        // },
+        // {
+        //     title: 'Address',
+        //     dataIndex: ['details', 'address'],
+        //     key: 'address',
+        // },
         {
             title: 'Actions',
             key: 'actions',

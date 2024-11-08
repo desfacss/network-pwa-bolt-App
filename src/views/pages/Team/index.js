@@ -22,7 +22,7 @@ const Users = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "users_invite_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "user_add_invite_form").single()
         if (data) {
             setSchema(data)
         }

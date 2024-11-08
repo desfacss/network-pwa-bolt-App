@@ -110,9 +110,9 @@ export const protectedRoutes = [
         component: React.lazy(() => import('views/pages/Notifications')),
     },
     {
-        key: 'manage_employees',
-        path: `${APP_PREFIX_PATH}/manage_employees`,
-        component: React.lazy(() => import('views/pages/ManageEmployees')),
+        key: 'dashboard',
+        path: `${APP_PREFIX_PATH}/dashboard`,
+        component: React.lazy(() => import('views/pages/Dashboard')),
     },
     {
         key: 'change_password',
@@ -167,7 +167,7 @@ export const protectedRoutes = [
     {
         key: 'projects',
         path: `${APP_PREFIX_PATH}/projects`,
-        component: React.lazy(() => import('views/pages/Projects2/index')),
+        component: React.lazy(() => import('views/pages/Projects/index')),
     },
     {
         key: 'clients',

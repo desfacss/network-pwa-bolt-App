@@ -5,9 +5,9 @@ import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 
-const Tasks = () => {
+const Projects1 = () => {
     const componentRef = useRef(null);
-    const [tasks, setTasks] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [schema, setSchema] = useState();
@@ -17,7 +17,7 @@ const Tasks = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "task_add_edit_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "project_add_edit_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)
@@ -27,17 +27,16 @@ const Tasks = () => {
 
     useEffect(() => {
         getForms()
-        fetchTasks();
+        fetchProjects();
     }, []);
 
-    const fetchTasks = async () => {
-        let { data, error } = await supabase.from('tasks').select('*');
+    const fetchProjects = async () => {
+        let { data, error } = await supabase.from('projects').select('*');
         if (data) {
-            console.log("Tasks", tasks)
-            setTasks(data);
+            setProjects(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch tasks" });
+            notification.error({ message: "Failed to fetch projects" });
         }
     };
 
@@ -47,36 +46,35 @@ const Tasks = () => {
         if (editItem) {
             // Update existing service
             const { data, error } = await supabase
-                .from('tasks')
-                .update({ details: { ...values, user_id: editItem?.details.user_id, user_name: editItem?.details?.user_name }, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+                .from('projects')
+                .update({ details: values, project_name: values?.project_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
                 .eq('id', editItem.id);
 
             if (data) {
-                notification.success({ message: "Task updated successfully" });
+                notification.success({ message: "Project updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update task" });
+                notification.error({ message: "Failed to update project" });
             }
         } else {
-            // Add new task
+            // Add new project
             const { data, error } = await supabase
-                .from('tasks')
-                .insert([{ details: { ...values, user_id: session?.user?.id, user_name: session?.user?.details?.firstName + " " + session?.user?.details?.lastName }, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+                .from('projects')
+                .insert([{ details: values, project_name: values?.project_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
 
             if (data) {
-                notification.success({ message: "Task added successfully" });
+                notification.success({ message: "Project added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add task" });
+                notification.error({ message: "Failed to add project" });
             }
         }
-        fetchTasks();
+        fetchProjects();
         setIsDrawerOpen(false);
         form.resetFields();
         setEditItem()
     };
 
     const handleEdit = (record) => {
-        // console.log("Edit item", record)
         setEditItem(record);
         form.setFieldsValue({
             service_name: record.details.service_name,
@@ -88,61 +86,51 @@ const Tasks = () => {
     };
 
     const handleDelete = async (id) => {
-        const { error } = await supabase.from('tasks').delete().eq('id', id);
+        const { error } = await supabase.from('projects').delete().eq('id', id);
         if (!error) {
-            notification.success({ message: "Task deleted successfully" });
-            fetchTasks();
+            notification.success({ message: "Project deleted successfully" });
+            fetchProjects();
         } else {
-            notification.error({ message: "Failed to delete Task" });
+            notification.error({ message: "Failed to delete Project" });
         }
     };
 
     const columns = [
         {
             title: 'Name',
-            dataIndex: ['details', 'task_name'],
-            key: 'task_name',
+            dataIndex: ['details', 'project_name'],
+            key: 'project_name',
         },
         {
-            title: 'Date',
-            dataIndex: ['details', 'date'],
-            key: 'date',
+            title: 'Client Name',
+            dataIndex: ['details', 'client_name'],
+            key: 'client_name',
         },
         {
-            title: 'From Time',
-            dataIndex: ['details', 'from_time'],
-            key: 'from_time',
+            title: 'Cost',
+            dataIndex: ['details', 'project_cost'],
+            key: 'project_cost',
         },
         {
-            title: 'To Time',
-            dataIndex: ['details', 'to_time'],
-            key: 'to_time',
+            title: 'Manager',
+            dataIndex: ['details', 'project_head'],
+            key: 'project_head',
         },
         {
-            title: 'project',
-            dataIndex: ['details', 'project_id'],
-            key: 'project_id',
+            title: 'Users',
+            dataIndex: ['details', 'project_users'],
+            key: 'project_users',
+            render: (project_users) => project_users?.join(', '),
         },
         {
-            title: 'Job',
-            dataIndex: ['details', 'job_id'],
-            key: 'job_id',
-        },
-        {
-            title: 'Billable',
-            dataIndex: ['details', 'billable'],
-            key: 'billable',
-            render: (billable) => (billable ? 'Yes' : 'No'),
-        },
-        {
-            title: 'User',
-            dataIndex: ['details', 'user_name'],
-            key: 'user_name',
+            title: 'Description',
+            dataIndex: ['details', 'description'],
+            key: 'description',
         },
         // {
-        //     title: 'Description',
-        //     dataIndex: ['details', 'description'],
-        //     key: 'description',
+        //     title: 'Service',
+        //     dataIndex: ['details', 'service_name'],
+        //     key: 'service_name',
         // },
         {
             title: 'Actions',
@@ -170,26 +158,26 @@ const Tasks = () => {
     return (
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-                <h2 style={{ margin: 0 }}>Tasks</h2>
+                <h2 style={{ margin: 0 }}>Projects</h2>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
                     onClick={() => setIsDrawerOpen(true)}
                 >
-                    Add Task
+                    Add Project
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
                 <Table
                     columns={columns}
-                    dataSource={tasks}
+                    dataSource={projects}
                     rowKey={(record) => record.id}
-                    loading={!tasks}
+                    loading={!projects}
                     pagination={false}
                 />
             </div>
             <Drawer footer={null} width={500} //size="large"
-                title={editItem ? "Edit Task" : "Add Task"}
+                title={editItem ? "Edit Project" : "Add Project"}
                 open={isDrawerOpen}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
@@ -203,4 +191,4 @@ const Tasks = () => {
     );
 };
 
-export default Tasks;
+export default Projects1;

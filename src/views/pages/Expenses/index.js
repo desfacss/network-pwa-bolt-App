@@ -21,7 +21,7 @@ const Profile = () => {
     const [updateId, setUpdateId] = useState();
 
     const getForms = async (formName) => {
-        const { data, error } = await supabase.from('forms').select('*').is('form_type', null).eq('name', formName).single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', formName).single()
         console.log(data, formName)
         if (data) {
             console.log(data)

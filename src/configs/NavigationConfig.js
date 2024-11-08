@@ -12,8 +12,8 @@ const dashBoardNavTree = [{
   isGroupTitle: true,
   submenu: [
     {
-      key: 'manage_employees',
-      path: `${APP_PREFIX_PATH}/manage_employees`,
+      key: 'dashboard',
+      path: `${APP_PREFIX_PATH}/dashboard`,
       title: 'DashBoard',
       icon: UserOutlined, // Kept as UserOutlined
       breadcrumb: false,

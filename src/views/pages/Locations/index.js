@@ -17,7 +17,7 @@ const Locations = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "location_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "location_add_edit_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)

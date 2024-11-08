@@ -18,7 +18,7 @@ const LeaveApplications = () => {
     const [form] = Form.useForm();
 
     const getApprovalForm = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_leave_approval_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_approval_form").single()
         // console.log("A", data)
         if (data) {
             console.log(data)
@@ -26,7 +26,7 @@ const LeaveApplications = () => {
         }
     }
     const getApplicationForm = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_leave_applications_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_add_edit_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)
