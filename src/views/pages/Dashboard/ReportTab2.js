@@ -10,13 +10,13 @@ const TimesheetComponent = ({ data, printRef }) => {
     const [selectedProjectName, setSelectedProjectName] = useState(null);
 
     // Unique user IDs and project names for Select options
-    const userIds = [...new Set(data.map((entry) => entry.user_id))];
+    const userIds = [...new Set(data.map((entry) => entry.user_name))];
     const projectNames = [...new Set(data.map((entry) => entry.project_name))];
 
     // Data transformation for "By Employee" tab
     const byEmployeeData = useMemo(() => {
         const filteredData = selectedUserId
-            ? data.filter((entry) => entry.user_id === selectedUserId)
+            ? data.filter((entry) => entry.user_name === selectedUserId)
             : data;
 
         const grouped = filteredData.reduce((acc, curr) => {
@@ -24,7 +24,7 @@ const TimesheetComponent = ({ data, printRef }) => {
             if (!acc[key]) {
                 acc[key] = {
                     project_name: curr.project_name,
-                    user_id: curr.user_id,
+                    user_name: curr.user_name,
                     dates: {},
                     total: 0,
                 };
@@ -44,10 +44,10 @@ const TimesheetComponent = ({ data, printRef }) => {
             : data;
 
         const grouped = filteredData.reduce((acc, curr) => {
-            const key = curr.user_id;
+            const key = curr.user_name;
             if (!acc[key]) {
                 acc[key] = {
-                    user_id: curr.user_id,
+                    user_name: curr.user_name,
                     project_name: curr.project_name,
                     dates: {},
                     total: 0,
@@ -112,9 +112,9 @@ const TimesheetComponent = ({ data, printRef }) => {
     // Columns for "By Project" tab
     const projectColumns = [
         {
-            title: 'User ID',
-            dataIndex: 'user_id',
-            key: 'user_id',
+            title: 'User Name',
+            dataIndex: 'user_name',
+            key: 'user_name',
         },
         {
             title: 'Hours',
@@ -169,7 +169,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                             </Option>
                         ))}
                     </Select>
-                    <Table columns={projectColumns} dataSource={byProjectData} rowKey="user_id" />
+                    <Table columns={projectColumns} dataSource={byProjectData} rowKey="user_name" />
                 </TabPane>
             </Tabs>
         </div>
