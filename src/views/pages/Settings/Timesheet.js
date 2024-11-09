@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, Switch, InputNumber, Collapse, message, Divider } from "antd";
 import { supabase } from "configs/SupabaseConfig";
+import { useSelector } from "react-redux";
 // import supabase from "../supabase"; // Adjust this import to your Supabase client instance
 
 const { Panel } = Collapse;
@@ -10,22 +11,26 @@ const TimesheetSettings = ({ locationId }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
+    const { session } = useSelector((state) => state.auth);
+
     useEffect(() => {
         fetchSettings();
     }, []);
 
     const fetchSettings = async () => {
         setLoading(true);
+        console.log("id", session?.user?.location)
         const { data, error } = await supabase
             .from("locations")
-            .select("details")
-            .eq("id", locationId)
+            .select("*")
+            .eq("id", session?.user?.location?.id)
             .single();
 
         if (error) {
             message.error("Failed to fetch settings");
         } else {
-            form.setFieldsValue(data.details);
+            console.log("data", data)
+            form.setFieldsValue(data?.timesheet_settings);
         }
         setLoading(false);
     };
@@ -34,8 +39,8 @@ const TimesheetSettings = ({ locationId }) => {
         setLoading(true);
         const { error } = await supabase
             .from("locations")
-            .update({ details: values })
-            .eq("id", locationId);
+            .update({ timesheet_settings: values })
+            .eq("id", session?.user?.location?.id);
 
         if (error) {
             message.error("Failed to update settings");
@@ -50,19 +55,19 @@ const TimesheetSettings = ({ locationId }) => {
             form={form}
             onFinish={onFinish}
             layout="vertical"
-            initialValues={{ approvalWorkflow: {}, overtimeTracking: {}, breakPolicy: {} }}
+            initialValues={{ approvalWorkflow: { enableApproval: true, defaultApprover: 'manager' }, overtimeTracking: { enableOvertime: true }, breakPolicy: {} }}
         >
             <Collapse defaultActiveKey={["1"]}>
                 {/* 1. Timesheet Approval Workflow */}
                 <Panel header="Timesheet Approval Workflow" key="1">
                     <Form.Item name={["approvalWorkflow", "enableApproval"]} label="Enable Approval Workflow" valuePropName="checked">
-                        <Switch />
+                        <Switch disabled />
                     </Form.Item>
                     <Form.Item name={["approvalWorkflow", "defaultApprover"]} label="Default Approver">
                         <Select>
-                            <Option value="Line Manager">Line Manager</Option>
-                            <Option value="HR Partner">HR Partner</Option>
-                            <Option value="Admin">Admin</Option>
+                            <Option value="manager">Line Manager</Option>
+                            <Option value="hr_partner">HR Partner</Option>
+                            <Option value="admin">Admin</Option>
                             {/* <Option value="Custom">Custom</Option> */}
                         </Select>
                     </Form.Item>
@@ -88,7 +93,7 @@ const TimesheetSettings = ({ locationId }) => {
                 </Panel>
 
                 {/* 2. Time Entry Rounding */}
-                <Panel header="Time Entry Rounding" key="2">
+                {/* <Panel header="Time Entry Rounding" key="2">
                     <Form.Item name={["timeEntryRounding", "roundTimeEntries"]} label="Round Time Entries" valuePropName="checked">
                         <Switch />
                     </Form.Item>
@@ -99,7 +104,7 @@ const TimesheetSettings = ({ locationId }) => {
                             ))}
                         </Select>
                     </Form.Item>
-                    {/* <Form.Item name={["timeEntryRounding", "roundingMethod"]} label="Rounding Method">
+                    <Form.Item name={["timeEntryRounding", "roundingMethod"]} label="Rounding Method">
                         <Select>
                             <Option value="Round Up">Round Up</Option>
                             <Option value="Round Down">Round Down</Option>
@@ -112,8 +117,8 @@ const TimesheetSettings = ({ locationId }) => {
                             <Option value="end">End Time</Option>
                             <Option value="both">Both</Option>
                         </Select>
-                    </Form.Item> */}
-                </Panel>
+                    </Form.Item>
+                </Panel> */}
 
                 {/* 3. Default Working Hours */}
                 <Panel header="Default Working Hours" key="3">
@@ -134,7 +139,7 @@ const TimesheetSettings = ({ locationId }) => {
                 {/* 4. Overtime Tracking */}
                 <Panel header="Overtime Tracking" key="4">
                     <Form.Item name={["overtimeTracking", "enableOvertime"]} label="Enable Overtime" valuePropName="checked">
-                        <Switch />
+                        <Switch disabled />
                     </Form.Item>
                     {/* <Form.Item name={["overtimeTracking", "overtimeRate"]} label="Overtime Rate (%)">
                         <InputNumber min={0} max={100} />
@@ -148,7 +153,7 @@ const TimesheetSettings = ({ locationId }) => {
                 </Panel>
 
                 {/* 5. Break Policy */}
-                <Panel header="Break Policy" key="5">
+                {/* <Panel header="Break Policy" key="5">
                     <Form.Item name={["breakPolicy", "enableBreakTracking"]} label="Enable Break Tracking" valuePropName="checked">
                         <Switch />
                     </Form.Item>
@@ -158,7 +163,7 @@ const TimesheetSettings = ({ locationId }) => {
                     <Form.Item name={["breakPolicy", "maxBreakDuration"]} label="Maximum Break Duration (Minutes)">
                         <InputNumber min={0} />
                     </Form.Item>
-                    {/* <Form.Item name={["breakPolicy", "autoDeductBreakTime"]} label="Auto-Deduct Break Time" valuePropName="checked">
+                    <Form.Item name={["breakPolicy", "autoDeductBreakTime"]} label="Auto-Deduct Break Time" valuePropName="checked">
                         <Switch />
                     </Form.Item>
                     <Form.Item name={["breakPolicy", "breakRounding"]} label="Break Time Rounding">
@@ -167,8 +172,8 @@ const TimesheetSettings = ({ locationId }) => {
                             <Option value="Round Down">Round Down</Option>
                             <Option value="Nearest">Nearest</Option>
                         </Select>
-                    </Form.Item> */}
-                </Panel>
+                    </Form.Item>
+                </Panel> */}
 
             </Collapse>
 

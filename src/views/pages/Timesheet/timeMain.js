@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Button, Select, message, Row, Col, notification } from 'antd';
+import { Table, Input, Button, Select, message, Row, Col, notification, Card, Drawer } from 'antd';
 import { useSelector } from 'react-redux';
 import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHideNext, isTimesheetDisabled } from 'components/common/utils';
 import { supabase } from 'configs/SupabaseConfig';
+import MyTimesheetTable from './MyTimesheetTable';
 
 const { Option } = Select;
 
-const Timesheet = ({ closeDrawer }) => {
+const Timesheet = () => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(false);
@@ -16,14 +17,29 @@ const Timesheet = ({ closeDrawer }) => {
   const [projects, setProjects] = useState([]);
   const [projectData, setProjectData] = useState({});
   const [selectedProjectColumns, setSelectedProjectColumns] = useState({});
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [defaultData, setDefaultData] = useState();
 
   const { session } = useSelector((state) => state.auth);
 
+  const { timesheet_settings } = session?.user?.location
+
+  // Function to open the drawer
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  // Function to close the drawer
+  const closeDrawer = () => {
+    setDrawerVisible(false);
+    setProjectData()
+    setSelectedProjectColumns(defaultData)
+    // form.resetFields();
+  };
+
   const fetchProjects = async () => {
     const { data, error } = await supabase.from('x_projects').select('*')
-      .or(
-        `project_users.cs.{${session?.user?.id}},is_static.eq.true`
-      )
+      .or(`project_users.cs.{${session?.user?.id}},is_static.eq.true`)
     // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
@@ -33,14 +49,14 @@ const Timesheet = ({ closeDrawer }) => {
       const projectColumns = {};
       const projectDataMap = {};
       data.forEach((project) => {
-        projectColumns[project.id] = project.id;
+        projectColumns[project.id] = project?.id;
         projectDataMap[project.id] = generateRows(project.id);
       });
-      console.log("TT", projectColumns, projectDataMap)
       const firstKey = Object.keys(projectColumns)[0];
-
       // Get the first key-value pair
-      const firstObject = { [firstKey]: data[firstKey] };
+      const firstObject = { [firstKey]: firstKey };
+      console.log("TT", projectColumns, projectDataMap, firstObject)
+      setDefaultData(firstObject)
       setSelectedProjectColumns(firstObject);
       setProjectData(projectDataMap);
     } else {
@@ -163,14 +179,20 @@ const Timesheet = ({ closeDrawer }) => {
       return dailyEntry;
     });
 
+    const today = new Date();
+    const lastDate = new Date(today.setDate(today.getDate() + timesheet_settings?.approvalWorkflow?.timeLimitForApproval));
+
     const timesheetPayload = {
       user_id: session.user.id,
       timesheet_date: currentDate.toISOString(),
       timesheet_type: viewMode,
       status,
       details: timesheetDetails,
+      approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover]?.id,
+      last_date: lastDate.toISOString()
     };
     console.log("Payload", timesheetPayload)
+
     try {
       if (existingTimesheetId) {
         // Update existing timesheet
@@ -189,6 +211,8 @@ const Timesheet = ({ closeDrawer }) => {
 
         if (error) throw error;
         message.success('Timesheet submitted successfully.');
+        // form.resetFields();
+        setProjectData()
         closeDrawer()
       }
 
@@ -213,7 +237,7 @@ const Timesheet = ({ closeDrawer }) => {
         new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + dayIndex)
       );
 
-      const existingRow = projectData[projectName]?.find(row => row.key === dateValue);
+      const existingRow = projectData && projectData[projectName]?.find(row => row.key === dateValue);
 
       return existingRow
         ? { ...existingRow }
@@ -299,14 +323,14 @@ const Timesheet = ({ closeDrawer }) => {
     console.log("first", projectData, value, date, project, field)
     setProjectData(prevData => ({
       ...prevData,
-      [project]: prevData[project].map(item =>
-        item.key === date
+      [project]: prevData[project]?.map(item =>
+        item?.key === date
           ? {
             ...item,
             dailyEntries: {
-              ...item.dailyEntries,
+              ...item?.dailyEntries,
               [project]: {
-                ...item.dailyEntries[project],
+                ...item?.dailyEntries[project],
                 [field]: value,
               },
             },
@@ -424,7 +448,7 @@ const Timesheet = ({ closeDrawer }) => {
     //     ),
     //   };
     // }),
-    ...Object.keys(selectedProjectColumns).map((columnIndex) => {
+    ...Object.keys(selectedProjectColumns)?.map((columnIndex) => {
       const projectName = selectedProjectColumns[columnIndex];
       return {
         // title: (
@@ -443,9 +467,9 @@ const Timesheet = ({ closeDrawer }) => {
         title: (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Select defaultValue={projectName} style={{ width: 120 }} onChange={(value) => handleProjectChange(value, columnIndex)} >
-              {getAvailableProjects().map((option) => (
-                <Option key={option.id} value={option.id} disabled={option.disabled}>
-                  {option.project_name}
+              {getAvailableProjects()?.map((option) => (
+                <Option key={option?.id} value={option?.id} disabled={option?.disabled}>
+                  {option?.project_name}
                 </Option>
               ))}
             </Select>
@@ -461,16 +485,16 @@ const Timesheet = ({ closeDrawer }) => {
             <Input
               type="number"
               placeholder="Hours"
-              value={record.dailyEntries[projectName]?.hours}
-              onChange={(e) => handleInputChange(e.target.value, record.date, projectName, 'hours')}
+              value={record?.dailyEntries[projectName]?.hours}
+              onChange={(e) => handleInputChange(e?.target?.value, record.date, projectName, 'hours')}
               disabled={disabled}
               style={{ width: '100%' }}
             />
             <Input
               type="text"
               placeholder="Description"
-              value={record.dailyEntries[projectName]?.description}
-              onChange={(e) => handleInputChange(e.target.value, record.date, projectName, 'description')}
+              value={record?.dailyEntries[projectName]?.description}
+              onChange={(e) => handleInputChange(e?.target?.value, record.date, projectName, 'description')}
               disabled={disabled}
               style={{ marginTop: '4px', width: '100%' }}
             />
@@ -481,10 +505,12 @@ const Timesheet = ({ closeDrawer }) => {
     {
       title: 'Daily Total',
       key: 'total',
+      fixed: 'right',
       render: (_, record) => {
-        var dailyTotal = projects.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
+        var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
         // var invalid=dailyTotal > 10 || dailyTotal<8
-        var invalid = dailyTotal > 8
+        console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
+        var invalid = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours || 8)
         if (invalid) {
           setSubmitDisabled(true)
         }
@@ -532,17 +558,17 @@ const Timesheet = ({ closeDrawer }) => {
       const projectRows = generateRows(projectName);
 
       projectRows.forEach((row) => {
-        if (!rowsMap[row.key]) {
+        if (!rowsMap[row?.key]) {
           // If row doesn't exist for the date, create a new entry
           rowsMap[row.key] = {
-            key: row.key,
-            date: row.date,
+            key: row?.key,
+            date: row?.date,
             dailyEntries: {},
           };
         }
 
         // Merge project data into the existing entry for that date
-        rowsMap[row.key].dailyEntries[projectName] = row.dailyEntries[projectName];
+        rowsMap[row?.key].dailyEntries[projectName] = row?.dailyEntries[projectName];
       });
     });
 
@@ -555,9 +581,9 @@ const Timesheet = ({ closeDrawer }) => {
     const projectTotals = {};
     setSubmitDisabled(false)
     // Calculate totals for each project
-    Object.keys(projectData).forEach((projectName) => {
-      projectTotals[projectName] = projectData[projectName].reduce(
-        (sum, entry) => sum + (parseFloat(entry.dailyEntries[projectName]?.hours) || 0),
+    projectData && Object.keys(projectData)?.forEach((projectName) => {
+      projectTotals[projectName] = projectData && projectData[projectName]?.reduce(
+        (sum, entry) => sum + (parseFloat(entry?.dailyEntries[projectName]?.hours) || 0),
         0
       );
     });
@@ -582,7 +608,7 @@ const Timesheet = ({ closeDrawer }) => {
         </Table.Summary.Row>
         <Table.Summary.Row>
           <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
-          {Object.keys(selectedProjectColumns).map((columnIndex) => {
+          {Object.keys(selectedProjectColumns)?.map((columnIndex) => {
             const projectName = selectedProjectColumns[columnIndex];
             const { balance, total, color } = calculateBalanceHours(projectName, projectTotals)
             console.log(color)
@@ -605,6 +631,7 @@ const Timesheet = ({ closeDrawer }) => {
 
   const calculateBalanceHours = (projectName, projectTotals) => {
     const project = projects.find((p) => p.id === projectName);
+    console.log("YR", project, projectName, projectTotals)
     if (!project || !project?.details?.project_users) return 0;
 
     const userDetails = project?.details?.project_users?.find(user => user.user_id === session?.user?.id);
@@ -622,7 +649,7 @@ const Timesheet = ({ closeDrawer }) => {
     var color = null
     var balance = allocatedHours - expensedHours - projectTotals[projectName]
 
-    if (balance < 0.2 * allocatedHours) {
+    if (balance < ((100 - 80) / 100) * allocatedHours) {
       color = 'gold'
     }
     if (balance < 0) {
@@ -648,54 +675,66 @@ const Timesheet = ({ closeDrawer }) => {
   //     </div>
   //   );
   // };
-  const renderBalanceHoursSummary = () => {
-    return (
-      <Table.Summary>
-        <Table.Summary.Row>
-          <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
-          {Object.keys(selectedProjectColumns).map((columnIndex) => {
-            const projectName = selectedProjectColumns[columnIndex];
-            return (
-              <Table.Summary.Cell key={projectName}>
-                {calculateBalanceHours(projectName)}
-              </Table.Summary.Cell>
-            );
-          })}
-          <Table.Summary.Cell>
-            {/* {Object.values(projectTotals).reduce((total, value) => total + value, 0)} */}
-          </Table.Summary.Cell>
-        </Table.Summary.Row>
-      </Table.Summary>
-    );
-  };
+
+  // const renderBalanceHoursSummary = () => {
+  //   return (
+  //     <Table.Summary>
+  //       <Table.Summary.Row>
+  //         <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
+  //         {Object.keys(selectedProjectColumns).map((columnIndex) => {
+  //           const projectName = selectedProjectColumns[columnIndex];
+  //           return (
+  //             <Table.Summary.Cell key={projectName}>
+  //               {calculateBalanceHours(projectName)}
+  //             </Table.Summary.Cell>
+  //           );
+  //         })}
+  //         <Table.Summary.Cell>
+  //           {/* {Object.values(projectTotals).reduce((total, value) => total + value, 0)} */}
+  //         </Table.Summary.Cell>
+  //       </Table.Summary.Row>
+  //     </Table.Summary>
+  //   );
+  // };
 
   return (
-    <div>
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Button onClick={addNewProject}>Add New Project</Button>
-          {/* <Select defaultValue={viewMode} style={{ width: 120 }} onChange={handleViewModeChange}>
+    <>
+      <Button type="primary" onClick={showDrawer} style={{ marginBottom: 16 }}>
+        Add Timesheet
+      </Button>
+      <MyTimesheetTable />
+      {(drawerVisible && selectedProjectColumns) && <Drawer
+        title="Add Timesheet"
+        width={'100%'}
+        onClose={closeDrawer}
+        visible={drawerVisible}
+      >
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Button onClick={addNewProject}>Add New Project</Button>
+            {/* <Select defaultValue={viewMode} style={{ width: 120 }} onChange={handleViewModeChange}>
             <Option value="Weekly">Weekly</Option>
             <Option value="Monthly">Monthly</Option>
           </Select> */}
-        </Col>
-        <Col>
-          <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
-          <span className='m-2'>{currentDate.toDateString()}</span>
-          <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
-        </Col>
-        <Col>
-          <Button onClick={() => handleSubmit('Draft')} disabled={submitDisabled}>Save</Button>
-          <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
-        </Col>
-      </Row>
+          </Col>
+          <Col>
+            <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
+            <span className='m-2'>{currentDate.toDateString()}</span>
+            <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
+          </Col>
+          <Col>
+            <Button onClick={() => handleSubmit('Draft')} disabled={submitDisabled}>Save</Button>
+            <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
+          </Col>
+        </Row>
 
-      {/* <Table columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
-      <Table columns={columns} dataSource={generateAllRows()} pagination={false}
-        summary={getSummary}
-      // <>{getSummary}{renderBalanceHoursSummary}</>}
-      />
-    </div >
+        {/* <Table columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
+        <Table columns={columns} dataSource={generateAllRows()} pagination={false}
+          summary={getSummary}
+        // <>{getSummary}{renderBalanceHoursSummary}</>}
+        />
+      </Drawer>}
+    </>
   );
 };
 

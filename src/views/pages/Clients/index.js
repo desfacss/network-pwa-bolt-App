@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -11,6 +11,8 @@ const Clients = () => {
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [schema, setSchema] = useState();
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [clientToDelete, setClientToDelete] = useState(null);
 
     const { session } = useSelector((state) => state.auth);
 
@@ -85,14 +87,33 @@ const Clients = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        const { error } = await supabase.from('clients').delete().eq('id', id);
-        if (!error) {
-            notification.success({ message: "Client deleted successfully" });
-            fetchClients();
-        } else {
-            notification.error({ message: "Failed to delete Client" });
+    // const handleDelete = async (id) => {
+    //     const { error } = await supabase.from('clients').delete().eq('id', id);
+    //     if (!error) {
+    //         notification.success({ message: "Client deleted successfully" });
+    //         fetchClients();
+    //     } else {
+    //         notification.error({ message: "Failed to delete Client" });
+    //     }
+    // };
+
+    const confirmDelete = (id) => {
+        setClientToDelete(id);
+        setDeleteModalVisible(true);
+    };
+
+    const handleDelete = async () => {
+        if (clientToDelete) {
+            const { error } = await supabase.from('clients').delete().eq('id', clientToDelete);
+            if (!error) {
+                notification.success({ message: "Client deleted successfully" });
+                fetchClients();
+            } else {
+                notification.error({ message: "Failed to delete client" });
+            }
         }
+        setDeleteModalVisible(false);
+        setClientToDelete(null);
     };
 
     const columns = [
@@ -143,11 +164,17 @@ const Clients = () => {
                         className="mr-2"
                         onClick={() => handleEdit(record)}
                     />
-                    <Button
+                    {/* <Button
                         type="danger"
                         icon={<DeleteFilled />}
                         size="small"
                         onClick={() => handleDelete(record.id)}
+                    /> */}
+                    <Button
+                        type="danger"
+                        icon={<DeleteFilled />}
+                        size="small"
+                        onClick={() => confirmDelete(record.id)}
                     />
                 </div>
             ),
@@ -186,6 +213,16 @@ const Clients = () => {
                     onFinish={handleAddOrEdit}
                     formData={editItem && editItem?.details} />
             </Drawer>
+            <Modal
+                title="Confirm Delete"
+                visible={deleteModalVisible}
+                onOk={handleDelete}
+                onCancel={() => setDeleteModalVisible(false)}
+                okText="Delete"
+                okButtonProps={{ danger: true }}
+            >
+                <p>Are you sure you want to delete this client?</p>
+            </Modal>
         </Card>
     );
 };

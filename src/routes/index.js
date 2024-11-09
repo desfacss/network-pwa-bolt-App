@@ -31,7 +31,7 @@ const Routes = () => {
             />
           );
         })}
-        <Route path="*" element={<Navigate to="/app/services" replace />} />
+        <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
       </Route>
       <Route path="/" element={<PublicRoute />}>
         {publicRoutes.map((route) => {

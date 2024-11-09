@@ -155,14 +155,14 @@ const dashBoardNavTree = [{
       breadcrumb: false,
       submenu: []
     },
-    {
-      key: 'profile',
-      path: `${APP_PREFIX_PATH}/profile`,
-      title: 'My Profile',
-      icon: FundProjectionScreenOutlined, // Changed to FundProjectionScreenOutlined
-      breadcrumb: false,
-      submenu: []
-    }
+    // {
+    //   key: 'profile',
+    //   path: `${APP_PREFIX_PATH}/profile`,
+    //   title: 'My Profile',
+    //   icon: FundProjectionScreenOutlined, // Changed to FundProjectionScreenOutlined
+    //   breadcrumb: false,
+    //   submenu: []
+    // }
   ]
   // }
   // ]

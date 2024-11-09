@@ -1,13 +1,13 @@
 import React from "react";
-import { Dropdown, Avatar, Select } from "antd";
+import { Dropdown, Avatar, Select, notification } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   QuestionCircleOutlined,
-  LogoutOutlined,
+  LogoutOutlined, UserOutlined
 } from "@ant-design/icons";
 import NavItem from "./NavItem";
 import Flex from "components/shared-components/Flex";
-import { signOut } from "store/slices/authSlice";
+import { setSession, signOut } from "store/slices/authSlice";
 import styled from "@emotion/styled";
 import {
   FONT_WEIGHT,
@@ -15,6 +15,10 @@ import {
   SPACER,
   FONT_SIZES,
 } from "constants/ThemeConstant";
+import { supabase } from "configs/SupabaseConfig";
+import { store } from "store";
+import { APP_PREFIX_PATH } from 'configs/AppConfig'
+import { useNavigate } from "react-router-dom";
 
 const Icon = styled.div(() => ({
   fontSize: FONT_SIZES.LG,
@@ -49,10 +53,24 @@ const MenuItem = (props) => (
 );
 
 const MenuItemSignOut = (props) => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const onLogOut = async () => {
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) {
+      console.error('Error signing out:', error.message);
+      notification.error({ message: 'Error signing out' })
+      return
+    }
+    store.dispatch(setSession())
+    navigate(`${APP_PREFIX_PATH}/login`)
+  }
+
+
 
   const handleSignOut = () => {
-    dispatch(signOut());
+    onLogOut()
+    // dispatch(signOut());
   };
 
   return (
@@ -80,12 +98,23 @@ export const NavProfile = ({ mode, profileData }) => {
       ),
     }),
     profileData && ({
+      key: "My Profile",
+      label: (
+        <MenuItem
+          path="/app/profile"
+          label="My Profile"
+          icon={<UserOutlined />}
+        />
+      ),
+    }),
+    profileData && ({
       key: "Sign Out",
       label: <MenuItemSignOut label="Sign Out" />,
     })
   ];
 
   const { userData } = useSelector((state) => state?.profile);
+
   const clientMenu = ['Setting', 'Login', 'Forgot Password', 'Sign Out']
   if (userData?.role_type === 'client') {
     items = items.filter(item => clientMenu.includes(item.key))
@@ -95,9 +124,9 @@ export const NavProfile = ({ mode, profileData }) => {
     <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
       <NavItem mode={mode}>
         <Profile>
-          <Avatar src="/img/avatars/thumb-7.jpg" />
+          <Avatar src="/img/avatars/thumb-7.jpg" alt={profileData?.user?.user_name[0]} >{profileData?.user?.user_name[0] || ""}</Avatar>
           <UserInfo className="profile-text">
-            <Name>{profileData?.userData?.name}</Name>
+            <Name>{profileData?.user?.user_name || ""}</Name>
           </UserInfo>
         </Profile>
       </NavItem>

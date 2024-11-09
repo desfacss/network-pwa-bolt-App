@@ -15,7 +15,7 @@ const LeaveApplications = () => {
                 <TabPane tab="My Leaves" key="1">
                     <MyLeaves />
                 </TabPane>
-                {session?.user?.feature?.viewTeamLeaves && <TabPane tab="Team Leaves" key="2">
+                {session?.user?.features?.feature?.viewTeamLeaves && <TabPane tab="Team Leaves" key="2">
                     <TeamLeaves />
                 </TabPane>}
             </Tabs>

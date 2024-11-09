@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { TEMPLATE } from "constants/ThemeConstant";
 import { LeftOutlined, InfoCircleOutlined, RightOutlined, UserOutlined } from "@ant-design/icons";
 import Logo from "../Logo";
-// import NavProfile from "../NavProfile";
+import NavProfile from "../NavProfile";
 import Header from "./Header";
 import HeaderWrapper from "./HeaderWrapper";
 import Nav from "./Nav";
@@ -34,16 +34,16 @@ export const HeaderNav = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const onLogOut = async () => {
-    const { error } = await supabase.auth.signOut({ scope: 'local' });
-    if (error) {
-      console.error('Error signing out:', error.message);
-      notification.error({ message: 'Error signing out' })
-      return
-    }
-    store.dispatch(setSession())
-    navigate(`${APP_PREFIX_PATH}/login`)
-  }
+  // const onLogOut = async () => {
+  //   const { error } = await supabase.auth.signOut({ scope: 'local' });
+  //   if (error) {
+  //     console.error('Error signing out:', error.message);
+  //     notification.error({ message: 'Error signing out' })
+  //     return
+  //   }
+  //   store.dispatch(setSession())
+  //   navigate(`${APP_PREFIX_PATH}/login`)
+  // }
 
   const dispatch = useDispatch();
 
@@ -62,6 +62,8 @@ export const HeaderNav = (props) => {
     userData,
     selectedDate
   } = useSelector((state) => state?.profile);
+
+  const { session } = useSelector((state) => state.auth);
 
   const brokerAccounts = brokerAccountsList?.filter((account) => account?.broker_login_status === true)
 
@@ -178,10 +180,10 @@ export const HeaderNav = (props) => {
               <Notifications />
               {/* <Button onClick={onLogOut}>LogOut</Button> */}
             </div>
-            <div className="border-bottom d-flex justify-content-between align-items-center px-3 py-2">
+            {/* <div className="border-bottom d-flex justify-content-between align-items-center px-3 py-2">
               <Button onClick={onLogOut}>LogOut</Button>
-            </div>
-            {/* <NavProfile profileData={profileData} mode={navMode} /> */}
+            </div> */}
+            {session && <NavProfile profileData={session} mode={navMode} />}
           </NavEdge>
         </Nav>
       </HeaderWrapper>

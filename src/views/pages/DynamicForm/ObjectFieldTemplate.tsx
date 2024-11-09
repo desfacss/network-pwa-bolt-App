@@ -132,7 +132,7 @@ export default function ObjectFieldTemplate<
                 return (
                     <fieldset id={idSchema.$id}>
                         <Row gutter={rowGutter}>
-                            {title && (
+                            {/* {title && (
                                 <Col className={labelColClassName} span={24}>
                                     <TitleFieldTemplate
                                         id={titleId<T>(idSchema)}
@@ -143,8 +143,8 @@ export default function ObjectFieldTemplate<
                                         registry={registry}
                                     />
                                 </Col>
-                            )}
-                            {description && (
+                            )} */}
+                            {/* {description && (
                                 <Col span={24} style={DESCRIPTION_COL_STYLE}>
                                     <DescriptionFieldTemplate
                                         id={descriptionId<T>(idSchema)}
@@ -154,7 +154,7 @@ export default function ObjectFieldTemplate<
                                         registry={registry}
                                     />
                                 </Col>
-                            )}
+                            )} */}
                             {uiSchema?.['ui:grid'] && Array.isArray(uiSchema['ui:grid']) ?
                                 uiSchema['ui:grid'].map((ui_row) => {
                                     return Object.keys(ui_row).map((row_item) => {

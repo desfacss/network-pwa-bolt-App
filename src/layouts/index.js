@@ -10,6 +10,10 @@ import { supabase } from "configs/SupabaseConfig";
 import { useLocation } from "react-router-dom";
 // import { supabase } from "configs/SupabaseConfig";
 
+import enGB from 'antd/lib/locale/en_GB';
+
+const currentAppLocale = enGB;
+
 const AppLayout = lazy(() => import("./AppLayout"));
 const AuthLayout = lazy(() => import("./AuthLayout"));
 const SurveyLayout = lazy(() => import("./SurveyLayout"));
@@ -46,24 +50,37 @@ const Layouts = () => {
 
   const currentTheme = useSelector((state) => state.theme.currentTheme);
 
-  const currentAppLocale = resources[locale];
+  // const currentAppLocale = resources[locale];
 
   useBodyClass(`dir-${direction}`);
 
   const themeConfig =
     currentTheme === "light" ? { ...lightTheme } : { ...darkTheme };
 
+  const defaultDatePickerConfig = {
+    DatePicker: {
+      format: "DD/MM/YYYY",
+    },
+  };
+
   return (
     <ConfigProvider
       theme={themeConfig}
       direction={direction}
       locale={currentAppLocale.antd}
+      datePicker={{ format: 'DD/MM/YYYY' }}
     >
+      {/* <ConfigProvider
+        componentDatePicker={defaultDatePickerConfig}
+
+      > */}
+
       <Suspense fallback={<Loading cover="content" />}>
         <Layout>
           <Routes />
         </Layout>
       </Suspense>
+      {/* </ConfigProvider> */}
     </ConfigProvider>
   );
 };

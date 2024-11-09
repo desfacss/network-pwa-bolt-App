@@ -92,7 +92,7 @@ const SideNavContent = (props) => {
 	// METHOD 2
 	if (session) {
 		console.log("rt", session.user.feature);
-		navigationConfig[0].submenu = session?.user?.feature?.viewProjects === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'projects')
+		navigationConfig[0].submenu = session?.user?.features?.feature?.viewProjects === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'projects')
 		// navigationConfig[0].submenu = session?.user?.feature?.viewPosition == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position')
 		// navigationConfig[0].submenu = session?.user?.feature?.viewPositionBook == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position-Book')
 		// navigationConfig[0].submenu = session?.user?.feature?.viewOrderBook == true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Order-Book')

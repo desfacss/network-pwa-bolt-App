@@ -29,7 +29,7 @@ const Notifications = () => {
             // )
             .or(
                 `type.eq.public,` +
-                `locations.cs.{${session?.user?.location}},` +
+                `locations.cs.{${session?.user?.location?.id}},` +
                 `users.cs.{${session?.user?.id}}`
             )
             .gte('expiry', new Date().toISOString().split('T')[0]);

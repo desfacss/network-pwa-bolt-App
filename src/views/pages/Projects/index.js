@@ -22,6 +22,7 @@ const Projects = () => {
     const [users, setUsers] = useState([]);
     const [clients, setClients] = useState([]);
     const dateFormat = 'YYYY/MM/DD';
+    const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     const [schema, setSchema] = useState();
 
     const { session } = useSelector((state) => state.auth);
@@ -274,14 +275,23 @@ const Projects = () => {
             title: 'Start',
             dataIndex: 'start_date',
             render: (text, record, index) => (
-                <DatePicker style={{ width: '100%' }} format={dateFormat} onChange={(e) => handleUserChange(index, 'start_date', e?.format(dateFormat))} />
+                <DatePicker
+                    value={dayjs(text?.replace('/', '-'), dateFormat)}
+                    style={{ width: '100%' }}
+                    format={dateFormat} maxDate={dayjs(projectUsers[index].end_date, dateFormat) || null}
+                    onChange={(e) => handleUserChange(index, 'start_date', e?.format(dateFormat))} />
             ),
         },
         {
             title: 'End',
             dataIndex: 'end_date',
             render: (text, record, index) => (
-                <DatePicker style={{ width: '100%' }} format={dateFormat} onChange={(e) => handleUserChange(index, 'end_date', e?.format(dateFormat))} />
+                <DatePicker
+                    value={dayjs(text?.replace('/', '-'), dateFormat)}
+                    style={{ width: '100%' }}
+                    // format="DD/MM/YYYY"
+                    format={dateFormat} minDate={dayjs(projectUsers[index].start_date, dateFormat) || null}
+                    onChange={(e) => handleUserChange(index, 'end_date', e?.format(dateFormat))} />
             ),
         },
         {
@@ -331,7 +341,7 @@ const Projects = () => {
                 width={1000}
                 title={editItem ? "Edit Project" : "Add Project"}
                 open={isDrawerOpen}
-                onClose={() => { setIsDrawerOpen(false); setEditItem(null); form.resetFields() }}
+                onClose={() => { setEditItem(null); form.resetFields(); setIsDrawerOpen(false); setProjectUsers() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
@@ -408,7 +418,7 @@ const Projects = () => {
                     </Form.Item>
                 </Form>
             </Drawer>
-
+            {/* <DatePicker /> */}
 
             {/* <App /> */}
 
