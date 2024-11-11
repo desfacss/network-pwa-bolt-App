@@ -64,41 +64,6 @@ const Timesheet = () => {
     }
   };
 
-  // const checkExistingTimesheet = async () => {
-  //   if (!session?.user?.id) {
-  //     message.error('User is not authenticated.');
-  //     return;
-  //   }
-
-  //   const { data, error } = await supabase
-  //     .from('x_timesheet_3')
-  //     .select('*')
-  //     .eq('user_id', session.user.id)
-  //     .eq('timesheet_date', currentDate.toISOString())
-  //     .eq('timesheet_type', viewMode);
-
-  //   if (error) {
-  //     console.error('Error fetching timesheet:', error.message);
-  //     setExistingTimesheetId(null);
-  //   } else if (data && data.length > 0) {
-  //     const timesheetDetails = data[0]?.details || [];
-  //     const projectDataMap = {};
-
-  //     timesheetDetails.forEach((row) => {
-  //       Object.keys(row.dailyEntries).forEach((projectName) => {
-  //         if (!projectDataMap[projectName]) projectDataMap[projectName] = [];
-  //         projectDataMap[projectName].push(row);
-  //       });
-  //     });
-  //     console.log("Existing Data", projectDataMap, projectData)
-  //     setProjectData(projectDataMap);
-  //     setExistingTimesheetId(data[0]?.id);
-  //     setDisabled(['Approved'].includes(data[0]?.status));
-  //   } else {
-  //     setExistingTimesheetId(null);
-  //   }
-  // };
-
   const checkExistingTimesheet = async () => {
     if (!session?.user?.id) {
       message.error('User is not authenticated.');
@@ -108,7 +73,7 @@ const Timesheet = () => {
     const { data, error } = await supabase
       .from('x_timesheet_3')
       .select('*')
-      .eq('user_id', session.user.id)
+      .eq('user_id', session?.user?.id)
       .eq('timesheet_date', currentDate.toISOString())
       .eq('timesheet_type', viewMode);
 
@@ -143,7 +108,12 @@ const Timesheet = () => {
           });
         });
       });
-      console.log("Existing Data", projectDataMap, projectData)
+      // console.log("Existing Data", projectDataMap, projectData)
+      const columns = Object.keys(projectDataMap).reduce((acc, id) => {
+        acc[id] = id;
+        return acc;
+      }, {});
+      setSelectedProjectColumns(columns)
       setProjectData(projectDataMap);
       setExistingTimesheetId(data[0]?.id);
       setDisabled(['Approved'].includes(data[0]?.status));
@@ -159,7 +129,6 @@ const Timesheet = () => {
       return;
     }
 
-    console.log("PD", projectData)
 
     const timesheetDetails = generateRows(selectedProjectColumns[0]).map(day => {
       const dailyEntry = {
@@ -168,19 +137,46 @@ const Timesheet = () => {
         dailyEntries: {},
       };
 
+      // const filteredData = Object.fromEntries(
+      //   Object.entries(projectData).filter(([id, entries]) =>
+      //     entries.some(entry =>
+      //       entry.dailyEntries[id].hours !== "0"
+      //     )
+      //   )
+      // );
+
+      const filteredData = Object.fromEntries(
+        Object.entries(projectData).filter(([id, entries]) =>
+          entries.some(entry =>
+            entry?.dailyEntries[id]?.hours && Number(entry.dailyEntries[id]?.hours) > 0
+          )
+        )
+      );
+
+      // // Fill in the daily entries for each project
+      // for (let projectName of Object.keys(projectData)) {
+      //   dailyEntry.dailyEntries[projectName] = {
+      //     hours: projectData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.hours || '0',
+      //     description: projectData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.description || '',
+      //   };
+      // }
+
       // Fill in the daily entries for each project
-      for (let projectName of Object.keys(projectData)) {
+      for (let projectName of Object.keys(filteredData)) {
+        const hours = filteredData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.hours || '0'
         dailyEntry.dailyEntries[projectName] = {
-          hours: projectData[projectName].find(entry => entry.key === day.key)?.dailyEntries[projectName]?.hours || '0',
-          description: projectData[projectName].find(entry => entry.key === day.key)?.dailyEntries[projectName]?.description || '',
+          hours: hours,
+          description: (hours && hours !== '0') ? filteredData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.description || '' : '',
         };
       }
+      console.log("PU", filteredData)
 
       return dailyEntry;
     });
 
     const today = new Date();
     const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 3)));
+
 
     const timesheetPayload = {
       user_id: session.user.id,
@@ -223,9 +219,6 @@ const Timesheet = () => {
     }
   };
 
-
-
-
   // Generate rows only for a specific project
   const generateRows = (projectName) => {
     const startDate = new Date(currentDate);
@@ -234,7 +227,7 @@ const Timesheet = () => {
 
     const newRows = Array.from({ length: rowCount }, (_, dayIndex) => {
       const dateValue = formatDate(
-        new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + dayIndex)
+        new Date(currentDate?.getFullYear(), currentDate?.getMonth(), currentDate?.getDate() + dayIndex)
       );
 
       const existingRow = projectData && projectData[projectName]?.find(row => row.key === dateValue);
@@ -253,23 +246,6 @@ const Timesheet = () => {
     return newRows;
   };
 
-  // const addNewProject = () => {
-  //   const newProjectIndex = projects.length; // Use length to create unique index
-  //   const newProject = { project_name: `New Project ${newProjectIndex + 1}` };
-
-  //   setProjects([...projects, newProject]);
-
-  //   setSelectedProjectColumns(prevState => ({
-  //     ...prevState,
-  //     [newProjectIndex]: newProject.project_name,
-  //   }));
-
-  //   // Initialize rows for the new project
-  //   setProjectData(prevData => ({
-  //     ...prevData,
-  //     [newProject.project_name]: generateRows(newProject.project_name),
-  //   }));
-  // };
 
   // Function to get the list of available projects for selection
   const getAvailableProjects = () => {
@@ -289,16 +265,17 @@ const Timesheet = () => {
 
     if (unselectedProjects.length > 0) {
       const newProject = unselectedProjects[0];
-      const newProjectIndex = Object.keys(selectedProjectColumns).length;
-
+      const newProjectIndex = Object.keys(selectedProjectColumns)?.length;
+      console.log("D", selectedProjectColumns, projectData, newProjectIndex)
       setSelectedProjectColumns((prevState) => ({
         ...prevState,
-        [newProjectIndex]: newProject.id,
+        // [newProjectIndex]: newProject.id,
+        [newProject?.id]: newProject?.id,
       }));
 
       setProjectData((prevData) => ({
         ...prevData,
-        [newProject.id]: generateRows(newProject.id),
+        [newProject?.id]: generateRows(newProject?.id),
       }));
     } else {
       notification.warning({ message: 'No more projects available to add.' });
@@ -349,60 +326,6 @@ const Timesheet = () => {
     setCurrentDate(newDate);
   };
 
-  //   const columns = [
-  //     {
-  //       title: 'Date',
-  //       dataIndex: 'date',
-  //       key: 'date',
-  //       fixed: 'left',
-  //     },
-  //     ...Object.keys(selectedProjectColumns).map((columnIndex) => {
-  //       const projectName = selectedProjectColumns[columnIndex];
-  //       return {
-  //         title: (
-  //           <Select defaultValue={projectName} style={{ width: 120 }} onChange={(value) => handleProjectChange(value, columnIndex)}>
-  //             {projects?.map(option => (
-  //               <Option key={option?.project_name} value={option?.project_name}>
-  //                 {option?.project_name}
-  //               </Option>
-  //             ))}
-  //           </Select>
-  //         ),
-  //         dataIndex: projectName,
-  //         key: projectName,
-  //         render: (_, record) => (
-  //           <div>
-  //             <Input
-  //               type="number"
-  //               placeholder="Hours"
-  //               value={record.dailyEntries?.[projectName]?.hours || ''}
-  //               onChange={e => handleInputChange(e.target.value, record.date, projectName, 'hours')}
-  //               disabled={disabled}
-  //             />
-  //             <Input
-  //               type="text"
-  //               placeholder="Description"
-  //               value={record.dailyEntries?.[projectName]?.description || ''}
-  //               onChange={e => handleInputChange(e.target.value, record.date, projectName, 'description')}
-  //               disabled={disabled}
-  //               style={{ marginTop: '4px' }}
-  //             />
-  //           </div>
-  //         ),
-  //       };
-  //     }),
-  //     {
-  //       title: 'Daily Total',
-  //       key: 'total',
-  //       render: (_, record) => {
-  //         return projects.reduce(
-  //           (sum, project) => sum + (parseFloat(record.dailyEntries?.[project.project_name]?.hours) || 0),
-  //           0
-  //         );
-  //       },
-  //     },
-  //   ];
-
   const columns = [
     {
       title: 'Date',
@@ -410,62 +333,9 @@ const Timesheet = () => {
       key: 'date',
       fixed: 'left',
     },
-    // ...Object.keys(selectedProjectColumns).map((columnIndex) => {
-    //   const projectName = selectedProjectColumns[columnIndex];
-    //   return {
-    //     title: (
-    //       <Select
-    //         defaultValue={projectName}
-    //         style={{ width: 120 }}
-    //         onChange={(value) => handleProjectChange(value, columnIndex)}
-    //       >
-    //         {projects?.map((option) => (
-    //           <Option key={option?.project_name} value={option?.project_name}>
-    //             {option?.project_name}
-    //           </Option>
-    //         ))}
-    //       </Select>
-    //     ),
-    //     dataIndex: projectName,
-    //     key: projectName,
-    //     render: (_, record) => (
-    //       <div>
-    //         <Input
-    //           type="number"
-    //           placeholder="Hours"
-    //           value={record.dailyEntries?.[projectName]?.hours || ''}
-    //           onChange={(e) => handleInputChange(e.target.value, record.date, projectName, 'hours')}
-    //           disabled={disabled}
-    //           style={{ width: '100%' }} // Ensure full width
-    //         />
-    //         <Input
-    //           type="text"
-    //           placeholder="Description"
-    //           value={record.dailyEntries?.[projectName]?.description || ''}
-    //           onChange={(e) => handleInputChange(e.target.value, record.date, projectName, 'description')}
-    //           disabled={disabled}
-    //           style={{ marginTop: '4px', width: '100%' }} // Ensure full width and margin
-    //         />
-    //       </div>
-    //     ),
-    //   };
-    // }),
     ...Object.keys(selectedProjectColumns)?.map((columnIndex) => {
       const projectName = selectedProjectColumns[columnIndex];
       return {
-        // title: (
-        //   <Select
-        //     defaultValue={projectName}
-        //     style={{ width: 120 }}
-        //     onChange={(value) => handleProjectChange(value, columnIndex)}
-        //   >
-        //     {getAvailableProjects().map((option) => (
-        //       <Option key={option.project_name} value={option.project_name} disabled={option.disabled}>
-        //         {option.project_name}
-        //       </Option>
-        //     ))}
-        //   </Select>
-        // ),
         title: (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Select defaultValue={projectName} style={{ width: '100%' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
@@ -488,7 +358,7 @@ const Timesheet = () => {
               type="number"
               placeholder="Hours" min={0} precision={0}
               value={record?.dailyEntries[projectName]?.hours}
-              onChange={(e) => handleInputChange(e?.target?.value, record.date, projectName, 'hours')}
+              onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'hours')}
               disabled={disabled}
               style={{ width: '100%' }}
             />
@@ -496,7 +366,7 @@ const Timesheet = () => {
               type="text"
               placeholder="Description"
               value={record?.dailyEntries[projectName]?.description}
-              onChange={(e) => handleInputChange(e?.target?.value, record.date, projectName, 'description')}
+              onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'description')}
               disabled={disabled}
               style={{ marginTop: '4px', width: '100%' }}
             />
@@ -642,13 +512,7 @@ const Timesheet = () => {
 
     const allocatedHours = parseInt(userDetails?.allocated_hours, 10) || 0;
     const expensedHours = parseInt(userDetails?.expensed_hours, 10) || 0;
-    // const projectTotalHours = project.details.project_users.reduce((total, user) => {
-    //   return total + (parseInt(user.allocated_hours, 10) || 0);
-    // }, 0);
 
-    // // Calculate balance hours
-    // return allocatedHours - projectTotalHours;
-    // return { balance: allocatedHours - expensedHours - projectTotals[projectName], total: allocatedHours }
     var color = null
     var balance = allocatedHours - expensedHours - projectTotals[projectName]
 
@@ -661,44 +525,6 @@ const Timesheet = () => {
     }
     return { balance, total: allocatedHours, color }
   };
-
-  // const renderBalanceHoursSummary = () => {
-  //   return (
-  //     <div style={{ margin: '20px 0' }}>
-  //       <Title level={4}>Balance Hours Summary</Title>
-  //       {projects.map((project) => {
-  //         const balanceHours = calculateBalanceHours(project.project_name);
-  //         return (
-  //           <Row key={project.id} justify="space-between" style={{ marginBottom: '8px' }}>
-  //             <Col>{project.project_name}</Col>
-  //             <Col>{balanceHours}</Col>
-  //           </Row>
-  //         );
-  //       })}
-  //     </div>
-  //   );
-  // };
-
-  // const renderBalanceHoursSummary = () => {
-  //   return (
-  //     <Table.Summary>
-  //       <Table.Summary.Row>
-  //         <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
-  //         {Object.keys(selectedProjectColumns).map((columnIndex) => {
-  //           const projectName = selectedProjectColumns[columnIndex];
-  //           return (
-  //             <Table.Summary.Cell key={projectName}>
-  //               {calculateBalanceHours(projectName)}
-  //             </Table.Summary.Cell>
-  //           );
-  //         })}
-  //         <Table.Summary.Cell>
-  //           {/* {Object.values(projectTotals).reduce((total, value) => total + value, 0)} */}
-  //         </Table.Summary.Cell>
-  //       </Table.Summary.Row>
-  //     </Table.Summary>
-  //   );
-  // };
 
   return (
     <>
