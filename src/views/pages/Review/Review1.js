@@ -9,7 +9,7 @@ import { WarningOutlined } from '@ant-design/icons';
 // import { sendEmail } from 'components/common/SendEmail';
 const { Option } = Select;
 
-const Review1 = () => {
+const Review1 = ({ data }) => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
   const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
@@ -25,29 +25,42 @@ const Review1 = () => {
   const [columns, setColumns] = useState([]);
   const { session } = useSelector((state) => state.auth);
 
+  const { timesheet_settings } = session?.user?.location
+
   const checkExistingTimesheet = async () => {
     if (!selectedEmployeesId) {
       // message.error('User is not authenticated.');
       return;
     }
 
-    const { data, error } = await supabase
-      .from('x_timesheet_3')
-      .select('*')
-      .eq('user_id', selectedEmployeesId)
-      .eq('timesheet_date', currentDate.toISOString())
-      .eq('timesheet_type', viewMode);
+    // const { data, error } = await supabase
+    //   .from('x_timesheet_3')
+    //   .select('*')
+    //   .eq('user_id', selectedEmployeesId)
+    //   .eq('timesheet_date', currentDate.toISOString())
+    //   .eq('timesheet_type', viewMode);
+
+    const error = null
 
     if (error) {
       console.log('Error fetching timesheet:', error.message);
       setExistingTimesheet(null);
       setTimeSheetData();
-    } else if (data && data.length > 0 && data[0]?.status !== 'Draft') {
-      console.log('Existing timesheet:', data[0]);
-      // setDataSource(data[0]?.details);
-      setExistingTimesheet(data[0]);
-      setDisabled(!['Submitted'].includes(data[0]?.status));
-      const timesheetDetails = data[0]?.details;
+
+      // } else if (data && data.length > 0 && data[0]?.status !== 'Draft') {
+      //   console.log('Existing timesheet:', data[0]);
+      //   // setDataSource(data[0]?.details);
+      //   setExistingTimesheet(data[0]);
+      //   setDisabled(!['Submitted'].includes(data[0]?.status));
+      //   const timesheetDetails = data[0]?.details;
+
+      // } else if (data && data.length > 0 && data[0]?.status !== 'Draft') {
+    } else if (data) {
+      console.log('Existing timesheet:', data);
+      // setDataSource(data?.details);
+      setExistingTimesheet(data);
+      setDisabled(!['Submitted'].includes(data?.status));
+      const timesheetDetails = data?.details;
 
       if (timesheetDetails) {
         const newDataSource = timesheetDetails.map(entry => {
@@ -132,7 +145,7 @@ const Review1 = () => {
     checkExistingTimesheet();
     setDisabled(isTimesheetDisabled(viewMode, currentDate));
     SetHideNext(isHideNext(currentDate));
-  }, [currentDate, viewMode, selectedEmployeesId]);
+  }, [data, currentDate, viewMode, selectedEmployeesId]);
 
   // Sample data for the week
   // const dataSource = [
@@ -161,21 +174,33 @@ const Review1 = () => {
         dataIndex: 'date',
         key: 'date',
         fixed: 'left',
-        align: 'center',
+        align: 'left',
       },
       ...Array.from(projectNames).map(project => ({
         title: <div className="vertical-header">{project}</div>,
         dataIndex: project,
         key: project,
-        align: 'center',
-        render: (_, record) => record[project]?.hours || '0',
+        align: 'left',
+        render: (_, record) => {
+          return <div className='ml-2'>
+            {record[project]?.hours || ''}
+          </div>
+        },
       })),
       {
         title: <div className="vertical-header">Daily Total</div>,
         key: 'total',
-        align: 'center',
+        align: 'left',
         fixed: 'right',
-        render: (_, record) => calculateTotalHours(record),
+        // render: (_, record) => calculateTotalHours(record),
+        render: (_, record) => {
+          const hours = calculateTotalHours(record)
+          var invalid = hours >= (timesheet_settings?.workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours || 8)
+          var warning = hours > (timesheet_settings?.workingHours?.standardDailyHours || 8)
+          return <div style={{ color: ((warning && !invalid) ? 'gold' : ((invalid) && 'red')) }} className='ml-2'>
+            {hours}
+          </div>
+        },
       },
       {
         title: <div className="vertical-header">Description</div>,

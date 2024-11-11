@@ -4,6 +4,7 @@ import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import Review1 from '../Review/Review1';
 // import { supabase } from './supabaseClient'; // Import your Supabase client or API
+import { format } from 'date-fns';
 
 const TeamTimesheetTable = () => {
     const [data, setData] = useState([]);
@@ -17,10 +18,34 @@ const TeamTimesheetTable = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase
-                .from('x_timesheet_3')
-                .select('timesheet_date, status, updated_at')
-                .neq('user_id', session?.user?.id)
+            // const { data, error } = await supabase
+            //     .from('x_timesheet_3')
+            //     .select('*')
+            //     .eq('approver_id', session?.user?.id)
+            //     .eq('status', 'Submitted')
+            // const today = new Date(); // Format today's date as needed
+            // const today = format(new Date(), 'yyyy-MM-dd'); // Format today's date as needed
+            const today = new Date().toISOString().slice(0, 10)
+            let data, error;
+
+            if (session?.user?.role_type === 'admin') {
+                // Query for admins
+                ({ data, error } = await supabase
+                    .from('x_timesheet_3')
+                    .select('*')
+                    // .lt('last_date', today)
+                    // .eq('status', 'Submitted')
+                );
+            } else {
+                // Query for non-admins
+                ({ data, error } = await supabase
+                    .from('x_timesheet_3')
+                    .select('*')
+                    // .eq('approver_id', session?.user?.id)
+                    // .eq('status', 'Submitted')
+                );
+            }
+
             if (error) {
                 throw error;
             }
@@ -108,7 +133,7 @@ const TeamTimesheetTable = () => {
                 onClose={closeDrawer}
                 visible={drawerVisible}
             >
-                <Review1 />
+                <Review1 data={selectedRecord} />
             </Drawer>
         </>
     );

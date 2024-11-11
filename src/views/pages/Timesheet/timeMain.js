@@ -180,7 +180,7 @@ const Timesheet = () => {
     });
 
     const today = new Date();
-    const lastDate = new Date(today.setDate(today.getDate() + timesheet_settings?.approvalWorkflow?.timeLimitForApproval));
+    const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 3)));
 
     const timesheetPayload = {
       user_id: session.user.id,
@@ -191,8 +191,8 @@ const Timesheet = () => {
       approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover]?.id,
       last_date: lastDate.toISOString()
     };
-    console.log("Payload", timesheetPayload)
 
+    console.log("Payload", timesheetDetails)
     try {
       if (existingTimesheetId) {
         // Update existing timesheet
@@ -319,8 +319,10 @@ const Timesheet = () => {
     }
   };
 
-  const handleInputChange = (value, date, project, field) => {
-    console.log("first", projectData, value, date, project, field)
+  const handleInputChange = (inputValue, date, project, field) => {
+    const hours = field === 'hours' ? Number(inputValue.trim().replace(".", "")) : 0
+    const value = field === 'hours' ? (hours > 0 ? Math.round(hours) : 0) : inputValue;
+    // console.log("first", inputValue)
     setProjectData(prevData => ({
       ...prevData,
       [project]: prevData[project]?.map(item =>
@@ -466,7 +468,7 @@ const Timesheet = () => {
         // ),
         title: (
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Select defaultValue={projectName} style={{ width: 120 }} onChange={(value) => handleProjectChange(value, columnIndex)} >
+            <Select defaultValue={projectName} style={{ width: '100%' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
               {getAvailableProjects()?.map((option) => (
                 <Option key={option?.id} value={option?.id} disabled={option?.disabled}>
                   {option?.project_name}
@@ -484,7 +486,7 @@ const Timesheet = () => {
           <div>
             <Input
               type="number"
-              placeholder="Hours"
+              placeholder="Hours" min={0} precision={0}
               value={record?.dailyEntries[projectName]?.hours}
               onChange={(e) => handleInputChange(e?.target?.value, record.date, projectName, 'hours')}
               disabled={disabled}
@@ -510,12 +512,13 @@ const Timesheet = () => {
         var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
         // var invalid=dailyTotal > 10 || dailyTotal<8
         console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
-        var invalid = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours || 8)
+        var invalid = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours || 8)
+        var warning = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours || 8)
         if (invalid) {
           setSubmitDisabled(true)
         }
         return (
-          <div style={{ color: (invalid) && 'red' }}>
+          <div style={{ color: ((warning && !invalid) ? 'gold' : ((invalid) && 'red')) }}>
             {dailyTotal}
           </div>);
       },
@@ -616,7 +619,7 @@ const Timesheet = () => {
               <Table.Summary.Cell key={projectName} style={{ backgroundColor: color }}>
                 {/* {calculateBalanceHours(projectName, projectTotals)} */}
                 <div style={{ color }}>
-                  {balance} of {total}
+                  {total ? `${balance} of ${total}` : ''}
                 </div>
               </Table.Summary.Cell>
             );
@@ -649,7 +652,7 @@ const Timesheet = () => {
     var color = null
     var balance = allocatedHours - expensedHours - projectTotals[projectName]
 
-    if (balance < ((100 - 80) / 100) * allocatedHours) {
+    if (balance <= ((100 - timesheet_settings?.workingHours?.projectFinalHours) / 100) * allocatedHours) {
       color = 'gold'
     }
     if (balance < 0) {

@@ -99,7 +99,7 @@ const TimesheetSettings = ({ locationId }) => {
                     </Form.Item>
                     <Form.Item name={["timeEntryRounding", "roundingIncrement"]} label="Rounding Increment">
                         <Select>
-                            {[5, 10, 15, 30].map(minute => (
+                            {[0, 15, 30,45].map(minute => (
                                 <Option key={minute} value={minute}>{minute} minutes</Option>
                             ))}
                         </Select>
@@ -127,6 +127,9 @@ const TimesheetSettings = ({ locationId }) => {
                     </Form.Item>
                     <Form.Item name={["workingHours", "standardWeeklyHours"]} label="Standard Weekly Hours">
                         <InputNumber min={1} max={168} />
+                    </Form.Item>
+                    <Form.Item name={["workingHours", "projectFinalHours"]} label="Project Final Hours(%)">
+                        <InputNumber min={1} max={100} />
                     </Form.Item>
                     {/* <Form.Item name={["workingHours", "shiftPatterns"]} label="Shift Patterns">
                         <Input />
