@@ -369,6 +369,50 @@ const Review1 = ({ date, employee }) => {
     setRejectComment('');
   };
 
+  // Function to calculate total hours for each project across all rows
+  const calculateProjectTotals = (dataSource) => {
+    const totals = {};
+    dataSource.forEach(record => {
+      Object.keys(record).forEach(key => {
+        if (key !== 'date' && key !== 'description') {
+          totals[key] = (totals[key] || 0) + (parseFloat(record[key]?.hours) || 0);
+        }
+      });
+    });
+    return totals;
+  };
+
+  const renderSummaryRow = (dataSource) => {
+    const projectTotals = calculateProjectTotals(dataSource);
+
+    return (
+      <Table.Summary>
+        <Table.Summary.Row>
+          <Table.Summary.Cell fixed="left">Total</Table.Summary.Cell>
+          {columns.slice(1, -2).map(column => (
+            <Table.Summary.Cell key={column.key}>
+              <div className='ml-2'>
+                {projectTotals[column.key] || 0}
+              </div>
+            </Table.Summary.Cell>
+          ))}
+          <Table.Summary.Cell align="left">
+            <div className='ml-2'>
+              {Object.values(projectTotals).reduce((acc, total) => acc + total, 0)}
+            </div>
+          </Table.Summary.Cell>
+          <Table.Summary.Cell /> {/* Empty cell for the description column */}
+        </Table.Summary.Row>
+
+        <Table.Summary.Row>
+          <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
+
+        </Table.Summary.Row>
+      </Table.Summary>
+
+    );
+  };
+
   return (
     <div>
       {(isApproveModal || isRejectModal) &&
@@ -428,6 +472,7 @@ const Review1 = ({ date, employee }) => {
       </Row>
       {timeSheetData ? <Table
         columns={columns}
+        summary={() => renderSummaryRow(timeSheetData)}
         // dataSource={dataSource}
         dataSource={timeSheetData}
         pagination={false}

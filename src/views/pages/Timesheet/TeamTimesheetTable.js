@@ -33,16 +33,16 @@ const TeamTimesheetTable = () => {
                 ({ data, error } = await supabase
                     .from('x_timesheet_3')
                     .select('*')
-                    // .lt('last_date', today)
-                    // .eq('status', 'Submitted')
+                    .lt('last_date', today)
+                    .eq('status', 'Submitted')
                 );
             } else {
                 // Query for non-admins
                 ({ data, error } = await supabase
                     .from('x_timesheet_3')
                     .select('*')
-                    // .eq('approver_id', session?.user?.id)
-                    // .eq('status', 'Submitted')
+                    .eq('approver_id', session?.user?.id)
+                    .eq('status', 'Submitted')
                 );
             }
 

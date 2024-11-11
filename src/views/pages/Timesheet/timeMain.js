@@ -40,6 +40,8 @@ const Timesheet = () => {
   const fetchProjects = async () => {
     const { data, error } = await supabase.from('x_projects').select('*')
       .or(`project_users.cs.{${session?.user?.id}},is_static.eq.true`)
+      .order('is_static', { ascending: true })  // is_static=false rows come first
+      .order('project_name', { ascending: true });
     // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
@@ -214,6 +216,7 @@ const Timesheet = () => {
 
       // Refetch the timesheet data after submission
       checkExistingTimesheet();
+      fetchProjects()
     } catch (error) {
       message.error(`Error submitting timesheet: ${error.message}`);
     }
@@ -326,6 +329,21 @@ const Timesheet = () => {
     setCurrentDate(newDate);
   };
 
+  const checkDescriptionIsNull = (hours, description) => {
+    console.log("hr", hours)
+    if (hours !== 0 && description === '') {
+      setSubmitDisabled(true)
+      return 'error'
+    }
+  }
+
+  const checkhoursIsNull = (hours, description) => {
+    if (hours === 0 && description !== '') {
+      setSubmitDisabled(true)
+      return 'error'
+    }
+  }
+
   const columns = [
     {
       title: 'Date',
@@ -358,6 +376,7 @@ const Timesheet = () => {
               type="number"
               placeholder="Hours" min={0} precision={0}
               value={record?.dailyEntries[projectName]?.hours}
+              status={checkhoursIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
               onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'hours')}
               disabled={disabled}
               style={{ width: '100%' }}
@@ -366,6 +385,7 @@ const Timesheet = () => {
               type="text"
               placeholder="Description"
               value={record?.dailyEntries[projectName]?.description}
+              status={checkDescriptionIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
               onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'description')}
               disabled={disabled}
               style={{ marginTop: '4px', width: '100%' }}
