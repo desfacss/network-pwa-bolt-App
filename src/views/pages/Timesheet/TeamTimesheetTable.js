@@ -133,7 +133,7 @@ const TeamTimesheetTable = () => {
                 onClose={closeDrawer}
                 visible={drawerVisible}
             >
-                <Review1 data={selectedRecord} />
+                <Review1 date={selectedRecord?.timesheet_date} employee={selectedRecord?.user_id} />
             </Drawer>
         </>
     );

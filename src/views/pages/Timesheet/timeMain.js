@@ -223,7 +223,7 @@ const Timesheet = () => {
   const generateRows = (projectName) => {
     const startDate = new Date(currentDate);
     const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
-    const rowCount = viewMode === 'Weekly' ? 7 : daysInMonth;
+    const rowCount = viewMode === 'Weekly' ? 5 : daysInMonth;
 
     const newRows = Array.from({ length: rowCount }, (_, dayIndex) => {
       const dateValue = formatDate(
@@ -421,7 +421,7 @@ const Timesheet = () => {
   const generateAllRows = () => {
     const startDate = new Date(currentDate);
     const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
-    const rowCount = viewMode === 'Weekly' ? 7 : daysInMonth;
+    const rowCount = viewMode === 'Weekly' ? 5 : daysInMonth;
 
     // Create a map to accumulate rows by date
     const rowsMap = {};

@@ -9,10 +9,11 @@ import { WarningOutlined } from '@ant-design/icons';
 // import { sendEmail } from 'components/common/SendEmail';
 const { Option } = Select;
 
-const Review1 = ({ data }) => {
+const Review1 = ({ date, employee }) => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
-  const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
+  // const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
+  const [currentDate, setCurrentDate] = useState(new Date(date));
   const [existingTimesheet, setExistingTimesheet] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
   const [timeSheetData, setTimeSheetData] = useState();
@@ -21,7 +22,7 @@ const Review1 = ({ data }) => {
   const [isRejectModal, setIsRejectModal] = useState(false);
   const [rejectComment, setRejectComment] = useState('');
   const [employees, setEmployees] = useState([]);
-  const [selectedEmployeesId, setSelectedEmployeeId] = useState();
+  const [selectedEmployeesId, setSelectedEmployeeId] = useState(employee);
   const [columns, setColumns] = useState([]);
   const { session } = useSelector((state) => state.auth);
 
@@ -33,34 +34,35 @@ const Review1 = ({ data }) => {
       return;
     }
 
-    // const { data, error } = await supabase
-    //   .from('x_timesheet_3')
-    //   .select('*')
-    //   .eq('user_id', selectedEmployeesId)
-    //   .eq('timesheet_date', currentDate.toISOString())
-    //   .eq('timesheet_type', viewMode);
+    const { data, error } = await supabase
+      .from('x_timesheet_3')
+      .select('*')
+      .eq('user_id', selectedEmployeesId)
+      .eq('timesheet_date', currentDate.toISOString())
+      .eq('timesheet_type', viewMode);
 
-    const error = null
+    // const error = null
 
     if (error) {
       console.log('Error fetching timesheet:', error.message);
       setExistingTimesheet(null);
       setTimeSheetData();
 
-      // } else if (data && data.length > 0 && data[0]?.status !== 'Draft') {
-      //   console.log('Existing timesheet:', data[0]);
-      //   // setDataSource(data[0]?.details);
-      //   setExistingTimesheet(data[0]);
-      //   setDisabled(!['Submitted'].includes(data[0]?.status));
-      //   const timesheetDetails = data[0]?.details;
+    } else if (data && data.length > 0 && data[0]?.status !== 'Draft') {
+      console.log('Existing timesheet:', data[0]);
+      // setDataSource(data[0]?.details);
+      setExistingTimesheet(data[0]);
+      setDisabled(!['Submitted'].includes(data[0]?.status));
+      const timesheetDetails = data[0]?.details;
 
       // } else if (data && data.length > 0 && data[0]?.status !== 'Draft') {
-    } else if (data) {
-      console.log('Existing timesheet:', data);
-      // setDataSource(data?.details);
-      setExistingTimesheet(data);
-      setDisabled(!['Submitted'].includes(data?.status));
-      const timesheetDetails = data?.details;
+
+      // } else if (data) {
+      //   console.log('Existing timesheet:', data);
+      //   // setDataSource(data?.details);
+      //   setExistingTimesheet(data);
+      //   setDisabled(!['Submitted'].includes(data?.status));
+      // const timesheetDetails = data?.details;
 
       if (timesheetDetails) {
         const newDataSource = timesheetDetails.map(entry => {
@@ -145,7 +147,7 @@ const Review1 = ({ data }) => {
     checkExistingTimesheet();
     setDisabled(isTimesheetDisabled(viewMode, currentDate));
     SetHideNext(isHideNext(currentDate));
-  }, [data, currentDate, viewMode, selectedEmployeesId]);
+  }, [currentDate, viewMode, selectedEmployeesId]);
 
   // Sample data for the week
   // const dataSource = [
@@ -337,9 +339,10 @@ const Review1 = ({ data }) => {
     // }
   };
 
-  useEffect(() => {
-    (employees && !selectedEmployeesId) && setSelectedEmployeeId(employees[employees?.length - 1]?.id)
-  }, [employees])
+  // useEffect(() => {
+  //   (employees && !selectedEmployeesId) && setSelectedEmployeeId(employees[employees?.length - 1]?.id)
+  // }, [employees])
+
   const handleSubmit = async () => {
     const { data, error } = await supabase.from('x_timesheet_3').update({ status: isApproveModal ? "Approved" : "Rejected" }).eq('id', existingTimesheet.id);
     if (error) {
