@@ -200,17 +200,17 @@ const Review1 = ({ date, employee, fetchData }) => {
         className: 'sticky-left',
       },
       ...Array.from(projectNames).map(project => {
-        const projectName = projects.find(proj => proj?.id === project)?.project_name || project;
+        const projectName = projects?.find(proj => proj?.id === project)?.project_name || project;
         return {
           title:
             <Tooltip title={projectName}>
-              <div className="vertical-header">{projectName}</div>,
+              <div className="vertical-header">{projectName}</div>
             </Tooltip>,
           dataIndex: project,
           key: project,
           align: 'left',
           render: (_, record) => (
-            <div className='ml-2'>{record[project]?.hours || ''}</div>
+            <div className='ml-2'>{record[project]?.hours !== '0' ? (record[project]?.hours) : '-'}</div>
           ),
         };
       }),
@@ -255,12 +255,13 @@ const Review1 = ({ date, employee, fetchData }) => {
     ];
 
     const dataSource = timesheetData.map(detail => ({
-      date: detail.date,
+      date: detail?.date,
       ...Object.entries(detail.dailyEntries).reduce((acc, [project, entry]) => {
-        acc[project] = { hours: entry.hours, description: entry.description };
+        acc[project] = { hours: entry?.hours, description: entry?.description };
         return acc;
       }, {}),
-      description: Object.entries(detail.dailyEntries).map(([project, entry]) => entry.description).join(', '), // Concatenate descriptions
+      // description: Object.entries(detail?.dailyEntries).map(([project, entry]) => entry?.description)?.join('|')?.replace(/^\|+/, '')?.replace(/\|/g, ' | '), // Concatenate descriptions
+      description: Object.entries(detail?.dailyEntries).map(([project, entry]) => entry?.description && (entry?.description + ' | '))?.join('')?.replace(/\s\|\s$/, ''), // Concatenate descriptions
     }));
 
     return { columns, dataSource };

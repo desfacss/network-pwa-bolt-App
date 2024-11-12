@@ -35,7 +35,7 @@ const TeamTimesheetTable = () => {
                     .select('*,user:user_id (*)')
                     // .lt('last_date', today)
                     .or(`last_date.lt.${today},approver_id.eq.${session?.user?.id}`)
-                    .eq('status', 'Submitted')
+                    // .eq('status', 'Submitted')
                 );
             } else {
                 // Query for non-admins
@@ -43,7 +43,7 @@ const TeamTimesheetTable = () => {
                     .from('x_timesheet_3')
                     .select('*')
                     .eq('approver_id', session?.user?.id)
-                    .eq('status', 'Submitted')
+                    // .eq('status', 'Submitted')
                 );
             }
 
@@ -97,7 +97,7 @@ const TeamTimesheetTable = () => {
                         type="primary"
                         // icon={<EditFilled />}
                         size="small"
-                        className="mr-2"
+                        className="mr-2" disabled={record?.status !== 'Submitted'}
                         // onClick={() => handleEdit(record)}
                         onClick={() => handleOpenDrawer(record)}
                     >Approve / Reject</Button>

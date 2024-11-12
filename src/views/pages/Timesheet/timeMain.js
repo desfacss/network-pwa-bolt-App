@@ -120,7 +120,7 @@ const Timesheet = () => {
           date: date,
           dailyEntries: {
             [projectName]: {
-              hours: dailyEntries[projectName]?.hours || '0',
+              hours: Number(dailyEntries[projectName]?.hours) || '0',
               description: dailyEntries[projectName]?.description || '',
             },
           },
@@ -430,14 +430,14 @@ const Timesheet = () => {
 
   const checkDescriptionIsNull = (hours, description) => {
     console.log("hr", hours)
-    if (hours !== 0 && description === '') {
+    if (Number(hours) !== 0 && description === '') {
       setSubmitDisabled(true)
       return 'error'
     }
   }
 
   const checkhoursIsNull = (hours, description) => {
-    if (hours === 0 && description !== '') {
+    if (Number(hours) === 0 && description !== '') {
       setSubmitDisabled(true)
       return 'error'
     }
