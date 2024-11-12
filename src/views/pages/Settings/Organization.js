@@ -117,13 +117,13 @@ const OrganizationSetup = () => {
                     </Form.Item>
                 </Col>
 
-                <Col span={8}>
+                {/* <Col span={8}>
                     <Form.Item label="Organization Logo" name="organizationLogo" valuePropName="fileList" getValueFromEvent={(e) => e.fileList}>
                         <Upload disabled name="logo" action="/upload.do" listType="picture" maxCount={1}>
                             <Button icon={<UploadOutlined />}>Upload Logo</Button>
                         </Upload>
                     </Form.Item>
-                </Col>
+                </Col> */}
             </Row>
 
             {/* Address Section */}
@@ -213,13 +213,13 @@ const OrganizationSetup = () => {
             </Row>
 
             <Row gutter={16}>
-                <Col span={8}>
+                {/* <Col span={8}>
                     <Form.Item label="Time Format" name="timeFormat">
                         <Select disabled>
                             <Option value="24">24-hour</Option>
                         </Select>
                     </Form.Item>
-                </Col>
+                </Col> */}
                 <Col span={8}>
                     <Form.Item label="Work Week Start Day" name="workWeekStartDay">
                         <Select disabled>
