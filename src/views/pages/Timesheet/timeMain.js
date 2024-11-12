@@ -449,6 +449,7 @@ const Timesheet = () => {
       dataIndex: 'date',
       key: 'date',
       fixed: 'left',
+      className: 'sticky-left',
     },
     ...Object.keys(selectedProjectColumns)?.map((columnIndex) => {
       const projectName = selectedProjectColumns[columnIndex];
@@ -497,6 +498,7 @@ const Timesheet = () => {
       title: 'Daily Total',
       key: 'total',
       fixed: 'right',
+      className: 'sticky-right',
       render: (_, record) => {
         var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
         // var invalid=dailyTotal > 10 || dailyTotal<8
@@ -588,8 +590,8 @@ const Timesheet = () => {
 
     return (
       <Table.Summary>
-        <Table.Summary.Row>
-          <Table.Summary.Cell fixed="left">Project Total</Table.Summary.Cell>
+        <Table.Summary.Row className="table-summary-row sticky-left">
+          <Table.Summary.Cell fixed="left">Total</Table.Summary.Cell>
           {Object.keys(selectedProjectColumns).map((columnIndex) => {
             const projectName = selectedProjectColumns[columnIndex];
             return (
@@ -604,7 +606,7 @@ const Timesheet = () => {
             </div>
           </Table.Summary.Cell>
         </Table.Summary.Row>
-        <Table.Summary.Row>
+        <Table.Summary.Row className="table-summary-row sticky-left">
           <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
           {Object.keys(selectedProjectColumns)?.map((columnIndex) => {
             const projectName = selectedProjectColumns[columnIndex];
