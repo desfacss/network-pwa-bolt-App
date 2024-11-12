@@ -32,8 +32,9 @@ const TeamTimesheetTable = () => {
                 // Query for admins
                 ({ data, error } = await supabase
                     .from('x_timesheet_3')
-                    .select('*')
-                    .lt('last_date', today)
+                    .select('*,user:user_id (*)')
+                    // .lt('last_date', today)
+                    .or(`last_date.lt.${today},approver_id.eq.${session?.user?.id}`)
                     .eq('status', 'Submitted')
                 );
             } else {
@@ -49,7 +50,7 @@ const TeamTimesheetTable = () => {
             if (error) {
                 throw error;
             }
-
+            console.log("TS", data)
             setData(data);
         } catch (error) {
             message.error('Failed to load timesheet data');
@@ -70,6 +71,11 @@ const TeamTimesheetTable = () => {
             dataIndex: 'timesheet_date',
             key: 'timesheet_date',
             render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
+        },
+        {
+            title: 'User',
+            dataIndex: ['user', 'user_name'],
+            key: 'user',
         },
         {
             title: 'Status',
@@ -108,6 +114,7 @@ const TeamTimesheetTable = () => {
 
     // Function to open the drawer and set the selected record
     const handleOpenDrawer = (record) => {
+        console.log("edit", record)
         setSelectedRecord(record);
         setDrawerVisible(true);
     };
@@ -133,7 +140,7 @@ const TeamTimesheetTable = () => {
                 onClose={closeDrawer}
                 visible={drawerVisible}
             >
-                <Review1 date={selectedRecord?.timesheet_date} employee={selectedRecord?.user_id} />
+                {selectedRecord && <Review1 fetchData={fetchData} date={selectedRecord?.timesheet_date} employee={selectedRecord?.user_id} />}
             </Drawer>
         </>
     );

@@ -3,7 +3,7 @@
     /* Text flows vertically right to left (bottom to top) */
     transform: rotate(180deg);
     /* Rotate the text to flip it */
-    text-align: center;
+    text-align: left;
     /* Center the text */
     height: 100px;
     /* Adjust height based on design */
@@ -13,7 +13,8 @@
     /* Hide overflowed text */
     text-overflow: ellipsis;
     /* Add ellipses for long text */
-    max-height: 100px;
+    max-height: 200px;
+    min-height: 200px;
     /* Set max height to limit text display */
     max-width: 100px;
     /* Optional, set width to control header size */

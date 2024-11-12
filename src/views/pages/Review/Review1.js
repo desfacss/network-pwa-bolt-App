@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Input, message, Modal, Row, Select, Table } from 'antd';
+import { Button, Col, Input, message, Modal, notification, Row, Select, Table, Tooltip } from 'antd';
 // import 'antd/dist/antd.css';  // Import Ant Design styles
 import './Tableview.css';  // Custom styles for vertical text alignment
 import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHideNext, isTimesheetDisabled } from 'components/common/utils';
@@ -9,7 +9,7 @@ import { WarningOutlined } from '@ant-design/icons';
 // import { sendEmail } from 'components/common/SendEmail';
 const { Option } = Select;
 
-const Review1 = ({ date, employee }) => {
+const Review1 = ({ date, employee, fetchData }) => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
   // const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
@@ -17,6 +17,7 @@ const Review1 = ({ date, employee }) => {
   const [existingTimesheet, setExistingTimesheet] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
   const [timeSheetData, setTimeSheetData] = useState();
+  const [projectDetails, setProjectDetails] = useState();
   const [hideNext, SetHideNext] = useState(true);
   const [isApproveModal, setIsApproveModal] = useState(false);
   const [isRejectModal, setIsRejectModal] = useState(false);
@@ -24,9 +25,27 @@ const Review1 = ({ date, employee }) => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployeesId, setSelectedEmployeeId] = useState(employee);
   const [columns, setColumns] = useState([]);
+  const [projects, setProjects] = useState([]);
+
   const { session } = useSelector((state) => state.auth);
 
   const { timesheet_settings } = session?.user?.location
+
+
+  const fetchProjects = async () => {
+    const { data, error } = await supabase.from('x_projects').select('*')
+    // .contains('project_users', [session?.user?.id]);
+    if (data) {
+      setProjects(data);
+      console.log("Proj", data)
+    } else {
+      notification.error({ message: 'Failed to fetch projects' });
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects()
+  }, [])
 
   const checkExistingTimesheet = async () => {
     if (!selectedEmployeesId) {
@@ -81,7 +100,8 @@ const Review1 = ({ date, employee }) => {
 
         const { columns, dataSource } = getDynamicColumnsAndDataSource(timesheetDetails);
         setColumns(columns); // Store columns in state if needed
-        console.log("formatted Data", dataSource)
+        console.log("formatted Data", columns, dataSource, timesheetDetails)
+        setProjectDetails(data[0] && data[0]?.project_details)
         setTimeSheetData(dataSource);
 
       }
@@ -147,7 +167,7 @@ const Review1 = ({ date, employee }) => {
     checkExistingTimesheet();
     setDisabled(isTimesheetDisabled(viewMode, currentDate));
     SetHideNext(isHideNext(currentDate));
-  }, [currentDate, viewMode, selectedEmployeesId]);
+  }, [currentDate, viewMode, selectedEmployeesId, projects]);
 
   // Sample data for the week
   // const dataSource = [
@@ -178,17 +198,34 @@ const Review1 = ({ date, employee }) => {
         fixed: 'left',
         align: 'left',
       },
-      ...Array.from(projectNames).map(project => ({
-        title: <div className="vertical-header">{project}</div>,
-        dataIndex: project,
-        key: project,
-        align: 'left',
-        render: (_, record) => {
-          return <div className='ml-2'>
-            {record[project]?.hours || ''}
-          </div>
-        },
-      })),
+      ...Array.from(projectNames).map(project => {
+        const projectName = projects.find(proj => proj?.id === project)?.project_name || project;
+        return {
+          title:
+            <Tooltip title={projectName}>
+              <div className="vertical-header">{projectName}</div>,
+            </Tooltip>,
+          dataIndex: project,
+          key: project,
+          align: 'left',
+          render: (_, record) => (
+            <div className='ml-2'>{record[project]?.hours || ''}</div>
+          ),
+        };
+      }),
+      // ...Array.from(projectNames).map(project => ({
+      // //   const projectData = projects.find(proj => proj?.id === project);
+      // // return {
+      //   title: <div className="vertical-header">{projects && projects?.find(proj => proj?.id === project)?.project_name}</div>,
+      //   dataIndex: project,
+      //   key: project,
+      //   align: 'left',
+      //   render: (_, record) => {
+      //     return <div className='ml-2'>
+      //       {record[project]?.hours || ''}
+      //     </div>
+      //   }
+      // })),
       {
         title: <div className="vertical-header">Daily Total</div>,
         key: 'total',
@@ -352,12 +389,15 @@ const Review1 = ({ date, employee }) => {
       console.log('Status updated successfully:', data);
       // sendEmail()
       if (isApproveModal) {
+
         setIsApproveModal(false);
       } else {
         setIsRejectModal(false);
         setRejectComment('');
       }
+
       checkExistingTimesheet()
+      fetchData()
       message.success(`${isApproveModal ? "Approved" : "Rejected"} successfully`);
     }
     // Add your approve logic here
@@ -388,7 +428,7 @@ const Review1 = ({ date, employee }) => {
     return (
       <Table.Summary>
         <Table.Summary.Row>
-          <Table.Summary.Cell fixed="left">Total</Table.Summary.Cell>
+          <Table.Summary.Cell fixed="left">Project Total</Table.Summary.Cell>
           {columns.slice(1, -2).map(column => (
             <Table.Summary.Cell key={column.key}>
               <div className='ml-2'>
@@ -405,8 +445,34 @@ const Review1 = ({ date, employee }) => {
         </Table.Summary.Row>
 
         <Table.Summary.Row>
+          <Table.Summary.Cell fixed="left">Allocated Hours</Table.Summary.Cell>
+          {columns.slice(1, -2).map(column => (
+            <Table.Summary.Cell key={column.key}>
+              <div className='ml-2'>
+                {projectDetails[column.key]?.allocated && projectDetails[column.key]?.allocated}
+              </div>
+            </Table.Summary.Cell>
+          ))}
+          <Table.Summary.Cell align="left">
+            <div className='ml-2'>
+              {/* {Object.values(projectDetails).reduce((acc, total) => acc?.weekly_total + total, 0)} */}
+            </div>
+          </Table.Summary.Cell>
+        </Table.Summary.Row>
+        <Table.Summary.Row>
           <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
-
+          {columns.slice(1, -2).map(column => (
+            <Table.Summary.Cell key={column.key}>
+              <div className='ml-2'>
+                {projectDetails[column.key]?.allocated && projectDetails[column.key]?.balance}
+              </div>
+            </Table.Summary.Cell>
+          ))}
+          <Table.Summary.Cell align="left">
+            <div className='ml-2'>
+              {/* {Object.values(projectDetails).reduce((acc, total) => acc?.weekly_total + total, 0)} */}
+            </div>
+          </Table.Summary.Cell>
         </Table.Summary.Row>
       </Table.Summary>
 
@@ -470,7 +536,7 @@ const Review1 = ({ date, employee }) => {
             <Button type="primary" onClick={() => setIsRejectModal(true)} >Reject</Button>
           </Col> : <div style={{ width: 200 }}></div>}
       </Row>
-      {timeSheetData ? <Table
+      {(timeSheetData) ? <Table
         columns={columns}
         summary={() => renderSummaryRow(timeSheetData)}
         // dataSource={dataSource}

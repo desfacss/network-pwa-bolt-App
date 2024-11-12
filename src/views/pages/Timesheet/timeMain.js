@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Button, Select, message, Row, Col, notification, Card, Drawer } from 'antd';
+import { Table, Input, Button, Select, message, Row, Col, notification, Card, Drawer, Modal } from 'antd';
 import { useSelector } from 'react-redux';
 import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHideNext, isTimesheetDisabled } from 'components/common/utils';
 import { supabase } from 'configs/SupabaseConfig';
-import MyTimesheetTable from './MyTimesheetTable';
+// import MyTimesheetTable from './MyTimesheetTable';
+import { EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 
+const { confirm } = Modal;
 const { Option } = Select;
 
 const Timesheet = () => {
@@ -19,13 +21,22 @@ const Timesheet = () => {
   const [selectedProjectColumns, setSelectedProjectColumns] = useState({});
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [defaultData, setDefaultData] = useState();
+  const [timesheets, setTimesheets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [projectDetails, setProjectDetails] = useState();
+  // const [timesheetToDelete, setTimesheetToDelete] = useState();
 
   const { session } = useSelector((state) => state.auth);
 
   const { timesheet_settings } = session?.user?.location
 
+  useEffect(() => {
+    fetchTimesheets()
+  }, [])
+
   // Function to open the drawer
   const showDrawer = () => {
+    setCurrentDate(getMonday(new Date()))
     setDrawerVisible(true);
   };
 
@@ -35,6 +46,27 @@ const Timesheet = () => {
     setProjectData()
     setSelectedProjectColumns(defaultData)
     // form.resetFields();
+  };
+
+  // Fetch timesheet data from your backend
+  const fetchTimesheets = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('x_timesheet_3')
+        .select('*')
+        .eq('user_id', session?.user?.id)
+      if (error) {
+        throw error;
+      }
+
+      setTimesheets(data);
+    } catch (error) {
+      message.error('Failed to load timesheet data');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchProjects = async () => {
@@ -66,6 +98,46 @@ const Timesheet = () => {
     }
   };
 
+  const setCurrentTimesheet = (data) => {
+    console.log("edit", data)
+    const timesheetDetails = data?.details || [];
+    const projectDataMap = {};
+
+    // Transform timesheetDetails to the structure needed for the table
+    timesheetDetails.forEach((day) => {
+      const date = day.date;
+      const dailyEntries = day.dailyEntries;
+
+      // For each project, initialize the array if not present, and push the day entry
+      Object.keys(dailyEntries).forEach((projectName) => {
+        if (!projectDataMap[projectName]) {
+          projectDataMap[projectName] = [];
+        }
+
+        // Push the formatted data for each project
+        projectDataMap[projectName].push({
+          key: date,
+          date: date,
+          dailyEntries: {
+            [projectName]: {
+              hours: dailyEntries[projectName]?.hours || '0',
+              description: dailyEntries[projectName]?.description || '',
+            },
+          },
+        });
+      });
+    });
+    // console.log("Existing Data", projectDataMap, projectData)
+    const columns = Object.keys(projectDataMap).reduce((acc, id) => {
+      acc[id] = id;
+      return acc;
+    }, {});
+    setSelectedProjectColumns(columns)
+    setProjectData(projectDataMap);
+    setExistingTimesheetId(data?.id);
+    setDisabled(['Approved'].includes(data?.status));
+  }
+
   const checkExistingTimesheet = async () => {
     if (!session?.user?.id) {
       message.error('User is not authenticated.');
@@ -83,42 +155,46 @@ const Timesheet = () => {
       console.error('Error fetching timesheet:', error.message);
       setExistingTimesheetId(null);
     } else if (data && data.length > 0) {
-      const timesheetDetails = data[0]?.details || [];
-      const projectDataMap = {};
+      setCurrentTimesheet(data[0])
 
-      // Transform timesheetDetails to the structure needed for the table
-      timesheetDetails.forEach((day) => {
-        const date = day.date;
-        const dailyEntries = day.dailyEntries;
+      // const timesheetDetails = data[0]?.details || [];
+      // const projectDataMap = {};
 
-        // For each project, initialize the array if not present, and push the day entry
-        Object.keys(dailyEntries).forEach((projectName) => {
-          if (!projectDataMap[projectName]) {
-            projectDataMap[projectName] = [];
-          }
+      // // Transform timesheetDetails to the structure needed for the table
+      // timesheetDetails.forEach((day) => {
+      //   const date = day.date;
+      //   const dailyEntries = day.dailyEntries;
 
-          // Push the formatted data for each project
-          projectDataMap[projectName].push({
-            key: date,
-            date: date,
-            dailyEntries: {
-              [projectName]: {
-                hours: dailyEntries[projectName]?.hours || '0',
-                description: dailyEntries[projectName]?.description || '',
-              },
-            },
-          });
-        });
-      });
-      // console.log("Existing Data", projectDataMap, projectData)
-      const columns = Object.keys(projectDataMap).reduce((acc, id) => {
-        acc[id] = id;
-        return acc;
-      }, {});
-      setSelectedProjectColumns(columns)
-      setProjectData(projectDataMap);
-      setExistingTimesheetId(data[0]?.id);
-      setDisabled(['Approved'].includes(data[0]?.status));
+      //   // For each project, initialize the array if not present, and push the day entry
+      //   Object.keys(dailyEntries).forEach((projectName) => {
+      //     if (!projectDataMap[projectName]) {
+      //       projectDataMap[projectName] = [];
+      //     }
+
+      //     // Push the formatted data for each project
+      //     projectDataMap[projectName].push({
+      //       key: date,
+      //       date: date,
+      //       dailyEntries: {
+      //         [projectName]: {
+      //           hours: dailyEntries[projectName]?.hours || '0',
+      //           description: dailyEntries[projectName]?.description || '',
+      //         },
+      //       },
+      //     });
+      //   });
+      // });
+      // // console.log("Existing Data", projectDataMap, projectData)
+      // const columns = Object.keys(projectDataMap).reduce((acc, id) => {
+      //   acc[id] = id;
+      //   return acc;
+      // }, {});
+      // setSelectedProjectColumns(columns)
+      // setProjectData(projectDataMap);
+      // setExistingTimesheetId(data[0]?.id);
+      // setDisabled(['Approved'].includes(data[0]?.status));
+
+
     } else {
       setExistingTimesheetId(null);
     }
@@ -179,6 +255,28 @@ const Timesheet = () => {
     const today = new Date();
     const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 3)));
 
+    const projectTotals = {};
+    const projectDetails = {};
+
+    // Calculate totals for each project
+    projectData && Object.keys(projectData)?.forEach((projectName) => {
+      projectTotals[projectName] = projectData && projectData[projectName]?.reduce(
+        (sum, entry) => sum + (parseFloat(entry?.dailyEntries[projectName]?.hours) || 0),
+        0
+      );
+    })
+
+    {
+      Object.keys(selectedProjectColumns)?.map((columnIndex) => {
+        const projectName = selectedProjectColumns[columnIndex];
+        const { balance, allocated, expensed, color } = calculateBalanceHours(projectName, projectTotals)
+        const weekly_total = projectTotals[projectName]
+        projectDetails[projectName] = {
+          balance, allocated, expensed, weekly_total
+        }
+      })
+    }
+
 
     const timesheetPayload = {
       user_id: session.user.id,
@@ -186,6 +284,7 @@ const Timesheet = () => {
       timesheet_type: viewMode,
       status,
       details: timesheetDetails,
+      project_details: projectDetails,
       approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover]?.id,
       last_date: lastDate.toISOString()
     };
@@ -213,10 +312,10 @@ const Timesheet = () => {
         setProjectData()
         closeDrawer()
       }
-
-      // Refetch the timesheet data after submission
-      checkExistingTimesheet();
-      fetchProjects()
+      console.log("Pr", projectDetails)
+      fetchTimesheets()
+      // // Refetch the timesheet data after submission
+      // checkExistingTimesheet();
     } catch (error) {
       message.error(`Error submitting timesheet: ${error.message}`);
     }
@@ -402,7 +501,7 @@ const Timesheet = () => {
         var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
         // var invalid=dailyTotal > 10 || dailyTotal<8
         console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
-        var invalid = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours || 8)
+        var invalid = dailyTotal < (timesheet_settings?.workingHours?.standardDailyHours || 8) || dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours || 8)
         var warning = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours || 8)
         if (invalid) {
           setSubmitDisabled(true)
@@ -436,7 +535,7 @@ const Timesheet = () => {
     setProjectData(newProjectData);
   };
 
-  console.log("G", projectData, generateRows(Object.keys(selectedProjectColumns)))
+  // console.log("G", projectData, generateRows(Object.keys(selectedProjectColumns)))
 
   const generateAllRows = () => {
     const startDate = new Date(currentDate);
@@ -480,7 +579,11 @@ const Timesheet = () => {
         0
       );
     });
-
+    const total = Object.values(projectTotals).reduce((total, value) => total + value, 0)
+    const invalidweeklyTotal = total < (timesheet_settings?.workingHours?.standardWeeklyHours || 40)
+    if (invalidweeklyTotal) {
+      setSubmitDisabled(true)
+    }
     // const { balance, total } = calculateBalanceHours(projectName, projectTotals)
 
     return (
@@ -496,26 +599,35 @@ const Timesheet = () => {
             );
           })}
           <Table.Summary.Cell>
-            {Object.values(projectTotals).reduce((total, value) => total + value, 0)}
+            <div style={{ color: invalidweeklyTotal && 'red' }}>
+              {total}
+            </div>
           </Table.Summary.Cell>
         </Table.Summary.Row>
         <Table.Summary.Row>
           <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
           {Object.keys(selectedProjectColumns)?.map((columnIndex) => {
             const projectName = selectedProjectColumns[columnIndex];
-            const { balance, total, color } = calculateBalanceHours(projectName, projectTotals)
+            const { balance, allocated, expensed, color } = calculateBalanceHours(projectName, projectTotals)
+            const spent = projectTotals[projectName]
+            {/* setProjectDetails({
+              ...projectDetails,
+              [projectName]: {
+                balance, allocated, expensed, spent
+              }
+            }) */}
             console.log(color)
             return (
               <Table.Summary.Cell key={projectName} style={{ backgroundColor: color }}>
                 {/* {calculateBalanceHours(projectName, projectTotals)} */}
                 <div style={{ color }}>
-                  {total ? `${balance} of ${total}` : ''}
+                  {allocated ? `${balance} of ${allocated}` : ''}
                 </div>
               </Table.Summary.Cell>
             );
           })}
           <Table.Summary.Cell>
-            {/* {Object.values(projectTotals).reduce((total, value) => total + value, 0)} */}
+            {/* {Object.values(projectTotals).reduce((allocated, value) => allocated + value, 0)} */}
           </Table.Summary.Cell>
         </Table.Summary.Row>
       </Table.Summary>
@@ -543,7 +655,86 @@ const Timesheet = () => {
       color = 'red'
       setSubmitDisabled(true)
     }
-    return { balance, total: allocatedHours, color }
+    // setProjectDetails({
+    //   ...projectDetails,
+    //   [projectName]: {
+    //     balance, allocated: allocatedHours, expensed: expensedHours, spent: projectTotals[projectName]
+    //   }
+    // })
+    return { balance, allocated: allocatedHours, expensed: expensedHours, color }
+  };
+
+  const handleDelete = async (record) => {
+    // console.log("Record", record)
+    if (record) {
+      const { error } = await supabase.from('x_timesheet_3').delete().eq('id', record?.id);
+      if (!error) {
+        notification.success({ message: "Client deleted successfully" });
+        fetchTimesheets();
+      } else {
+        notification.error({ message: "Failed to delete client" });
+      }
+    }
+    // setTimesheetToDelete();
+  }
+
+  // Define the columns for the table
+  const timesheetColumns = [
+    {
+      title: 'Timesheet Date',
+      dataIndex: 'timesheet_date',
+      key: 'timesheet_date',
+      render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: 'Last Updated',
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      render: (date) => new Date(date).toLocaleString(), // Format date and time
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <div className="d-flex">
+          {record?.status !== 'Approved' && <Button
+            type="primary"
+            icon={<EditFilled />}
+            size="small"
+            className="mr-2"
+            onClick={() => { setCurrentDate(new Date(record?.timesheet_date)); setCurrentTimesheet(record); setDrawerVisible(true) }}
+          />}
+          {record?.status !== 'Approved' && <Button
+            type="primary" ghost
+            icon={<DeleteOutlined />}
+            size="small"
+            onClick={() => showDeleteConfirm(record)}
+          />}
+        </div>
+      ),
+    },
+  ];
+
+  const showDeleteConfirm = (record) => {
+    confirm({
+      title: `Are you sure delete ${record?.timesheet_date} timesheet?`,
+      icon: <ExclamationCircleFilled />,
+      // content: 'Some descriptions',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        handleDelete(record);
+      },
+      onCancel() {
+
+      },
+    });
   };
 
   return (
@@ -551,7 +742,19 @@ const Timesheet = () => {
       <Button type="primary" onClick={showDrawer} style={{ marginBottom: 16 }}>
         Add Timesheet
       </Button>
-      <MyTimesheetTable />
+      {/* <Modal visible={timesheetToDelete} closable={false}
+        title={`Confirm Delete ${timesheetToDelete?.timesheet_date} Timesheet`}
+        onCancel={() => setTimesheetToDelete()} onOk={handleDelete}
+      >
+      </Modal> */}
+      {/* <MyTimesheetTable /> */}
+      <Table
+        columns={timesheetColumns}
+        dataSource={timesheets}
+        rowKey="id" // Assuming `id` is unique
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+      />
       {(drawerVisible && selectedProjectColumns) && <Drawer
         title="Add Timesheet"
         width={'100%'}

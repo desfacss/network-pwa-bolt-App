@@ -18,18 +18,18 @@ const TimesheetComponent = ({ data, printRef }) => {
     const generateDateRange = (startDate, endDate) => {
         const dates = [];
         let currentDate = new Date(startDate);
-    
+
         while (currentDate <= endDate) {
             dates.push(new Date(currentDate));
             currentDate.setDate(currentDate.getDate() + 1);
         }
-    
+
         return dates.map((date) => date.toLocaleDateString()); // Format dates as "MM/DD/YYYY"
     };
 
     const getSparklineOptions = (dates, allDates) => {
         const seriesData = allDates.map(date => dates[date] || 0); // Map all dates to hours, defaulting to 0 if missing
-    
+
         return {
             chart: {
                 type: 'bar',
@@ -75,10 +75,10 @@ const TimesheetComponent = ({ data, printRef }) => {
         const filteredData = selectedUserId
             ? data.filter((entry) => entry.user_name === selectedUserId)
             : data;
-    
+
         const [startDate, endDate] = selectedDateRange;
         const allDates = startDate && endDate ? generateDateRange(startDate, endDate) : [];
-    
+
         const grouped = filteredData.reduce((acc, curr) => {
             const key = curr.project_name;
             if (!acc[key]) {
@@ -93,7 +93,7 @@ const TimesheetComponent = ({ data, printRef }) => {
             acc[key].total += curr.hours;
             return acc;
         }, {});
-    
+
         // Add missing dates with 0 hours
         Object.values(grouped).forEach((project) => {
             const missingDates = allDates.filter(date => !project.dates[date]);
@@ -101,7 +101,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                 project.dates[date] = 0; // Set missing date to 0 hours
             });
         });
-    
+
         return Object.values(grouped).map((project) => ({
             ...project,
             dates: Object.keys(project.dates)
@@ -117,10 +117,10 @@ const TimesheetComponent = ({ data, printRef }) => {
         const filteredData = selectedProjectName
             ? data.filter((entry) => entry.project_name === selectedProjectName)
             : data;
-    
+
         const [startDate, endDate] = selectedDateRange;
         const allDates = startDate && endDate ? generateDateRange(startDate, endDate) : [];
-    
+
         const grouped = filteredData.reduce((acc, curr) => {
             const key = curr.user_name;
             if (!acc[key]) {
@@ -135,7 +135,7 @@ const TimesheetComponent = ({ data, printRef }) => {
             acc[key].total += curr.hours;
             return acc;
         }, {});
-    
+
         // Add missing dates with 0 hours
         Object.values(grouped).forEach((user) => {
             const missingDates = allDates.filter(date => !user.dates[date]);
@@ -143,7 +143,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                 user.dates[date] = 0; // Set missing date to 0 hours
             });
         });
-    
+
         return Object.values(grouped).map((user) => ({
             ...user,
             dates: Object.keys(user.dates)
@@ -220,8 +220,8 @@ const TimesheetComponent = ({ data, printRef }) => {
                             style={{ marginBottom: 16 }}
                             format="YYYY-MM-DD"
                         /> */}
-                        
-                        <Select
+
+                        <Select allowClear
                             value={selectedUserId}
                             onChange={setSelectedUserId}
                             style={{ width: 200, marginBottom: 16 }}
@@ -233,7 +233,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                                 </Option>
                             ))}
                         </Select>
-                        
+
                         <Table
                             columns={employeeColumns}
                             dataSource={byEmployeeData}
@@ -250,8 +250,8 @@ const TimesheetComponent = ({ data, printRef }) => {
                             style={{ marginBottom: 16 }}
                             format="YYYY-MM-DD"
                         /> */}
-                        
-                        <Select
+
+                        <Select allowClear
                             value={selectedProjectName}
                             onChange={setSelectedProjectName}
                             style={{ width: 200, marginBottom: 16 }}
@@ -263,7 +263,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                                 </Option>
                             ))}
                         </Select>
-                        
+
                         <Table
                             columns={projectColumns}
                             dataSource={byProjectData}
