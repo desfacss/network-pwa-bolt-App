@@ -188,7 +188,8 @@ const Dashboaard = () => {
                 console.error('Error fetching data:', error);
             } else {
                 setReportData(viewData)
-                console.log("VD", viewData);
+                // console.log("VD", viewData);
+                console.log("VD", JSON.stringify(viewData, null, 2)); 
             }
             setLoading(false);
         };
