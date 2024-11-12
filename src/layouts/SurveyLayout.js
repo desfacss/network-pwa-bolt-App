@@ -49,14 +49,17 @@ const SurveyLayout = ({ children }) => {
 									alt=""
 								/>
 								<div>
-									{/* <img src="/img/ibcn.png" alt="logo" style={{ height: '200px' }} /> */}
+									<img src="/img/ukpe_logo.png" alt="logo" style={{ height: '30px' }} />
 								</div><br /><br /><br /><br />
-								<h1 className="text-white">TimeTrack</h1><br /><br /><br />
+								{/* <h1 className="text-white">TimeTrack</h1><br /><br /><br /> */}
 
 								<h3 className="text-white">
     {/* &ldquo;Effective planning turns intentions into actions. Schedule your way to success one step at a time&rdquo; */}
-	&rdquo; Track every minute, optimize your day. Time well-managed is progress well-earned &rdquo;
+	{/* &rdquo; Track every minute, optimize your day. Time well-managed is progress well-earned &rdquo; */}
+	ENGINEERED TODAY FOR TOMORROW AND BEYOND
 </h3>
+<br></br>
+<p>&rdquo;A leading consultant focused in supporting clients to deliver cost effective and smart design solutions for their investments on energy networks of the future.&rdquo;</p>
 							</Col>
 						</Row>
 						<div className="d-flex justify-content-end pb-4">

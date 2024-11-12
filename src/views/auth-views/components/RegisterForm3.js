@@ -173,7 +173,7 @@ export const RegisterForm = (props) => {
             {signIn && <>
               User email already added!,Please
               <a href="/auth/login"> Login and Continue</a><br /><br />
-              For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a>
+              {/* For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a> */}
             </>
             }
           </>
