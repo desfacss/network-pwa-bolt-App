@@ -72,6 +72,7 @@
     ]
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.10",
     "autoprefixer": "^9.8.4",
     "gulp": "^4.0.2",
     "gulp-csso": "^4.0.1",
