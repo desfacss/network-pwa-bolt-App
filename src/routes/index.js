@@ -1,12 +1,21 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 import { AUTHENTICATED_ENTRY } from "configs/AppConfig";
 import { protectedRoutes, publicRoutes } from "configs/RoutesConfig";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import AppRoute from "./AppRoute";
+import { useSelector } from "react-redux";
 
 const Routes = () => {
+
+  const { session } = useSelector((state) => state.auth);
+  const [filteredProtectedRoutes, setFilteredProtectedRoutes] = useState()
+
+  useEffect(() => {
+    setFilteredProtectedRoutes(protectedRoutes(session?.user?.features?.feature))
+  }, [session])
+
   return (
     <RouterRoutes>
       {/* <Route path="/" element={<Navigate replace to={'survey'} />} /> */}
@@ -16,16 +25,16 @@ const Routes = () => {
           // element={<Navigate replace to={AUTHENTICATED_ENTRY} />}
           element={<Navigate replace to={'app/profile'} />}
         /> */}
-        {protectedRoutes.map((route, index) => {
+        {filteredProtectedRoutes?.map((route, index) => {
           return (
             <Route
-              key={route.key + index}
-              path={route.path}
+              key={route?.key + index}
+              path={route?.path}
               element={
                 <AppRoute
-                  routeKey={route.key}
-                  component={route.component}
-                  {...route.meta}
+                  routeKey={route?.key}
+                  component={route?.component}
+                  {...route?.meta}
                 />
               }
             />

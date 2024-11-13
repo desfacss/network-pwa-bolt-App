@@ -777,7 +777,7 @@ const Timesheet = () => {
             <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
           </Col>
           <Col>
-            <Button onClick={() => handleSubmit('Draft')} disabled={submitDisabled}>Save</Button>
+            <Button onClick={() => handleSubmit('Draft')}>Save</Button>
             <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
           </Col>
         </Row>

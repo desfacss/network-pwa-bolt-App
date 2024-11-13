@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, Avatar, Select, notification } from "antd";
+import { Dropdown, Avatar, Select, notification, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   QuestionCircleOutlined,
@@ -18,7 +18,7 @@ import {
 import { supabase } from "configs/SupabaseConfig";
 import { store } from "store";
 import { APP_PREFIX_PATH } from 'configs/AppConfig'
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Icon = styled.div(() => ({
   fontSize: FONT_SIZES.LG,
@@ -46,10 +46,14 @@ const Title = styled.span(() => ({
 }));
 
 const MenuItem = (props) => (
-  <Flex as="a" href={props.path} alignItems="center" gap={SPACER[2]}>
-    <Icon>{props.icon}</Icon>
-    <span>{props.label}</span>
-  </Flex>
+  // <Flex as="a" href={props.path} alignItems="center" gap={SPACER[2]}>
+  <Link to={props.path}>
+    <Space>
+      <Icon>{props.icon}</Icon>
+      <span>{props.label}</span>
+    </Space>
+  </Link>
+  //  </Flex> 
 );
 
 const MenuItemSignOut = (props) => {

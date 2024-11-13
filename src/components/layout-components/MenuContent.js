@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, Grid } from 'antd';
 import IntlMessage from '../util-components/IntlMessage';
 import Icon from '../util-components/Icon';
@@ -104,6 +104,17 @@ const SideNavContent = (props) => {
 
 	const menuItems = useMemo(() => getSideNavMenuItem(navigationConfig), [session]);
 
+	const [selectedKeys, setSelectedKeys] = useState([]);
+	const location = useLocation();
+
+	useEffect(() => {
+		const currentPathKey = location.pathname.replace("/app/", "")
+		// .replace(/^\//, '').replace(/\//g, '-');
+		// console.log("loction", currentPathKey)
+		setSelectedKeys([currentPathKey]);
+	}, [location]);
+
+
 	return (
 		<Menu
 			mode="inline"
@@ -111,6 +122,7 @@ const SideNavContent = (props) => {
 			style={{ height: "100%", borderInlineEnd: 0 }}
 			defaultSelectedKeys={[routeInfo?.key]}
 			defaultOpenKeys={setDefaultOpen(routeInfo?.key)}
+			selectedKeys={selectedKeys}
 			className={hideGroupTitle ? "hide-group-title" : ""}
 			items={menuItems}
 		/>

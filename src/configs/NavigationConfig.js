@@ -19,6 +19,14 @@ const dashBoardNavTree = [{
       breadcrumb: false,
       submenu: []
     },
+    {
+      key: 'reports',
+      path: `${APP_PREFIX_PATH}/reports`,
+      title: 'Reports',
+      icon: UserOutlined, // Kept as UserOutlined
+      breadcrumb: false,
+      submenu: []
+    },
     // {
     //   key: 'services',
     //   path: `${APP_PREFIX_PATH}/services`,

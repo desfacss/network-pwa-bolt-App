@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message } from "antd";
+import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -16,6 +16,7 @@ const Users = () => {
     const [clone, setClone] = useState();
     const [locations, setLocations] = useState();
     const [viewMode, setViewMode] = useState('card'); // Toggle between 'card' and 'list' view
+    const [loading, setLoading] = useState(false);
 
     const { session } = useSelector((state) => state.auth);
 
@@ -55,6 +56,7 @@ const Users = () => {
     };
 
     const handleAddOrEdit = async (values) => {
+        setLoading(true);
         const {
             email,
             mobile,
@@ -164,7 +166,7 @@ const Users = () => {
             } catch (error) {
                 message.error(error.message || 'An error occurred.');
             } finally {
-                // setLoading(false);
+                setLoading(false);
             }
         }
 
@@ -430,11 +432,15 @@ const Users = () => {
                 footer={null}
                 title={(editItem && !clone) ? "Edit User Details" : "Invite User"}
                 open={isModalOpen}
+                closable={!loading}
+                maskClosable={!loading}
                 onClose={() => { setIsModalOpen(false); setEditItem(); setClone(false) }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
-                <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem} />
+                <Spin spinning={loading}>
+                    <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem} />
+                </Spin>
             </Drawer>
         </Card>
     );

@@ -25,6 +25,17 @@ const Projects = () => {
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     const [schema, setSchema] = useState();
 
+    const getFormattedDate = (date) => {
+        return date.toISOString().split('T')[0];
+    };
+
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+
+    const formattedToday = getFormattedDate(today);  // "2024-11-12"
+    const formattedTomorrow = getFormattedDate(tomorrow);  // "2024-11-13"
+
     const { session } = useSelector((state) => state.auth);
     const [form] = Form.useForm();
 
@@ -160,7 +171,7 @@ const Projects = () => {
     };
 
     const addUser = () => {
-        setProjectUsers([...projectUsers, { user_id: "", expensed_hours: "", allocated_hours: "" }]);
+        setProjectUsers([...projectUsers, { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formattedToday, end_date: formattedTomorrow }]);
     };
 
     const removeUser = (index) => {
