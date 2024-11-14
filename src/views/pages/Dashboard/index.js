@@ -188,6 +188,7 @@ const Dashboaard = () => {
 
             if (error) {
                 console.error('Error fetching data:', error);
+                console.log("VW", error);
             } else {
                 setReportData(viewData)
                 console.log("VD", viewData);

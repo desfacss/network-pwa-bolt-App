@@ -117,6 +117,7 @@ const Project = () => {
             } else if (error) {
                 notification.error({ message: "Failed to update project" });
             }
+            console.log("Resp", data, error)
         } else {
             const { data, error } = await supabase
                 .from('x_projects')
@@ -127,6 +128,7 @@ const Project = () => {
             } else if (error) {
                 notification.error({ message: "Failed to add project" });
             }
+            console.log("Resp", data, error)
         }
         fetchProjects();
         setIsDrawerOpen(false);
@@ -175,7 +177,7 @@ const Project = () => {
     };
 
     const removeUser = (index) => {
-        const updatedUsers = projectUsers.filter((_, i) => i !== index);
+        const updatedUsers = projectUsers?.filter((_, i) => i !== index);
         setProjectUsers(updatedUsers);
     };
 
@@ -183,12 +185,12 @@ const Project = () => {
         const requiredFields = ['user_id', 'allocated_hours', 'start_date', 'end_date', 'rate'];
         const errors = [];
 
-        data.forEach((item, index) => {
+        data?.forEach((item, index) => {
             // Check and update expensed_hours if empty
             if (item.expensed_hours === "") {
                 item.expensed_hours = "0";
             }
-            requiredFields.forEach(field => {
+            requiredFields?.forEach(field => {
                 if (!item[field]) {
                     errors.push(`Error: Field "${field}" is missing or empty in record ${index + 1}`);
                 }
@@ -234,7 +236,7 @@ const Project = () => {
                         onClick={() => handleEdit(record)}
                     />
                     <Button
-                        type="primary" ghost
+                        type="primary" ghost disabled
                         icon={<DeleteOutlined />}
                         size="small"
                         onClick={() => handleDelete(record.id)}
@@ -374,9 +376,10 @@ const Project = () => {
                     </Form.Item>
                     <Form.Item name="status" label="Status" rules={[{ required: true }]}>
                         <Select>
-                            <Option value="in progress">In Progress</Option>
-                            <Option value="completed">Completed</Option>
-                            <Option value="on hold">On Hold</Option>
+                            <Option value="In Progress">In Progress</Option>
+                            <Option value="Completed">Completed</Option>
+                            <Option value="Cancelled">Cancelled</Option>
+                            <Option value="Pending">Pending</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item name="client_id" label="Client ID" rules={[{ required: true }]}>
