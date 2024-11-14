@@ -101,8 +101,8 @@ const NonProject = () => {
     const handleAddOrEdit = async (values) => {
         setIsInvalid(false)
         console.log("PU", values, projectUsers)
-        const validData = projectUsers && validateData(projectUsers)
-        if (!validData) {
+        const validData = allocationTracking && validateData(projectUsers)
+        if (allocationTracking && !validData) {
             setIsInvalid(true)
             return
         }
