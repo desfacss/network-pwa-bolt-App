@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Tabs, Table, Select, DatePicker } from 'antd';
+import { Tabs, Table, Select, DatePicker, Checkbox } from 'antd';
 import Chart from 'react-apexcharts';
 
 const { TabPane } = Tabs;
@@ -10,6 +10,7 @@ const TimesheetComponent = ({ data, printRef }) => {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [selectedProjectName, setSelectedProjectName] = useState(null);
     const [selectedDateRange, setSelectedDateRange] = useState([null, null]); // To store the start and end date
+    const [nonProject, setNonProject] = useState(false);
 
     // Unique user IDs and project names for Select options
     const userIds = [...new Set(data.map((entry) => entry.user_name))];
@@ -72,9 +73,13 @@ const TimesheetComponent = ({ data, printRef }) => {
     };
 
     const byEmployeeData = useMemo(() => {
-        const filteredData = selectedUserId
-            ? data.filter((entry) => entry.user_name === selectedUserId)
-            : data;
+        // const filteredData = selectedUserId
+        //     ? data.filter((entry) => entry.user_name === selectedUserId)
+        //     : data;
+
+        const filteredData = data
+            .filter((entry) => selectedUserId ? entry.user_name === selectedUserId : true)
+            .filter((entry) => entry.is_non_project === nonProject);
 
         const [startDate, endDate] = selectedDateRange;
         const allDates = startDate && endDate ? generateDateRange(startDate, endDate) : [];
@@ -111,12 +116,16 @@ const TimesheetComponent = ({ data, printRef }) => {
                     return sortedDates;
                 }, {}),
         }));
-    }, [data, selectedUserId, selectedDateRange]);
+    }, [data, selectedUserId, selectedDateRange, nonProject]);
 
     const byProjectData = useMemo(() => {
-        const filteredData = selectedProjectName
-            ? data.filter((entry) => entry.project_name === selectedProjectName)
-            : data;
+        // const filteredData = selectedProjectName
+        //     ? data.filter((entry) => entry.project_name === selectedProjectName)
+        //     : data;
+
+        const filteredData = data
+            .filter((entry) => selectedProjectName ? entry.project_name === selectedProjectName : true)
+            .filter((entry) => entry.is_non_project === nonProject);
 
         const [startDate, endDate] = selectedDateRange;
         const allDates = startDate && endDate ? generateDateRange(startDate, endDate) : [];
@@ -153,7 +162,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                     return sortedDates;
                 }, {}),
         }));
-    }, [data, selectedProjectName, selectedDateRange]);
+    }, [data, selectedProjectName, selectedDateRange, nonProject]);
 
     // Columns for "By Employee" tab
     const employeeColumns = [
@@ -211,7 +220,16 @@ const TimesheetComponent = ({ data, printRef }) => {
 
     return (
         <div ref={printRef}>
-            <Tabs defaultActiveKey="1">
+            <Tabs defaultActiveKey="1"
+                tabBarExtraContent={
+                    <Checkbox
+                        checked={nonProject}
+                        onChange={(e) => setNonProject(e.target.checked)}
+                    >
+                        Non-Project
+                    </Checkbox>
+                }
+            >
                 <TabPane tab="Project Summary" key="1">
                     <div>
                         {/* <RangePicker

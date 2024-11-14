@@ -70,7 +70,7 @@ const Services = () => {
                         role_type,
                         userName,
                     },
-                    is_manager: role_type === 'manager',
+                    // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
                     manager_id: manager,
                     hr_id: hr_contact,
                 };
@@ -127,7 +127,7 @@ const Services = () => {
                     },
                     id: data?.id,
                     user_name: userName,
-                    is_manager: role_type === 'manager',
+                    // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
                     is_active: true,
                     manager_id: manager,
                     hr_id: hr_contact,

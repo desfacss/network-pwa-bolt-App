@@ -80,7 +80,7 @@ const Users = () => {
                     firstName, has_resigned, last_date
                 },
                 user_name: userName,
-                is_manager: role_type === 'manager',
+                // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
                 is_active: true,
                 location: location,
                 leave_details: locations?.find(item => item?.id === location)?.leave_settings,
@@ -147,7 +147,7 @@ const Users = () => {
                     },
                     id: data?.id,
                     user_name: userName,
-                    is_manager: role_type === 'manager',
+                    // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
                     is_active: true,
                     location: location,
                     leave_details: locations?.find(item => item?.id === location)?.leave_settings,

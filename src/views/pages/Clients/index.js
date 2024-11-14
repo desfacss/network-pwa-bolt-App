@@ -33,7 +33,7 @@ const Clients = () => {
     }, []);
 
     const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*').neq('is_static', true);
+        let { data, error } = await supabase.from('clients').select('*').neq('default', true);
         if (data) {
             setClients(data);
         }

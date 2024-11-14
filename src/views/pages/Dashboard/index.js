@@ -30,7 +30,7 @@ const Dashboaard = () => {
     //         mobile,
     //         firstName,
     //         lastName,
-    //         role,
+    //         role_type,
     //     } = values;
 
     //     const userName = `${firstName} ${lastName}`;
@@ -49,9 +49,9 @@ const Dashboaard = () => {
     //         // Step 2: Insert new row in the users table
     //         const payload = {
     //             organization_id: session?.user?.organization_id,
-    //             role_type: role,
+    //             role_type: role_type,
     //             details: {
-    //                 role,
+    //                 role_type,
     //                 email,
     //                 mobile,
     //                 orgName: session?.user?.details?.orgName,
@@ -61,7 +61,7 @@ const Dashboaard = () => {
     //             },
     //             id: data?.id,
     //             user_name: userName,
-    //             is_manager: role === 'manager',
+    //             is_manager: role_type === 'manager',
     //             is_active: true,
     //             manager_id: session?.user?.id,
     //             hr_id: session?.user?.id,
@@ -88,7 +88,7 @@ const Dashboaard = () => {
             mobile,
             firstName,
             lastName,
-            role,
+            role_type,
         } = values;
 
         const userName = `${firstName} ${lastName}`;
@@ -129,9 +129,9 @@ const Dashboaard = () => {
             // Step 3: Insert new row in the users table
             const payload = {
                 organization_id: session?.user?.organization_id,
-                role_type: role,
+                role_type: role_type,
                 details: {
-                    role,
+                    role_type,
                     email,
                     mobile,
                     orgName: session?.user?.details?.orgName,
@@ -141,7 +141,7 @@ const Dashboaard = () => {
                 },
                 id: data?.id,
                 user_name: userName,
-                is_manager: role === 'manager',
+                // is_manager: role_type === 'manager'||role_type === 'hr'||role_type === 'admin',
                 is_active: true,
                 manager_id: session?.user?.id,
                 hr_id: session?.user?.id,
@@ -166,29 +166,31 @@ const Dashboaard = () => {
         const fetchData = async () => {
             setLoading(true);
             // const { data: viewData, error } = await supabase
-            //     .from('generate_timesheet_view') // Replace with the name of your view
+            //     .from('generate_timesheet_view_v1') // Replace with the name of your view
             //     .select('*'); // Specify the columns you want to fetch, or '*' for all
             const startDate = dateRange[0];
             const endDate = dateRange[1];
             const projectName = null; // Use null if you want to query all projects
-            const userId = null;
+            const userId = !['hr', 'manager', 'admin'].includes(session?.user?.role_type) ? session?.user?.id : null;
+
 
             // Make the RPC call to the generate_timesheet_view function
             const { data: viewData, error } = await supabase
-                .rpc('generate_timesheet_view', {
+                .rpc('generate_timesheet_view_v2', {
                     start_date: startDate,
                     end_date: endDate,
                     // project_name: projectName, // Pass null if querying all projects
                     // user_id: userId,
                     selected_project: projectName, // Pass null if querying all projects
                     selected_user: userId,
+
                 });
 
             if (error) {
                 console.error('Error fetching data:', error);
             } else {
                 setReportData(viewData)
-                // console.log("VD", viewData);
+                console.log("VD", viewData);
                 // console.log("VD", JSON.stringify(viewData, null, 2));
             }
             setLoading(false);
@@ -222,7 +224,7 @@ const Dashboaard = () => {
                 name="manageEmployees"
                 onFinish={onFinish}
                 layout="vertical"
-                initialValues={{ role: 'employee' }}
+                initialValues={{ role_type: 'employee' }}
             // style={{ maxWidth: 600, margin: '0 auto' }}
             >
                 <Form.Item
@@ -259,7 +261,7 @@ const Dashboaard = () => {
 
                 <Form.Item
                     label="Role"
-                    name="role"
+                    name="role_type"
                     rules={[{ required: true, message: 'Please select the role.' }]}
                 >
                     <Select placeholder="Select a role">

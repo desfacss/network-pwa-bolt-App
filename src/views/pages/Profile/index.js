@@ -10,6 +10,7 @@ import Timesheet from './AntDTable9';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
+import FileUpload from './FileUpload';
 // import Timesheet1 from './working-static-fixed';
 
 const { TabPane } = Tabs;
@@ -194,6 +195,7 @@ const Profile = () => {
             </Modal>
             {/* <Button onClick={changePw}>Change Password</Button><br /> */}
             <Button onClick={openChangePasswordModal}>Change Password</Button><br />
+            <FileUpload />
             {/* {userData?.role_type === 'employee' && <Link to='/app/notifications'><Button className='mt-3'>Manage Notifications</Button></Link>} */}
             {/* ***************************Profile End */}
         </Card >

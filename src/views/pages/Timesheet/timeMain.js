@@ -71,8 +71,8 @@ const Timesheet = () => {
 
   const fetchProjects = async () => {
     const { data, error } = await supabase.from('x_projects').select('*')
-      .or(`project_users.cs.{${session?.user?.id}},is_static.eq.true`)
-      .order('is_static', { ascending: true })  // is_static=false rows come first
+      .or(`project_users.cs.{${session?.user?.id}},project_users.is.null`)
+      .order('is_non_project', { ascending: true })  // is_non_project=false rows come first
       .order('project_name', { ascending: true });
     // .contains('project_users', [session?.user?.id]);
     if (data) {
