@@ -111,7 +111,7 @@ const NonProject = () => {
             ...values,
             start_date: values?.start_date?.format(dateFormat),
             end_date: values?.end_date?.format(dateFormat),
-            project_users: allocationTracking && projectUsers
+            project_users: allocationTracking ? projectUsers : []
         };
 
         !allocationTracking && delete updatedDetails?.projectUsers
@@ -185,7 +185,7 @@ const NonProject = () => {
     };
 
     const addUser = () => {
-        setProjectUsers([...projectUsers, { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formattedToday, end_date: formattedTomorrow }]);
+        setProjectUsers([...projectUsers, { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formattedToday, end_date: formattedTomorrow, rate: '0' }]);
     };
 
     const removeUser = (index) => {

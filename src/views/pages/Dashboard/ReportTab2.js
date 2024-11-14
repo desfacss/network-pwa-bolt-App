@@ -13,8 +13,8 @@ const TimesheetComponent = ({ data, printRef }) => {
     const [nonProject, setNonProject] = useState(false);
 
     // Unique user IDs and project names for Select options
-    const userIds = [...new Set(data.map((entry) => entry.user_name))];
-    const projectNames = [...new Set(data.map((entry) => entry.project_name))];
+    const userIds = [...new Set(data?.map((entry) => entry?.user_name))];
+    const projectNames = [...new Set(data?.map((entry) => entry?.project_name))];
 
     const generateDateRange = (startDate, endDate) => {
         const dates = [];
@@ -22,14 +22,14 @@ const TimesheetComponent = ({ data, printRef }) => {
 
         while (currentDate <= endDate) {
             dates.push(new Date(currentDate));
-            currentDate.setDate(currentDate.getDate() + 1);
+            currentDate?.setDate(currentDate?.getDate() + 1);
         }
 
-        return dates.map((date) => date.toLocaleDateString()); // Format dates as "MM/DD/YYYY"
+        return dates?.map((date) => date?.toLocaleDateString()); // Format dates as "MM/DD/YYYY"
     };
 
     const getSparklineOptions = (dates, allDates) => {
-        const seriesData = allDates.map(date => dates[date] || 0); // Map all dates to hours, defaulting to 0 if missing
+        const seriesData = allDates?.map(date => dates[date] || 0); // Map all dates to hours, defaulting to 0 if missing
 
         return {
             chart: {
@@ -78,8 +78,8 @@ const TimesheetComponent = ({ data, printRef }) => {
         //     : data;
 
         const filteredData = data
-            .filter((entry) => selectedUserId ? entry.user_name === selectedUserId : true)
-            .filter((entry) => entry.is_non_project === nonProject);
+            .filter((entry) => selectedUserId ? entry?.user_name === selectedUserId : true)
+            .filter((entry) => entry?.is_non_project === nonProject);
 
         const [startDate, endDate] = selectedDateRange;
         const allDates = startDate && endDate ? generateDateRange(startDate, endDate) : [];
@@ -88,31 +88,31 @@ const TimesheetComponent = ({ data, printRef }) => {
             const key = curr.project_name;
             if (!acc[key]) {
                 acc[key] = {
-                    project_name: curr.project_name,
-                    user_name: curr.user_name,
+                    project_name: curr?.project_name,
+                    user_name: curr?.user_name,
                     dates: {},
                     total: 0,
                 };
             }
-            acc[key].dates[curr.timesheet_date] = (acc[key].dates[curr.timesheet_date] || 0) + curr.hours;
-            acc[key].total += curr.hours;
+            acc[key].dates[curr?.timesheet_date] = (acc[key]?.dates[curr?.timesheet_date] || 0) + curr?.hours;
+            acc[key].total += curr?.hours;
             return acc;
         }, {});
 
         // Add missing dates with 0 hours
-        Object.values(grouped).forEach((project) => {
-            const missingDates = allDates.filter(date => !project.dates[date]);
-            missingDates.forEach((date) => {
+        Object.values(grouped)?.forEach((project) => {
+            const missingDates = allDates?.filter(date => !project?.dates[date]);
+            missingDates?.forEach((date) => {
                 project.dates[date] = 0; // Set missing date to 0 hours
             });
         });
 
-        return Object.values(grouped).map((project) => ({
+        return Object.values(grouped)?.map((project) => ({
             ...project,
             dates: Object.keys(project.dates)
                 .sort((a, b) => new Date(a) - new Date(b)) // Sort dates in ascending order
                 .reduce((sortedDates, date) => {
-                    sortedDates[date] = project.dates[date];
+                    sortedDates[date] = project?.dates[date];
                     return sortedDates;
                 }, {}),
         }));
@@ -124,31 +124,31 @@ const TimesheetComponent = ({ data, printRef }) => {
         //     : data;
 
         const filteredData = data
-            .filter((entry) => selectedProjectName ? entry.project_name === selectedProjectName : true)
-            .filter((entry) => entry.is_non_project === nonProject);
+            .filter((entry) => selectedProjectName ? entry?.project_name === selectedProjectName : true)
+            .filter((entry) => entry?.is_non_project === nonProject);
 
         const [startDate, endDate] = selectedDateRange;
         const allDates = startDate && endDate ? generateDateRange(startDate, endDate) : [];
 
         const grouped = filteredData.reduce((acc, curr) => {
-            const key = curr.user_name;
+            const key = curr?.user_name;
             if (!acc[key]) {
                 acc[key] = {
-                    user_name: curr.user_name,
-                    project_name: curr.project_name,
+                    user_name: curr?.user_name,
+                    project_name: curr?.project_name,
                     dates: {},
                     total: 0,
                 };
             }
-            acc[key].dates[curr.timesheet_date] = (acc[key].dates[curr.timesheet_date] || 0) + curr.hours;
-            acc[key].total += curr.hours;
+            acc[key].dates[curr?.timesheet_date] = (acc[key].dates[curr?.timesheet_date] || 0) + curr?.hours;
+            acc[key].total += curr?.hours;
             return acc;
         }, {});
 
         // Add missing dates with 0 hours
         Object.values(grouped).forEach((user) => {
-            const missingDates = allDates.filter(date => !user.dates[date]);
-            missingDates.forEach((date) => {
+            const missingDates = allDates?.filter(date => !user.dates[date]);
+            missingDates?.forEach((date) => {
                 user.dates[date] = 0; // Set missing date to 0 hours
             });
         });
@@ -158,7 +158,7 @@ const TimesheetComponent = ({ data, printRef }) => {
             dates: Object.keys(user.dates)
                 .sort((a, b) => new Date(a) - new Date(b)) // Sort dates in ascending order
                 .reduce((sortedDates, date) => {
-                    sortedDates[date] = user.dates[date];
+                    sortedDates[date] = user?.dates[date];
                     return sortedDates;
                 }, {}),
         }));

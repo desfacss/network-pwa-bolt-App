@@ -173,7 +173,7 @@ const Project = () => {
     };
 
     const addUser = () => {
-        setProjectUsers([...projectUsers, { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formattedToday, end_date: formattedTomorrow }]);
+        setProjectUsers([...projectUsers || [], { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formattedToday, end_date: formattedTomorrow }]);
     };
 
     const removeUser = (index) => {
@@ -255,7 +255,7 @@ const Project = () => {
                 //     value={text}
                 //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
                 // />
-                <Select placeholder="Select users" style={{ width: '100%' }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
+                <Select placeholder="Select users" style={{ minWidth: '100px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
                     {users?.map((user) => (
                         <Select.Option key={user?.id} value={user?.id}>
                             {user?.user_name}
