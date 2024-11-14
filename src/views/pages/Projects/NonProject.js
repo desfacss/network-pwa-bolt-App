@@ -41,18 +41,18 @@ const NonProject = () => {
     const [form] = Form.useForm();
 
 
-    const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "x_project_form_array").single()
-        console.log("A", data)
-        if (data) {
-            console.log(data)
-            setSchema(data)
-        }
-    }
+    // const getForms = async () => {
+    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "x_project_form_array").single()
+    //     console.log("A", data)
+    //     if (data) {
+    //         console.log(data)
+    //         setSchema(data)
+    //     }
+    // }
 
-    useEffect(() => {
-        getForms()
-    }, []);
+    // useEffect(() => {
+    //     getForms()
+    // }, []);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -101,7 +101,7 @@ const NonProject = () => {
     const handleAddOrEdit = async (values) => {
         setIsInvalid(false)
         console.log("PU", values, projectUsers)
-        const validData = validateData(projectUsers)
+        const validData = projectUsers && validateData(projectUsers)
         if (!validData) {
             setIsInvalid(true)
             return
@@ -121,7 +121,7 @@ const NonProject = () => {
             const { data, error } = await supabase
                 .from('x_projects')
                 .update({ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id })
-                .eq('id', editItem.id);
+                .eq('id', editItem?.id);
 
             if (data) {
                 notification.success({ message: "Project updated successfully" });
@@ -155,6 +155,7 @@ const NonProject = () => {
             project_hours: record?.details?.project_hours,
             is_closed: record?.details?.is_closed,
             status: record?.details?.status,
+            allocation_tracking: record?.details?.allocation_tracking,
             hrpartner_id: record?.details?.hrpartner_id,
             client_id: record?.details?.client_id,
             manager_id: record?.details?.manager_id,
@@ -163,6 +164,7 @@ const NonProject = () => {
         });
         setProjectUsers(record?.details?.project_users || []);
         setIsDrawerOpen(true);
+        setAllocationTracking(record?.details?.allocation_tracking);
     };
 
     const handleDelete = async (id) => {
@@ -187,7 +189,7 @@ const NonProject = () => {
     };
 
     const removeUser = (index) => {
-        const updatedUsers = projectUsers.filter((_, i) => i !== index);
+        const updatedUsers = projectUsers?.filter((_, i) => i !== index);
         setProjectUsers(updatedUsers);
     };
 
@@ -195,14 +197,14 @@ const NonProject = () => {
         const requiredFields = ['user_id', 'allocated_hours', 'start_date', 'end_date', 'rate'];
         const errors = [];
 
-        data.forEach((item, index) => {
+        data?.forEach((item, index) => {
             // Check and update expensed_hours if empty
-            if (item.expensed_hours === "") {
+            if (item?.expensed_hours === "") {
                 item.expensed_hours = "0";
             }
-            requiredFields.forEach(field => {
+            requiredFields?.forEach(field => {
                 if (!item[field]) {
-                    errors.push(`Error: Field "${field}" is missing or empty in record ${index + 1}`);
+                    errors?.push(`Error: Field "${field}" is missing or empty in record ${index + 1}`);
                 }
             });
 
@@ -224,15 +226,30 @@ const NonProject = () => {
             dataIndex: 'project_name',
             key: 'project_name',
         },
-        // {
-        //     title: 'Hours',
-        //     dataIndex: ['details', 'project_hours'],
-        //     key: 'project_hours',
-        // },
         {
             title: 'Description',
             dataIndex: ['details', 'description'],
             key: 'description',
+        },
+        {
+            title: 'Start Date',
+            dataIndex: ['details', 'start_date'],
+            key: 'start_date',
+        },
+        {
+            title: 'End Date',
+            dataIndex: ['details', 'end_date'],
+            key: 'end_date',
+        },
+        {
+            title: 'Allocation Tracking',
+            dataIndex: 'allocation_tracking',
+            key: 'allocation_tracking',
+            render: (_, record) => (
+                <div className="d-flex">
+                    {record?.allocation_tracking ? 'True' : 'False'}
+                </div>
+            ),
         },
         {
             title: 'Actions',
@@ -247,7 +264,7 @@ const NonProject = () => {
                         onClick={() => handleEdit(record)}
                     />
                     <Button
-                        type="primary" ghost
+                        type="primary" ghost disabled
                         icon={<DeleteOutlined />}
                         size="small"
                         onClick={() => handleDelete(record.id)}
