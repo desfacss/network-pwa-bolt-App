@@ -14,7 +14,7 @@ const TimesheetComponent = ({ data, printRef }) => {
 
     // Unique user IDs and project names for Select options
     const userIds = [...new Set(data?.map((entry) => entry?.user_name))];
-    const projectNames = [...new Set(data?.map((entry) => entry?.project_name))];
+    const projectNames = [...new Set(data?.filter((entry) => entry.is_non_project === nonProject)?.map((entry) => entry?.project_name))];
 
     const generateDateRange = (startDate, endDate) => {
         const dates = [];
@@ -224,7 +224,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                 tabBarExtraContent={
                     <Checkbox
                         checked={nonProject}
-                        onChange={(e) => setNonProject(e.target.checked)}
+                        onChange={(e) => { setSelectedProjectName(); setNonProject(e.target.checked) }}
                     >
                         Non-Project
                     </Checkbox>
