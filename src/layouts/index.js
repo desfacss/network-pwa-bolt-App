@@ -20,19 +20,21 @@ const SurveyLayout = lazy(() => import("./SurveyLayout"));
 
 const Layouts = () => {
   const location = useLocation();
-  const [session, setSession] = useState(null)
+  const { session } = useSelector((state) => state?.auth);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+  // const [session, setSession] = useState(null)
+
+  // useEffect(() => {
+  //   supabase.auth.getSession().then(({ data: { session } }) => {
+  //     setSession(session)
+  //   })
+  //   const {
+  //     data: { subscription },
+  //   } = supabase.auth.onAuthStateChange((_event, session) => {
+  //     setSession(session)
+  //   })
+  //   return () => subscription.unsubscribe()
+  // }, [])
 
   // const { token, session } = useSelector((state) => state.auth);
   const blankLayout = useSelector((state) => state.theme.blankLayout);
@@ -59,16 +61,24 @@ const Layouts = () => {
 
   const defaultDatePickerConfig = {
     DatePicker: {
-      format: "DD/MM/YYYY",
+      format: "DD-MM-YYYY",
     },
   };
 
   return (
     <ConfigProvider
-      theme={themeConfig}
+      // theme={themeConfig}
+      theme={{
+        ...themeConfig,
+        components: {
+          datePicker: {
+            format: "DD-MM-YYYY",
+          },
+        },
+      }}
       direction={direction}
       locale={currentAppLocale.antd}
-      datePicker={{ format: 'DD/MM/YYYY' }}
+    // datePicker={{ format: 'DD/MM/YYYY' }}
     >
       {/* <ConfigProvider
         componentDatePicker={defaultDatePickerConfig}

@@ -6,7 +6,7 @@ const PublicRoute = () => {
 	console.log("PB")
 
 	const { token, session } = useSelector(state => state.auth)
-	return session ? <Navigate to={'/app/manage_employees'} /> : <Outlet />
+	return session ? <Navigate to={'/app/dashboard'} /> : <Outlet />
 }
 
 export default PublicRoute

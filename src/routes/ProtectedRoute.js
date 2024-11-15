@@ -6,7 +6,7 @@ import { APP_PREFIX_PATH } from 'configs/AppConfig'
 
 const ProtectedRoute = () => {
 	console.log("PR")
-	const location = useLocation();
+	// const location = useLocation();
 	// const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
 	const { token, session } = useSelector(state => state.auth)

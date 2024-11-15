@@ -49,6 +49,8 @@ export const LoginForm = (props) => {
     const { data, error } = await supabase.auth.signInWithPassword(values);
     if (!error) {
       console.log('Logged In', data, values);
+      notification.success({ message: 'Successfully Logged In' });
+      window.location.reload();
       // navigate(`${AUTH_PREFIX_PATH}/update_survey`)
     } else {
       console.log('Error', values);
