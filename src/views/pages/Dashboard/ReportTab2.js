@@ -140,14 +140,14 @@ const TimesheetComponent = ({ data, printRef }) => {
                     total: 0,
                 };
             }
-            acc[key].dates[curr?.timesheet_date] = (acc[key].dates[curr?.timesheet_date] || 0) + curr?.hours;
+            acc[key].dates[curr?.timesheet_date] = (acc[key]?.dates[curr?.timesheet_date] || 0) + curr?.hours;
             acc[key].total += curr?.hours;
             return acc;
         }, {});
 
         // Add missing dates with 0 hours
         Object.values(grouped).forEach((user) => {
-            const missingDates = allDates?.filter(date => !user.dates[date]);
+            const missingDates = allDates?.filter(date => !user?.dates[date]);
             missingDates?.forEach((date) => {
                 user.dates[date] = 0; // Set missing date to 0 hours
             });
@@ -155,7 +155,7 @@ const TimesheetComponent = ({ data, printRef }) => {
 
         return Object.values(grouped).map((user) => ({
             ...user,
-            dates: Object.keys(user.dates)
+            dates: Object.keys(user?.dates)
                 .sort((a, b) => new Date(a) - new Date(b)) // Sort dates in ascending order
                 .reduce((sortedDates, date) => {
                     sortedDates[date] = user?.dates[date];

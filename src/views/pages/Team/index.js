@@ -23,7 +23,7 @@ const Users = () => {
     const [form] = Form.useForm();
 
     const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "user_add_invite_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "user_add_edit_form").single()
         if (data) {
             setSchema(data)
         }
@@ -62,7 +62,7 @@ const Users = () => {
             mobile,
             firstName,
             lastName,
-            role_type, manager, hr_contact, location, has_resigned, last_date
+            role_type, manager, hr_contact, location, has_resigned, last_date, rate
         } = values;
 
         const userName = `${firstName} ${lastName}`;
@@ -71,6 +71,7 @@ const Users = () => {
                 organization_id: session?.user?.organization_id,
                 role_type,
                 details: {
+                    rate,
                     role_type,
                     email,
                     mobile,
@@ -100,6 +101,7 @@ const Users = () => {
             } else if (error) {
                 notification.error({ message: "Failed to update user" });
             }
+            setLoading(false);
         } else {
             try {
                 // Step 1: Check if the user already exists
@@ -137,6 +139,7 @@ const Users = () => {
                     organization_id: session?.user?.organization_id,
                     role_type,
                     details: {
+                        rate,
                         role_type,
                         email,
                         mobile,

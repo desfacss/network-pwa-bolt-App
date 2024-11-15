@@ -56,7 +56,7 @@ const NonProject = () => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('id, user_name,role_type');
+            const { data, error } = await supabase.from('users').select('id, user_name,role_type,details');
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
@@ -181,11 +181,21 @@ const NonProject = () => {
         setIsInvalid(false)
         const updatedUsers = [...projectUsers];
         updatedUsers[index][field] = value;
+        if (field === "user_id") {
+            const selectedUser = users.find(user => user.id === value);
+            if (selectedUser && selectedUser.details?.rate) {
+                updatedUsers[index].rate = selectedUser.details.rate;
+            } else {
+                updatedUsers[index].rate = "0"; // Default rate if not found
+            }
+        }
         setProjectUsers(updatedUsers);
     };
 
     const addUser = () => {
-        setProjectUsers([...projectUsers, { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formattedToday, end_date: formattedTomorrow, rate: '0' }]);
+        const formStartDate = form.getFieldValue('start_date')?.format(dateFormat);
+        const formEndDate = form.getFieldValue('end_date')?.format(dateFormat);
+        setProjectUsers([...projectUsers || [], { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formStartDate || formattedToday, end_date: formEndDate || formattedTomorrow, rate: '0' }]);
     };
 
     const removeUser = (index) => {
@@ -318,7 +328,7 @@ const NonProject = () => {
             render: (text, record, index) => (
                 <DatePicker
                     value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%' }} allowClear={false}
                     format={dateFormat} maxDate={dayjs(projectUsers[index].end_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'start_date', e?.format(dateFormat))} />
             ),
@@ -329,7 +339,7 @@ const NonProject = () => {
             render: (text, record, index) => (
                 <DatePicker
                     value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%' }} allowClear={false}
                     // format="DD/MM/YYYY"
                     format={dateFormat} minDate={dayjs(projectUsers[index].start_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'end_date', e?.format(dateFormat))} />
@@ -394,10 +404,20 @@ const NonProject = () => {
                         <Input.TextArea />
                     </Form.Item>
                     <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
-                        <DatePicker style={{ width: '100%' }} />
+                        <DatePicker style={{ width: '100%' }}
+                            disabledDate={(current) => {
+                                const endDate = form.getFieldValue('end_date');
+                                return current && endDate && current.isAfter(dayjs(endDate, dateFormat));
+                            }}
+                        />
                     </Form.Item>
                     <Form.Item name="end_date" label="end_date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
-                        <DatePicker style={{ width: '100%' }} />
+                        <DatePicker style={{ width: '100%' }}
+                            disabledDate={(current) => {
+                                const startDate = form.getFieldValue('start_date');
+                                return current && startDate && current.isBefore(dayjs(startDate, dateFormat));
+                            }}
+                        />
                     </Form.Item>
                     <Form.Item name="allocation_tracking" label="Allocation Tracking" valuePropName="checked">
                         <Checkbox onChange={(e) => handleAllocationChange(e.target.checked)} />

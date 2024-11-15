@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col } from 'antd';
+import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col, Table } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DownloadMenu from 'components/common/DownloadMenu';
 // import dayjs from 'dayjs';
@@ -91,6 +91,27 @@ const ReportComponent = () => {
         setEmptytData(false)
     }, [userId, projectName, dateRange])
 
+    const columns = [
+        {
+            title: "Date",
+            dataIndex: "timesheet_date",
+            key: "timesheet_date",
+            render: (text) => <span>{text}</span>,
+        },
+        {
+            title: "Hours",
+            dataIndex: "hours",
+            key: "hours",
+            render: (text) => <span>{text}</span>,
+        },
+        {
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+            render: (text) => <span>{text || "-"}</span>, // display "N/A" if description is empty
+        },
+    ];
+
     return (
         <Card style={{ padding: '24px' }}>
             <Title level={3}>Generate Report</Title>
@@ -136,23 +157,29 @@ const ReportComponent = () => {
                     <Divider />
                     <Title level={4}>Report Summary</Title>
                     <Divider />
-                    <Text>USER: {users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
+                    <Text>USER : {users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
                     <br />
-                    <Text>PROJECT: {projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
+                    <Text>PROJECT : {projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
                     <br />
-                    <Text>DATE RANGE: {dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
+                    <Text>DATE RANGE : {dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
                     <Divider />
-                    <Text>TOTAL HOURS (FOR THE SELECTED DATE RANGE): {summary.totalHours} HOURS</Text>
-                    <br />
-                    <Text>TOTAL HOURS ALLOCATED: {summary.allocatedHours} HOURS</Text>
-                    <br />
-                    <Text>TOTAL EXPENSED HOURS: {summary.expensedHours} HOURS</Text>
-                    <br />
-                    <Text>BALANCE HOURS: {summary.balanceHours} HOURS</Text>
+                    <Table pagination={false}
+                        columns={columns}
+                        dataSource={reportData}
+                        rowKey={(record) => record.timesheet_date + record.user_id} // unique key for each row
+                    />
                     <Divider />
-                    <Text>COST/HR: {summary.costPerHour}</Text>
+                    <Text>TOTAL HOURS : {summary.totalHours} HOURS</Text>
                     <br />
-                    <Text>TOTAL COST: {summary.totalCost}</Text>
+                    <Text>TOTAL HOURS ALLOCATED : {summary.allocatedHours} HOURS</Text>
+                    <br />
+                    <Text>TOTAL EXPENSED HOURS : {summary.expensedHours} HOURS</Text>
+                    <br />
+                    <Text>BALANCE HOURS : {summary.balanceHours} HOURS</Text>
+                    <Divider />
+                    <Text>COST/HR : {summary.costPerHour}</Text>
+                    <br />
+                    <Text>TOTAL COST : {summary.totalCost}</Text>
                 </div>
             )}
             {emptyData && <div style={{ marginTop: '24px' }}>No Data Available</div>}
