@@ -1,6 +1,6 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
@@ -9,6 +9,8 @@ import ProjectForm from "./DynamicTable3";
 import App from "./A";
 // import App from "./CustomTemplate";
 // import DynamicForm from "../DynamicForm";
+const { confirm } = Modal;
+
 
 const { Option } = Select;
 
@@ -23,7 +25,7 @@ const Project = () => {
     const [clients, setClients] = useState([]);
     const dateFormat = 'YYYY/MM/DD';
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
-    const [schema, setSchema] = useState();
+    // const [schema, setSchema] = useState();
 
     const getFormattedDate = (date) => {
         return date.toISOString().split('T')[0];
@@ -40,18 +42,18 @@ const Project = () => {
     const [form] = Form.useForm();
 
 
-    const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "x_project_form_array").single()
-        console.log("A", data)
-        if (data) {
-            console.log(data)
-            setSchema(data)
-        }
-    }
+    // const getForms = async () => {
+    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "x_project_form_array").single()
+    //     console.log("A", data)
+    //     if (data) {
+    //         console.log(data)
+    //         setSchema(data)
+    //     }
+    // }
 
-    useEffect(() => {
-        getForms()
-    }, []);
+    // useEffect(() => {
+    //     getForms()
+    // }, []);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -91,51 +93,95 @@ const Project = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        setIsInvalid(false)
-        console.log("PU", projectUsers)
-        const validData = validateData(projectUsers)
-        if (!validData) {
-            setIsInvalid(true)
-            return
+        setIsInvalid(false);
+
+        const isValid = validateData(projectUsers);
+        if (!isValid) {
+            setIsInvalid(true);
+            return;
         }
-        const updatedDetails = {
-            ...values,
-            start_date: values?.start_date?.format(dateFormat),
-            end_date: values?.end_date?.format(dateFormat),
-            project_users: projectUsers
+
+        const projectData = {
+            details: {
+                ...values,
+                start_date: values?.start_date.format(dateFormat),
+                end_date: values?.end_date.format(dateFormat),
+                project_users: projectUsers
+            },
+            allocation_tracking: true,
+            is_non_project: false,
+            status: values?.status,
+            project_users: projectUsers?.map(item => item?.user_id),
+            project_name: values?.project_name,
+            client_id: values?.client_id,
+            hrpartner_id: values?.hrpartner_id,
+            manager_id: values?.manager_id
         };
-        console.log(updatedDetails);
-        if (editItem) {
-            const { data, error } = await supabase
-                .from('x_projects')
-                .update({ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id })
-                .eq('id', editItem.id);
 
-            if (data) {
-                notification.success({ message: "Project updated successfully" });
-                setEditItem(null);
-            } else if (error) {
-                notification.error({ message: "Failed to update project" });
-            }
-            console.log("Resp", data, error)
+        const { data, error } = editItem
+            ? await supabase.from('x_projects').update(projectData).eq('id', editItem?.id)
+            : await supabase.from('x_projects').insert([projectData]);
+
+        if (error) {
+            notification.error({ message: editItem ? "Failed to update project" : "Failed to add project" });
         } else {
-            const { data, error } = await supabase
-                .from('x_projects')
-                .insert([{ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id }]);
-
-            if (data) {
-                notification.success({ message: "Project added successfully" });
-            } else if (error) {
-                notification.error({ message: "Failed to add project" });
-            }
-            console.log("Resp", data, error)
+            notification.success({ message: editItem ? "Project updated successfully" : "Project added successfully" });
+            fetchProjects();
         }
-        fetchProjects();
+
         setIsDrawerOpen(false);
         form.resetFields();
-        setProjectUsers()
+        setProjectUsers([]);
         setEditItem(null);
     };
+
+
+    // const handleAddOrEdit = async (values) => {
+    //     setIsInvalid(false)
+    //     console.log("PU", projectUsers)
+    //     const validData = validateData(projectUsers)
+    //     if (!validData) {
+    //         setIsInvalid(true)
+    //         return
+    //     }
+    //     const updatedDetails = {
+    //         ...values,
+    //         start_date: values?.start_date?.format(dateFormat),
+    //         end_date: values?.end_date?.format(dateFormat),
+    //         project_users: projectUsers
+    //     };
+    //     console.log(updatedDetails);
+    //     if (editItem) {
+    //         const { data, error } = await supabase
+    //             .from('x_projects')
+    //             .update({ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id })
+    //             .eq('id', editItem.id);
+
+    //         if (data) {
+    //             notification.success({ message: "Project updated successfully" });
+    //             setEditItem(null);
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to update project" });
+    //         }
+    //         console.log("Resp", supabase, data, error)
+    //     } else {
+    //         const { data, error } = await supabase
+    //             .from('x_projects')
+    //             .insert([{ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id }]);
+
+    //         if (data) {
+    //             notification.success({ message: "Project added successfully" });
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to add project" });
+    //         }
+    //         console.log("Resp", supabase, data, error)
+    //     }
+    //     fetchProjects();
+    //     setIsDrawerOpen(false);
+    //     form.resetFields();
+    //     setProjectUsers()
+    //     setEditItem(null);
+    // };
 
     const handleEdit = (record) => {
         setEditItem(record);
@@ -153,16 +199,6 @@ const Project = () => {
         });
         setProjectUsers(record.details.project_users || []);
         setIsDrawerOpen(true);
-    };
-
-    const handleDelete = async (id) => {
-        const { error } = await supabase.from('x_projects').delete().eq('id', id);
-        if (!error) {
-            notification.success({ message: "Project deleted successfully" });
-            fetchProjects();
-        } else {
-            notification.error({ message: "Failed to delete Project" });
-        }
     };
 
     const handleUserChange = (index, field, value) => {
@@ -185,7 +221,7 @@ const Project = () => {
     const addUser = () => {
         const formStartDate = form.getFieldValue('start_date')?.format(dateFormat);
         const formEndDate = form.getFieldValue('end_date')?.format(dateFormat);
-        setProjectUsers([...projectUsers || [], { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formStartDate || formattedToday, end_date: formEndDate || formattedTomorrow, rate: '0' }]);
+        setProjectUsers([...projectUsers || [], { user_id: "", expensed_hours: "0", allocated_hours: "", start_date: formStartDate || formattedToday, end_date: formEndDate || formattedTomorrow, rate: '0' }]);
     };
 
     const removeUser = (index) => {
@@ -196,7 +232,7 @@ const Project = () => {
     function validateData(data) {
         const requiredFields = ['user_id', 'allocated_hours', 'start_date', 'end_date', 'rate'];
         const errors = [];
-
+        console.log("users", data)
         data?.forEach((item, index) => {
             // Check and update expensed_hours if empty
             if (item.expensed_hours === "") {
@@ -219,6 +255,29 @@ const Project = () => {
         return !(errors.length > 0);
     }
 
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Are you sure delete this Project - ${record.project_name} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('x_projects').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: "Project deleted successfully" });
+                    fetchProjects();
+                } else {
+                    notification.error({ message: "Failed to delete Project" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
     const columns = [
         {
             title: 'Name',
@@ -240,19 +299,24 @@ const Project = () => {
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
-                    />
-                    <Button
-                        type="primary" ghost disabled
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
-                    />
+                    <Tooltip title="Edit">
+                        <Button
+                            type="primary"
+                            icon={<EditFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleEdit(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Button
+                            type="primary" ghost
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            // onClick={() => handleDelete(record.id)}
+                            onClick={() => showDeleteConfirm(record)}
+                        />
+                    </Tooltip>
                 </div>
             ),
         },
@@ -267,7 +331,7 @@ const Project = () => {
                 //     value={text}
                 //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
                 // />
-                <Select placeholder="Select users" style={{ minWidth: '100px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
+                <Select placeholder="Select users" style={{ minWidth: '120px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
                     {users?.map((user) => (
                         <Select.Option key={user?.id} value={user?.id}>
                             {user?.user_name}

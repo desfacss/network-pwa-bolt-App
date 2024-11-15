@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col, Table } from 'antd';
+import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col, Table, Spin } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DownloadMenu from 'components/common/DownloadMenu';
 // import dayjs from 'dayjs';
@@ -19,6 +19,7 @@ const ReportComponent = () => {
     const [dateRange, setDateRange] = useState([]);
     const [reportData, setReportData] = useState(null);
     const [emptyData, setEmptytData] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const reportDataRef = useRef();
 
@@ -51,13 +52,14 @@ const ReportComponent = () => {
         }
 
         const [startDate, endDate] = dateRange;
+        setLoading(true);
         const { data, error } = await supabase.rpc('generate_timesheet_view_v1', {
             start_date: startDate.format('YYYY-MM-DD'),
             end_date: endDate.format('YYYY-MM-DD'),
             selected_project: projectName || null,
             selected_user: userId || null,
         });
-
+        setLoading(false);
         if (error) {
             console.error("Error fetching report data:", error);
         } else {
@@ -114,13 +116,12 @@ const ReportComponent = () => {
 
     return (
         <Card style={{ padding: '24px' }}>
-            <Title level={3}>Generate Report</Title>
+            <Title level={2} style={{ marginBottom: '24px' }}>Generate Report</Title>
             <div style={{ marginBottom: '16px' }}>
                 <Select
                     placeholder="Select User"
                     onChange={setUserId}
                     style={{ width: 200, marginRight: 16 }}
-                // Add options here for user selection
                 >
                     {users.map((user) => (
                         <Option key={user.id} value={user.id}>{user.user_name}</Option>
@@ -130,14 +131,8 @@ const ReportComponent = () => {
                     placeholder="Select Project"
                     onChange={setProjectName}
                     style={{ width: 200, marginRight: 16 }}
-                // Add options here for project selection
-                // options={[
-                //     { label: 'Project A', value: 'project_a' },
-                //     { label: 'Project B', value: 'project_b' },
-                //     // Replace these with actual project options from Supabase
-                // ]}
                 >
-                    {projects?.map((project) => (
+                    {projects.map((project) => (
                         <Option key={project.id} value={project.id}>{project.project_name}</Option>
                     ))}
                 </Select>
@@ -148,41 +143,54 @@ const ReportComponent = () => {
                     <Button type="primary" onClick={fetchReportData}>Get Report</Button>
                 </Col>
                 <Col>
-                    {summary && <Button onClick={handlePrint} style={{ textAlign: 'right' }}>Download</Button>}
+                    {summary && <Button onClick={handlePrint}>Download</Button>}
                 </Col>
             </Row>
-            {/* {summary && <DownloadMenu dataSource={summary} printRef={reportDataRef} />} */}
-            {summary && (
-                <div style={{ marginTop: '24px' }} ref={reportDataRef}>
-                    <Divider />
-                    <Title level={4}>Report Summary</Title>
-                    <Divider />
-                    <Text>USER : {users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
-                    <br />
-                    <Text>PROJECT : {projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
-                    <br />
-                    <Text>DATE RANGE : {dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
-                    <Divider />
-                    <Table pagination={false}
-                        columns={columns}
-                        dataSource={reportData}
-                        rowKey={(record) => record.timesheet_date + record.user_id} // unique key for each row
-                    />
-                    <Divider />
-                    <Text>TOTAL HOURS : {summary.totalHours} HOURS</Text>
-                    <br />
-                    <Text>TOTAL HOURS ALLOCATED : {summary.allocatedHours} HOURS</Text>
-                    <br />
-                    <Text>TOTAL EXPENSED HOURS : {summary.expensedHours} HOURS</Text>
-                    <br />
-                    <Text>BALANCE HOURS : {summary.balanceHours} HOURS</Text>
-                    <Divider />
-                    <Text>COST/HR : {summary.costPerHour}</Text>
-                    <br />
-                    <Text>TOTAL COST : {summary.totalCost}</Text>
+            {loading ? (
+                <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                    <Spin size="large" />
                 </div>
+            ) : (
+                <>
+                    {summary && (
+                        <div style={{ marginTop: '24px' }} ref={reportDataRef}>
+                            <Divider />
+                            <Title level={4} style={{ color: '#1890ff' }}>Report Summary</Title>
+                            <Divider />
+                            <Text strong>USER: </Text>
+                            <Text>{users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
+                            <br />
+                            <Text strong>PROJECT: </Text>
+                            <Text>{projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
+                            <br />
+                            <Text strong>DATE RANGE: </Text>
+                            <Text>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
+                            <Divider />
+                            <Table pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
+                            <Divider />
+                            <Title level={5} style={{ marginTop: '24px' }}>Summary Details</Title>
+                            <Text strong>TOTAL HOURS: </Text>
+                            <Text>{summary.totalHours} HOURS</Text>
+                            <br />
+                            <Text strong>TOTAL HOURS ALLOCATED: </Text>
+                            <Text>{summary.allocatedHours} HOURS</Text>
+                            <br />
+                            <Text strong>TOTAL EXPENSED HOURS: </Text>
+                            <Text>{summary.expensedHours} HOURS</Text>
+                            <br />
+                            <Text strong>BALANCE HOURS: </Text>
+                            <Text>{summary.balanceHours} HOURS</Text>
+                            <Divider />
+                            <Text strong>COST/HR: </Text>
+                            <Text>{summary.costPerHour}</Text>
+                            <br />
+                            <Text strong>TOTAL COST: </Text>
+                            <Text>{summary.totalCost}</Text>
+                        </div>
+                    )}
+                    {emptyData && <div style={{ marginTop: '24px', color: 'red' }}>No Data Available</div>}
+                </>
             )}
-            {emptyData && <div style={{ marginTop: '24px' }}>No Data Available</div>}
         </Card>
     );
 };

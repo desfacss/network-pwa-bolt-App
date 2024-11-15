@@ -26,26 +26,32 @@ const TeamTimesheetTable = () => {
             // const today = new Date(); // Format today's date as needed
             // const today = format(new Date(), 'yyyy-MM-dd'); // Format today's date as needed
             const today = new Date().toISOString().slice(0, 10)
-            let data, error;
+            // let data, error;
 
-            if (session?.user?.role_type === 'admin') {
-                // Query for admins
-                ({ data, error } = await supabase
-                    .from('x_timesheet_3')
-                    .select('*,user:user_id (*)')
-                    // .lt('last_date', today)
-                    .or(`last_date.lt.${today},approver_id.eq.${session?.user?.id}`)
-                    // .eq('status', 'Submitted')
-                );
-            } else {
-                // Query for non-admins
-                ({ data, error } = await supabase
-                    .from('x_timesheet_3')
-                    .select('*')
-                    .eq('approver_id', session?.user?.id)
-                    // .eq('status', 'Submitted')
-                );
-            }
+            // if (session?.user?.role_type === 'admin') {
+            //     // Query for admins
+            //     ({ data, error } = await supabase
+            //         .from('x_timesheet_3')
+            //         .select('*,user:user_id (*)')
+            //         // .lt('last_date', today)
+            //         .or(`last_date.lt.${today},approver_id.eq.${session?.user?.id}`)
+            //         // .eq('status', 'Submitted')
+            //     );
+            // }  else {
+            //     // Query for non-admins
+            //     ({ data, error } = await supabase
+            //         .from('x_timesheet_3')
+            //         .select('*')
+            //         .eq('approver_id', session?.user?.id)
+            //         // .eq('status', 'Submitted')
+            //     );
+            // }
+            const { data, error } = await supabase
+                .from('x_timesheet_3')
+                .select('*,user:user_id (user_name)')
+                // .eq('approver_id', session?.user?.id)
+                // .eq('status', 'Submitted')
+                ;
 
             if (error) {
                 throw error;
@@ -82,31 +88,38 @@ const TeamTimesheetTable = () => {
             dataIndex: 'status',
             key: 'status',
         },
-        {
-            title: 'Last Updated',
-            dataIndex: 'updated_at',
-            key: 'updated_at',
-            render: (date) => new Date(date).toLocaleString(), // Format date and time
-        },
+        // {
+        //     title: 'Last Updated',
+        //     dataIndex: 'updated_at',
+        //     key: 'updated_at',
+        //     render: (date) => new Date(date).toLocaleString(), // Format date and time
+        // },
+        // {
+        //     title: 'Last Updated',
+        //     dataIndex: 'updated_at',
+        //     key: 'updated_at',
+        //     render: (date) => new Date(date).toLocaleString(), // Format date and time
+        // },
+        // {
+        //     title: 'Last Updated',
+        //     dataIndex: 'updated_at',
+        //     key: 'updated_at',
+        //     render: (date) => new Date(date).toLocaleString(), // Format date and time
+        // },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
+                    {record?.status === 'Submitted' && <Button
                         type="primary"
                         // icon={<EditFilled />}
                         size="small"
-                        className="mr-2" disabled={record?.status !== 'Submitted'}
+                        className="mr-2"
+                        disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
                         // onClick={() => handleEdit(record)}
                         onClick={() => handleOpenDrawer(record)}
-                    >Approve / Reject</Button>
-                    {/* <Button
-                        type="primary" ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
-                    /> */}
+                    >Approve / Reject</Button>}
                 </div>
             ),
         },

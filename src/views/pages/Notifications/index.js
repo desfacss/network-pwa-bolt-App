@@ -1,10 +1,11 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
+const { confirm } = Modal;
 
 const Notifications = () => {
     // const [form] = Form.useForm();
@@ -75,53 +76,98 @@ const Notifications = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        const { type, ...rest } = values;
-        let payload = { ...rest, users: null, locations: null, type: type, expiry: values?.expiry?.format(dateFormat) };
+        const { type, expiry, ...rest } = values;
 
-        if (type === 'users') {
-            payload.users = values.users;
-            // delete payload?.locations
-        } else if (type === 'location') {
-            payload.locations = values.locations;
-        }
-        // delete payload?.users
-        // } else if (type === 'public') {
-        //     delete payload?.locations
-        //     delete payload?.users
-        // }
-        console.log("payload", payload);
-        // const { service_name, cost, duration, description } = values;
-        // console.log("Pyload", values)
-        if (editItem) {
-            // Update existing service
-            const { data, error } = await supabase
-                .from('notifications')
-                .update(payload)
-                .eq('id', editItem.id);
+        // Construct payload based on type
+        const payload = {
+            ...rest,
+            type,
+            expiry: expiry?.format(dateFormat),
+            users: type === 'users' ? values?.users : null,
+            locations: type === 'location' ? values?.locations : null,
+        };
 
-            if (data) {
+        try {
+            let response;
+
+            if (editItem) {
+                // Update existing notification
+                response = await supabase
+                    .from('notifications')
+                    .update(payload)
+                    .eq('id', editItem.id);
+
+                if (response.error) throw new Error("Failed to update notification");
                 notification.success({ message: "Notification updated successfully" });
                 setEditItem(null);
-            } else if (error) {
-                notification.error({ message: "Failed to update notification" });
-            }
-        } else {
-            // Add new notification
-            const { data, error } = await supabase
-                .from('notifications')
-                .insert([payload]);
+            } else {
+                // Add new notification
+                response = await supabase.from('notifications').insert([payload]);
 
-            if (data) {
+                if (response.error) throw new Error("Failed to add notification");
                 notification.success({ message: "Notification added successfully" });
-            } else if (error) {
-                notification.error({ message: "Failed to add notification" });
             }
+
+            // Refresh the data and reset the form
+            fetchNotifications();
+            form.resetFields();
+        } catch (error) {
+            notification.error({ message: error.message || "An error occurred" });
+        } finally {
+            setIsDrawerOpen(false);
+            setEditItem(null);
         }
-        fetchNotifications();
-        setIsDrawerOpen(false);
-        form.resetFields();
-        setEditItem()
     };
+
+
+    // const handleAddOrEdit = async (values) => {
+    //     const { type, ...rest } = values;
+    //     let payload = { ...rest, users: null, locations: null, type: type, expiry: values?.expiry?.format(dateFormat) };
+
+    //     if (type === 'users') {
+    //         payload.users = values.users;
+    //         // delete payload?.locations
+    //     } else if (type === 'location') {
+    //         payload.locations = values.locations;
+    //     }
+    //     // delete payload?.users
+    //     // } else if (type === 'public') {
+    //     //     delete payload?.locations
+    //     //     delete payload?.users
+    //     // }
+    //     console.log("payload", payload);
+    //     // const { service_name, cost, duration, description } = values;
+    //     // console.log("Pyload", values)
+    //     if (editItem) {
+    //         // Update existing service
+    //         const { data, error } = await supabase
+    //             .from('notifications')
+    //             .update(payload)
+    //             .eq('id', editItem.id);
+
+    //         if (data) {
+    //             notification.success({ message: "Notification updated successfully" });
+    //             setEditItem(null);
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to update notification" });
+    //         }
+    //     } else {
+    //         // Add new notification
+    //         const { data, error } = await supabase
+    //             .from('notifications')
+    //             .insert([payload]);
+
+    //         if (data) {
+    //             notification.success({ message: "Notification added successfully" });
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to add notification" });
+    //         }
+    //     }
+    //     fetchNotifications();
+    //     setIsDrawerOpen(false);
+    //     form.resetFields();
+    //     setEditItem()
+    // };
 
     const handleEdit = (record) => {
         setEditItem(record);
@@ -138,14 +184,37 @@ const Notifications = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        const { error } = await supabase.from('notifications').delete().eq('id', id);
-        if (!error) {
-            notification.success({ message: "Notification deleted successfully" });
-            fetchNotifications();
-        } else {
-            notification.error({ message: "Failed to delete Notification" });
-        }
+    // const handleDelete = async (id) => {
+    //     const { error } = await supabase.from('notifications').delete().eq('id', id);
+    //     if (!error) {
+    //         notification.success({ message: "Notification deleted successfully" });
+    //         fetchNotifications();
+    //     } else {
+    //         notification.error({ message: "Failed to delete Notification" });
+    //     }
+    // };
+
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Are you sure delete this Notification - ${record?.title} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('notifications').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: "Notification deleted successfully" });
+                    fetchNotifications();
+                } else {
+                    notification.error({ message: "Failed to delete Notification" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
     };
 
     const columns = [
@@ -180,19 +249,24 @@ const Notifications = () => {
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
-                    />
-                    <Button
-                        type="primary" ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
-                    />
+                    <Tooltip title="Edit">
+                        <Button
+                            type="primary"
+                            icon={<EditFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleEdit(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Button
+                            type="primary" ghost
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            // onClick={() => handleDelete(record.id)}
+                            onClick={() => showDeleteConfirm(record)}
+                        />
+                    </Tooltip>
                 </div>
             ),
         },

@@ -1,11 +1,12 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin } from "antd";
+import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, CopyFilled } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, CopyFilled, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import './Services.css'; // Add a CSS file to style the cards grid
 import axios from "axios";
+const { confirm } = Modal;
 
 const Users = () => {
     const componentRef = useRef(null);
@@ -57,159 +58,207 @@ const Users = () => {
 
     const handleAddOrEdit = async (values) => {
         setLoading(true);
+
         const {
-            email,
-            mobile,
-            firstName,
-            lastName,
-            role_type, manager, hr_contact, location, has_resigned, last_date, rate
+            email, mobile, firstName, lastName, role_type, manager, hr_contact,
+            location, has_resigned, last_date, rate
         } = values;
 
         const userName = `${firstName} ${lastName}`;
-        if (editItem && !clone) {
-            const payload = {
-                organization_id: session?.user?.organization_id,
-                role_type,
-                details: {
-                    rate,
-                    role_type,
-                    email,
-                    mobile,
-                    orgName: session?.user?.details?.orgName,
-                    lastName,
-                    userName,
-                    firstName, has_resigned, last_date
-                },
-                user_name: userName,
-                // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
-                is_active: true,
-                location: location,
-                leave_details: locations?.find(item => item?.id === location)?.leave_settings,
-                manager_id: manager,
-                hr_id: hr_contact,
-                password_confirmed: false,
-            };
-            console.log("payload", payload);
-            const { data, error } = await supabase
-                .from('users')
-                .update(payload)
-                .eq('id', editItem.id);
+        const payload = {
+            organization_id: session?.user?.organization_id,
+            role_type,
+            details: {
+                rate, role_type, email, mobile, lastName, userName, firstName,
+                has_resigned, last_date, orgName: session?.user?.details?.orgName,
+            },
+            user_name: userName,
+            is_active: true,
+            location,
+            leave_details: locations?.find((item) => item?.id === location)?.leave_settings,
+            manager_id: manager,
+            hr_id: hr_contact,
+            password_confirmed: false,
+        };
 
-            if (data) {
+        try {
+            if (editItem && !clone) {
+                // Update user logic
+                const { data, error } = await supabase
+                    .from('users')
+                    .update(payload)
+                    .eq('id', editItem.id);
+
+                if (error) throw new Error("Failed to update user.");
                 notification.success({ message: "User updated successfully" });
                 setEditItem(null);
-            } else if (error) {
-                notification.error({ message: "Failed to update user" });
-            }
-            setLoading(false);
-        } else {
-            try {
-                // Step 1: Check if the user already exists
+            } else {
+                // Check if user already exists
                 const { data: existingUser, error: checkError } = await supabase
                     .from('users')
                     .select('id')
-                    .eq('details->>email', email)
-                // .single();
+                    .eq('details->>email', email);
 
-                if (checkError && checkError.code !== 'PGRST116') {
-                    // If the error is not related to "No rows found" (PGRST116), throw the error
-                    throw checkError;
-                }
+                if (checkError && checkError.code !== 'PGRST116') throw checkError;
 
                 if (existingUser?.length > 0) {
-                    // User already exists
                     message.warning('User with this email already exists.');
-                    // setLoading(false);
                     return;
                 }
 
-                // Step 2: Send user invite link
-                const { data, error: inviteError } = await axios.post(
+                // Invite user and insert into database
+                const { data: inviteResponse, error: inviteError } = await axios.post(
                     'https://azzqopnihybgniqzrszl.functions.supabase.co/invite_users',
                     { email },
                     { headers: { 'Content-Type': 'application/json' } }
                 );
 
-                if (inviteError) {
-                    throw inviteError;
-                }
+                if (inviteError) throw inviteError;
 
-                // Step 3: Insert new row in the users table
-                const payload = {
-                    organization_id: session?.user?.organization_id,
-                    role_type,
-                    details: {
-                        rate,
-                        role_type,
-                        email,
-                        mobile,
-                        orgName: session?.user?.details?.orgName,
-                        lastName,
-                        userName,
-                        firstName, has_resigned, last_date
-                    },
-                    id: data?.id,
-                    user_name: userName,
-                    // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
-                    is_active: true,
-                    location: location,
-                    leave_details: locations?.find(item => item?.id === location)?.leave_settings,
-                    manager_id: manager,
-                    hr_id: hr_contact,
-                    password_confirmed: false,
-                };
-                console.log("Payload", payload);
-                const { error: insertError } = await supabase.from('users').insert([payload]);
+                const inviteId = inviteResponse?.data?.id;
+                const insertPayload = { ...payload, id: inviteId };
 
-                if (insertError) {
-                    throw insertError;
-                }
+                const { error: insertError } = await supabase.from('users').insert([insertPayload]);
+                if (insertError) throw insertError;
 
                 message.success('User invited and added successfully!');
-            } catch (error) {
-                message.error(error.message || 'An error occurred.');
-            } finally {
-                setLoading(false);
             }
+        } catch (error) {
+            message.error(error.message || 'An error occurred.');
+        } finally {
+            setLoading(false);
+            fetchUsers();
+            setIsModalOpen(false);
+            form.resetFields();
+            setEditItem(null);
+            setClone(null);
         }
-
-        // if (editItem) {
-        //     const { data, error } = await supabase
-        //         .from('users')
-        //         .update({
-        //             details: values,
-        //             user_name: values?.user_name,
-        //             organization_id: session?.user?.organization_id,
-        //             organization_name: session?.user?.details?.orgName
-        //         })
-        //         .eq('id', editItem.id);
-
-        //     if (data) {
-        //         notification.success({ message: "User updated successfully" });
-        //         setEditItem(null);
-        //     } else if (error) {
-        //         notification.error({ message: "Failed to update user" });
-        //     }
-        // } else {
-        //     const { data, error } = await supabase
-        //         .from('users')
-        //         .insert([{ details: values, user_name: values?.user_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
-
-        //     if (data) {
-        //         notification.success({ message: "User added successfully" });
-        //     } else if (error) {
-        //         notification.error({ message: "Failed to add user" });
-        //     }
-        // }
-
-
-
-        fetchUsers();
-        setIsModalOpen(false);
-        form.resetFields();
-        setEditItem();
-        setClone();
     };
+
+    // const handleAddOrEdit = async (values) => {
+    //     setLoading(true);
+    //     const {
+    //         email,
+    //         mobile,
+    //         firstName,
+    //         lastName,
+    //         role_type, manager, hr_contact, location, has_resigned, last_date, rate
+    //     } = values;
+
+    //     const userName = `${firstName} ${lastName}`;
+    //     if (editItem && !clone) {
+    //         const payload = {
+    //             organization_id: session?.user?.organization_id,
+    //             role_type,
+    //             details: {
+    //                 rate,
+    //                 role_type,
+    //                 email,
+    //                 mobile,
+    //                 orgName: session?.user?.details?.orgName,
+    //                 lastName,
+    //                 userName,
+    //                 firstName, has_resigned, last_date
+    //             },
+    //             user_name: userName,
+    //             // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
+    //             is_active: true,
+    //             location: location,
+    //             leave_details: locations?.find(item => item?.id === location)?.leave_settings,
+    //             manager_id: manager,
+    //             hr_id: hr_contact,
+    //             password_confirmed: false,
+    //         };
+    //         console.log("payload", payload);
+    //         const { data, error } = await supabase
+    //             .from('users')
+    //             .update(payload)
+    //             .eq('id', editItem.id);
+
+    //         if (data) {
+    //             notification.success({ message: "User updated successfully" });
+    //             setEditItem(null);
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to update user" });
+    //         }
+    //         setLoading(false);
+    //     } else {
+    //         try {
+    //             // Step 1: Check if the user already exists
+    //             const { data: existingUser, error: checkError } = await supabase
+    //                 .from('users')
+    //                 .select('id')
+    //                 .eq('details->>email', email)
+    //             // .single();
+
+    //             if (checkError && checkError.code !== 'PGRST116') {
+    //                 // If the error is not related to "No rows found" (PGRST116), throw the error
+    //                 throw checkError;
+    //             }
+
+    //             if (existingUser?.length > 0) {
+    //                 // User already exists
+    //                 message.warning('User with this email already exists.');
+    //                 // setLoading(false);
+    //                 return;
+    //             }
+
+    //             // Step 2: Send user invite link
+    //             const { data, error: inviteError } = await axios.post(
+    //                 'https://azzqopnihybgniqzrszl.functions.supabase.co/invite_users',
+    //                 { email },
+    //                 { headers: { 'Content-Type': 'application/json' } }
+    //             );
+
+    //             if (inviteError) {
+    //                 throw inviteError;
+    //             }
+
+    //             // Step 3: Insert new row in the users table
+    //             const payload = {
+    //                 organization_id: session?.user?.organization_id,
+    //                 role_type,
+    //                 details: {
+    //                     rate,
+    //                     role_type,
+    //                     email,
+    //                     mobile,
+    //                     orgName: session?.user?.details?.orgName,
+    //                     lastName,
+    //                     userName,
+    //                     firstName, has_resigned, last_date
+    //                 },
+    //                 id: data?.id,
+    //                 user_name: userName,
+    //                 // is_manager: role_type === 'manager'||role_type === 'manager'||role_type === 'manager',
+    //                 is_active: true,
+    //                 location: location,
+    //                 leave_details: locations?.find(item => item?.id === location)?.leave_settings,
+    //                 manager_id: manager,
+    //                 hr_id: hr_contact,
+    //                 password_confirmed: false,
+    //             };
+    //             console.log("Payload", payload);
+    //             const { error: insertError } = await supabase.from('users').insert([payload]);
+
+    //             if (insertError) {
+    //                 throw insertError;
+    //             }
+
+    //             message.success('User invited and added successfully!');
+    //         } catch (error) {
+    //             message.error(error.message || 'An error occurred.');
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+
+    //     fetchUsers();
+    //     setIsModalOpen(false);
+    //     form.resetFields();
+    //     setEditItem();
+    //     setClone();
+    // };
 
     const handleEdit = (record, copy) => {
         const item = {
@@ -223,6 +272,9 @@ const Users = () => {
             location: record?.location?.id,
         }
         copy && (delete item?.email)
+        copy && (delete item?.firstName)
+        copy && (delete item?.lastName)
+        copy && (delete item?.mobile)
         console.log("Up", item, record);
         setEditItem(item);
         form.setFieldsValue(item
@@ -247,14 +299,37 @@ const Users = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        const { error } = await supabase.from('users').delete().eq('id', id);
-        if (!error) {
-            notification.success({ message: "User deleted successfully" });
-            fetchUsers();
-        } else {
-            notification.error({ message: "Failed to delete user" });
-        }
+    // const handleDelete = async (id) => {
+    //     const { error } = await supabase.from('users').delete().eq('id', id);
+    //     if (!error) {
+    //         notification.success({ message: "User deleted successfully" });
+    //         fetchUsers();
+    //     } else {
+    //         notification.error({ message: "Failed to delete user" });
+    //     }
+    // };
+
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Are you sure delete this Project - ${record?.user_name} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('users').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: "User deleted successfully" });
+                    fetchUsers();
+                } else {
+                    notification.error({ message: "Failed to delete user" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
     };
 
     const columns = [
@@ -315,19 +390,33 @@ const Users = () => {
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button disabled={true}
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                    // onClick={() => handleEdit(record)}
-                    />
-                    <Button disabled={true}
-                        type="primary" ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                    // onClick={() => handleDelete(record.id)}
-                    />
+                    <Tooltip title="Edit">
+                        <Button
+                            type="primary"
+                            icon={<EditFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleEdit(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Copy">
+                        <Button
+                            type="primary"
+                            icon={<CopyFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleEdit(record, true)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Button
+                            type="primary" ghost
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            // onClick={() => handleDelete(record.id)}
+                            onClick={() => showDeleteConfirm(record)}
+                        />
+                    </Tooltip>
                 </div>
             ),
         },
@@ -360,26 +449,33 @@ const Users = () => {
                                 key={user?.id}
                                 extra={
                                     <div className="card-actions">
-                                        <Button //disabled={true}
-                                            type="primary"
-                                            icon={<EditFilled />}
-                                            size="small"
-                                            className="mr-2"
-                                            onClick={() => handleEdit(user)}
-                                        />
-                                        <Button //disabled={true}
-                                            type="default"
-                                            icon={<CopyFilled />}
-                                            size="small"
-                                            className="mr-2"
-                                            onClick={() => handleEdit(user, true)}
-                                        />
-                                        <Button disabled={true}
-                                            type="primary" ghost
-                                            icon={<DeleteOutlined />}
-                                            size="small"
-                                        // onClick={() => handleDelete(user?.id)}
-                                        />
+                                        <Tooltip title="Edit">
+                                            <Button //disabled={true}
+                                                type="primary"
+                                                icon={<EditFilled />}
+                                                size="small"
+                                                className="mr-2"
+                                                onClick={() => handleEdit(user)}
+                                            />
+                                        </Tooltip>
+                                        <Tooltip title="Copy">
+                                            <Button //disabled={true}
+                                                type="default"
+                                                icon={<CopyFilled />}
+                                                size="small"
+                                                className="mr-2"
+                                                onClick={() => handleEdit(user, true)}
+                                            />
+                                        </Tooltip>
+                                        <Tooltip title="Delete">
+                                            <Button
+                                                type="primary" ghost
+                                                icon={<DeleteOutlined />}
+                                                size="small"
+                                                onClick={() => showDeleteConfirm(user)}
+                                            // onClick={() => handleDelete(user?.id)}
+                                            />
+                                        </Tooltip>
                                     </div>
                                 }
 

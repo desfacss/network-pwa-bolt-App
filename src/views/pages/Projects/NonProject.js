@@ -1,6 +1,6 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
@@ -9,6 +9,7 @@ import ProjectForm from "./DynamicTable3";
 import App from "./A";
 // import App from "./CustomTemplate";
 // import DynamicForm from "../DynamicForm";
+const { confirm } = Modal;
 
 const { Option } = Select;
 
@@ -54,25 +55,26 @@ const NonProject = () => {
     //     getForms()
     // }, []);
 
+    const fetchUsers = async () => {
+        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details');
+        if (error) {
+            console.error('Error fetching users:', error);
+        } else {
+            console.log("Users", data)
+            setUsers(data || []);
+        }
+    };
+    const fetchClients = async () => {
+        const { data, error } = await supabase.from('clients').select('id, name').eq('default', true);
+        if (error) {
+            console.error('Error fetching users:', error);
+        } else {
+            console.log("US", data)
+            setClients(data || []);
+        }
+    };
+
     useEffect(() => {
-        const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('id, user_name,role_type,details');
-            if (error) {
-                console.error('Error fetching users:', error);
-            } else {
-                console.log("Users", data)
-                setUsers(data || []);
-            }
-        };
-        const fetchClients = async () => {
-            const { data, error } = await supabase.from('clients').select('id, name').eq('default', true);
-            if (error) {
-                console.error('Error fetching users:', error);
-            } else {
-                console.log("US", data)
-                setClients(data || []);
-            }
-        };
         fetchClients();
         fetchUsers();
     }, []);
@@ -99,12 +101,11 @@ const NonProject = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        setIsInvalid(false)
-        console.log("PU", values, projectUsers)
-        const validData = allocationTracking && validateData(projectUsers)
-        if (allocationTracking && !validData) {
-            setIsInvalid(true)
-            return
+        setIsInvalid(false);
+
+        if (allocationTracking && !validateData(projectUsers)) {
+            setIsInvalid(true);
+            return;
         }
 
         const updatedDetails = {
@@ -114,38 +115,94 @@ const NonProject = () => {
             project_users: allocationTracking ? projectUsers : []
         };
 
-        !allocationTracking && delete updatedDetails?.projectUsers
+        if (!allocationTracking) {
+            delete updatedDetails.projectUsers;
+        }
 
-        console.log(updatedDetails);
-        if (editItem) {
-            const { data, error } = await supabase
-                .from('x_projects')
-                .update({ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id })
-                .eq('id', editItem?.id);
+        const commonPayload = {
+            details: updatedDetails,
+            status: 'in progress',
+            allocation_tracking: allocationTracking,
+            is_non_project: true,
+            status: values?.status,
+            project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null,
+            project_name: values?.project_name,
+            client_id: clients[0]?.id,
+            hrpartner_id: session?.user?.id,
+            manager_id: session?.user?.id
+        };
+
+        try {
+            const { data, error } = editItem
+                ? await supabase.from('x_projects').update(commonPayload).eq('id', editItem?.id)
+                : await supabase.from('x_projects').insert([commonPayload]);
 
             if (data) {
-                notification.success({ message: "Project updated successfully" });
+                notification.success({ message: editItem ? "Project updated successfully" : "Project added successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update project" });
+                notification.error({ message: editItem ? "Failed to update project" : "Failed to add project" });
             }
-        } else {
-            const { data, error } = await supabase
-                .from('x_projects')
-                .insert([{ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id }]);
-
-            if (data) {
-                notification.success({ message: "Project added successfully" });
-            } else if (error) {
-                notification.error({ message: "Failed to add project" });
-            }
+        } catch (err) {
+            console.error("Error saving project:", err);
         }
+
         fetchProjects();
         setIsDrawerOpen(false);
         form.resetFields();
-        setProjectUsers()
+        setProjectUsers();
         setEditItem(null);
     };
+
+
+    // const handleAddOrEdit = async (values) => {
+    //     setIsInvalid(false)
+    //     console.log("PU", values, projectUsers)
+    //     const validData = allocationTracking && validateData(projectUsers)
+    //     if (allocationTracking && !validData) {
+    //         setIsInvalid(true)
+    //         return
+    //     }
+
+    //     const updatedDetails = {
+    //         ...values,
+    //         start_date: values?.start_date?.format(dateFormat),
+    //         end_date: values?.end_date?.format(dateFormat),
+    //         project_users: allocationTracking ? projectUsers : []
+    //     };
+
+    //     !allocationTracking && delete updatedDetails?.projectUsers
+
+    //     console.log(updatedDetails);
+    //     if (editItem) {
+    //         const { data, error } = await supabase
+    //             .from('x_projects')
+    //             .update({ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id })
+    //             .eq('id', editItem?.id);
+
+    //         if (data) {
+    //             notification.success({ message: "Project updated successfully" });
+    //             setEditItem(null);
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to update project" });
+    //         }
+    //     } else {
+    //         const { data, error } = await supabase
+    //             .from('x_projects')
+    //             .insert([{ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id }]);
+
+    //         if (data) {
+    //             notification.success({ message: "Project added successfully" });
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to add project" });
+    //         }
+    //     }
+    //     fetchProjects();
+    //     setIsDrawerOpen(false);
+    //     form.resetFields();
+    //     setProjectUsers()
+    //     setEditItem(null);
+    // };
 
     const handleEdit = (record) => {
         setEditItem(record);
@@ -167,16 +224,6 @@ const NonProject = () => {
         setAllocationTracking(record?.details?.allocation_tracking);
     };
 
-    const handleDelete = async (id) => {
-        const { error } = await supabase.from('x_projects').delete().eq('id', id);
-        if (!error) {
-            notification.success({ message: "Project deleted successfully" });
-            fetchProjects();
-        } else {
-            notification.error({ message: "Failed to delete Project" });
-        }
-    };
-
     const handleUserChange = (index, field, value) => {
         setIsInvalid(false)
         const updatedUsers = [...projectUsers];
@@ -195,7 +242,7 @@ const NonProject = () => {
     const addUser = () => {
         const formStartDate = form.getFieldValue('start_date')?.format(dateFormat);
         const formEndDate = form.getFieldValue('end_date')?.format(dateFormat);
-        setProjectUsers([...projectUsers || [], { user_id: "", expensed_hours: "", allocated_hours: "", start_date: formStartDate || formattedToday, end_date: formEndDate || formattedTomorrow, rate: '0' }]);
+        setProjectUsers([...projectUsers || [], { user_id: "", expensed_hours: "0", allocated_hours: "", start_date: formStartDate || formattedToday, end_date: formEndDate || formattedTomorrow, rate: '0' }]);
     };
 
     const removeUser = (index) => {
@@ -228,6 +275,29 @@ const NonProject = () => {
 
         return !(errors.length > 0);
     }
+
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Are you sure delete this Project - ${record.project_name} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('x_projects').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: "Project deleted successfully" });
+                    fetchProjects();
+                } else {
+                    notification.error({ message: "Failed to delete Project" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
 
     const columns = [
         {
@@ -266,19 +336,24 @@ const NonProject = () => {
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
-                    />
-                    <Button
-                        type="primary" ghost disabled
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
-                    />
+                    <Tooltip title="Edit">
+                        <Button
+                            type="primary"
+                            icon={<EditFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleEdit(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Button
+                            type="primary" ghost
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            // onClick={() => handleDelete(record.id)}
+                            onClick={() => showDeleteConfirm(record)}
+                        />
+                    </Tooltip>
                 </div>
             ),
         },
@@ -293,7 +368,7 @@ const NonProject = () => {
                 //     value={text}
                 //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
                 // />
-                <Select placeholder="Select users" style={{ width: '100%' }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
+                <Select placeholder="Select users" style={{ minWidth: '120px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
                     {users?.map((user) => (
                         <Select.Option key={user?.id} value={user?.id}>
                             {user?.user_name}

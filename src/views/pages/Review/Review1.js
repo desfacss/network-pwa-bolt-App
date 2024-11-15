@@ -385,27 +385,67 @@ const Review1 = ({ date, employee, fetchData }) => {
   // }, [employees])
 
   const handleSubmit = async () => {
-    const { data, error } = await supabase.from('x_timesheet_3').update({ status: isApproveModal ? "Approved" : "Rejected" }).eq('id', existingTimesheet.id);
-    if (error) {
-      console.error('Error updating status:', error);
-      message.error(`Error updating status: ${error}`);
-    } else {
-      console.log('Status updated successfully:', data);
-      // sendEmail()
-      if (isApproveModal) {
+    try {
+      // Define the values to update based on approval or rejection
+      const updatedValues = {
+        approved_by_id: session?.user?.id,
+        status: isApproveModal ? "Approved" : "Rejected",
+        approver_details: { approved_time: new Date(), comment: (isApproveModal ? "" : rejectComment), },
+      }
 
+      // Perform the update query
+      const { data, error } = await supabase.from("x_timesheet_3").update(updatedValues).eq("id", existingTimesheet?.id);
+
+      if (error) {
+        console.error("Error updating status:", error);
+        message.error(`Error updating status: ${error.message}`);
+        return;
+      }
+
+      console.log("Status updated successfully:", data);
+
+      // Close the modal and reset the reject comment if applicable
+      if (isApproveModal) {
         setIsApproveModal(false);
       } else {
         setIsRejectModal(false);
-        setRejectComment('');
+        setRejectComment("");
       }
 
-      checkExistingTimesheet()
-      fetchData()
+      // Refresh data and notify the user
+      checkExistingTimesheet();
+      fetchData();
       message.success(`${isApproveModal ? "Approved" : "Rejected"} successfully`);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      message.error("An unexpected error occurred. Please try again.");
     }
-    // Add your approve logic here
   };
+
+
+
+  // const handleSubmit = async () => {
+  //   const { data, error } = await supabase.from('x_timesheet_3').update({ status: isApproveModal ? "Approved" : "Rejected" }).eq('id', existingTimesheet.id);
+  //   if (error) {
+  //     console.error('Error updating status:', error);
+  //     message.error(`Error updating status: ${error}`);
+  //   } else {
+  //     console.log('Status updated successfully:', data);
+  //     // sendEmail()
+  //     if (isApproveModal) {
+
+  //       setIsApproveModal(false);
+  //     } else {
+  //       setIsRejectModal(false);
+  //       setRejectComment('');
+  //     }
+
+  //     checkExistingTimesheet()
+  //     fetchData()
+  //     message.success(`${isApproveModal ? "Approved" : "Rejected"} successfully`);
+  //   }
+  //   // Add your approve logic here
+  // };
 
   const handleCancel = () => {
     setIsApproveModal(false);
@@ -521,7 +561,7 @@ const Review1 = ({ date, employee, fetchData }) => {
               { label: 'Monthly', value: 'Monthly' },
             ]}
           /> */}
-          {employees && <Select showSearch placeholder="Select a Employee" value={selectedEmployeesId} onChange={(e) => setSelectedEmployeeId(e)}
+          {employees && <Select disabled showSearch placeholder="Select a Employee" value={selectedEmployeesId} onChange={(e) => setSelectedEmployeeId(e)}
           // loading={loading} notFoundContent={loading ? <Spin size="small" /> : 'No users found'} style={{ width: 200 }}
           >
             {employees.length > 0 && employees?.map(user => (

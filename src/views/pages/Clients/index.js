@@ -1,9 +1,10 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteFilled } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
+const { confirm } = Modal;
 
 const Clients = () => {
     const componentRef = useRef(null);
@@ -43,38 +44,74 @@ const Clients = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        // const { service_name, cost, duration, description } = values;
-        console.log("Pyload", values)
-        if (editItem) {
-            // Update existing service
-            const { data, error } = await supabase
-                .from('clients')
-                .update({ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
-                .eq('id', editItem.id);
+        console.log("Payload", values);
+
+        const clientPayload = {
+            details: values,
+            name: values?.name,
+            organization_id: session?.user?.organization_id,
+            organization_name: session?.user?.details?.orgName
+        };
+
+        try {
+            const { data, error } = editItem
+                ? await supabase.from('clients').update(clientPayload).eq('id', editItem.id) // Update existing client
+                : await supabase.from('clients').insert([clientPayload]); // Add new client
 
             if (data) {
-                notification.success({ message: "Client updated successfully" });
+                notification.success({
+                    message: editItem ? "Client updated successfully" : "Client added successfully"
+                });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update client" });
+                notification.error({
+                    message: editItem ? "Failed to update client" : "Failed to add client"
+                });
             }
-        } else {
-            // Add new client
-            const { data, error } = await supabase
-                .from('clients')
-                .insert([{ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
-
-            if (data) {
-                notification.success({ message: "Client added successfully" });
-            } else if (error) {
-                notification.error({ message: "Failed to add client" });
-            }
+        } catch (err) {
+            console.error("Error handling client:", err);
         }
+
         fetchClients();
         setIsDrawerOpen(false);
         form.resetFields();
-        setEditItem()
+        setEditItem(null);
     };
+
+
+    // const handleAddOrEdit = async (values) => {
+    //     // const { service_name, cost, duration, description } = values;
+    //     console.log("Pyload", values)
+    //     if (editItem) {
+    //         // Update existing service
+    //         const { data, error } = await supabase
+    //             .from('clients')
+    //             .update({ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
+    //             .eq('id', editItem.id);
+
+    //         if (data) {
+    //             notification.success({ message: "Client updated successfully" });
+    //             setEditItem(null);
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to update client" });
+    //         }
+    //     } else {
+    //         // Add new client
+    //         const { data, error } = await supabase
+    //             .from('clients')
+    //             .insert([{ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
+
+    //         if (data) {
+    //             notification.success({ message: "Client added successfully" });
+    //         } else if (error) {
+    //             notification.error({ message: "Failed to add client" });
+    //         }
+    //     }
+    //     fetchClients();
+    //     setIsDrawerOpen(false);
+    //     form.resetFields();
+    //     setEditItem()
+    // };
 
     const handleEdit = (record) => {
         setEditItem(record);
@@ -114,6 +151,29 @@ const Clients = () => {
         }
         setDeleteModalVisible(false);
         setClientToDelete(null);
+    };
+
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Are you sure delete this Client - ${record?.name} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('clients').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: "Client deleted successfully" });
+                    fetchClients();
+                } else {
+                    notification.error({ message: "Failed to delete Client" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
     };
 
     const columns = [
@@ -157,25 +217,24 @@ const Clients = () => {
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
-                    />
-                    {/* <Button
-                        type="danger"
-                        icon={<DeleteFilled />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
-                    /> */}
-                    <Button
-                        type="danger"
-                        icon={<DeleteFilled />}
-                        size="small"
-                        onClick={() => confirmDelete(record.id)}
-                    />
+                    <Tooltip title="Edit">
+                        <Button
+                            type="primary"
+                            icon={<EditFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleEdit(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Button
+                            type="primary" ghost
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            // onClick={() => handleDelete(record.id)}
+                            onClick={() => showDeleteConfirm(record)}
+                        />
+                    </Tooltip>
                 </div>
             ),
         },

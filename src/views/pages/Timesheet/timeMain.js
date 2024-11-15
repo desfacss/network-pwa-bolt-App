@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Button, Select, message, Row, Col, notification, Card, Drawer, Modal } from 'antd';
+import { Table, Input, Button, Select, message, Row, Col, notification, Card, Drawer, Modal, Spin, Tooltip } from 'antd';
 import { useSelector } from 'react-redux';
 import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHideNext, isTimesheetDisabled } from 'components/common/utils';
 import { supabase } from 'configs/SupabaseConfig';
@@ -139,6 +139,8 @@ const Timesheet = () => {
   }
 
   const checkExistingTimesheet = async () => {
+    setLoading(true);
+
     if (!session?.user?.id) {
       message.error('User is not authenticated.');
       return;
@@ -198,15 +200,16 @@ const Timesheet = () => {
     } else {
       setExistingTimesheetId(null);
     }
+    setLoading(false);
   };
 
 
   const handleSubmit = async (status) => {
+
     if (!session?.user?.id) {
       message.error('User is not authenticated.');
       return;
     }
-
 
     const timesheetDetails = generateRows(selectedProjectColumns[0]).map(day => {
       const dailyEntry = {
@@ -286,7 +289,8 @@ const Timesheet = () => {
       details: timesheetDetails,
       project_details: projectDetails,
       approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover]?.id,
-      last_date: lastDate.toISOString()
+      last_date: lastDate.toISOString(),
+      submitted_time: new Date()
     };
 
     console.log("Payload", timesheetDetails)
@@ -325,7 +329,7 @@ const Timesheet = () => {
   const generateRows = (projectName) => {
     const startDate = new Date(currentDate);
     const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
-    const rowCount = viewMode === 'Weekly' ? 5 : daysInMonth;
+    const rowCount = viewMode === 'Weekly' ? 7 : daysInMonth;
 
     const newRows = Array.from({ length: rowCount }, (_, dayIndex) => {
       const dateValue = formatDate(
@@ -542,7 +546,7 @@ const Timesheet = () => {
   const generateAllRows = () => {
     const startDate = new Date(currentDate);
     const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
-    const rowCount = viewMode === 'Weekly' ? 5 : daysInMonth;
+    const rowCount = viewMode === 'Weekly' ? 7 : daysInMonth;
 
     // Create a map to accumulate rows by date
     const rowsMap = {};
@@ -704,19 +708,27 @@ const Timesheet = () => {
       key: 'actions',
       render: (_, record) => (
         <div className="d-flex">
-          {record?.status !== 'Approved' && <Button
-            type="primary"
-            icon={<EditFilled />}
-            size="small"
-            className="mr-2"
-            onClick={() => { setCurrentDate(new Date(record?.timesheet_date)); setCurrentTimesheet(record); setDrawerVisible(true) }}
-          />}
-          {record?.status !== 'Approved' && <Button
-            type="primary" ghost
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => showDeleteConfirm(record)}
-          />}
+          {record?.status !== 'Approved' &&
+            <Tooltip title="Edit">
+              <Button
+                type="primary"
+                icon={<EditFilled />}
+                size="small"
+                className="mr-2"
+                onClick={() => { setCurrentDate(new Date(record?.timesheet_date)); setCurrentTimesheet(record); setDrawerVisible(true) }}
+              />
+            </Tooltip>
+          }
+          {record?.status !== 'Approved' &&
+            <Tooltip title="Delete">
+              <Button
+                type="primary" ghost
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() => showDeleteConfirm(record)}
+              />
+            </Tooltip>
+          }
         </div>
       ),
     },
@@ -763,30 +775,33 @@ const Timesheet = () => {
         onClose={closeDrawer}
         visible={drawerVisible}
       >
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Button onClick={addNewProject}>Add New Project</Button>
-            {/* <Select defaultValue={viewMode} style={{ width: 120 }} onChange={handleViewModeChange}>
+        <Spin spinning={loading}>
+          <Row justify="space-between" align="middle">
+            <Col>
+              <Button onClick={addNewProject}>Add New Project</Button>
+              {/* <Select defaultValue={viewMode} style={{ width: 120 }} onChange={handleViewModeChange}>
             <Option value="Weekly">Weekly</Option>
             <Option value="Monthly">Monthly</Option>
           </Select> */}
-          </Col>
-          <Col>
-            <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
-            <span className='m-2'>{currentDate.toDateString()}</span>
-            <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
-          </Col>
-          <Col>
-            <Button onClick={() => handleSubmit('Draft')}>Save</Button>
-            <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
-          </Col>
-        </Row>
+            </Col>
+            <Col>
+              <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
+              <span className='m-2'>{currentDate.toDateString()}</span>
+              <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
+            </Col>
+            <Col>
+              <Button onClick={() => handleSubmit('Draft')}>Save</Button>
+              <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
+            </Col>
+          </Row>
 
-        {/* <Table columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
-        <Table columns={columns} dataSource={generateAllRows()} pagination={false}
-          summary={getSummary}
-        // <>{getSummary}{renderBalanceHoursSummary}</>}
-        />
+          {/* <Table columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
+
+          <Table columns={columns} dataSource={generateAllRows()} pagination={false}
+            summary={getSummary}
+          // <>{getSummary}{renderBalanceHoursSummary}</>}
+          />
+        </Spin>
       </Drawer>}
     </>
   );
