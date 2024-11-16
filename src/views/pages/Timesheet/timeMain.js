@@ -20,6 +20,7 @@ const Timesheet = () => {
   const [projectData, setProjectData] = useState({});
   const [selectedProjectColumns, setSelectedProjectColumns] = useState({});
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [defaultColumn, setDefaultColumn] = useState();
   const [defaultData, setDefaultData] = useState();
   const [timesheets, setTimesheets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,7 +45,7 @@ const Timesheet = () => {
   const closeDrawer = () => {
     setDrawerVisible(false);
     setProjectData()
-    setSelectedProjectColumns(defaultData)
+    setSelectedProjectColumns(defaultColumn)
     // form.resetFields();
   };
 
@@ -77,7 +78,7 @@ const Timesheet = () => {
     // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
-      console.log("T", data.slice(0, 2))
+      // console.log("T", data)
 
       // Automatically initialize project columns and data
       const projectColumns = {};
@@ -89,8 +90,9 @@ const Timesheet = () => {
       const firstKey = Object.keys(projectColumns)[0];
       // Get the first key-value pair
       const firstObject = { [firstKey]: firstKey };
-      console.log("TT", projectColumns, projectDataMap, firstObject)
-      setDefaultData(firstObject)
+      // console.log("TT", projectColumns, projectDataMap, firstObject)
+      setDefaultColumn(firstObject)
+      setDefaultData(projectDataMap)
       setSelectedProjectColumns(firstObject);
       setProjectData(projectDataMap);
     } else {
@@ -99,7 +101,8 @@ const Timesheet = () => {
   };
 
   const setCurrentTimesheet = (data) => {
-    console.log("edit", data)
+    // console.log("edit", data)
+    // console.log("CET")
     const timesheetDetails = data?.details || [];
     const projectDataMap = {};
 
@@ -132,6 +135,7 @@ const Timesheet = () => {
       acc[id] = id;
       return acc;
     }, {});
+    // console.log("IT", data?.id, data?.status, columns, projectDataMap)
     setSelectedProjectColumns(columns)
     setProjectData(projectDataMap);
     setExistingTimesheetId(data?.id);
@@ -140,7 +144,7 @@ const Timesheet = () => {
 
   const checkExistingTimesheet = async () => {
     setLoading(true);
-
+    // console.log("CET")
     if (!session?.user?.id) {
       message.error('User is not authenticated.');
       return;
@@ -155,8 +159,10 @@ const Timesheet = () => {
 
     if (error) {
       console.error('Error fetching timesheet:', error.message);
+      // console.log("CET-E")
       setExistingTimesheetId(null);
     } else if (data && data.length > 0) {
+      // console.log("CET-D")
       setCurrentTimesheet(data[0])
 
       // const timesheetDetails = data[0]?.details || [];
@@ -199,6 +205,9 @@ const Timesheet = () => {
 
     } else {
       setExistingTimesheetId(null);
+      // console.log("CET-N")
+      setSelectedProjectColumns(defaultColumn)
+      setProjectData(defaultData)
     }
     setLoading(false);
   };
@@ -250,7 +259,7 @@ const Timesheet = () => {
           description: (hours && hours !== '0') ? filteredData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.description || '' : '',
         };
       }
-      console.log("PU", filteredData)
+      // console.log("PU", filteredData)
 
       return dailyEntry;
     });
@@ -293,7 +302,7 @@ const Timesheet = () => {
       submitted_time: new Date()
     };
 
-    console.log("Payload", timesheetDetails)
+    // console.log("Payload", timesheetDetails)
     try {
       if (existingTimesheetId) {
         // Update existing timesheet
@@ -316,7 +325,7 @@ const Timesheet = () => {
         setProjectData()
         closeDrawer()
       }
-      console.log("Pr", projectDetails)
+      // console.log("Pr", projectDetails)
       fetchTimesheets()
       // // Refetch the timesheet data after submission
       // checkExistingTimesheet();
@@ -372,7 +381,7 @@ const Timesheet = () => {
     if (unselectedProjects.length > 0) {
       const newProject = unselectedProjects[0];
       const newProjectIndex = Object.keys(selectedProjectColumns)?.length;
-      console.log("D", selectedProjectColumns, projectData, newProjectIndex)
+      // console.log("D", selectedProjectColumns, projectData, newProjectIndex)
       setSelectedProjectColumns((prevState) => ({
         ...prevState,
         // [newProjectIndex]: newProject.id,
@@ -423,7 +432,7 @@ const Timesheet = () => {
           : item
       ),
     }));
-    console.log("second", projectData)
+    // console.log("second", projectData)
   };
 
   const handleViewModeChange = (value) => {
@@ -433,7 +442,7 @@ const Timesheet = () => {
   };
 
   const checkDescriptionIsNull = (hours, description) => {
-    console.log("hr", hours)
+    // console.log("hr", hours)
     if (Number(hours) !== 0 && description === '') {
       setSubmitDisabled(true)
       return 'error'
@@ -506,7 +515,7 @@ const Timesheet = () => {
       render: (_, record) => {
         var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
         // var invalid=dailyTotal > 10 || dailyTotal<8
-        console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
+        // console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
         var invalid = dailyTotal < (timesheet_settings?.workingHours?.standardDailyHours || 8) || dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours || 8)
         var warning = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours || 8)
         if (invalid) {
@@ -522,6 +531,9 @@ const Timesheet = () => {
 
   useEffect(() => {
     fetchProjects();
+  }, []);
+  useEffect(() => {
+    // fetchProjects();
     checkExistingTimesheet();
     setDisabled(isTimesheetDisabled(viewMode, currentDate));
     setHideNext(isHideNext(currentDate));
@@ -554,6 +566,7 @@ const Timesheet = () => {
     // Iterate over each selected project to generate rows
     Object.values(selectedProjectColumns).forEach((projectName) => {
       const projectRows = generateRows(projectName);
+      // console.log("R", selectedProjectColumns, projectRows)
 
       projectRows.forEach((row) => {
         if (!rowsMap[row?.key]) {
@@ -569,7 +582,6 @@ const Timesheet = () => {
         rowsMap[row?.key].dailyEntries[projectName] = row?.dailyEntries[projectName];
       });
     });
-
     // Convert rows map to an array for the table data source
     return Object.values(rowsMap);
   };
@@ -622,7 +634,7 @@ const Timesheet = () => {
                 balance, allocated, expensed, spent
               }
             }) */}
-            console.log(color)
+            {/* console.log(color) */ }
             return (
               <Table.Summary.Cell key={projectName} style={{ backgroundColor: color }}>
                 {/* {calculateBalanceHours(projectName, projectTotals)} */}
@@ -642,7 +654,7 @@ const Timesheet = () => {
 
   const calculateBalanceHours = (projectName, projectTotals) => {
     const project = projects.find((p) => p.id === projectName);
-    console.log("YR", project, projectName, projectTotals)
+    // console.log("YR", project, projectName, projectTotals)
     if (!project || !project?.details?.project_users) return 0;
 
     const userDetails = project?.details?.project_users?.find(user => user.user_id === session?.user?.id);

@@ -9,7 +9,7 @@ const ProtectedRoute = () => {
 	// const location = useLocation();
 	// const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
-	const { token, session } = useSelector(state => state.auth)
+	const { token, session } = useSelector(state => state?.auth)
 	// if (session?.user?.password_confirmed === false && window.location.pathname !== `${APP_PREFIX_PATH}/change_password`) {
 	// 	return <Navigate to={`${APP_PREFIX_PATH}/change_password`} replace />;
 	// }

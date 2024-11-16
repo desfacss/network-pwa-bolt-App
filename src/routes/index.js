@@ -28,6 +28,7 @@ const Routes = () => {
     <RouterRoutes>
       {/* <Route path="/" element={<Navigate replace to={'survey'} />} /> */}
       <Route path="/" element={<ProtectedRoute />}>
+        <Route index element={<Navigate replace to="/app/dashboard" />} />
         {/* <Route
           path="/"
           // element={<Navigate replace to={AUTHENTICATED_ENTRY} />}
