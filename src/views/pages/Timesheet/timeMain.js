@@ -13,7 +13,7 @@ const { Option } = Select;
 
 const Timesheet = () => {
   const [viewMode, setViewMode] = useState('Weekly');
-  const [disabled, setDisabled] = useState(false);
+  const [approvedTimeSheet, setApprovedTimeSheet] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(false);
   const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
   const [existingTimesheetId, setExistingTimesheetId] = useState(null);
@@ -142,7 +142,7 @@ const Timesheet = () => {
     setSelectedProjectColumns(columns)
     setProjectData(projectDataMap);
     setExistingTimesheetId(data?.id);
-    setDisabled(['Approved'].includes(data?.status));
+    setApprovedTimeSheet(['Approved'].includes(data?.status));
   }
 
   const checkExistingTimesheet = async () => {
@@ -546,7 +546,7 @@ const Timesheet = () => {
                 value={record?.dailyEntries[projectName]?.hours}
                 status={checkhoursIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
                 onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'hours')}
-                disabled={disabled}
+                disabled={approvedTimeSheet}
                 style={{ width: '100%' }}
               />
               <Input
@@ -555,7 +555,7 @@ const Timesheet = () => {
                 value={record?.dailyEntries[projectName]?.description}
                 status={checkDescriptionIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
                 onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'description')}
-                disabled={!record?.dailyEntries[projectName]?.hours || disabled}
+                disabled={!record?.dailyEntries[projectName]?.hours || approvedTimeSheet}
                 style={{ marginTop: '4px', width: '100%' }}
               />
             </div>
@@ -597,7 +597,7 @@ const Timesheet = () => {
   useEffect(() => {
     // fetchProjects();
     checkExistingTimesheet();
-    setDisabled(isTimesheetDisabled(viewMode, currentDate));
+    setApprovedTimeSheet(isTimesheetDisabled(viewMode, currentDate));
     setHideNext(isHideNext(currentDate));
   }, [currentDate, viewMode]);
 
@@ -715,7 +715,7 @@ const Timesheet = () => {
     const expensedHours = parseInt(userDetails?.expensed_hours, 10) || 0;
 
     var color = null
-    var balance = allocatedHours - expensedHours - projectTotals[projectName]
+    var balance = allocatedHours - expensedHours - (approvedTimeSheet ? 0 : projectTotals[projectName])
 
     if (balance <= ((100 - (timesheet_settings?.workingHours?.projectFinalHours || 80)) / 100) * allocatedHours) {
       color = 'gold'
@@ -852,7 +852,7 @@ const Timesheet = () => {
               <span className='m-2'>{currentDate.toDateString()}</span>
               <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
             </Col>
-            {disabled ? "Approved" : <Col>
+            {approvedTimeSheet ? "Approved" : <Col>
               <Button onClick={() => handleSubmit('Draft')}>Save</Button>
               <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled} className='ml-2 mr-2'>Submit</Button>
               <TimesheetInstructions />

@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Empty } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -418,6 +418,9 @@ const Project = () => {
             </div>
             <div className="table-responsive" ref={componentRef}>
                 <Table
+                    locale={{
+                        emptyText: <Empty description="No Data!" />,
+                    }}
                     columns={columns}
                     dataSource={projects}
                     rowKey={(record) => record.id}

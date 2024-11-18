@@ -18,6 +18,7 @@ const Users = () => {
     const [locations, setLocations] = useState();
     const [viewMode, setViewMode] = useState('card'); // Toggle between 'card' and 'list' view
     const [loading, setLoading] = useState(false);
+    const [roles, setRoles] = useState([])
 
     const { session } = useSelector((state) => state.auth);
 
@@ -37,10 +38,22 @@ const Users = () => {
         }
     }
 
+    // Fetch all roles from the database
+    const fetchRoles = async () => {
+        const { data, error } = await supabase.from('roles').select('*');
+        if (error) {
+            console.error('Error fetching roles:', error);
+        } else {
+            console.log("roles", data)
+            setRoles(data);
+        }
+    };
+
     useEffect(() => {
         getForms();
         getLocations();
         fetchUsers();
+        fetchRoles();
     }, []);
 
     const fetchUsers = async () => {
@@ -61,17 +74,21 @@ const Users = () => {
         setLoading(true);
 
         const {
-            email, mobile, firstName, lastName, role_type, manager, hr_contact,
+            email, mobile, firstName, lastName, role_id, manager, hr_contact,
             location, has_resigned, last_date, rate
         } = values;
+
+        const role_type = roles?.find((r) => r.id === role_id)?.role_name
 
         const userName = `${firstName} ${lastName}`;
         const payload = {
             organization_id: session?.user?.organization_id,
+            role_id,
             role_type,
             details: {
-                rate, role_type, email, mobile, lastName, userName, firstName,
-                has_resigned, last_date, orgName: session?.user?.details?.orgName,
+                rate, role_id, role_type, email, mobile, lastName, userName, firstName,
+                has_resigned, last_date,
+                // orgName: session?.user?.details?.orgName,
             },
             user_name: userName,
             is_active: true,
