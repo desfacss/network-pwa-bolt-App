@@ -29,7 +29,7 @@ const Review1 = ({ date, employee, fetchData }) => {
 
   const { session } = useSelector((state) => state.auth);
 
-  const { timesheet_settings } = session?.user?.location
+  const { timesheet_settings } = session?.user?.organization
 
 
   const fetchProjects = async () => {

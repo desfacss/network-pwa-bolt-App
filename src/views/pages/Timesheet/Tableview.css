@@ -21,6 +21,7 @@
 }
 
 .sticky-left {
+    font-weight: bold;
     position: sticky !important;
     left: 0;
     z-index: 3;
@@ -30,6 +31,7 @@
 }
 
 .sticky-right {
+    font-weight: bold;
     position: sticky !important;
     right: 0;
     z-index: 3;

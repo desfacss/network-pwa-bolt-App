@@ -17,7 +17,7 @@ const index = () => {
                 <TabPane tab="Roles & Permission" key="2">
                     <RoleFeatureEdit />
                 </TabPane>
-                <TabPane tab="Region & Holidays" key="3">
+                <TabPane tab="Region & Holidays" key="3" disabled>
                     <Locations />
                 </TabPane>
                 <TabPane tab="Timesheet Settings" key="4">

@@ -19,11 +19,11 @@ const TimesheetSettings = ({ locationId }) => {
 
     const fetchSettings = async () => {
         setLoading(true);
-        console.log("id", session?.user?.location)
+        console.log("id", session?.user?.organization)
         const { data, error } = await supabase
-            .from("locations")
+            .from("organizations")
             .select("*")
-            .eq("id", session?.user?.location?.id)
+            .eq("id", session?.user?.organization?.id)
             .single();
 
         if (error) {
@@ -38,9 +38,9 @@ const TimesheetSettings = ({ locationId }) => {
     const onFinish = async (values) => {
         setLoading(true);
         const { error } = await supabase
-            .from("locations")
+            .from("organizations")
             .update({ timesheet_settings: values })
-            .eq("id", session?.user?.location?.id);
+            .eq("id", session?.user?.organization?.id);
 
         if (error) {
             message.error("Failed to update settings");
@@ -55,14 +55,14 @@ const TimesheetSettings = ({ locationId }) => {
             form={form}
             onFinish={onFinish}
             layout="vertical"
-            initialValues={{ approvalWorkflow: { enableApproval: true, defaultApprover: 'manager' }, overtimeTracking: { enableOvertime: true }, breakPolicy: {} }}
+            initialValues={{ approvalWorkflow: { defaultApprover: 'manager' }, breakPolicy: {} }}
         >
             <Collapse defaultActiveKey={["1"]}>
                 {/* 1. Timesheet Approval Workflow */}
                 <Panel header="Timesheet Approval Workflow" key="1">
-                    <Form.Item name={["approvalWorkflow", "enableApproval"]} label="Enable Approval Workflow" valuePropName="checked">
+                    {/* <Form.Item name={["approvalWorkflow", "enableApproval"]} label="Enable Approval Workflow" valuePropName="checked">
                         <Switch disabled />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item name={["approvalWorkflow", "defaultApprover"]} label="Default Approver">
                         <Select>
                             <Option value="manager">Line Manager</Option>
@@ -125,6 +125,9 @@ const TimesheetSettings = ({ locationId }) => {
                     <Form.Item name={["workingHours", "standardDailyHours"]} label="Standard Daily Hours">
                         <InputNumber min={1} max={24} />
                     </Form.Item>
+                    <Form.Item name={["workingHours", "maxOvertimeHours"]} label="Max Overtime Hours">
+                        <InputNumber min={0} />
+                    </Form.Item>
                     <Form.Item name={["workingHours", "standardWeeklyHours"]} label="Standard Weekly Hours">
                         <InputNumber min={1} max={168} />
                     </Form.Item>
@@ -139,21 +142,21 @@ const TimesheetSettings = ({ locationId }) => {
                     </Form.Item> */}
                 </Panel>
 
-                {/* 4. Overtime Tracking */}
+                {/* 4. Overtime Tracking
                 <Panel header="Overtime Tracking" key="4">
                     <Form.Item name={["overtimeTracking", "enableOvertime"]} label="Enable Overtime" valuePropName="checked">
                         <Switch disabled />
                     </Form.Item>
-                    {/* <Form.Item name={["overtimeTracking", "overtimeRate"]} label="Overtime Rate (%)">
+                    <Form.Item name={["overtimeTracking", "overtimeRate"]} label="Overtime Rate (%)">
                         <InputNumber min={0} max={100} />
-                    </Form.Item> */}
+                    </Form.Item>
                     <Form.Item name={["overtimeTracking", "maxOvertimeHours"]} label="Max Overtime Hours">
                         <InputNumber min={0} />
                     </Form.Item>
-                    {/* <Form.Item name={["overtimeTracking", "autoApprovalForOvertime"]} label="Auto Approval for Overtime" valuePropName="checked">
+                    <Form.Item name={["overtimeTracking", "autoApprovalForOvertime"]} label="Auto Approval for Overtime" valuePropName="checked">
                         <Switch />
-                    </Form.Item> */}
-                </Panel>
+                    </Form.Item>
+                </Panel> */}
 
                 {/* 5. Break Policy */}
                 {/* <Panel header="Break Policy" key="5">

@@ -5,6 +5,8 @@ import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHi
 import { supabase } from 'configs/SupabaseConfig';
 // import MyTimesheetTable from './MyTimesheetTable';
 import { EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import './Tableview.css';
+import TimesheetInstructions from './TimesheetInstructions';
 
 const { confirm } = Modal;
 const { Option } = Select;
@@ -29,7 +31,7 @@ const Timesheet = () => {
 
   const { session } = useSelector((state) => state.auth);
 
-  const { timesheet_settings } = session?.user?.location
+  const { timesheet_settings } = session?.user?.organization
 
   useEffect(() => {
     fetchTimesheets()
@@ -271,7 +273,7 @@ const Timesheet = () => {
     });
 
     const today = new Date();
-    const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 3)));
+    const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
 
     const projectTotals = {};
     const projectDetails = {};
@@ -303,7 +305,7 @@ const Timesheet = () => {
       status,
       details: timesheetDetails,
       project_details: projectDetails,
-      approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover]?.id,
+      approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
       last_date: lastDate.toISOString(),
       submitted_time: new Date()
     };
@@ -521,10 +523,10 @@ const Timesheet = () => {
         const projectName = selectedProjectColumns[columnIndex];
         return {
           title: (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Select defaultValue={projectName} style={{ width: '100%' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+              <Select defaultValue={projectName} style={{ width: '100%', fontWeight: 'bold' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
                 {getAvailableProjects()?.map((option) => (
-                  <Option key={option?.id} value={option?.id} disabled={option?.disabled}>
+                  <Option key={option?.id} value={option?.id} disabled={option?.disabled} style={{ fontWeight: 'bold' }}>
                     {option?.project_name}
                   </Option>
                 ))}
@@ -573,11 +575,11 @@ const Timesheet = () => {
         // console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
 
         var isWeekend = record?.weekend;
-        var minHrs = timesheet_settings?.workingHours?.standardDailyHours
-        var maxHrs = timesheet_settings?.overtimeTracking?.maxOvertimeHours
+        var minHrs = timesheet_settings?.workingHours?.standardDailyHours || 8
+        var maxHrs = timesheet_settings?.overtimeTracking?.maxOvertimeHours || 16
 
-        var invalid = (isWeekend ? false : dailyTotal < (minHrs || 8)) || dailyTotal > (minHrs + maxHrs || 8)
-        var warning = dailyTotal > (minHrs || 8)
+        var invalid = (isWeekend ? false : dailyTotal < (minHrs)) || dailyTotal > (minHrs + maxHrs)
+        var warning = dailyTotal > (minHrs)
         if (invalid) {
           setSubmitDisabled(true)
         }
@@ -715,7 +717,7 @@ const Timesheet = () => {
     var color = null
     var balance = allocatedHours - expensedHours - projectTotals[projectName]
 
-    if (balance <= ((100 - timesheet_settings?.workingHours?.projectFinalHours) / 100) * allocatedHours) {
+    if (balance <= ((100 - (timesheet_settings?.workingHours?.projectFinalHours || 80)) / 100) * allocatedHours) {
       color = 'gold'
     }
     if (balance < 0) {
@@ -852,7 +854,8 @@ const Timesheet = () => {
             </Col>
             {disabled ? "Approved" : <Col>
               <Button onClick={() => handleSubmit('Draft')}>Save</Button>
-              <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
+              <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled} className='ml-2 mr-2'>Submit</Button>
+              <TimesheetInstructions />
             </Col>}
           </Row>
 

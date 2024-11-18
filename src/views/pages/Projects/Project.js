@@ -502,7 +502,7 @@ const Project = () => {
                     <Table
                         columns={userColumns}
                         dataSource={projectUsers}
-                        pagination={false}
+                        pagination={false} size={'small'}
                         rowKey={(record, index) => index}
                     />
                     <Button type="dashed" onClick={addUser} style={{ width: '100%', marginTop: 16 }}>
