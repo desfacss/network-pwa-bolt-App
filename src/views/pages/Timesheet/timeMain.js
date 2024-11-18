@@ -412,6 +412,7 @@ const Timesheet = () => {
   };
 
   const handleInputChange = (inputValue, date, project, field) => {
+    console.log("HC", field, inputValue, date, project)
     const hours = field === 'hours' ? Number(inputValue.trim().replace(".", "")) : 0
     const value = field === 'hours' ? (hours > 0 ? Math.round(hours) : 0) : inputValue;
     // console.log("first", inputValue)
@@ -432,7 +433,7 @@ const Timesheet = () => {
           : item
       ),
     }));
-    // console.log("second", projectData)
+    console.log("second", projectData)
   };
 
   const handleViewModeChange = (value) => {
@@ -501,7 +502,7 @@ const Timesheet = () => {
                 value={record?.dailyEntries[projectName]?.description}
                 status={checkDescriptionIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
                 onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'description')}
-                disabled={disabled}
+                disabled={!record?.dailyEntries[projectName]?.hours || disabled}
                 style={{ marginTop: '4px', width: '100%' }}
               />
             </div>
@@ -519,8 +520,13 @@ const Timesheet = () => {
         var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
         // var invalid=dailyTotal > 10 || dailyTotal<8
         // console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
-        var invalid = dailyTotal < (timesheet_settings?.workingHours?.standardDailyHours || 8) || dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours || 8)
-        var warning = dailyTotal > (timesheet_settings?.workingHours?.standardDailyHours || 8)
+
+        var isWeekend = record?.weekend;
+        var minHrs = timesheet_settings?.workingHours?.standardDailyHours
+        var maxHrs = timesheet_settings?.overtimeTracking?.maxOvertimeHours
+
+        var invalid = (isWeekend ? false : dailyTotal < (minHrs || 8)) || dailyTotal > (minHrs + maxHrs || 8)
+        var warning = dailyTotal > (minHrs || 8)
         if (invalid) {
           setSubmitDisabled(true)
         }
@@ -569,15 +575,17 @@ const Timesheet = () => {
     // Iterate over each selected project to generate rows
     Object.values(selectedProjectColumns).forEach((projectName) => {
       const projectRows = generateRows(projectName);
-      // console.log("R", selectedProjectColumns, projectRows)
+      // console.log("R", projectRows)
 
-      projectRows.forEach((row) => {
+      projectRows.forEach((row, i) => {
+        // console.log("ii", i, row?.date)
         if (!rowsMap[row?.key]) {
           // If row doesn't exist for the date, create a new entry
           rowsMap[row.key] = {
             key: row?.key,
             date: row?.date,
             dailyEntries: {},
+            weekend: i > 4,
           };
         }
 
@@ -586,6 +594,7 @@ const Timesheet = () => {
       });
     });
     // Convert rows map to an array for the table data source
+    // console.log("T", Object.values(rowsMap))
     return Object.values(rowsMap);
   };
 
@@ -793,7 +802,7 @@ const Timesheet = () => {
         <Spin spinning={loading}>
           <Row justify="space-between" align="middle">
             <Col>
-              <Button onClick={addNewProject}>Add New Project</Button>
+              <Button onClick={addNewProject}>Add Project Column</Button>
               {/* <Select defaultValue={viewMode} style={{ width: 120 }} onChange={handleViewModeChange}>
             <Option value="Weekly">Weekly</Option>
             <Option value="Monthly">Monthly</Option>
@@ -804,10 +813,10 @@ const Timesheet = () => {
               <span className='m-2'>{currentDate.toDateString()}</span>
               <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
             </Col>
-            <Col>
+            {disabled ? "Approved" : <Col>
               <Button onClick={() => handleSubmit('Draft')}>Save</Button>
               <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled}>Submit</Button>
-            </Col>
+            </Col>}
           </Row>
 
           {/* <Table columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
