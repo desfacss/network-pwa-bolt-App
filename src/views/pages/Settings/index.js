@@ -23,12 +23,12 @@ const index = () => {
                 <TabPane tab="Timesheet Settings" key="4">
                     <TimesheetSettings />
                 </TabPane>
-                <TabPane tab="Leave Policy" key="5">
+                {/* <TabPane tab="Leave Policy" key="5">
                     <Locations />
                 </TabPane>
                 <TabPane tab="Expense Policy" key="6">
                     <Locations />
-                </TabPane>
+                </TabPane> */}
             </Tabs>
         </Card>
     )

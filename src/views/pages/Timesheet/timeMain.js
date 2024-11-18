@@ -464,49 +464,52 @@ const Timesheet = () => {
       fixed: 'left',
       className: 'sticky-left',
     },
-    ...Object.keys(selectedProjectColumns)?.map((columnIndex) => {
-      const projectName = selectedProjectColumns[columnIndex];
-      return {
-        title: (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Select defaultValue={projectName} style={{ width: '100%' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
-              {getAvailableProjects()?.map((option) => (
-                <Option key={option?.id} value={option?.id} disabled={option?.disabled}>
-                  {option?.project_name}
-                </Option>
-              ))}
-            </Select>
-            <Button type="link" style={{ marginLeft: 8 }} onClick={() => handleRemoveProject(columnIndex)} >
-              X
-            </Button>
-          </div>
-        ),
-        dataIndex: projectName,
-        key: projectName,
-        render: (_, record) => (
-          <div>
-            <Input
-              type="number"
-              placeholder="Hours" min={0} precision={0}
-              value={record?.dailyEntries[projectName]?.hours}
-              status={checkhoursIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
-              onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'hours')}
-              disabled={disabled}
-              style={{ width: '100%' }}
-            />
-            <Input
-              type="text"
-              placeholder="Description"
-              value={record?.dailyEntries[projectName]?.description}
-              status={checkDescriptionIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
-              onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'description')}
-              disabled={disabled}
-              style={{ marginTop: '4px', width: '100%' }}
-            />
-          </div>
-        ),
-      };
-    }),
+    ...(selectedProjectColumns
+      ? Object.keys(selectedProjectColumns)?.map((columnIndex) => {
+        const projectName = selectedProjectColumns[columnIndex];
+        return {
+          title: (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Select defaultValue={projectName} style={{ width: '100%' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
+                {getAvailableProjects()?.map((option) => (
+                  <Option key={option?.id} value={option?.id} disabled={option?.disabled}>
+                    {option?.project_name}
+                  </Option>
+                ))}
+              </Select>
+              <Button type="link" style={{ marginLeft: 8 }} onClick={() => handleRemoveProject(columnIndex)} >
+                X
+              </Button>
+            </div>
+          ),
+          dataIndex: projectName,
+          key: projectName,
+          render: (_, record) => (
+            <div>
+              <Input
+                type="number"
+                placeholder="Hours" min={0} precision={0}
+                value={record?.dailyEntries[projectName]?.hours}
+                status={checkhoursIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
+                onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'hours')}
+                disabled={disabled}
+                style={{ width: '100%' }}
+              />
+              <Input
+                type="text"
+                placeholder="Description"
+                value={record?.dailyEntries[projectName]?.description}
+                status={checkDescriptionIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
+                onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'description')}
+                disabled={disabled}
+                style={{ marginTop: '4px', width: '100%' }}
+              />
+            </div>
+          ),
+        };
+      })
+      : []),
+    ,
     {
       title: 'Daily Total',
       key: 'total',

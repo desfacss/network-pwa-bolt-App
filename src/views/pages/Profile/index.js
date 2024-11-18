@@ -6,8 +6,8 @@ import DynamicForm from '../DynamicForm';
 // import DynamicFormCustom from '../net_app/DynamicFormCustom';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 // import PivotTableComponent from './PT';
-import Timesheet from './AntDTable9';
-import { Link } from 'react-router-dom';
+// import Timesheet from './AntDTable9';
+// import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
 import FileUpload from './FileUpload';
@@ -133,20 +133,20 @@ const Profile = () => {
         return value ? <Descriptions.Item label={label}>{value}</Descriptions.Item> : null;
     };
 
-    const changePw = async () => {
-        const { data, error } = await supabase.auth.updateUser({
-            email: "ratedrnagesh28@gmail.com",
-            password: "Test@1234"
-        })
-    }
+    // const changePw = async () => {
+    //     const { data, error } = await supabase.auth.updateUser({
+    //         email: "ratedrnagesh28@gmail.com",
+    //         password: "Test@1234"
+    //     })
+    // }
 
-    const openChangePasswordModal = () => {
-        setShowChangePasswordModal(true);
-    };
+    // const openChangePasswordModal = () => {
+    //     setShowChangePasswordModal(true);
+    // };
 
-    const closeChangePasswordModal = () => {
-        setShowChangePasswordModal(false);
-    };
+    // const closeChangePasswordModal = () => {
+    //     setShowChangePasswordModal(false);
+    // };
 
     return (
         <Card>
@@ -185,17 +185,18 @@ const Profile = () => {
                     {renderDescriptionItem("Role", details?.role?.replace("_", " "))}
                 </Descriptions>
             </Card >
-            <Modal
+            {/* <Modal
                 title="Change Password"
                 visible={showChangePasswordModal}
                 onCancel={closeChangePasswordModal}
                 footer={null}
-            >
-                <ChangePassword onConfirm={closeChangePasswordModal} />
-            </Modal>
+            > */}
+            <ChangePassword />
+            {/* <Button onClick={openChangePasswordModal}>Change Password</Button><br /> */}
+
+            {/* </Modal> */}
             {/* <Button onClick={changePw}>Change Password</Button><br /> */}
-            <Button onClick={openChangePasswordModal}>Change Password</Button><br />
-            <FileUpload />
+            {/* <FileUpload /> */}
             {/* {userData?.role_type === 'employee' && <Link to='/app/notifications'><Button className='mt-3'>Manage Notifications</Button></Link>} */}
             {/* ***************************Profile End */}
         </Card >

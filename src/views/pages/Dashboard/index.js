@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Form, Input, Button, Select, message, Card, DatePicker } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 // import { sendEmail } from 'components/common/SendEmail';
 import { sendBatchEmail } from './sendBatchEmail';
 // import { DailySummaryChart } from './Report';
@@ -11,6 +10,9 @@ import { sendBatchEmail } from './sendBatchEmail';
 import TimesheetComponent from './ReportTab2';
 import DownloadMenu from 'components/common/DownloadMenu';
 import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
+import { APP_PREFIX_PATH } from 'configs/AppConfig'
+import ChangePassword from 'views/auth-views/components/ChangePassword';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -24,143 +26,6 @@ const Dashboaard = () => {
     const { session } = useSelector((state) => state.auth);
     const dateFormat = 'YYYY/MM/DD';
     const reportDataRef = useRef(null);
-    // const onFinish = async (values) => {
-    //     const {
-    //         email,
-    //         mobile,
-    //         firstName,
-    //         lastName,
-    //         role_type,
-    //     } = values;
-
-    //     const userName = `${firstName} ${lastName}`;
-
-    //     setLoading(true);
-
-    //     try {
-    //         // Step 1: Send user invite link
-    //         // const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email);
-    //         const { data, error: inviteError } = await axios.post('https://azzqopnihybgniqzrszl.functions.supabase.co/invite_users', { email }, { headers: { 'Content-Type': 'application/json' } });
-
-    //         if (inviteError) {
-    //             throw inviteError;
-    //         }
-
-    //         // Step 2: Insert new row in the users table
-    //         const payload = {
-    //             organization_id: session?.user?.organization_id,
-    //             role_type: role_type,
-    //             details: {
-    //                 role_type,
-    //                 email,
-    //                 mobile,
-    //                 orgName: session?.user?.details?.orgName,
-    //                 lastName,
-    //                 userName,
-    //                 firstName,
-    //             },
-    //             id: data?.id,
-    //             user_name: userName,
-    //             is_manager: role_type === 'manager',
-    //             is_active: true,
-    //             manager_id: session?.user?.id,
-    //             hr_id: session?.user?.id,
-    //             password_confirmed: false,
-    //         };
-
-    //         const { error: insertError } = await supabase.from('users').insert([payload]);
-
-    //         if (insertError) {
-    //             throw insertError;
-    //         }
-
-    //         message.success('User invited and added successfully!');
-    //     } catch (error) {
-    //         message.error(error.message || 'An error occurred.');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    const onFinish = async (values) => {
-        const {
-            email,
-            mobile,
-            firstName,
-            lastName,
-            role_type,
-        } = values;
-
-        const userName = `${firstName} ${lastName}`;
-
-        setLoading(true);
-
-        try {
-            // Step 1: Check if the user already exists
-            const { data: existingUser, error: checkError } = await supabase
-                .from('users')
-                .select('id')
-                .eq('details->>email', email)
-            // .single();
-
-            if (checkError && checkError.code !== 'PGRST116') {
-                // If the error is not related to "No rows found" (PGRST116), throw the error
-                throw checkError;
-            }
-
-            if (existingUser?.length > 0) {
-                // User already exists
-                message.warning('User with this email already exists.');
-                setLoading(false);
-                return;
-            }
-
-            // Step 2: Send user invite link
-            const { data, error: inviteError } = await axios.post(
-                'https://azzqopnihybgniqzrszl.functions.supabase.co/invite_users',
-                { email },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-
-            if (inviteError) {
-                throw inviteError;
-            }
-
-            // Step 3: Insert new row in the users table
-            const payload = {
-                organization_id: session?.user?.organization_id,
-                role_type: role_type,
-                details: {
-                    role_type,
-                    email,
-                    mobile,
-                    orgName: session?.user?.details?.orgName,
-                    lastName,
-                    userName,
-                    firstName,
-                },
-                id: data?.id,
-                user_name: userName,
-                // is_manager: role_type === 'manager'||role_type === 'hr'||role_type === 'admin',
-                is_active: true,
-                manager_id: session?.user?.id,
-                hr_id: session?.user?.id,
-                password_confirmed: false,
-            };
-
-            const { error: insertError } = await supabase.from('users').insert([payload]);
-
-            if (insertError) {
-                throw insertError;
-            }
-
-            message.success('User invited and added successfully!');
-        } catch (error) {
-            message.error(error.message || 'An error occurred.');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -183,7 +48,6 @@ const Dashboaard = () => {
                     // user_id: userId,
                     selected_project: projectName, // Pass null if querying all projects
                     selected_user: userId,
-
                 });
 
             if (error) {
@@ -203,6 +67,16 @@ const Dashboaard = () => {
 
     return (
         <Card>
+            {!session?.user?.password_confirmed && (
+                <Card style={{ marginBottom: 20, backgroundColor: '#fffbe6', borderColor: '#ffe58f' }}>
+                    <p>
+                        Welcome <strong>{session?.user?.details?.userName}</strong>. You can change your password from the{' '}
+                        <Link to={`${APP_PREFIX_PATH}/profile`}>Profile</Link> page or{' '}
+                        <ChangePassword />
+                        {/* <Link to={`${APP_PREFIX_PATH}/change_password`}>here</Link>. */}
+                    </p>
+                </Card>
+            )}
             <RangePicker defaultValue={[defaultStartDate, defaultEndDate]}
                 // format={dateFormat} 
                 onChange={(date) => {
@@ -220,65 +94,7 @@ const Dashboaard = () => {
             {/* <TimesheetTabs /> */}
             {/* <SparklineTable /> */}
             {/* <DailySummaryChart /> */}
-            {/* <Button onClick={sendBatchEmail}>Send email</Button>
-            <Form
-                name="manageEmployees"
-                onFinish={onFinish}
-                layout="vertical"
-                initialValues={{ role_type: 'employee' }}
-            // style={{ maxWidth: 600, margin: '0 auto' }}
-            >
-                <Form.Item
-                    label="First Name"
-                    name="firstName"
-                    rules={[{ required: true, message: 'Please enter the first name.' }]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Last Name"
-                    name="lastName"
-                    rules={[{ required: true, message: 'Please enter the last name.' }]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Email"
-                    name="email"
-                    rules={[{ required: true, type: 'email', message: 'Please enter a valid email.' }]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Mobile"
-                    name="mobile"
-                    rules={[{ required: true, message: 'Please enter the mobile number.' }]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Role"
-                    name="role_type"
-                    rules={[{ required: true, message: 'Please select the role.' }]}
-                >
-                    <Select placeholder="Select a role">
-                        <Option value="admin">Admin</Option>
-                        <Option value="employee">Employee</Option>
-                        <Option value="hr">HR</Option>
-                        <Option value="manager">Manager</Option>
-                    </Select>
-                </Form.Item>
-
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading} block>
-                        Invite User
-                    </Button>
-                </Form.Item>
-            </Form> */}
+            {/* <Button onClick={sendBatchEmail}>Send email</Button> */}
         </Card>
     );
 };

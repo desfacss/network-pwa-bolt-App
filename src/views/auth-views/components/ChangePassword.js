@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, message, Card } from 'antd';
+import { Form, Input, Button, message, Modal } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
-import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const ChangePassword = ({ onConfirm }) => {
-    const navigate = useNavigate()
+const ChangePassword = () => {
     const [loading, setLoading] = useState(false);
-
+    const [visible, setVisible] = useState(false);
     const [form] = Form.useForm();
 
-    const { session } = useSelector(state => state.auth)
+    const { session } = useSelector((state) => state.auth);
 
     const onFinish = async (values) => {
         const { newPassword, confirmPassword } = values;
@@ -24,7 +22,7 @@ const ChangePassword = ({ onConfirm }) => {
 
         try {
             // Update the user's password using Supabase Auth
-            const { error: authError, user } = await supabase.auth.updateUser({
+            const { error: authError } = await supabase.auth.updateUser({
                 password: newPassword,
             });
 
@@ -43,9 +41,8 @@ const ChangePassword = ({ onConfirm }) => {
             }
 
             message.success('Password changed successfully!');
-            // navigate('/app/profile');
-            onConfirm()
-            form.resetFields()
+            handleClose(); // Close the modal after success
+            form.resetFields();
         } catch (error) {
             message.error(error.message || 'Something went wrong.');
         } finally {
@@ -53,36 +50,51 @@ const ChangePassword = ({ onConfirm }) => {
         }
     };
 
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
     return (
         <>
-            <Form form={form}
-                name="changePassword"
-                onFinish={onFinish}
-                layout="vertical"
-                style={{ maxWidth: 400, margin: '0 auto' }}
+            {/* Trigger button to open modal */}
+            <Button type="primary" onClick={handleOpen}>
+                Change Password
+            </Button>
+
+            {/* Modal */}
+            <Modal
+                title="Change Password"
+                visible={visible}
+                onCancel={handleClose}
+                footer={null}
             >
-                <Form.Item
-                    label="New Password"
-                    name="newPassword"
-                    rules={[{ required: true, message: 'Please enter your new password.' }]}
+                <Form
+                    form={form}
+                    name="changePassword"
+                    onFinish={onFinish}
+                    layout="vertical"
                 >
-                    <Input.Password />
-                </Form.Item>
+                    <Form.Item
+                        label="New Password"
+                        name="newPassword"
+                        rules={[{ required: true, message: 'Please enter your new password.' }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
 
-                <Form.Item
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    rules={[{ required: true, message: 'Please confirm your new password.' }]}
-                >
-                    <Input.Password />
-                </Form.Item>
-
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading} block>
-                        Change Password
-                    </Button>
-                </Form.Item>
-            </Form>
+                    <Form.Item
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        rules={[{ required: true, message: 'Please confirm your new password.' }]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" loading={loading} block>
+                            Change Password
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </>
     );
 };

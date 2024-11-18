@@ -60,36 +60,24 @@ const dashBoardNavTree = [{
       breadcrumb: false,
       submenu: []
     },
-    // {
-    //   key: 'timesheeth',
-    //   path: `${APP_PREFIX_PATH}/timesheeth`,
-    //   title: 'Timesheet-H',
-    //   icon: ReadOutlined, // Changed to ReadOutlined
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
-    // {
-    //   key: 'review',
-    //   path: `${APP_PREFIX_PATH}/review`,
-    //   title: 'Review',
-    //   icon: ReadOutlined, // Changed to ReadOutlined
-    //   breadcrumb: false,
-    //   submenu: []
-    // },
     {
       key: 'leave_application',
-      path: `${APP_PREFIX_PATH}/leave_application`,
+      // path: `${APP_PREFIX_PATH}/leave_application`,
+      path: `#`,
       title: 'Leaves',
       icon: ReadOutlined, // Changed to ReadOutlined
       breadcrumb: false,
+      // disabled: true,
       submenu: []
     },
     {
       key: 'expenses',
-      path: `${APP_PREFIX_PATH}/expenses`,
+      // path: `${APP_PREFIX_PATH}/expenses`,
+      path: `#`,
       title: 'Expense',
       icon: ReadOutlined, // Changed to ReadOutlined
       breadcrumb: false,
+      // disabled: true,
       submenu: []
     },
     {

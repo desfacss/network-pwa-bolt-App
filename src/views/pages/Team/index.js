@@ -115,13 +115,16 @@ const Users = () => {
 
                 if (inviteError) throw inviteError;
 
-                const inviteId = inviteResponse?.data?.id;
+                const inviteId = inviteResponse?.id;
                 const insertPayload = { ...payload, id: inviteId };
 
                 const { error: insertError } = await supabase.from('users').insert([insertPayload]);
                 if (insertError) throw insertError;
 
-                message.success('User invited and added successfully!');
+                message.success(<>
+                    User invited and added successfully. <br />
+                    User can accept the invite from Inbox/Spam folder and set the password!
+                </>);
             }
         } catch (error) {
             message.error(error.message || 'An error occurred.');
@@ -135,6 +138,14 @@ const Users = () => {
         }
     };
 
+    // FOR TESTING ERROR MESSAGE
+    // message.success(<>
+    //     User invited and added successfully. <br />
+    //     User can accept the invite from Inbox/Spam folder and set the password!
+    // </>);
+
+
+    // message.success('User invited and added successfully .   User can accept invite from Inbox / Spam folder and set the password!');
     // const handleAddOrEdit = async (values) => {
     //     setLoading(true);
     //     const {

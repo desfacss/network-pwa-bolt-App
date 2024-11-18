@@ -404,6 +404,21 @@ const Review1 = ({ date, employee, fetchData }) => {
 
       console.log("Status updated successfully:", data);
 
+      // If the timesheet is approved, call the RPC function
+      if (isApproveModal) {
+        const { error: rpcError } = await supabase.rpc("update_expensed_hours", {
+          timesheet_id: existingTimesheet?.id,
+        });
+
+        if (rpcError) {
+          console.error("Error updating expensed hours:", rpcError);
+          message.error(`Error updating expensed hours: ${rpcError.message}`);
+          return;
+        }
+
+        console.log("Expensed hours updated successfully");
+      }
+
       // Close the modal and reset the reject comment if applicable
       if (isApproveModal) {
         setIsApproveModal(false);
