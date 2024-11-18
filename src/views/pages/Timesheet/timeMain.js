@@ -78,7 +78,7 @@ const Timesheet = () => {
     // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
-      // console.log("T", data)
+      console.log("TE", data)
 
       // Automatically initialize project columns and data
       const projectColumns = {};
@@ -92,7 +92,8 @@ const Timesheet = () => {
       const firstObject = { [firstKey]: firstKey };
       // console.log("TT", projectColumns, projectDataMap, firstObject)
       setDefaultColumn(firstObject)
-      setDefaultData(projectDataMap)
+      // setDefaultData(projectDataMap)
+      setDefaultData(data)
       setSelectedProjectColumns(firstObject);
       setProjectData(projectDataMap);
     } else {
@@ -207,7 +208,12 @@ const Timesheet = () => {
       setExistingTimesheetId(null);
       // console.log("CET-N")
       setSelectedProjectColumns(defaultColumn)
-      setProjectData(defaultData)
+      const projectDataMap = {};
+      defaultData?.forEach((project) => {
+        // projectColumns[project.id] = project?.id;
+        projectDataMap[project.id] = generateRows(project.id);
+      });
+      setProjectData(projectDataMap)
     }
     setLoading(false);
   };
@@ -398,17 +404,62 @@ const Timesheet = () => {
   };
 
   const handleProjectChange = (projectName, columnIndex) => {
-    setSelectedProjectColumns((prevState) => ({
-      ...prevState,
-      [columnIndex]: projectName,
-    }));
+    console.log("PC", projectName, columnIndex, selectedProjectColumns, projectData)
+
+    // setSelectedProjectColumns((prevState) => ({
+    //   ...prevState,
+    //   [columnIndex]: projectName,
+    // }));
 
     if (!projectData[projectName]) {
       setProjectData((prevData) => ({
         ...prevData,
-        [projectName]: generateRows(projectName),
+        // [projectName]: generateRows(projectName),
+        [projectName]: projectData[columnIndex],
       }));
     }
+
+    setSelectedProjectColumns((prevState) => {
+      // Create a shallow copy of prevState
+      const newState = { ...prevState, [projectName]: projectName };
+
+      // Delete the key (or object) by columnIndex
+      delete newState[columnIndex];
+
+      return newState;
+    });
+
+    // // Update projectData
+    // if (!projectData[projectName]) {
+    //   setProjectData((prevData) => ({
+    //     ...prevData,
+    //     [projectName]: generateRows(projectName),
+    //   }));
+    // } else {
+    //   setProjectData((prevData) => {
+    //     const newData = { ...prevData };
+
+    //     // Delete the data associated with the columnIndex if needed
+    //     delete newData[columnIndex];
+
+    //     return newData;
+    //   });
+    // }
+
+  };
+
+  const handleRemoveProject = (columnIndex) => {
+    // Create a copy of selectedProjectColumns and projectData
+    const newSelectedColumns = { ...selectedProjectColumns };
+    const projectNameToRemove = newSelectedColumns[columnIndex];
+    delete newSelectedColumns[columnIndex];
+
+    const newProjectData = { ...projectData };
+    delete newProjectData[projectNameToRemove];
+
+    // Update the state with the new values
+    setSelectedProjectColumns(newSelectedColumns);
+    setProjectData(newProjectData);
   };
 
   const handleInputChange = (inputValue, date, project, field) => {
@@ -547,20 +598,6 @@ const Timesheet = () => {
     setDisabled(isTimesheetDisabled(viewMode, currentDate));
     setHideNext(isHideNext(currentDate));
   }, [currentDate, viewMode]);
-
-  const handleRemoveProject = (columnIndex) => {
-    // Create a copy of selectedProjectColumns and projectData
-    const newSelectedColumns = { ...selectedProjectColumns };
-    const projectNameToRemove = newSelectedColumns[columnIndex];
-    delete newSelectedColumns[columnIndex];
-
-    const newProjectData = { ...projectData };
-    delete newProjectData[projectNameToRemove];
-
-    // Update the state with the new values
-    setSelectedProjectColumns(newSelectedColumns);
-    setProjectData(newProjectData);
-  };
 
   // console.log("G", projectData, generateRows(Object.keys(selectedProjectColumns)))
 
