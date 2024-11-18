@@ -11,7 +11,8 @@ const RoleFeatureEdit = () => {
     const fetchRoles = async () => {
         const { data, error } = await supabase
             .from('roles')
-            .select('id, role_name, feature');
+            .select('id, role_name, feature')
+            .neq('is_superadmin', true);
 
         if (error) {
             console.error('Error fetching roles:', error);

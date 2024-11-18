@@ -46,7 +46,8 @@ const Users = () => {
     const fetchUsers = async () => {
         let { data, error } = await supabase.from('users')
             // .select(`*,location (name), hr:users (user_name), manager:users (user_name)`);
-            .select(`*,location (*), hr:hr_id (id), manager:manager_id (id)`);
+            .select(`*,location (*), hr:hr_id (id), manager:manager_id (id)`)
+            .eq('organization_id', session?.user?.organization_id);
         if (data) {
             setUsers(data);
             console.log("users1", data);
