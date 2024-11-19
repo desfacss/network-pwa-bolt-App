@@ -39,7 +39,7 @@ const columns = [
 ];
 
 const SparklineTable = () => {
-    return <Table columns={columns} dataSource={data} pagination={false} />;
+    return <Table size={'small'} columns={columns} dataSource={data} pagination={false} />;
 };
 
 export default SparklineTable;

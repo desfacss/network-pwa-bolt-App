@@ -168,7 +168,7 @@ const Jobs = () => {
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table
+                <Table size={'small'}
                     columns={columns}
                     dataSource={jobs}
                     rowKey={(record) => record.id}

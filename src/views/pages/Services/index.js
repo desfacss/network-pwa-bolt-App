@@ -206,7 +206,7 @@ const Services = () => {
                         ))}
                     </div>
                 ) : (
-                    <Table
+                    <Table size={'small'}
                         columns={columns}
                         dataSource={services}
                         rowKey={(record) => record.id}

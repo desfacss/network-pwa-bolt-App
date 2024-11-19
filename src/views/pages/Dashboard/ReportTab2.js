@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Tabs, Table, Select, DatePicker, Checkbox } from 'antd';
+import { Tabs, Table, Select, DatePicker, Checkbox, Empty } from 'antd';
 import Chart from 'react-apexcharts';
 
 const { TabPane } = Tabs;
@@ -252,11 +252,14 @@ const TimesheetComponent = ({ data, printRef }) => {
                             ))}
                         </Select>
 
-                        <Table
+                        <Table size={'small'}
                             columns={employeeColumns}
                             dataSource={byEmployeeData}
                             rowKey="project_name"
                             pagination={false}
+                            locale={{
+                                emptyText: <Empty description="No results. Try widening your search!" />,
+                            }}
                         />
                     </div>
                 </TabPane>
@@ -282,11 +285,14 @@ const TimesheetComponent = ({ data, printRef }) => {
                             ))}
                         </Select>
 
-                        <Table
+                        <Table size={'small'}
                             columns={projectColumns}
                             dataSource={byProjectData}
                             rowKey="user_name"
                             pagination={false}
+                            locale={{
+                                emptyText: <Empty description="No results. Try widening your search!" />,
+                            }}
                         />
                     </div>
                 </TabPane>

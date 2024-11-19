@@ -203,7 +203,7 @@ const LeaveApplications = () => {
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table
+                <Table size={'small'}
                     columns={columns}
                     dataSource={leaveApplications}
                     rowKey={(record) => record.id}

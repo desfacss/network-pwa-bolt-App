@@ -297,7 +297,7 @@ const Notifications = () => {
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table
+                <Table size={'small'}
                     columns={columns}
                     dataSource={notifications}
                     rowKey={(record) => record.id}

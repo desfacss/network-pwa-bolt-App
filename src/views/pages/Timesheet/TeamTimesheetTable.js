@@ -140,7 +140,7 @@ const TeamTimesheetTable = () => {
 
     return (
         <>
-            <Table
+            <Table size={'small'}
                 columns={columns}
                 dataSource={data}
                 rowKey="id" // Assuming `id` is unique

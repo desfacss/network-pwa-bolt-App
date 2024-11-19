@@ -825,7 +825,7 @@ const Timesheet = () => {
       >
       </Modal> */}
       {/* <MyTimesheetTable /> */}
-      <Table
+      <Table size={'small'}
         columns={timesheetColumns}
         dataSource={timesheets}
         rowKey="id" // Assuming `id` is unique
@@ -859,9 +859,9 @@ const Timesheet = () => {
             </Col>}
           </Row>
 
-          {/* <Table columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
+          {/* <Table size={'small'} size={'small'} columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
 
-          <Table columns={columns} dataSource={generateAllRows()} pagination={false}
+          <Table size={'small'} columns={columns} dataSource={generateAllRows()} pagination={false}
             summary={getSummary}
           // <>{getSummary}{renderBalanceHoursSummary}</>}
           />

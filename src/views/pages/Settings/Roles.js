@@ -81,7 +81,7 @@ const RoleFeatureEdit = () => {
 
     return (
         <div>
-            <Table
+            <Table size={'small'}
                 dataSource={features.map(feature => ({ feature }))}
                 loading={loading}
                 pagination={false}

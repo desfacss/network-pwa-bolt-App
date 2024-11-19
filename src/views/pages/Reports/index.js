@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col, Table, Spin } from 'antd';
+import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col, Table, Spin, Empty } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DownloadMenu from 'components/common/DownloadMenu';
 // import dayjs from 'dayjs';
@@ -166,7 +166,7 @@ const ReportComponent = () => {
                             <Text strong>DATE RANGE: </Text>
                             <Text>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
                             <Divider />
-                            <Table pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
+                            <Table size={'small'} pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
                             <Divider />
                             <Title level={5} style={{ marginTop: '24px' }}>Summary Details</Title>
                             <Text strong>TOTAL HOURS: </Text>
@@ -188,7 +188,10 @@ const ReportComponent = () => {
                             <Text>{summary.totalCost}</Text>
                         </div>
                     )}
-                    {emptyData && <div style={{ marginTop: '24px', color: 'red' }}>No Data Available</div>}
+                    {emptyData &&
+                        <Empty description='No Data' />
+
+                    }
                 </>
             )}
         </Card>

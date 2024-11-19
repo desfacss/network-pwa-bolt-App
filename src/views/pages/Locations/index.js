@@ -154,7 +154,7 @@ const Locations = () => {
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table
+                <Table size={'small'}
                     columns={columns}
                     dataSource={locations}
                     rowKey={(record) => record.id}

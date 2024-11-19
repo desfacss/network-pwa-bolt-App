@@ -417,7 +417,7 @@ const Project = () => {
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table
+                <Table size={'small'}
                     locale={{
                         emptyText: <Empty description="No Data!" />,
                     }}
@@ -502,7 +502,7 @@ const Project = () => {
                         </Select>
                     </Form.Item>
                     <h3>Project Users</h3>
-                    <Table
+                    <Table size={'small'}
                         columns={userColumns}
                         dataSource={projectUsers}
                         pagination={false} size={'small'}

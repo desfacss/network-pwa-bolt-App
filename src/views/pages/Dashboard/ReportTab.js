@@ -77,7 +77,7 @@ const TimesheetTabs = () => {
                         <Option key={userId} value={userId}>{userId}</Option>
                     ))}
                 </Select>
-                <Table
+                <Table size={'small'}
                     dataSource={employeeData}
                     columns={[
                         { title: 'User ID', dataIndex: 'user_id', key: 'user_id' },
@@ -107,7 +107,7 @@ const TimesheetTabs = () => {
                         <Option key={projectName} value={projectName}>{projectName}</Option>
                     ))}
                 </Select>
-                <Table
+                <Table size={'small'}
                     dataSource={projectData}
                     columns={[
                         { title: 'Project Name', dataIndex: 'project_name', key: 'project_name' },

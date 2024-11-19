@@ -180,7 +180,7 @@ const Tasks = () => {
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table
+                <Table size={'small'}
                     columns={columns}
                     dataSource={tasks}
                     rowKey={(record) => record.id}

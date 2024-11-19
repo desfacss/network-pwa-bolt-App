@@ -555,7 +555,7 @@ const Users = () => {
                         ))}
                     </div>
                 ) : (
-                    <Table
+                    <Table size={'small'}
                         columns={columns}
                         dataSource={users}
                         rowKey={(record) => record.id}

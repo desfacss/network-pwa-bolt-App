@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 
 const EditableTable = ({ columns, dataSource, onAdd, onDelete }) => {
     return (
-        <Table
+        <Table size={'small'}
             columns={columns}
             dataSource={dataSource}
             pagination={false}
