@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, message, Button, Drawer } from 'antd';
+import { Table, message, Button, Drawer, Tooltip } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import Review1 from '../Review/Review1';
@@ -103,15 +103,36 @@ const TeamTimesheetTable = () => {
                 </div>
             )
         },
+        // {
+        //     title: 'Review Comment',
+        //     // dataIndex: 'details',
+        //     key: 'approver_id',
+        //     render: (record) => (
+        //         <div>
+        //             {record?.approver_details?.comment}
+        //         </div>
+        //     )
+        // },
         {
             title: 'Review Comment',
-            // dataIndex: 'details',
             key: 'approver_id',
-            render: (record) => (
-                <div>
-                    {record?.approver_details?.comment}
-                </div>
-            )
+            render: (record) => {
+                const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
+                const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
+        
+                return (
+                    <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
+                        <div style={{
+                            whiteSpace: 'nowrap', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis',
+                            maxWidth: '200px', // You can adjust this based on your table column width
+                        }}>
+                            {truncatedComment}  {/* Truncated comment for the table cell */}
+                        </div>
+                    </Tooltip>
+                );
+            }
         },
         {
             title: 'Status',

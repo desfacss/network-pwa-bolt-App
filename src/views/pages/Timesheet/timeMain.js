@@ -789,16 +789,37 @@ const Timesheet = () => {
         </div>
       )
     },
+    // {
+    //   title: 'Review Comment',
+    //   // dataIndex: 'details',
+    //   key: 'approver_id',
+    //   render: (record) => (
+    //     <div>
+    //       {record?.approver_details?.comment}
+    //     </div>
+    //   )
+    // },
     {
       title: 'Review Comment',
-      // dataIndex: 'details',
       key: 'approver_id',
-      render: (record) => (
-        <div>
-          {record?.approver_details?.comment}
-        </div>
-      )
-    },
+      render: (record) => {
+          const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
+          const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
+  
+          return (
+              <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
+                  <div style={{
+                      whiteSpace: 'nowrap', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis',
+                      maxWidth: '200px', // You can adjust this based on your table column width
+                  }}>
+                      {truncatedComment}  {/* Truncated comment for the table cell */}
+                  </div>
+              </Tooltip>
+          );
+      }
+  },
     {
       title: 'Status',
       dataIndex: 'status',

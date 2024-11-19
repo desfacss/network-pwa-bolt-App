@@ -77,7 +77,7 @@ const Dashboaard = () => {
                 >
                     <p>
                         Welcome, <strong>{session?.user?.details?.userName}</strong>! 🎉
-                        We're glad to have you on the <strong>Timesheet, Leave & Expense Management</strong> platform.
+                        We're glad to have you on the <strong>UKPE - TrackMate</strong> platform.
                         <br></br>
                         To get started, please set up a new password to make future logins easier.
                         You can change it from your <Link to={`${APP_PREFIX_PATH}/profile`}>Profile</Link> page or here:{' '}
