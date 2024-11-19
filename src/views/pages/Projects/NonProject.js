@@ -369,11 +369,19 @@ const NonProject = () => {
                 //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
                 // />
                 <Select placeholder="Select users" style={{ minWidth: '120px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
-                    {users?.map((user) => (
+                    {/* {users?.map((user) => (
                         <Select.Option key={user?.id} value={user?.id}>
                             {user?.user_name}
                         </Select.Option>
-                    ))}
+                    ))} */}
+                    {users?.map((user) => {
+                        const isDisabled = projectUsers?.some((projectUser) => projectUser.user_id === user.id);
+                        return (
+                            <Select.Option key={user?.id} value={user?.id} disabled={isDisabled}>
+                                {user?.user_name}
+                            </Select.Option>
+                        );
+                    })}
                 </Select>
             ),
         },
