@@ -220,11 +220,20 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             start_date: dayjs(record?.details?.start_date, dateFormat),
             end_date: dayjs(record?.details?.end_date, dateFormat),
         }
-        copy && (delete item?.project_name)
-        copy && (delete item?.description)
+        if (copy) {
+            delete item.project_name;
+            delete item.description;
+        }
         setEditItem(item);
         form.setFieldsValue(item);
-        setProjectUsers(record?.details?.project_users || []);
+
+        const updatedProjectUsers = (copy
+            ? record?.details?.project_users?.map(user => ({
+                ...user,
+                expensed_hours: "0", // Reset expensed_hours if needed
+            }))
+            : record?.details?.project_users) || [];
+        setProjectUsers(updatedProjectUsers || []);
         setIsDrawerOpen(true);
         setAllocationTracking(record?.details?.allocation_tracking);
         if (copy) {
