@@ -18,52 +18,52 @@ const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const Dashboaard = () => {
-    const defaultStartDate = dayjs().subtract(30, 'days');
-    const defaultEndDate = dayjs();
-    const [loading, setLoading] = useState(false);
-    const [reportData, setReportData] = useState();
-    const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
+    // const defaultStartDate = dayjs().subtract(30, 'days');
+    // const defaultEndDate = dayjs();
+    // const [loading, setLoading] = useState(false);
+    // const [reportData, setReportData] = useState();
+    // const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
     const { session } = useSelector((state) => state.auth);
-    const dateFormat = 'YYYY/MM/DD';
-    const reportDataRef = useRef(null);
+    // const dateFormat = 'YYYY/MM/DD';
+    // const reportDataRef = useRef(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            // const { data: viewData, error } = await supabase
-            //     .from('generate_timesheet_view_v1') // Replace with the name of your view
-            //     .select('*'); // Specify the columns you want to fetch, or '*' for all
-            const startDate = dateRange[0];
-            const endDate = dateRange[1];
-            const projectName = null; // Use null if you want to query all projects
-            const userId = !['hr', 'manager', 'admin'].includes(session?.user?.role_type) ? session?.user?.id : null;
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         setLoading(true);
+    //         // const { data: viewData, error } = await supabase
+    //         //     .from('generate_timesheet_view_v1') // Replace with the name of your view
+    //         //     .select('*'); // Specify the columns you want to fetch, or '*' for all
+    //         const startDate = dateRange[0];
+    //         const endDate = dateRange[1];
+    //         const projectName = null; // Use null if you want to query all projects
+    //         const userId = !['hr', 'manager', 'admin'].includes(session?.user?.role_type) ? session?.user?.id : null;
 
 
-            // Make the RPC call to the generate_timesheet_view function
-            const { data: viewData, error } = await supabase
-                .rpc('generate_timesheet_view_v2', {
-                    start_date: startDate,
-                    end_date: endDate,
-                    // project_name: projectName, // Pass null if querying all projects
-                    // user_id: userId,
-                    selected_project: projectName, // Pass null if querying all projects
-                    selected_user: userId,
-                });
+    //         // Make the RPC call to the generate_timesheet_view function
+    //         const { data: viewData, error } = await supabase
+    //             .rpc('generate_timesheet_view_v2', {
+    //                 start_date: startDate,
+    //                 end_date: endDate,
+    //                 // project_name: projectName, // Pass null if querying all projects
+    //                 // user_id: userId,
+    //                 selected_project: projectName, // Pass null if querying all projects
+    //                 selected_user: userId,
+    //             });
 
-            if (error) {
-                console.error('Error fetching data:', error);
-                console.log("VW", error);
-            } else {
-                setReportData(viewData)
-                console.log("VD", viewData);
-                // console.log("VD", JSON.stringify(viewData, null, 2));
-            }
-            setLoading(false);
-        };
+    //         if (error) {
+    //             console.error('Error fetching data:', error);
+    //             console.log("VW", error);
+    //         } else {
+    //             setReportData(viewData)
+    //             console.log("VD", viewData);
+    //             // console.log("VD", JSON.stringify(viewData, null, 2));
+    //         }
+    //         setLoading(false);
+    //     };
 
-        fetchData();
-        console.log(dateRange)
-    }, [dateRange]);
+    //     fetchData();
+    //     console.log(dateRange)
+    // }, [dateRange]);
 
     return (
         <Card>
@@ -91,20 +91,18 @@ const Dashboaard = () => {
                 </Card>
             )}
 
-            <RangePicker defaultValue={[defaultStartDate, defaultEndDate]}
-                // format={dateFormat} 
+            {/* <RangePicker defaultValue={[defaultStartDate, defaultEndDate]} allowClear={false}
                 onChange={(date) => {
                     setDateRange([
-                        date[0]?.format(dateFormat), // Format date here
-                        date[1]?.format(dateFormat), // Format date here
+                        date[0]?.format(dateFormat),
+                        date[1]?.format(dateFormat),
                     ]);
-                }}
-                // onChange={(date) => { console.log(date[0]); setDateRange([date?.startDate, date?.endDate]) }} 
+                }} 
                 style={{ marginBottom: '20px' }} />
-            {reportData && <DownloadMenu dataSorce={reportData} printRef={reportDataRef} />}
-            {reportData &&
-                <TimesheetComponent data={reportData} printRef={reportDataRef} />
-            }
+            {reportData && <DownloadMenu dataSorce={reportData} printRef={reportDataRef} />} */}
+            {/* {reportData && */}
+            <TimesheetComponent />
+            {/* } */}
             {/* <TimesheetTabs /> */}
             {/* <SparklineTable /> */}
             {/* <DailySummaryChart /> */}

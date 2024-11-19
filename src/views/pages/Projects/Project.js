@@ -111,6 +111,7 @@ const Project = () => {
             allocation_tracking: true,
             is_non_project: false,
             status: values?.status,
+            is_closed: values?.status === 'Completed' || values?.status === 'Cancelled',
             project_users: projectUsers?.map(item => item?.user_id),
             project_name: values?.project_name,
             client_id: values?.client_id,
@@ -415,16 +416,16 @@ const Project = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <div className="d-flex p-2 justify-content-between align-items-center">
-                <h2 style={{ margin: 0 }}> </h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
-                    Add
-                </Button>
-            </div>
+            {/* <div className="d-flex p-2 justify-content-between align-items-center">
+                <h2 style={{ margin: 0 }}> </h2> */}
+            <Button
+                type="primary"
+                // icon={<PlusOutlined />}
+                onClick={() => setIsDrawerOpen(true)}
+            >
+                Add Project
+            </Button>
+            {/* </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
                     locale={{
@@ -469,15 +470,15 @@ const Project = () => {
                             }}
                         />
                     </Form.Item>
-                    <Form.Item name="project_hours" label="Project Hours">
+                    {/* <Form.Item name="project_hours" label="Project Hours">
                         <Input type="number" />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item name="status" label="Status" rules={[{ required: true }]}>
                         <Select>
+                            <Option value="Pending">Pending</Option>
                             <Option value="In Progress">In Progress</Option>
                             <Option value="Completed">Completed</Option>
                             <Option value="Cancelled">Cancelled</Option>
-                            <Option value="Pending">Pending</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item name="client_id" label="Client ID" rules={[{ required: true }]}>
@@ -489,9 +490,9 @@ const Project = () => {
                             ))}
                         </Select>
                     </Form.Item>
-                    <Form.Item name="is_closed" label="Is Closed" valuePropName="checked">
+                    {/* <Form.Item name="is_closed" label="Is Closed" valuePropName="checked">
                         <Checkbox />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item name="manager_id" label="Manager ID">
                         <Select placeholder="Select Manager">
                             {users?.filter(user => ["hr", "manager", "admin"]?.includes(user.role_type))?.map((user) => (
@@ -514,7 +515,7 @@ const Project = () => {
                     <Table size={'small'}
                         columns={userColumns}
                         dataSource={projectUsers}
-                        pagination={false} size={'small'}
+                        pagination={false}
                         rowKey={(record, index) => index}
                     />
                     <Button type="dashed" onClick={addUser} style={{ width: '100%', marginTop: 16 }}>

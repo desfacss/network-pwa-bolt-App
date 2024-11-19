@@ -443,16 +443,16 @@ const NonProject = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <div className="d-flex p-2 justify-content-between align-items-center">
-                <h2 style={{ margin: 0 }}> </h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
-                    Add
-                </Button>
-            </div>
+            {/* <div className="d-flex p-2 justify-content-between align-items-center"> */}
+            {/* <h2 style={{ margin: 0 }}> </h2> */}
+            <Button
+                type="primary"
+                // icon={<PlusOutlined />}
+                onClick={() => setIsDrawerOpen(true)}
+            >
+                Add Non Project
+            </Button>
+            {/* </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
                     columns={columns}
@@ -465,7 +465,7 @@ const NonProject = () => {
             <Drawer //size="large"
                 footer={null}
                 width={1000}
-                title={editItem ? "Edit Project" : "Add Project"}
+                title={editItem ? "Edit Non Project" : "Add Non Project"}
                 open={isDrawerOpen}
                 onClose={() => { setEditItem(null); form.resetFields(); setAllocationTracking(false); setIsDrawerOpen(false); setProjectUsers() }}
                 onOk={() => form.submit()}
@@ -505,7 +505,7 @@ const NonProject = () => {
                         <Table size={'small'}
                             columns={userColumns}
                             dataSource={projectUsers}
-                            pagination={false} size={'small'}
+                            pagination={false}
                             rowKey={(record, index) => index}
                         />
                         <Button type="dashed" onClick={addUser} style={{ width: '100%', marginTop: 16 }}>
