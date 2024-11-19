@@ -36,7 +36,7 @@ const Services = () => {
             setServices(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch services" });
+            notification.error({ message: error?.message || "Failed to fetch services" });
         }
     };
 
@@ -56,7 +56,7 @@ const Services = () => {
                 notification.success({ message: "Service updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update service" });
+                notification.error({ message: error?.message || "Failed to update service" });
             }
         } else {
             const { data, error } = await supabase
@@ -66,7 +66,7 @@ const Services = () => {
             if (data) {
                 notification.success({ message: "Service added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add service" });
+                notification.error({ message: error?.message || "Failed to add service" });
             }
         }
         fetchServices();
@@ -92,7 +92,7 @@ const Services = () => {
             notification.success({ message: "Service deleted successfully" });
             fetchServices();
         } else {
-            notification.error({ message: "Failed to delete service" });
+            notification.error({ message: error?.message || "Failed to delete service" });
         }
     };
 

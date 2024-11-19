@@ -36,7 +36,7 @@ const Locations = () => {
             setLocations(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch locations" });
+            notification.error({ message: error?.message || "Failed to fetch locations" });
         }
     };
 
@@ -54,7 +54,7 @@ const Locations = () => {
                 notification.success({ message: "Location updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update location" });
+                notification.error({ message: error?.message || "Failed to update location" });
             }
         } else {
             // Add new location
@@ -65,7 +65,7 @@ const Locations = () => {
             if (data) {
                 notification.success({ message: "Location added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add location" });
+                notification.error({ message: error?.message || "Failed to add location" });
             }
         }
         fetchLocations();
@@ -92,7 +92,7 @@ const Locations = () => {
             notification.success({ message: "Location deleted successfully" });
             fetchLocations();
         } else {
-            notification.error({ message: "Failed to delete Location" });
+            notification.error({ message: error?.message || "Failed to delete Location" });
         }
     };
 

@@ -69,7 +69,7 @@ export const RegisterForm = (props) => {
     if (error) {
       console.log("Error reg", error)
       setSignIn(true)
-      return notification.error({ message: "Registration Error" })
+      return notification.error({ message: error.message || "Registration Error" })
     }
     if (data) {
       console.log("reg data", data)
@@ -84,7 +84,7 @@ export const RegisterForm = (props) => {
       console.log("orgn", data2, insertError2)
       if (insertError2) {
         console.log("Error org", insertError2);
-        return notification.error({ message: "Error" })
+        return notification.error({ message: insertError2.message || "Error" })
       }
       if (data2?.length > 0) {
         const user_id = data?.user?.id;
@@ -106,7 +106,7 @@ export const RegisterForm = (props) => {
         ]);
         if (insertError3) {
           console.log("Error", insertError3);
-          return notification.error({ message: "Error" })
+          return notification.error({ message: insertError3.message || "Error" })
         }
 
       }

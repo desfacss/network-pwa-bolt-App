@@ -25,7 +25,9 @@ const TimesheetInstructions = () => {
                     <strong>Workweek Time:</strong> The total minimum time logged per workweek should be <strong>greater than {timesheet_settings?.workingHours?.standardWeeklyHours || 40} hours</strong>.
                 </li>
                 <li>
-                    <strong>Balance Allocation:</strong> The balance time allocation should be <strong>less than {timesheet_settings?.workingHours?.projectFinalHours || 80}% of the allocated time</strong>.
+                    <strong>Balance Allocation:</strong> The balance time allocation should be <strong>less than {' '}
+                        {/* {timesheet_settings?.workingHours?.projectFinalHours || 80}% of  */}
+                        the allocated time</strong>.
                 </li>
             </ul>
             {/* <p>Ensure you follow these guidelines while filling your timesheet to avoid submission errors.</p> */}

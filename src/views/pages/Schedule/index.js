@@ -22,7 +22,7 @@ const Schedule = () => {
             setData(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch tasks" });
+            notification.error({ message: error?.message || "Failed to fetch tasks" });
         }
     };
     useEffect(() => {
@@ -108,7 +108,7 @@ const Schedule = () => {
                 minZoom={60 * 60 * 1000}  // Minimum zoom level: 1 hour
                 maxZoom={24 * 60 * 60 * 1000 * 7}  // Maximum zoom level: 1 week
             />}
-           {/* <Timeline
+            {/* <Timeline
   groups={views[viewType] ? views[viewType] : []}
   items={items ? items : []}
   defaultTimeStart={moment(timeRange[zoomLevel]?.start).isValid() ? timeRange[zoomLevel]?.start : new Date()}

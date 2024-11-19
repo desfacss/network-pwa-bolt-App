@@ -89,7 +89,7 @@ const NonProject = () => {
             setProjects(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch projects" });
+            notification.error({ message: error?.message || "Failed to fetch projects" });
         }
     };
 
@@ -141,7 +141,7 @@ const NonProject = () => {
                 notification.success({ message: editItem ? "Project updated successfully" : "Project added successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: editItem ? "Failed to update project" : "Failed to add project" });
+                notification.error({ message: error?.message || (editItem ? "Failed to update project" : "Failed to add project") });
             }
         } catch (err) {
             console.error("Error saving project:", err);
@@ -290,7 +290,7 @@ const NonProject = () => {
                     notification.success({ message: "Project deleted successfully" });
                     fetchProjects();
                 } else {
-                    notification.error({ message: "Failed to delete Project" });
+                    notification.error({ message: error?.message || "Failed to delete Project" });
                 }
             },
             onCancel() {

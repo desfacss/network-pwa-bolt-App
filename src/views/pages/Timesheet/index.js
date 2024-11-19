@@ -10,16 +10,23 @@ const { TabPane } = Tabs;
 
 const Index = () => {
     const { session } = useSelector((state) => state.auth);
+    const [activeKey, setActiveKey] = useState('1');
+
     return (
         <Card>
-            <Tabs defaultActiveKey="1">
+            <Tabs
+                defaultActiveKey="1"
+                activeKey={activeKey}
+                onChange={(key) => setActiveKey(key)}
+            >
                 <TabPane tab="My Timesheets" key="1">
-                    <Timesheet />
+                    {activeKey === '1' && <Timesheet key={activeKey} />}
                 </TabPane>
-                {session?.user?.features?.feature?.viewTeamTimesheet &&
+                {session?.user?.features?.feature?.viewTeamTimesheet && (
                     <TabPane tab="Team Timesheets" key="2">
-                        <TeamTimesheetTable />
-                    </TabPane>}
+                        {activeKey === '2' && <TeamTimesheetTable key={activeKey} />}
+                    </TabPane>
+                )}
             </Tabs>
         </Card>
     )

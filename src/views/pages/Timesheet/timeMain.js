@@ -99,7 +99,7 @@ const Timesheet = () => {
       setSelectedProjectColumns(firstObject);
       setProjectData(projectDataMap);
     } else {
-      notification.error({ message: 'Failed to fetch projects' });
+      notification.error({ message: error?.message || 'Failed to fetch projects' });
     }
   };
 
@@ -413,13 +413,25 @@ const Timesheet = () => {
     //   [columnIndex]: projectName,
     // }));
 
-    if (!projectData[projectName]) {
-      setProjectData((prevData) => ({
+    // if (!projectData[projectName]) {
+    //   setProjectData((prevData) => ({
+    //     ...prevData,
+    //     // [projectName]: generateRows(projectName),
+    //     [projectName]: projectData[columnIndex],
+    //   }));
+    // }
+
+    // if (!projectData[projectName]) {
+    setProjectData((prevData) => {
+      const newState = {
         ...prevData,
         // [projectName]: generateRows(projectName),
         [projectName]: projectData[columnIndex],
-      }));
-    }
+      }
+      delete newState[columnIndex];
+      return newState
+    });
+    // }
 
     setSelectedProjectColumns((prevState) => {
       // Create a shallow copy of prevState
@@ -465,9 +477,9 @@ const Timesheet = () => {
   };
 
   const handleInputChange = (inputValue, date, project, field) => {
-    console.log("HC", field, inputValue, date, project)
     const hours = field === 'hours' ? Number(inputValue.trim().replace(".", "")) : 0
     const value = field === 'hours' ? (hours > 0 ? Math.round(hours) : 0) : inputValue;
+    console.log("HC", field, inputValue, value, date, project)
     // console.log("first", inputValue)
     setProjectData(prevData => ({
       ...prevData,
@@ -480,6 +492,7 @@ const Timesheet = () => {
               [project]: {
                 ...item?.dailyEntries[project],
                 [field]: value,
+                ...(field === 'hours' && value === 0 ? { description: "" } : null),
               },
             },
           }
@@ -741,7 +754,7 @@ const Timesheet = () => {
         notification.success({ message: "Client deleted successfully" });
         fetchTimesheets();
       } else {
-        notification.error({ message: "Failed to delete client" });
+        notification.error({ message: error?.message || "Failed to delete client" });
       }
     }
     // setTimesheetToDelete();
@@ -756,16 +769,46 @@ const Timesheet = () => {
       render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
     },
     {
+      title: 'Submitted Time',
+      // dataIndex: 'details',
+      key: 'submitted_time',
+      render: (record) => (
+        <div>
+          {record?.submitted_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")}
+        </div>
+      )
+    },
+    {
+      title: 'Review Time',
+      // dataIndex: 'details',
+      key: 'approver_details',
+      render: (record) => (
+        <div>
+          {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
+        </div>
+      )
+    },
+    {
+      title: 'Review Comment',
+      // dataIndex: 'details',
+      key: 'approver_id',
+      render: (record) => (
+        <div>
+          {record?.approver_details?.comment}
+        </div>
+      )
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
     },
-    {
-      title: 'Last Updated',
-      dataIndex: 'updated_at',
-      key: 'updated_at',
-      render: (date) => new Date(date).toLocaleString(), // Format date and time
-    },
+    // {
+    //   title: 'Last Updated',
+    //   dataIndex: 'updated_at',
+    //   key: 'updated_at',
+    //   render: (date) => new Date(date).toLocaleString(), // Format date and time
+    // },
     {
       title: 'Actions',
       key: 'actions',

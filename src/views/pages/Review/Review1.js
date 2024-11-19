@@ -39,7 +39,7 @@ const Review1 = ({ date, employee, fetchData }) => {
       setProjects(data);
       console.log("Proj", data)
     } else {
-      notification.error({ message: 'Failed to fetch projects' });
+      notification.error({ message: error?.message || 'Failed to fetch projects' });
     }
   };
 

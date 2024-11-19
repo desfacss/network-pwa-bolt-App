@@ -88,7 +88,7 @@ const Project = () => {
             setProjects(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch projects" });
+            notification.error({ message: error?.message || "Failed to fetch projects" });
         }
     };
 
@@ -123,7 +123,7 @@ const Project = () => {
             : await supabase.from('x_projects').insert([projectData]);
 
         if (error) {
-            notification.error({ message: editItem ? "Failed to update project" : "Failed to add project" });
+            notification.error({ message: error?.message || editItem ? "Failed to update project" : "Failed to add project" });
         } else {
             notification.success({ message: editItem ? "Project updated successfully" : "Project added successfully" });
             fetchProjects();
@@ -202,6 +202,7 @@ const Project = () => {
     };
 
     const handleUserChange = (index, field, value) => {
+        console.log("PD", projectUsers)
         setIsInvalid(false)
         const updatedUsers = [...projectUsers];
         updatedUsers[index][field] = value;
@@ -269,7 +270,7 @@ const Project = () => {
                     notification.success({ message: "Project deleted successfully" });
                     fetchProjects();
                 } else {
-                    notification.error({ message: "Failed to delete Project" });
+                    notification.error({ message: error?.message || "Failed to delete Project" });
                 }
             },
             onCancel() {
@@ -332,11 +333,19 @@ const Project = () => {
                 //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
                 // />
                 <Select placeholder="Select users" style={{ minWidth: '120px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
-                    {users?.map((user) => (
+                    {/* {users?.map((user) => (
                         <Select.Option key={user?.id} value={user?.id}>
                             {user?.user_name}
                         </Select.Option>
-                    ))}
+                    ))} */}
+                    {users?.map((user) => {
+                        const isDisabled = projectUsers?.some((projectUser) => projectUser.user_id === user.id);
+                        return (
+                            <Select.Option key={user?.id} value={user?.id} disabled={isDisabled}>
+                                {user?.user_name}
+                            </Select.Option>
+                        );
+                    })}
                 </Select>
             ),
         },

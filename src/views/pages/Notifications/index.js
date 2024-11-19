@@ -71,7 +71,7 @@ const Notifications = () => {
             setNotifications(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch notifications" });
+            notification.error({ message: error?.message || "Failed to fetch notifications" });
         }
     };
 
@@ -208,7 +208,7 @@ const Notifications = () => {
                     notification.success({ message: "Notification deleted successfully" });
                     fetchNotifications();
                 } else {
-                    notification.error({ message: "Failed to delete Notification" });
+                    notification.error({ message: error?.message || "Failed to delete Notification" });
                 }
             },
             onCancel() {

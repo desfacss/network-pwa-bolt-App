@@ -37,7 +37,7 @@ const Tasks = () => {
             setTasks(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch tasks" });
+            notification.error({ message: error?.message || "Failed to fetch tasks" });
         }
     };
 
@@ -55,7 +55,7 @@ const Tasks = () => {
                 notification.success({ message: "Task updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update task" });
+                notification.error({ message: error?.message || "Failed to update task" });
             }
         } else {
             // Add new task
@@ -66,7 +66,7 @@ const Tasks = () => {
             if (data) {
                 notification.success({ message: "Task added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add task" });
+                notification.error({ message: error?.message || "Failed to add task" });
             }
         }
         fetchTasks();
@@ -93,7 +93,7 @@ const Tasks = () => {
             notification.success({ message: "Task deleted successfully" });
             fetchTasks();
         } else {
-            notification.error({ message: "Failed to delete Task" });
+            notification.error({ message: error?.message || "Failed to delete Task" });
         }
     };
 

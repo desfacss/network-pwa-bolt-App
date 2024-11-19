@@ -67,40 +67,29 @@ const Dashboaard = () => {
 
     return (
         <Card>
-            {/* {!session?.user?.password_confirmed && (
-                <Card style={{ marginBottom: 20, backgroundColor: '#fffbe6', borderColor: '#ffe58f' }}>
+            {!session?.user?.password_confirmed && (
+                <Card
+                    style={{
+                        marginBottom: 10,
+                        backgroundColor: 'rgb(255 247 230)',
+                        borderColor: 'rgb(250 140 23)',
+                    }}
+                >
                     <p>
-                        Welcome <strong>{session?.user?.details?.userName}</strong>. You can change your password from the{' '}
-                        <Link to={`${APP_PREFIX_PATH}/profile`}>Profile</Link> page or{' '}
-                        <ChangePassword />
-                          commented <Link to={`${APP_PREFIX_PATH}/change_password`}>here</Link>. 
-                    </p>
+                        Welcome, <strong>{session?.user?.details?.userName}</strong>! 🎉
+                        We're glad to have you on the <strong>Timesheet, Leave & Expense Management</strong> platform.
+                        <br></br>
+                        To get started, please set up a new password to make future logins easier.
+                        You can change it from your <Link to={`${APP_PREFIX_PATH}/profile`}>Profile</Link> page or here:{' '}
+                        <span>
+                            <ChangePassword />
+                        </span>
+                        <br></br>
+                        Once your password is updated, explore features based on your role.
+                        You can manage timesheets, apply for leave, or track expenses.
+                        <br></br><br></br>Let's simplify your work experience!</p>
                 </Card>
-            )} */}
-
-{!session?.user?.password_confirmed && (
-    <Card
-        style={{
-            marginBottom: 10,
-            backgroundColor: 'rgb(255 247 230)',
-            borderColor: 'rgb(250 140 23)',
-        }}
-    >
-        <p>
-            Welcome, <strong>{session?.user?.details?.userName}</strong>! 🎉 
-            We're glad to have you on the <strong>Timesheet, Leave & Expense Management</strong> platform.
-        <br></br> 
-            To get started, please set up a new password to make future logins easier. 
-            You can change it from your <Link to={`${APP_PREFIX_PATH}/profile`}>Profile</Link> page or here:{' '}
-            <span>
-                <ChangePassword />
-            </span>
-            <br></br>
-            Once your password is updated, explore features based on your role. 
-            You can manage timesheets, apply for leave, or track expenses.
-            <br></br><br></br>Let's simplify your work experience!</p>
-    </Card>
-)}
+            )}
 
             <RangePicker defaultValue={[defaultStartDate, defaultEndDate]}
                 // format={dateFormat} 

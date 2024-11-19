@@ -79,9 +79,39 @@ const TeamTimesheetTable = () => {
             render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
         },
         {
-            title: 'User',
+            title: 'Name',
             dataIndex: ['user', 'user_name'],
             key: 'user',
+        },
+        {
+            title: 'Submitted Time',
+            // dataIndex: 'details',
+            key: 'submitted_time',
+            render: (record) => (
+                <div>
+                    {record?.submitted_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")}
+                </div>
+            )
+        },
+        {
+            title: 'Review Time',
+            // dataIndex: 'details',
+            key: 'approver_details',
+            render: (record) => (
+                <div>
+                    {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
+                </div>
+            )
+        },
+        {
+            title: 'Review Comment',
+            // dataIndex: 'details',
+            key: 'approver_id',
+            render: (record) => (
+                <div>
+                    {record?.approver_details?.comment}
+                </div>
+            )
         },
         {
             title: 'Status',

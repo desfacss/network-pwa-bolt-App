@@ -39,7 +39,7 @@ const Clients = () => {
             setClients(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch clients" });
+            notification.error({ message: error?.message || "Failed to fetch clients" });
         }
     };
 
@@ -65,7 +65,7 @@ const Clients = () => {
                 setEditItem(null);
             } else if (error) {
                 notification.error({
-                    message: editItem ? "Failed to update client" : "Failed to add client"
+                    message: error?.message || (editItem ? "Failed to update client" : "Failed to add client")
                 });
             }
         } catch (err) {
@@ -146,7 +146,7 @@ const Clients = () => {
                 notification.success({ message: "Client deleted successfully" });
                 fetchClients();
             } else {
-                notification.error({ message: "Failed to delete client" });
+                notification.error({ message: error?.message });
             }
         }
         setDeleteModalVisible(false);
@@ -167,7 +167,7 @@ const Clients = () => {
                     notification.success({ message: "Client deleted successfully" });
                     fetchClients();
                 } else {
-                    notification.error({ message: "Failed to delete Client" });
+                    notification.error({ message: error?.message });
                 }
             },
             onCancel() {

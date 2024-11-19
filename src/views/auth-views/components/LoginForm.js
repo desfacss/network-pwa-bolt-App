@@ -54,7 +54,7 @@ export const LoginForm = (props) => {
       // navigate(`${AUTH_PREFIX_PATH}/update_survey`)
     } else {
       console.log('Error', values);
-      return notification.error({ message: "Invalid credentials" })
+      return notification.error({ message: error.message || "Invalid credentials" })
     }
   };
 

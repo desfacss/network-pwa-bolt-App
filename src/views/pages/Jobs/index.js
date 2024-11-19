@@ -36,7 +36,7 @@ const Jobs = () => {
             setJobs(data);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch jobs" });
+            notification.error({ message: error?.message || "Failed to fetch jobs" });
         }
     };
 
@@ -54,7 +54,7 @@ const Jobs = () => {
                 notification.success({ message: "Job updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update job" });
+                notification.error({ message: error?.message || "Failed to update job" });
             }
         } else {
             // Add new job
@@ -65,7 +65,7 @@ const Jobs = () => {
             if (data) {
                 notification.success({ message: "Job added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add job" });
+                notification.error({ message: error?.message || "Failed to add job" });
             }
         }
         fetchJobs();
@@ -91,7 +91,7 @@ const Jobs = () => {
             notification.success({ message: "Job deleted successfully" });
             fetchJobs();
         } else {
-            notification.error({ message: "Failed to delete Job" });
+            notification.error({ message: error?.message || "Failed to delete Job" });
         }
     };
 

@@ -61,7 +61,7 @@ const LeaveApplications = () => {
             // setRemainingSickLeaves(policy.sickleaves - totalSickLeaveTaken);
         }
         if (error) {
-            notification.error({ message: "Failed to fetch leave Applications" });
+            notification.error({ message: error?.message || "Failed to fetch leave Applications" });
         }
     };
 
@@ -79,7 +79,7 @@ const LeaveApplications = () => {
                 notification.success({ message: "Leave Application updated successfully" });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: "Failed to update leave Application" });
+                notification.error({ message: error?.message || "Failed to update leave Application" });
             }
         } else {
             // Add new leaveApplication
@@ -90,7 +90,7 @@ const LeaveApplications = () => {
             if (data) {
                 notification.success({ message: "Leave Application added successfully" });
             } else if (error) {
-                notification.error({ message: "Failed to add leave Application" });
+                notification.error({ message: error?.message || "Failed to add leave Application" });
             }
         }
         fetchLeaveApplications();
@@ -116,7 +116,7 @@ const LeaveApplications = () => {
             notification.success({ message: "Leave Application deleted successfully" });
             fetchLeaveApplications();
         } else {
-            notification.error({ message: "Failed to delete Leave Application" });
+            notification.error({ message: error?.message || "Failed to delete Leave Application" });
         }
     };
 
