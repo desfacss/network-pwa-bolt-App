@@ -178,7 +178,7 @@ const Jobs = () => {
             </div>
             <Drawer footer={null} width={500} //size="large"
                 title={editItem ? "Edit Job" : "Add Job"}
-                open={isDrawerOpen}
+                open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"

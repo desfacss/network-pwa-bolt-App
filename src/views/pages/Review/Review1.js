@@ -236,9 +236,14 @@ const Review1 = ({ date, employee, fetchData }) => {
         // render: (_, record) => calculateTotalHours(record),
         render: (_, record) => {
           const hours = calculateTotalHours(record)
-          var invalid = hours >= (timesheet_settings?.workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours || 8)
+          var invalid = hours >= ((timesheet_settings?.workingHours?.standardDailyHours || 8) + (timesheet_settings?.overtimeTracking?.maxOvertimeHours || 16))
           var warning = hours > (timesheet_settings?.workingHours?.standardDailyHours || 8)
-          return <div style={{ color: ((warning && !invalid) ? 'gold' : ((invalid) && 'red')) }} className='ml-2'>
+          return <div
+            // style={{ color: ((warning && !invalid) ? 'gold' : ((invalid) && 'red')) }}
+            style={{
+              color: (warning && !invalid) ? 'gold' : (invalid ? 'red' : 'inherit'),
+            }}
+            className='ml-2'>
             {hours}
           </div>
         },

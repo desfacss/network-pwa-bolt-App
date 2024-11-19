@@ -13,6 +13,11 @@ export const publicRoutes = [
         component: React.lazy(() => import('views/auth-views/authentication/register')),
     },
     {
+        key: 'confirm-signup',
+        path: `${APP_PREFIX_PATH}/confirm-signup`,
+        component: React.lazy(() => import('views/auth-views/authentication/ConfirmSignUp')),
+    },
+    {
         key: 'error-page-1',
         path: `${APP_PREFIX_PATH}/error-page-1`,
         component: React.lazy(() => import('views/auth-views/errors/error-page-1')),

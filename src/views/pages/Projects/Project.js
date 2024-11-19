@@ -1,6 +1,6 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Empty } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
@@ -14,15 +14,17 @@ const { confirm } = Modal;
 
 const { Option } = Select;
 
-const Project = () => {
+const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const componentRef = useRef(null);
     const [projects, setProjects] = useState([]);
     const [editItem, setEditItem] = useState(null);
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    // const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isInvalid, setIsInvalid] = useState(false);
     const [projectUsers, setProjectUsers] = useState([]);
     const [users, setUsers] = useState([]);
     const [clients, setClients] = useState([]);
+    const [clone, setClone] = useState();
+
     const dateFormat = 'YYYY/MM/DD';
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     // const [schema, setSchema] = useState();
@@ -30,6 +32,7 @@ const Project = () => {
     const getFormattedDate = (date) => {
         return date.toISOString().split('T')[0];
     };
+
 
     const today = new Date();
     const tomorrow = new Date();
@@ -119,14 +122,14 @@ const Project = () => {
             manager_id: values?.manager_id
         };
 
-        const { data, error } = editItem
+        const { data, error } = (editItem && !clone)
             ? await supabase.from('x_projects').update(projectData).eq('id', editItem?.id)
             : await supabase.from('x_projects').insert([projectData]);
 
         if (error) {
-            notification.error({ message: error?.message || editItem ? "Failed to update project" : "Failed to add project" });
+            notification.error({ message: error?.message || (editItem && !clone) ? "Failed to update project" : "Failed to add project" });
         } else {
-            notification.success({ message: editItem ? "Project updated successfully" : "Project added successfully" });
+            notification.success({ message: (editItem && !clone) ? "Project updated successfully" : "Project added successfully" });
             fetchProjects();
         }
 
@@ -134,6 +137,7 @@ const Project = () => {
         form.resetFields();
         setProjectUsers([]);
         setEditItem(null);
+        setClone(null);
     };
 
 
@@ -184,9 +188,8 @@ const Project = () => {
     //     setEditItem(null);
     // };
 
-    const handleEdit = (record) => {
-        setEditItem(record);
-        form.setFieldsValue({
+    const handleEdit = (record, copy) => {
+        const item = {
             project_name: record?.details?.project_name,
             description: record?.details?.description,
             project_hours: record?.details?.project_hours,
@@ -197,9 +200,16 @@ const Project = () => {
             manager_id: record?.details?.manager_id,
             start_date: dayjs(record?.details?.start_date, dateFormat),
             end_date: dayjs(record?.details?.end_date, dateFormat),
-        });
-        setProjectUsers(record.details.project_users || []);
+        }
+        copy && (delete item?.project_name)
+        copy && (delete item?.description)
+        setEditItem(item);
+        form.setFieldsValue(item);
+        setProjectUsers(record?.details?.project_users || []);
         setIsDrawerOpen(true);
+        if (copy) {
+            setClone(true)
+        }
     };
 
     const handleUserChange = (index, field, value) => {
@@ -310,6 +320,15 @@ const Project = () => {
                             onClick={() => handleEdit(record)}
                         />
                     </Tooltip>
+                    <Tooltip title="Copy">
+                        <Button
+                            type="primary"
+                            icon={<CopyFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleEdit(record, true)}
+                        />
+                    </Tooltip>
                     <Tooltip title="Delete">
                         <Button
                             type="primary" ghost
@@ -418,13 +437,13 @@ const Project = () => {
         <Card bodyStyle={{ padding: "0px" }}>
             {/* <div className="d-flex p-2 justify-content-between align-items-center">
                 <h2 style={{ margin: 0 }}> </h2> */}
-            <Button
+            {/* <Button
                 type="primary"
                 // icon={<PlusOutlined />}
                 onClick={() => setIsDrawerOpen(true)}
             >
                 Add Project
-            </Button>
+            </Button> */}
             {/* </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
@@ -441,9 +460,9 @@ const Project = () => {
             <Drawer //size="large"
                 footer={null}
                 width={1000}
-                title={editItem ? "Edit Project" : "Add Project"}
-                open={isDrawerOpen}
-                onClose={() => { setEditItem(null); form.resetFields(); setIsDrawerOpen(false); setProjectUsers() }}
+                title={(editItem && !clone) ? "Edit Project" : "Add Project"}
+                open={isDrawerOpen} maskClosable={false}
+                onClose={() => { setEditItem(null); form.resetFields(); setIsDrawerOpen(false); setProjectUsers(); setClone(false) }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
@@ -523,7 +542,7 @@ const Project = () => {
                     </Button>
                     <Form.Item>
                         <Button type="primary" htmlType="submit" style={{ marginTop: "16px" }}>
-                            {editItem ? "Update Project" : "Add Project"}
+                            {(editItem && !clone) ? "Update Project" : "Add Project"}
                         </Button>
                         <div className='mt-2' style={{ color: 'red' }}>
                             {isInvalid && "All Fields are Required"}

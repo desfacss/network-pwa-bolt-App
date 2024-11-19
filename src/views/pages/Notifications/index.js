@@ -307,7 +307,7 @@ const Notifications = () => {
             </div>
             <Drawer footer={null} width={500} //size="large"
                 title={editItem ? "Edit Notification" : "Add Notification"}
-                open={isDrawerOpen}
+                open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 // onOk={() => form.submit()}
                 okText="Save"

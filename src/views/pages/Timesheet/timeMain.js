@@ -803,23 +803,23 @@ const Timesheet = () => {
       title: 'Review Comment',
       key: 'approver_id',
       render: (record) => {
-          const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
-          const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
-  
-          return (
-              <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
-                  <div style={{
-                      whiteSpace: 'nowrap', 
-                      overflow: 'hidden', 
-                      textOverflow: 'ellipsis',
-                      maxWidth: '200px', // You can adjust this based on your table column width
-                  }}>
-                      {truncatedComment}  {/* Truncated comment for the table cell */}
-                  </div>
-              </Tooltip>
-          );
+        const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
+        const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
+
+        return (
+          <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
+            <div style={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '200px', // You can adjust this based on your table column width
+            }}>
+              {truncatedComment}  {/* Truncated comment for the table cell */}
+            </div>
+          </Tooltip>
+        );
       }
-  },
+    },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -901,7 +901,7 @@ const Timesheet = () => {
         title="Add Timesheet"
         width={'100%'}
         onClose={closeDrawer}
-        visible={drawerVisible}
+        visible={drawerVisible} maskClosable={false}
       >
         <Spin spinning={loading}>
           <Row justify="space-between" align="middle">

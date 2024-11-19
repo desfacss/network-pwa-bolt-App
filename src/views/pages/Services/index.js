@@ -219,7 +219,7 @@ const Services = () => {
                 width={600}
                 footer={null}
                 title={editItem ? "Edit Service" : "Add Service"}
-                open={isModalOpen}
+                open={isModalOpen} maskClosable={false}
                 onClose={() => { setIsModalOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"

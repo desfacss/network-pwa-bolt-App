@@ -164,7 +164,7 @@ const Locations = () => {
             </div>
             <Drawer footer={null} width={'100%'} //size="large"
                 title={editItem ? "Edit Location" : "Add Location"}
-                open={isDrawerOpen}
+                open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
