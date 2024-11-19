@@ -257,7 +257,7 @@ const Project = () => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete this Project - ${record.project_name} ?`,
+            title: `Are you sure delete  - ${record.project_name} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',

@@ -1,8 +1,8 @@
-export const ROW_GUTTER = 16;
-export const SIDE_NAV_WIDTH = 250;
-export const SIDE_NAV_COLLAPSED_WIDTH = 80;
-export const HEADER_HEIGHT = 70;
-export const FOOTER_HEIGHT = 60;
+export const ROW_GUTTER = 10;
+export const SIDE_NAV_WIDTH = 170;
+export const SIDE_NAV_COLLAPSED_WIDTH = 60;
+export const HEADER_HEIGHT = 50;
+export const FOOTER_HEIGHT = 50;
 export const TOP_NAV_HEIGHT = 55;
 export const SIDE_NAV_LIGHT = 'SIDE_NAV_LIGHT';
 export const SIDE_NAV_DARK = 'SIDE_NAV_DARK';
@@ -12,7 +12,7 @@ export const DIR_LTR = 'ltr';
 export const DIR_RTL = 'rtl';
 export const CONTENT_MAX_WIDTH = 1400;
 export const CONTENT_HEIGHT_OFFSET = HEADER_HEIGHT + FOOTER_HEIGHT;
-export const HEADER_BG_DEFAULT_COLOR_LIGHT = '#ffffff';
+export const HEADER_BG_DEFAULT_COLOR_LIGHT = '#f7f7f7';
 export const HEADER_BG_DEFAULT_COLOR_DARK = '#283142';
 export const LAYOUT_CONTENT_GUTTER = 5;
 export const LAYOUT_CONTENT_GUTTER_SM = 15;
@@ -44,7 +44,7 @@ export const GRAY_LIGHTEST = '#f7f7f8';
 
 export const BODY_BACKGROUND = '#fafafb';
 
-export const FONT_SIZE_BASE = 14;
+export const FONT_SIZE_BASE = 13;
 
 export const TEMPLATE = {
     HEADER_HEIGHT,
@@ -94,8 +94,8 @@ export const FONT_WEIGHT = {
 
 export const FONT_SIZES = {
     BASE: FONT_SIZE_BASE,
-    LG: FONT_SIZE_BASE + 2,
-    SM: 12
+    LG: FONT_SIZE_BASE + 1,
+    SM: 11
 }
 
 export const SPACER = {

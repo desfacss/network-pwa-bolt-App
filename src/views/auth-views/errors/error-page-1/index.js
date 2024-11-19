@@ -29,7 +29,9 @@ const ErrorOne = () => {
 					</Row>
 				</div>
 				<Flex mobileFlex={false} justifyContent="space-between">
-					<span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">{`${APP_NAME}`}</span></span>
+					{/* <span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">claritiz.com</span></span> */}
+					<span>Developed by <span className="font-weight-semibold">claritiz.com
+			</span></span>
 					<div>
 						<a className="text-gray" href="/#" onClick={e => e.preventDefault()}>Developed by Claritiz Innovations Pvt Ltd</a>
 						<span className="mx-2 text-muted"> | </span>

@@ -96,7 +96,7 @@ const Users = () => {
             leave_details: locations?.find((item) => item?.id === location)?.leave_settings,
             manager_id: manager,
             hr_id: hr_contact,
-            password_confirmed: false,
+            // password_confirmed: false,
         };
 
         try {
@@ -140,9 +140,18 @@ const Users = () => {
                 if (insertError) throw insertError;
 
                 message.success(<>
-                    User invited and added successfully. <br />
-                    User can accept the invite from Inbox/Spam folder and set the password!
+                    User invited successfully. Users can accept the invite sent from Inbox/Spam folder!
                 </>);
+                // message.success(
+                //     <div style={{ textAlign: 'center' }}>
+                //         <p style={{ marginBottom: 4, fontWeight: 500 }}>
+                //             User invited and added successfully!
+                //         </p>
+                //         <span style={{ fontSize: 14 }}>
+                //             Please check your Inbox/Spam folder to accept the invite and set your password.
+                //         </span>
+                //     </div>
+                // );
             }
         } catch (error) {
             message.error(error.message || 'An error occurred.');
@@ -340,7 +349,7 @@ const Users = () => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete this Project - ${record?.user_name} ?`,
+            title: `Are you sure delete - ${record?.user_name} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',

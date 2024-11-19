@@ -23,7 +23,9 @@ export default function Footer() {
        			flex-direction: column;
 			}
 		`}>
-			<span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">{`${APP_NAME}`}
+			{/* <span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">claritiz.com
+			</span> */}
+			<span>Developed by <span className="font-weight-semibold">claritiz.com
 			</span>
 				{/* All rights reserved. */}
 			</span>

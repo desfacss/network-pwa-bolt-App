@@ -22,11 +22,11 @@ export function rgba(hex, opacity = 1) {
 
 export const baseTheme = {
     borderRadius: 10,
-    colorPrimary: THEME_COLOR.BLUE,
+    colorPrimary: THEME_COLOR.ORANGE,
     colorSuccess: THEME_COLOR.CYAN,
     colorWarning: THEME_COLOR.GOLD,
     colorError: THEME_COLOR.VOLCANO,
-    colorInfo: THEME_COLOR.BLUE,
+    colorInfo: THEME_COLOR.ORANGE,
     colorText: GRAY_SCALE.GRAY,
     colorBorder: BORDER.BASE_COLOR,
     bodyBg: BODY_BACKGROUND,
@@ -36,8 +36,8 @@ export const baseTheme = {
     fontFamily: `'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji'`,
-    fontSizeHeading2: 22,
-    fontSizeHeading4: 17
+    fontSizeHeading2: 20,
+    fontSizeHeading4: 16
 }
 
 const getBaseComponentThemeConfig = (

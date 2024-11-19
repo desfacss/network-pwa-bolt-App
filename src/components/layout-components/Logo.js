@@ -43,21 +43,21 @@ export const Logo = ({ mobileLogo, logoType }) => {
 	const getLogo = () => {
 		if (logoType === 'light') {
 			if (navCollapsed) {
-				return '/img/ibcn.png'
+				return '/img/ukpe.png'
 			}
-			return '/img/ibcn.png'
+			return '/img/ukpe_logo.png'
 		}
 
 		if (navCollapsed) {
-			return '/img/ibcn.png'
+			return '/img/ukpe.png'
 		}
-		return '/img/ibcn.png'
+		return '/img/ukpe_logo_dark.png'
 	}
 
 	return (
 		<LogoWrapper className={isMobile && !mobileLogo ? 'd-none' : 'logo'} style={{ width: `${getLogoWidthGutter()}` }}>
-			<h3>{navCollapsed ? isMobile ? "TimeTrack" : "\u00A0\u00A0\u00A0T" : "TimeTrack"}</h3>
-			{/* <img src={getLogo()} alt={`${APP_NAME} logo`} width={isMobile ? '50px' : '40px'} /> */}
+			{/* <h3>{navCollapsed ? isMobile ? "TimeTrack" : "\u00A0\u00A0\u00A0T" : "TimeTrack"}</h3> */}
+			<img src={getLogo()} alt={`${APP_NAME} logo`} height={isMobile ? '25px' : '25px'} />
 		</LogoWrapper>
 	)
 }
