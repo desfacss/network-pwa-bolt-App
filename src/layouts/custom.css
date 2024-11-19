@@ -1,5 +1,62 @@
+.ant-card .ant-card-body {
+  padding: 10px !important;
+}
+
+.ant-menu-inline .ant-menu-item {
+  height: 32px;
+}
+
+.ant-menu-item-group-title {
+  padding: 6px 26px !important;
+}
+
+.ant-table-wrapper .ant-table-thead >tr>th, :where(.css-dev-only-do-not-override-v22r4a).ant-table-wrapper .ant-table-thead >tr>td {
+  font-weight: 500;
+}
 @media print {
     .no-print {
         display: none !important;
       }
     }
+
+@media print {
+    .report-container {
+        padding: 16px;
+    }
+    .report-header {
+        background-color: #f0f0f0;
+        padding: 10px;
+        text-align: center;
+    }
+    .report-header img {
+        width: 150px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+}
+
+/* @media print {
+  .report-container {
+      padding: 16px;
+  }
+  .report-header {
+      background-color: #f0f0f0;
+      padding: 10px;
+      text-align: center;
+  }
+  .report-header img {
+      width: 150px;
+      margin-bottom: 10px;
+  }
+} */
+
+/* Hide logo in app screen but show in print */
+.app-logo {
+  display: none;
+}
+
+@media print {
+  .app-logo {
+      display: block;
+  }
+}

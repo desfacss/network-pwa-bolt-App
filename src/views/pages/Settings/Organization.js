@@ -203,13 +203,13 @@ const OrganizationSetup = () => {
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col span={8}>
+                {/* <Col span={8}>
                     <Form.Item label="Date Format" name="dateFormat">
                         <Select disabled>
                             <Option value="MM/DD/YYYY">MM/DD/YYYY</Option>
                         </Select>
                     </Form.Item>
-                </Col>
+                </Col> */}
             </Row>
 
             <Row gutter={16}>
@@ -223,7 +223,7 @@ const OrganizationSetup = () => {
                 <Col span={8}>
                     <Form.Item label="Work Week Start Day" name="workWeekStartDay">
                         <Select disabled>
-                            <Option value="Monday">Monday</Option>
+                            <Option value="Monday">Mon</Option>
                         </Select>
                     </Form.Item>
                 </Col>
