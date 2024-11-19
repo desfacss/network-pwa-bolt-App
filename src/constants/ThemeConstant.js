@@ -26,7 +26,8 @@ export const GREEN_BASE = '#21B573';
 export const MAGENTA_BASE = '#eb2f96';
 export const PINK_BASE = '#eb2f96';
 export const RED_BASE = '#de4436';
-export const ORANGE_BASE = '#fa8c16';
+// export const ORANGE_BASE = '#fa8c16';
+export const ORANGE_BASE = '#fa7700';
 export const YELLOW_BASE = '#fadb14';
 export const VOLCANO_BASE = '#ff6b72';
 export const GEEK_BLUE_BASE = '#17bcff';
@@ -36,7 +37,8 @@ export const GOLD_BASE = '#ffc542';
 export const WHITE = '#ffffff';
 export const DARK = '#000000';
 export const GRAY_DARK = '#1a3353';
-export const GRAY = '#455560';
+// export const GRAY = '#455560';
+export const GRAY = '#5c676e';
 // export const GRAY = '#1a80c2';
 export const GRAY_LIGHT = '#72849a';
 export const GRAY_LIGHTER = '#ededed';
@@ -44,7 +46,7 @@ export const GRAY_LIGHTEST = '#f7f7f8';
 
 export const BODY_BACKGROUND = '#fafafb';
 
-export const FONT_SIZE_BASE = 13;
+export const FONT_SIZE_BASE = 12;
 
 export const TEMPLATE = {
     HEADER_HEIGHT,

@@ -6,6 +6,9 @@
   height: 32px;
 }
 
+.ant-menu-vertical .ant-menu-item {
+  height: 32px;
+}
 .ant-menu-item-group-title {
   padding: 6px 26px !important;
 }

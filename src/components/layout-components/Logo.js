@@ -8,14 +8,14 @@ import styled from '@emotion/styled';
 import { TEMPLATE } from 'constants/ThemeConstant';
 
 const LogoWrapper = styled.div(({ isCollapsed }) => ({
-  height: TEMPLATE.HEADER_HEIGHT,
-  display: 'flex',
-  alignItems: 'center',
-  padding: `0 1rem`,
-  paddingLeft: isCollapsed ? '28px' : '1rem', // Add padding-left when collapsed
-  backgroundColor: 'transparent',
-  transition: 'all .2s ease',
-}));
+	height: TEMPLATE.HEADER_HEIGHT,
+	display: 'flex',
+	alignItems: 'center',
+	padding: `0 1rem`,
+	paddingLeft: isCollapsed ? '28px' : '1rem', 
+	backgroundColor: 'transparent',
+	transition: 'all 0.5s ease', 
+  }));
 
 const { useBreakpoint } = Grid;
 
