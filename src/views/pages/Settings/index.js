@@ -4,6 +4,7 @@ import Locations from '../Locations';
 import Organization from './Organization'
 import RoleFeatureEdit from './Roles'
 import TimesheetSettings from './Timesheet';
+import EnumEditor from './enumeditor';
 
 const { TabPane } = Tabs;
 
@@ -22,6 +23,9 @@ const index = () => {
                 </TabPane>
                 <TabPane tab="Timesheet Settings" key="4">
                     <TimesheetSettings />
+                </TabPane>
+                <TabPane tab="Types" key="5">
+                    <EnumEditor />
                 </TabPane>
                 {/* <TabPane tab="Leave Policy" key="5">
                     <Locations />
