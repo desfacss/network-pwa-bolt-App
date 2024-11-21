@@ -97,6 +97,9 @@ const SideNavContent = (props) => {
 		navigationConfig[0].submenu = session?.user?.features?.feature?.notifications === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'notifications')
 		navigationConfig[0].submenu = session?.user?.features?.feature?.Clients === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'clients')
 		navigationConfig[0].submenu = session?.user?.features?.feature?.dashboard === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboard')
+		navigationConfig[0].submenu = session?.user?.features?.feature?.timesheets === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'timesheets')
+		navigationConfig[0].submenu = session?.user?.features?.feature?.leaves === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'leaves')
+		navigationConfig[0].submenu = session?.user?.features?.feature?.expenses === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'expenses')
 		navigationConfig[0].submenu = session?.user?.features?.feature?.Team === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'team')
 		navigationConfig[0].submenu = session?.user?.features?.feature?.viewReports === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'reports')
 	}

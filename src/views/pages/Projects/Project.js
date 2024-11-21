@@ -190,6 +190,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     const handleEdit = (record, copy) => {
         const item = {
+            id: record?.id,
             project_name: record?.details?.project_name,
             description: record?.details?.description,
             project_hours: record?.details?.project_hours,
@@ -202,6 +203,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             end_date: dayjs(record?.details?.end_date, dateFormat),
         }
         if (copy) {
+            delete item.id;
             delete item.project_name;
             delete item.description;
         }

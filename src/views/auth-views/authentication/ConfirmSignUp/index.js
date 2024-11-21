@@ -58,6 +58,7 @@ const Index = () => {
             }
             message.success('Signup confirmed successfully!');
         } catch (error) {
+            setOtp('')
             message.error(error.message || 'Failed to verify OTP.');
         } finally {
             setLoading(false);

@@ -31,7 +31,7 @@ const navigationConfig = [
         submenu: [],
       },
       {
-        key: 'timesheet',
+        key: 'timesheets',
         path: `${APP_PREFIX_PATH}/timesheet`,
         title: 'Timesheet',
         icon: ClockCircleOutlined,

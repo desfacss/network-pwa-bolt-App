@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin, Tooltip, Menu, Dropdown } from "antd";
+import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin, Tooltip, Menu, Dropdown, Col, Row } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, SendOutlined, UnorderedListOutlined, MoreOutlined, AppstoreOutlined, CopyFilled, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -108,7 +108,7 @@ const Users = () => {
                     .eq('id', editItem.id);
 
                 if (error) throw new Error("Failed to update user.");
-                notification.success({ message: "User updated successfully" });
+                notification.success({ message: `${payload?.user_name} updated successfully` });
                 setEditItem(null);
             } else {
                 // Check if user already exists
@@ -117,7 +117,7 @@ const Users = () => {
                     .select('id')
                     .eq('details->>email', email);
 
-                if (checkError && checkError.code !== 'PGRST116') throw checkError;
+                if (checkError && checkError?.code !== 'PGRST116') throw checkError;
 
                 if (existingUser?.length > 0) {
                     message.warning('User with this email already exists.');
@@ -140,7 +140,7 @@ const Users = () => {
                 if (insertError) throw insertError;
 
                 message.success(<>
-                    User invited successfully. Users can accept the invite sent from Inbox/Spam folder!
+                    {payload?.user_name} invited successfully. {payload?.user_name} can accept the invite sent from Inbox/Spam folder!
                 </>);
             }
         } catch (error) {
@@ -391,75 +391,38 @@ const Users = () => {
             </div>
             <div ref={componentRef}>
                 {viewMode === 'card' ? (
-                    <div className="services-card-grid p-2">
-                        {users?.map((user) => (
-                            <Card
-                                key={user?.id}
-                                // extra={
-                                //     <div className="card-actions">
-                                //         <Tooltip title="Edit">
-                                //             <Button //disabled={true}
-                                //                 type="primary"
-                                //                 icon={<EditFilled />}
-                                //                 size="small"
-                                //                 className="mr-2"
-                                //                 onClick={() => handleEdit(user)}
-                                //             />
-                                //         </Tooltip>
-                                //         <Tooltip title="Copy">
-                                //             <Button //disabled={true}
-                                //                 type="primary"
-                                //                 icon={<CopyFilled />}
-                                //                 size="small"
-                                //                 className="mr-2"
-                                //                 onClick={() => handleEdit(user, true)}
-                                //             />
-                                //         </Tooltip>
-                                //         <Tooltip title="Resend Login Link">
-                                //             <Button //disabled={true}
-                                //                 type="primary"
-                                //                 icon={<SendOutlined />}
-                                //                 size="small"
-                                //                 className="mr-2"
-                                //                 onClick={() => showResendLoginLinkConfirm(user)}
-                                //             />
-                                //         </Tooltip>
-                                //         <Tooltip title="Delete">
-                                //             <Button
-                                //                 type="primary" ghost
-                                //                 icon={<DeleteOutlined />}
-                                //                 size="small"
-                                //                 onClick={() => showDeleteConfirm(user)}
-                                //             // onClick={() => handleDelete(user?.id)}
-                                //             />
-                                //         </Tooltip>
-                                //     </div>
-                                // }
+                    <div >
+                        <Row gutter={[16, 16]}>
+                            {users?.map((user) => (
+                                <Col key={user?.id} xs={24} sm={12} lg={6}>
+                                    <Card
+                                        key={user?.id}
+                                        extra={
+                                            <Dropdown overlay={actionsMenu(user)} trigger={['click']}>
+                                                <Button icon={<MoreOutlined />} shape="circle" />
+                                            </Dropdown>
+                                        }
 
-                                extra={
-                                    <Dropdown overlay={actionsMenu(user)} trigger={['click']}>
-                                        <Button icon={<MoreOutlined />} shape="circle" />
-                                    </Dropdown>
-                                }
-
-                                title={
-                                    <div className="service-card-title">
-                                        <Avatar size={80}
-                                            src={user?.details?.profileImage}
-                                            alt={user && user?.details?.firstName[0] || ""}
-                                        >{user && user?.details?.firstName[0] || ""}</Avatar>
-                                        {/* {user.details?.firstName} */}
-                                    </div>
-                                }
-                                // title={user.details?.user_name}
-                                className="service-card"
-                            >
-                                <p><b>Name:</b> {user.user_name}</p>
-                                <p><b>Email:</b> {user.details?.email}</p>
-                                <p><b>Mobile:</b> {user.details?.mobile}</p>
-                                <p><b>Role:</b> {user.details?.role_type}</p>
-                            </Card>
-                        ))}
+                                        title={
+                                            <div className="service-card-title">
+                                                <Avatar size={80}
+                                                    src={user?.details?.profileImage}
+                                                    alt={user && user?.details?.firstName[0] || ""}
+                                                >{user && user?.details?.firstName[0] || ""}</Avatar>
+                                                {/* {user.details?.firstName} */}
+                                            </div>
+                                        }
+                                        // title={user.details?.user_name}
+                                        className="service-card"
+                                    >
+                                        <p><b>Name:</b> {user.user_name}</p>
+                                        <p><b>Email:</b> {user.details?.email}</p>
+                                        <p><b>Mobile:</b> {user.details?.mobile}</p>
+                                        <p><b>Role:</b> {user.details?.role_type}</p>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
                     </div>
                 ) : (
                     <div className="pl-3 pr-3">
