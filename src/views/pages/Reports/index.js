@@ -53,7 +53,7 @@ const ReportComponent = () => {
 
         const [startDate, endDate] = dateRange;
         setLoading(true);
-        const { data, error } = await supabase.rpc('generate_timesheet_view_v1', {
+        const { data, error } = await supabase.rpc('generate_timesheet_view_v2', {
             start_date: startDate.format('YYYY-MM-DD'),
             end_date: endDate.format('YYYY-MM-DD'),
             selected_project: projectName || null,
@@ -201,36 +201,36 @@ const ReportComponent = () => {
         // </Card>
 
         <Card bodyStyle={{ padding: "0px" }}>
-    <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-        <h2 style={{ margin: 0 }}>Reports</h2>
-    </div>
-    <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-    <Select
-        placeholder="Select User"
-        onChange={setUserId}
-        style={{ width: 200 }}
-    >
-        {users.map((user) => (
-            <Option key={user.id} value={user.id}>{user.user_name}</Option>
-        ))}
-    </Select>
-    <Select
-        placeholder="Select Project"
-        onChange={setProjectName}
-        style={{ width: 200 }}
-    >
-        {projects.map((project) => (
-            <Option key={project.id} value={project.id}>{project.project_name}</Option>
-        ))}
-    </Select>
-    <RangePicker onChange={(dates) => setDateRange(dates)} />
-    <Button type="primary" onClick={fetchReportData}>Get Report</Button>
-    <div style={{ flexGrow: 1, textAlign: 'right' }}>
-        {summary && <Button type="primary" onClick={handlePrint}>Download Report</Button>}
-    </div>
-</div>
+            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+                <h2 style={{ margin: 0 }}>Reports</h2>
+            </div>
+            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <Select
+                    placeholder="Select User"
+                    onChange={setUserId}
+                    style={{ width: 200 }}
+                >
+                    {users.map((user) => (
+                        <Option key={user.id} value={user.id}>{user.user_name}</Option>
+                    ))}
+                </Select>
+                <Select
+                    placeholder="Select Project"
+                    onChange={setProjectName}
+                    style={{ width: 200 }}
+                >
+                    {projects.map((project) => (
+                        <Option key={project.id} value={project.id}>{project.project_name}</Option>
+                    ))}
+                </Select>
+                <RangePicker onChange={(dates) => setDateRange(dates)} />
+                <Button type="primary" onClick={fetchReportData}>Get Report</Button>
+                <div style={{ flexGrow: 1, textAlign: 'right' }}>
+                    {summary && <Button type="primary" onClick={handlePrint}>Download Report</Button>}
+                </div>
+            </div>
 
-    {/* <div style={{ marginBottom: '16px' }}>
+            {/* <div style={{ marginBottom: '16px' }}>
         <Select
             placeholder="Select User"
             onChange={setUserId}
@@ -259,59 +259,59 @@ const ReportComponent = () => {
             {summary && <Button onClick={handlePrint}>Download</Button>}
         </Col>
     </Row> */}
-    {loading ? (
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <Spin size="large" />
-        </div>
-    ) : (
-        <>
-            {summary && (
-                <div style={{ marginTop: '24px' }} ref={reportDataRef} className="report-container">
-                    {/* Print-specific Header */}
-                    <div className="report-header">
-                        <img src="/img/ukpe_logo_dark.png" alt="Logo" className="app-logo" />
-                        <Title level={4} style={{ color: '#fa8c16' }}>
-                            Report Summary - {users.find((user) => user.id === userId)?.user_name || "N/A"}
-                        </Title>
-                    </div>
-                    <Divider />
-                    <Text strong>USER: </Text>
-                    <Text>{users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
-                    <br />
-                    <Text strong>PROJECT: </Text>
-                    <Text>{projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
-                    <br />
-                    <Text strong>DATE RANGE: </Text>
-                    <Text>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
-                    <Divider />
-                    <Table size={'small'} pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
-                    <Divider />
-                    <Title level={5} style={{ marginTop: '24px' }}>Summary Details</Title>
-                    <Text strong>TOTAL HOURS: </Text>
-                    <Text>{summary.totalHours} HOURS</Text>
-                    <br />
-                    <Text strong>TOTAL HOURS ALLOCATED: </Text>
-                    <Text>{summary.allocatedHours} HOURS</Text>
-                    <br />
-                    <Text strong>TOTAL EXPENSED HOURS: </Text>
-                    <Text>{summary.expensedHours} HOURS</Text>
-                    <br />
-                    <Text strong>BALANCE HOURS: </Text>
-                    <Text>{summary.balanceHours} HOURS</Text>
-                    <Divider />
-                    <Text strong>COST/HR: </Text>
-                    <Text>{summary.costPerHour}</Text>
-                    <br />
-                    <Text strong>TOTAL COST: </Text>
-                    <Text>{summary.totalCost}</Text>
+            {loading ? (
+                <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                    <Spin size="large" />
                 </div>
+            ) : (
+                <>
+                    {summary && (
+                        <div style={{ marginTop: '24px' }} ref={reportDataRef} className="report-container">
+                            {/* Print-specific Header */}
+                            <div className="report-header">
+                                <img src="/img/ukpe_logo_dark.png" alt="Logo" className="app-logo" />
+                                <Title level={4} style={{ color: '#fa8c16' }}>
+                                    Report Summary - {users.find((user) => user.id === userId)?.user_name || "N/A"}
+                                </Title>
+                            </div>
+                            <Divider />
+                            <Text strong>USER: </Text>
+                            <Text>{users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
+                            <br />
+                            <Text strong>PROJECT: </Text>
+                            <Text>{projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
+                            <br />
+                            <Text strong>DATE RANGE: </Text>
+                            <Text>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
+                            <Divider />
+                            <Table size={'small'} pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
+                            <Divider />
+                            <Title level={5} style={{ marginTop: '24px' }}>Summary Details</Title>
+                            <Text strong>TOTAL HOURS: </Text>
+                            <Text>{summary.totalHours} HOURS</Text>
+                            <br />
+                            <Text strong>TOTAL HOURS ALLOCATED: </Text>
+                            <Text>{summary.allocatedHours} HOURS</Text>
+                            <br />
+                            <Text strong>TOTAL EXPENSED HOURS: </Text>
+                            <Text>{summary.expensedHours} HOURS</Text>
+                            <br />
+                            <Text strong>BALANCE HOURS: </Text>
+                            <Text>{summary.balanceHours} HOURS</Text>
+                            <Divider />
+                            <Text strong>COST/HR: </Text>
+                            <Text>{summary.costPerHour}</Text>
+                            <br />
+                            <Text strong>TOTAL COST: </Text>
+                            <Text>{summary.totalCost}</Text>
+                        </div>
+                    )}
+                    {emptyData &&
+                        <Empty description='No Data' />
+                    }
+                </>
             )}
-            {emptyData &&
-                <Empty description='No Data' />
-            }
-        </>
-    )}
-</Card>
+        </Card>
 
 
     );

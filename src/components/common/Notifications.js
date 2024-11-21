@@ -20,19 +20,14 @@ const Notifications = () => {
         const { data, error } = await supabase
             .from('notifications')
             .select('*')
-            // .or(`type.eq.public,type.eq.location.and(locations.cs.{${session?.user?.location}}),type.eq.users.and(users.cs.{${session?.user?.id}})`)
-            // .or(`type.eq.public,type.eq.location.and(locations.eq.{${session?.user?.location}}),type.eq.users.and(users.eq.{${session?.user?.id}})`)
-            // .or(
-            //     `type.eq.public,` +
-            //     `type.eq.location.and(locations.cs.{${session?.user?.location}}),` +
-            //     `type.eq.users.and(users.cs.{${session?.user?.id}})`
-            // )
             .or(
                 `type.eq.public,` +
                 `locations.cs.{${session?.user?.location?.id}},` +
                 `users.cs.{${session?.user?.id}}`
             )
-            .gte('expiry', new Date().toISOString().split('T')[0]);
+            // .gte('expiry', new Date().toISOString().split('T')[0]);
+            .gte('expiry', new Date().toISOString())
+            .lte('start', new Date().toISOString());
 
         if (error) {
             console.error('Error fetching notifications:', error);

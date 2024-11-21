@@ -76,13 +76,16 @@ const Notifications = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        const { type, expiry, ...rest } = values;
+        const { type, start, expiry, ...rest } = values;
 
         // Construct payload based on type
         const payload = {
             ...rest,
             type,
-            expiry: expiry?.format(dateFormat),
+            start: start,
+            expiry: expiry,
+            // start: start?.format(dateFormat) || '',
+            // expiry: expiry?.format(dateFormat),
             users: type === 'users' ? values?.users : null,
             locations: type === 'location' ? values?.locations : null,
         };
@@ -176,7 +179,10 @@ const Notifications = () => {
             title: record?.title,
             message: record?.message,
             // expiry: record?.expiry,
-            expiry: dayjs(record?.expiry, dateFormat),
+            // start: dayjs(record?.start, dateFormat),
+            // expiry: dayjs(record?.expiry, dateFormat),
+            start: dayjs(record?.start),
+            expiry: dayjs(record?.expiry),
             type: record?.type,
             users: record?.users,
             locations: record?.locations,
@@ -228,10 +234,15 @@ const Notifications = () => {
             dataIndex: 'message',
             key: 'message',
         },
+        // {
+        //     title: 'Expiry',
+        //     dataIndex: 'expiry',
+        //     key: 'expiry',
+        // },
         {
-            title: 'Expiry',
-            dataIndex: 'expiry',
-            key: 'expiry',
+            title: 'Type',
+            dataIndex: 'type',
+            key: 'type',
         },
         // {
         //     title: 'Users',
@@ -313,26 +324,33 @@ const Notifications = () => {
                 okText="Save"
             >
                 <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
-                    <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please enter the title' }]}>
+                    <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please enter the Title' }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="message" label="Message" rules={[{ required: true, message: 'Please enter the message' }]}>
+                    <Form.Item name="message" label="Message" rules={[{ required: true, message: 'Please enter the Message' }]}>
                         <Input.TextArea rows={4} />
                     </Form.Item>
-                    <Form.Item name="expiry" label="Expiry" format={dateFormat} rules={[{ required: true, message: 'Please select the expiry date' }]}>
-                        <DatePicker style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item name="type" label="Type" rules={[{ required: true, message: 'Please select the type' }]}>
+                    <Form.Item name="type" label="Type" rules={[{ required: true, message: 'Please select the Type' }]}>
                         <Select onChange={(value) => setType(value)}>
                             <Select.Option value="users">Users</Select.Option>
                             <Select.Option value="public">Public</Select.Option>
                             <Select.Option value="location">Location</Select.Option>
                         </Select>
                     </Form.Item>
+                    <Form.Item name="start" label="Start" rules={[{ required: true, message: 'Please select the Start date' }]}>
+                        <DatePicker size={'small'}
+                            //  showTime
+                            style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="expiry" label="Expiry" format={dateFormat} rules={[{ required: true, message: 'Please select the Expiry date' }]}>
+                        <DatePicker size={'small'}
+                            //  showTime 
+                            style={{ width: '100%' }} />
+                    </Form.Item>
 
                     {/* Conditional inputs based on type */}
                     {type === 'users' && (
-                        <Form.Item name="users" label="Select Users" rules={[{ required: true, message: 'Please select users' }]}>
+                        <Form.Item name="users" label="Select Users" rules={[{ required: true, message: 'Please select Users' }]}>
                             <Select mode="multiple" placeholder="Select users">
                                 {users?.map((user) => (
                                     <Select.Option key={user?.id} value={user?.id}>
@@ -343,7 +361,7 @@ const Notifications = () => {
                         </Form.Item>
                     )}
                     {type === 'location' && (
-                        <Form.Item name="locations" label="Select Locations" rules={[{ required: true, message: 'Please select locations' }]}>
+                        <Form.Item name="locations" label="Select Locations" rules={[{ required: true, message: 'Please select Locations' }]}>
                             <Select mode="multiple" placeholder="Select locations">
                                 {locations?.map((location) => (
                                     <Select.Option key={location?.id} value={location?.id}>

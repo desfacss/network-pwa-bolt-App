@@ -24,9 +24,9 @@ const index = () => {
                 <TabPane tab="Timesheet Settings" key="4">
                     <TimesheetSettings />
                 </TabPane>
-                <TabPane tab="Types" key="5">
+                {/* <TabPane tab="Types" key="5">
                     <EnumEditor />
-                </TabPane>
+                </TabPane> */}
                 {/* <TabPane tab="Leave Policy" key="5">
                     <Locations />
                 </TabPane>

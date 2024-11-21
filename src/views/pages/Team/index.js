@@ -1,6 +1,6 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin, Tooltip } from "antd";
+import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin, Tooltip, Menu, Dropdown } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, CopyFilled, ExclamationCircleFilled } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, SendOutlined, UnorderedListOutlined, MoreOutlined, AppstoreOutlined, CopyFilled, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
@@ -183,17 +183,57 @@ const Users = () => {
         confirm({
             title: `Are you sure delete - ${record?.user_name} ?`,
             icon: <ExclamationCircleFilled />,
-            //   content: 'Some descriptions',
             okText: 'Yes',
             okType: 'danger',
             cancelText: 'No',
             onOk: async () => {
-                const { error } = await supabase.from('users').delete().eq('id', record?.id);
-                if (!error) {
-                    notification.success({ message: "User deleted successfully" });
-                    fetchUsers();
-                } else {
-                    notification.error({ message: error?.message || "Failed to delete user" });
+                try {
+                    const { error } = await supabase.from('users').delete().eq('id', record?.id);
+                    if (!error) {
+                        // const { data, error: rpcError } =
+                        //     await supabase.rpc('auth.delete_user_if_no_linked_data',
+                        //  { user_id: record?.id }
+                        //  );
+
+                        // if (!rpcError) {
+                        //     notification.success({ message: "User deleted successfully" });
+                        // } else {
+                        //     notification.error({ message: rpcError?.message || "Failed to delete user due to linked data" });
+                        // }
+                        notification.success({ message: "User deleted successfully" });
+                        fetchUsers();
+                    } else {
+                        // console.log("EE", error)
+                        notification.error({ message: error?.message || "Failed to delete user" });
+                    }
+                } catch (e) {
+                    // console.log("EEE", e)
+                    notification.error({ message: e.message || "Unexpected error occurred" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
+    const showResendLoginLinkConfirm = async (record) => {
+        confirm({
+            title: `Do you want to resend Login Link to ${record?.user_name} ?`,
+            icon: <ExclamationCircleFilled />,
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                try {
+                    const { error } = await supabase.auth.resetPasswordForEmail(record?.details?.email);
+                    if (error) {
+                        throw error;
+                    }
+                    // setIsOtpSent(true);
+                    message.success(`Login Link sent to ${record?.user_name}`);
+                } catch (error) {
+                    message.error(error.message || 'Failed to send Login Link.');
                 }
             },
             onCancel() {
@@ -261,6 +301,15 @@ const Users = () => {
                             onClick={() => handleEdit(record, true)}
                         />
                     </Tooltip>
+                    <Tooltip title="Resend Login Link">
+                        <Button //disabled={true}
+                            type="primary"
+                            icon={<SendOutlined />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => showResendLoginLinkConfirm(record)}
+                        />
+                    </Tooltip>
                     <Tooltip title="Delete">
                         <Button
                             type="primary" ghost
@@ -274,6 +323,52 @@ const Users = () => {
             ),
         },
     ];
+
+    const actionsMenu = (user) => (
+        <Menu>
+            <Menu.Item key="edit" onClick={() => handleEdit(user)}>
+                {/* <Tooltip title="Edit"> */}
+                <Button
+                    type="link"
+                    // icon={<EditFilled />}
+                    size="small"
+                    onClick={() => handleEdit(user)}
+                >Edit</Button>
+                {/* </Tooltip> */}
+            </Menu.Item>
+            <Menu.Item key="copy" onClick={() => handleEdit(user, true)}>
+                {/* <Tooltip title="Copy"> */}
+                <Button
+                    type="link"
+                    // icon={<CopyFilled />}
+                    size="small"
+                // onClick={() => handleEdit(user, true)}
+                >Copy</Button>
+                {/* </Tooltip> */}
+            </Menu.Item>
+            <Menu.Item key="resend" onClick={() => showResendLoginLinkConfirm(user)}>
+                {/* <Tooltip title="Resend Login Link"> */}
+                <Button
+                    type="link"
+                    // icon={<SendOutlined />}
+                    size="small"
+                // onClick={() => showResendLoginLinkConfirm(user)}
+                >Resend Link</Button>
+                {/* </Tooltip> */}
+            </Menu.Item>
+            <Menu.Item key="delete" onClick={() => showDeleteConfirm(user)}>
+                {/* <Tooltip title="Delete"> */}
+                <Button
+                    type="link"
+                    ghost
+                    // icon={<DeleteOutlined />}
+                    size="small"
+                // onClick={() => showDeleteConfirm(user)}
+                >Delete</Button>
+                {/* </Tooltip> */}
+            </Menu.Item>
+        </Menu>
+    );
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
@@ -300,36 +395,51 @@ const Users = () => {
                         {users?.map((user) => (
                             <Card
                                 key={user?.id}
+                                // extra={
+                                //     <div className="card-actions">
+                                //         <Tooltip title="Edit">
+                                //             <Button //disabled={true}
+                                //                 type="primary"
+                                //                 icon={<EditFilled />}
+                                //                 size="small"
+                                //                 className="mr-2"
+                                //                 onClick={() => handleEdit(user)}
+                                //             />
+                                //         </Tooltip>
+                                //         <Tooltip title="Copy">
+                                //             <Button //disabled={true}
+                                //                 type="primary"
+                                //                 icon={<CopyFilled />}
+                                //                 size="small"
+                                //                 className="mr-2"
+                                //                 onClick={() => handleEdit(user, true)}
+                                //             />
+                                //         </Tooltip>
+                                //         <Tooltip title="Resend Login Link">
+                                //             <Button //disabled={true}
+                                //                 type="primary"
+                                //                 icon={<SendOutlined />}
+                                //                 size="small"
+                                //                 className="mr-2"
+                                //                 onClick={() => showResendLoginLinkConfirm(user)}
+                                //             />
+                                //         </Tooltip>
+                                //         <Tooltip title="Delete">
+                                //             <Button
+                                //                 type="primary" ghost
+                                //                 icon={<DeleteOutlined />}
+                                //                 size="small"
+                                //                 onClick={() => showDeleteConfirm(user)}
+                                //             // onClick={() => handleDelete(user?.id)}
+                                //             />
+                                //         </Tooltip>
+                                //     </div>
+                                // }
+
                                 extra={
-                                    <div className="card-actions">
-                                        <Tooltip title="Edit">
-                                            <Button //disabled={true}
-                                                type="primary"
-                                                icon={<EditFilled />}
-                                                size="small"
-                                                className="mr-2"
-                                                onClick={() => handleEdit(user)}
-                                            />
-                                        </Tooltip>
-                                        {/* <Tooltip title="Copy">
-                                            <Button //disabled={true}
-                                                type="primary"
-                                                icon={<CopyFilled />}
-                                                size="small"
-                                                className="mr-2"
-                                                onClick={() => handleEdit(user, true)}
-                                            />
-                                        </Tooltip> */}
-                                        <Tooltip title="Delete">
-                                            <Button
-                                                type="primary" ghost
-                                                icon={<DeleteOutlined />}
-                                                size="small"
-                                                onClick={() => showDeleteConfirm(user)}
-                                            // onClick={() => handleDelete(user?.id)}
-                                            />
-                                        </Tooltip>
-                                    </div>
+                                    <Dropdown overlay={actionsMenu(user)} trigger={['click']}>
+                                        <Button icon={<MoreOutlined />} shape="circle" />
+                                    </Dropdown>
                                 }
 
                                 title={
