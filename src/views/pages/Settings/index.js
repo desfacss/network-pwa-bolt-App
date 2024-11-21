@@ -4,7 +4,7 @@ import Locations from '../Locations';
 import Organization from './Organization'
 import RoleFeatureEdit from './Roles'
 import TimesheetSettings from './Timesheet';
-import EnumEditor from './enumeditor';
+// import EnumEditor from './enumeditor';
 
 const { TabPane } = Tabs;
 
