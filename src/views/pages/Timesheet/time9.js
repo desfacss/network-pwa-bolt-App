@@ -20,7 +20,7 @@ const Timesheet = () => {
 
   // Fetch all projects and initialize project columns and data
   const fetchProjects = async () => {
-    const { data, error } = await supabase.from('x_projects').select('*');
+    const { data, error } = await supabase.from('projects').select('*');
     if (data) {
       setProjects(data);
 
@@ -142,19 +142,19 @@ const Timesheet = () => {
       return existingRow
         ? { ...existingRow }
         : {
-            key: dateValue,
-            date: dateValue,
-            dailyEntries: {
-              [projectName]: { hours: 0, description: "" },
-            },
-          };
+          key: dateValue,
+          date: dateValue,
+          dailyEntries: {
+            [projectName]: { hours: 0, description: "" },
+          },
+        };
     });
   };
 
   const addNewProject = () => {
     const newProjectIndex = projects.length;
     const newProject = { project_name: `New Project ${newProjectIndex + 1}` };
-  
+
     setProjects([...projects, newProject]);
     setSelectedProjectColumns([...selectedProjectColumns, newProject.project_name]);
 
@@ -183,15 +183,15 @@ const Timesheet = () => {
       [projectName]: prevData[projectName].map(item =>
         item.key === date
           ? {
-              ...item,
-              dailyEntries: {
-                ...item.dailyEntries,
-                [projectName]: {
-                  ...item.dailyEntries[projectName],
-                  [field]: value,
-                },
+            ...item,
+            dailyEntries: {
+              ...item.dailyEntries,
+              [projectName]: {
+                ...item.dailyEntries[projectName],
+                [field]: value,
               },
-            }
+            },
+          }
           : item
       ),
     }));

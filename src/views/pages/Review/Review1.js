@@ -33,7 +33,7 @@ const Review1 = ({ date, employee, fetchData }) => {
 
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase.from('x_projects').select('*')
+    const { data, error } = await supabase.from('projects').select('*')
     // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
@@ -54,7 +54,7 @@ const Review1 = ({ date, employee, fetchData }) => {
     }
 
     const { data, error } = await supabase
-      .from('x_timesheet_3')
+      .from('timesheet')
       .select('*')
       .eq('user_id', selectedEmployeesId)
       .eq('timesheet_date', currentDate.toISOString())
@@ -361,14 +361,14 @@ const Review1 = ({ date, employee, fetchData }) => {
     //     // Update the existing timesheet
     //     console.log("update", existingTimesheetId);
     //     result = await supabase
-    //         .from('x_timesheet_3')
+    //         .from('timesheet')
     //         .update(timesheetData)
     //         .eq('id', existingTimesheetId);
     // } else {
     //     console.log("create");
     //     // Insert a new timesheet
     //     result = await supabase
-    //         .from('x_timesheet_3')
+    //         .from('timesheet')
     //         .insert([timesheetData]);
     // }
 
@@ -399,7 +399,7 @@ const Review1 = ({ date, employee, fetchData }) => {
       }
 
       // Perform the update query
-      const { data, error } = await supabase.from("x_timesheet_3").update(updatedValues).eq("id", existingTimesheet?.id);
+      const { data, error } = await supabase.from("timesheet").update(updatedValues).eq("id", existingTimesheet?.id);
 
       if (error) {
         console.error("Error updating status:", error);
@@ -445,7 +445,7 @@ const Review1 = ({ date, employee, fetchData }) => {
 
 
   // const handleSubmit = async () => {
-  //   const { data, error } = await supabase.from('x_timesheet_3').update({ status: isApproveModal ? "Approved" : "Rejected" }).eq('id', existingTimesheet.id);
+  //   const { data, error } = await supabase.from('timesheet').update({ status: isApproveModal ? "Approved" : "Rejected" }).eq('id', existingTimesheet.id);
   //   if (error) {
   //     console.error('Error updating status:', error);
   //     message.error(`Error updating status: ${error}`);

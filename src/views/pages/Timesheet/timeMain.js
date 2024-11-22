@@ -56,7 +56,7 @@ const Timesheet = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('x_timesheet_3')
+        .from('timesheet')
         .select('*')
         .eq('user_id', session?.user?.id)
       if (error) {
@@ -73,7 +73,7 @@ const Timesheet = () => {
   };
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase.from('x_projects').select('*')
+    const { data, error } = await supabase.from('projects').select('*')
       .or(`project_users.cs.{${session?.user?.id}},project_users.is.null`)
       .neq('is_closed', true)
       .order('is_non_project', { ascending: true })  // is_non_project=false rows come first
@@ -155,7 +155,7 @@ const Timesheet = () => {
     }
 
     const { data, error } = await supabase
-      .from('x_timesheet_3')
+      .from('timesheet')
       .select('*')
       .eq('user_id', session?.user?.id)
       .eq('timesheet_date', currentDate.toISOString())
@@ -316,7 +316,7 @@ const Timesheet = () => {
       if (existingTimesheetId) {
         // Update existing timesheet
         const { error } = await supabase
-          .from('x_timesheet_3')
+          .from('timesheet')
           .update(timesheetPayload)
           .eq('id', existingTimesheetId);
 
@@ -325,7 +325,7 @@ const Timesheet = () => {
       } else {
         // Insert new timesheet
         const { error } = await supabase
-          .from('x_timesheet_3')
+          .from('timesheet')
           .insert(timesheetPayload);
 
         if (error) throw error;
@@ -750,7 +750,7 @@ const Timesheet = () => {
   const handleDelete = async (record) => {
     // console.log("Record", record)
     if (record) {
-      const { error } = await supabase.from('x_timesheet_3').delete().eq('id', record?.id);
+      const { error } = await supabase.from('timesheet').delete().eq('id', record?.id);
       if (!error) {
         notification.success({ message: "Client deleted successfully" });
         fetchTimesheets();

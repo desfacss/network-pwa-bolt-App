@@ -19,7 +19,7 @@ const Timesheet = () => {
   const { session } = useSelector((state) => state.auth);
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase.from('x_projects').select('*');
+    const { data, error } = await supabase.from('projects').select('*');
     if (data) {
       setProjects(data);
       console.log("T", data.slice(0, 2))
@@ -46,7 +46,7 @@ const Timesheet = () => {
   //   }
 
   //   const { data, error } = await supabase
-  //     .from('x_timesheet_3')
+  //     .from('timesheet')
   //     .select('*')
   //     .eq('user_id', session.user.id)
   //     .eq('timesheet_date', currentDate.toISOString())
@@ -81,7 +81,7 @@ const Timesheet = () => {
     }
 
     const { data, error } = await supabase
-      .from('x_timesheet_3')
+      .from('timesheet')
       .select('*')
       .eq('user_id', session.user.id)
       .eq('timesheet_date', currentDate.toISOString())
@@ -164,7 +164,7 @@ const Timesheet = () => {
       if (existingTimesheetId) {
         // Update existing timesheet
         const { error } = await supabase
-          .from('x_timesheet_3')
+          .from('timesheet')
           .update(timesheetPayload)
           .eq('id', existingTimesheetId);
 
@@ -173,7 +173,7 @@ const Timesheet = () => {
       } else {
         // Insert new timesheet
         const { error } = await supabase
-          .from('x_timesheet_3')
+          .from('timesheet')
           .insert(timesheetPayload);
 
         if (error) throw error;

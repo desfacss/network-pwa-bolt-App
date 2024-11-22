@@ -86,7 +86,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('x_projects').select('*').neq('is_non_project', true);
+        let { data, error } = await supabase.from('projects').select('*').neq('is_non_project', true);
         if (data) {
             setProjects(data);
         }
@@ -123,8 +123,8 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
         };
 
         const { data, error } = (editItem && !clone)
-            ? await supabase.from('x_projects').update(projectData).eq('id', editItem?.id)
-            : await supabase.from('x_projects').insert([projectData]);
+            ? await supabase.from('projects').update(projectData).eq('id', editItem?.id)
+            : await supabase.from('projects').insert([projectData]);
 
         if (error) {
             notification.error({ message: error?.message || (editItem && !clone) ? "Failed to update project" : "Failed to add project" });
@@ -158,7 +158,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     //     console.log(updatedDetails);
     //     if (editItem) {
     //         const { data, error } = await supabase
-    //             .from('x_projects')
+    //             .from('projects')
     //             .update({ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id })
     //             .eq('id', editItem.id);
 
@@ -171,7 +171,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     //         console.log("Resp", supabase, data, error)
     //     } else {
     //         const { data, error } = await supabase
-    //             .from('x_projects')
+    //             .from('projects')
     //             .insert([{ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id }]);
 
     //         if (data) {
@@ -287,7 +287,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             okType: 'danger',
             cancelText: 'No',
             onOk: async () => {
-                const { error } = await supabase.from('x_projects').delete().eq('id', record?.id);
+                const { error } = await supabase.from('projects').delete().eq('id', record?.id);
                 if (!error) {
                     notification.success({ message: "Project deleted successfully" });
                     fetchProjects();

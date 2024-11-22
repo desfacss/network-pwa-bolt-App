@@ -19,7 +19,7 @@ const Timesheet = () => {
   const { session } = useSelector((state) => state.auth);
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase.from('x_projects').select('*');
+    const { data, error } = await supabase.from('projects').select('*');
     if (data) {
       setProjects(data);
 
@@ -134,12 +134,12 @@ const Timesheet = () => {
       return existingRow
         ? { ...existingRow }
         : {
-            key: dateValue,
-            date: dateValue,
-            dailyEntries: {
-              [projectName]: { hours: 0, description: "" },
-            },
-          };
+          key: dateValue,
+          date: dateValue,
+          dailyEntries: {
+            [projectName]: { hours: 0, description: "" },
+          },
+        };
     });
 
     return newRows;
@@ -180,15 +180,15 @@ const Timesheet = () => {
       [project]: prevData[project].map(item =>
         item.key === date
           ? {
-              ...item,
-              dailyEntries: {
-                ...item.dailyEntries,
-                [project]: {
-                  ...item.dailyEntries[project],
-                  [field]: value,
-                },
+            ...item,
+            dailyEntries: {
+              ...item.dailyEntries,
+              [project]: {
+                ...item.dailyEntries[project],
+                [field]: value,
               },
-            }
+            },
+          }
           : item
       ),
     }));

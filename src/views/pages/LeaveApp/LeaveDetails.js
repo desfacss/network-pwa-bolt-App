@@ -10,7 +10,7 @@ const LeaveDetails = ({ leave_details }) => {
     const { session } = useSelector((state) => state.auth);
     const standardDailyHours = session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('x_projects').select('*').eq('is_non_project', true).eq('linked_leave', true);
+        let { data, error } = await supabase.from('projects').select('*').eq('is_non_project', true).eq('linked_leave', true);
         if (data) {
             setProjects(data);
             console.log("Projects", data)

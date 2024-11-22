@@ -35,7 +35,7 @@ const ReportComponent = () => {
     };
 
     const fetchProjects = async () => {
-        const { data, error } = await supabase.from('x_projects').select('id, project_name');
+        const { data, error } = await supabase.from('projects').select('id, project_name');
         if (error) console.error(error);
         else setProjects(data);
     };

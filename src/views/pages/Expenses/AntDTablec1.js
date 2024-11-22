@@ -83,7 +83,7 @@ const Timesheet = () => {
 
     const getProjects = async () => {
         const { data, error } = await supabase
-            .from('x_projects')
+            .from('projects')
             .select(`*, clients (*)`)
             .contains('project_users', [session?.user?.userId]);
 

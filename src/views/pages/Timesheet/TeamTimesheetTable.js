@@ -19,7 +19,7 @@ const TeamTimesheetTable = () => {
         setLoading(true);
         try {
             // const { data, error } = await supabase
-            //     .from('x_timesheet_3')
+            //     .from('timesheet')
             //     .select('*')
             //     .eq('approver_id', session?.user?.id)
             //     .eq('status', 'Submitted')
@@ -31,7 +31,7 @@ const TeamTimesheetTable = () => {
             // if (session?.user?.role_type === 'admin') {
             //     // Query for admins
             //     ({ data, error } = await supabase
-            //         .from('x_timesheet_3')
+            //         .from('timesheet')
             //         .select('*,user:user_id (*)')
             //         // .lt('last_date', today)
             //         .or(`last_date.lt.${today},approver_id.eq.${session?.user?.id}`)
@@ -40,14 +40,14 @@ const TeamTimesheetTable = () => {
             // }  else {
             //     // Query for non-admins
             //     ({ data, error } = await supabase
-            //         .from('x_timesheet_3')
+            //         .from('timesheet')
             //         .select('*')
             //         .eq('approver_id', session?.user?.id)
             //         // .eq('status', 'Submitted')
             //     );
             // }
             const { data, error } = await supabase
-                .from('x_timesheet_3')
+                .from('timesheet')
                 .select('*,user:user_id (user_name)')
                 // .eq('approver_id', session?.user?.id)
                 // .eq('status', 'Submitted')
@@ -119,12 +119,12 @@ const TeamTimesheetTable = () => {
             render: (record) => {
                 const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
                 const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
-        
+
                 return (
                     <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
                         <div style={{
-                            whiteSpace: 'nowrap', 
-                            overflow: 'hidden', 
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             maxWidth: '200px', // You can adjust this based on your table column width
                         }}>

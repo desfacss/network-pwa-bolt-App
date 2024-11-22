@@ -93,7 +93,7 @@ const Timesheet = () => {
 
     const getProjects = async () => {
         const { data, error } = await supabase
-            .from('x_projects')
+            .from('projects')
             // .select('*')
             .select(`
             *,

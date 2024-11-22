@@ -21,7 +21,7 @@ const Projects = () => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('x_projects').select('*');
+        let { data, error } = await supabase.from('projects').select('*');
         if (data) {
             setProjects(data);
         }
@@ -35,7 +35,7 @@ const Projects = () => {
         if (editItem) {
             // Update existing project
             const { data, error } = await supabase
-                .from('x_projects')
+                .from('projects')
                 .update({ details: projectDetails, project_name: values.project_name })
                 .eq('id', editItem.id);
 
@@ -48,7 +48,7 @@ const Projects = () => {
         } else {
             // Add new project
             const { data, error } = await supabase
-                .from('x_projects')
+                .from('projects')
                 .insert([{ details: projectDetails, project_name: values.project_name }]);
 
             if (data) {
@@ -72,7 +72,7 @@ const Projects = () => {
     };
 
     const handleDelete = async (id) => {
-        const { error } = await supabase.from('x_projects').delete().eq('id', id);
+        const { error } = await supabase.from('projects').delete().eq('id', id);
         if (!error) {
             notification.success({ message: "Project deleted successfully" });
             fetchProjects();

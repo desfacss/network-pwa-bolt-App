@@ -16,7 +16,7 @@ const MyTimesheetTable = () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
-                .from('x_timesheet_3')
+                .from('timesheet')
                 .select('timesheet_date, status, updated_at')
                 .eq('user_id', session?.user?.id)
             if (error) {

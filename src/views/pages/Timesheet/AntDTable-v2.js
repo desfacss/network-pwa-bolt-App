@@ -35,7 +35,7 @@ const Timesheet = () => {
   );
 
   const fetchProjects = async () => {
-    let { data, error } = await supabase.from('x_projects').select('*');
+    let { data, error } = await supabase.from('projects').select('*');
     if (data) {
       console.log("projects", data)
       setProjects(data);  // .map(project => project.project_name)
