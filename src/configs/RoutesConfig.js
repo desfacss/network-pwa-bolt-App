@@ -39,9 +39,19 @@ export const protectedRoutes = (feature) => {
             component: React.lazy(() => import('views/pages/Settings')),
         },
         {
-            key: 'leave_application',
-            path: `${APP_PREFIX_PATH}/leave_application`,
-            component: React.lazy(() => import('views/pages/LeaveApplication')),
+            key: 'leave_app',
+            path: `${APP_PREFIX_PATH}/leave_app`,
+            component: React.lazy(() => import('views/pages/LeaveApp')),
+        },
+        // {
+        //     key: 'leave_settings',
+        //     path: `${APP_PREFIX_PATH}/leave_settings`,
+        //     component: React.lazy(() => import('views/pages/LeaveSettings')),
+        // },
+        {
+            key: 'leaves',
+            path: `${APP_PREFIX_PATH}/leaves`,
+            component: React.lazy(() => import('views/pages/LeaveSettings')),
         },
         {
             key: 'locations',

@@ -27,6 +27,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const [schema, setSchema] = useState();
     const [allocationTracking, setAllocationTracking] = useState(false);
     const [clone, setClone] = useState();
+    const [leaves, setLeaves] = useState([]);
 
     const getFormattedDate = (date) => {
         return date.toISOString().split('T')[0];
@@ -75,13 +76,22 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         }
     };
 
+    const fetchLeaves = async () => {
+        let { data, error } = await supabase.from('leaves').select('*');
+        if (data) {
+            setLeaves(data);
+            console.log("B", data)
+        }
+        if (error) {
+            notification.error({ message: error?.message || "Failed to fetch leaves" });
+        }
+    };
+
     useEffect(() => {
         fetchClients();
         fetchUsers();
-    }, []);
-
-    useEffect(() => {
         fetchProjects();
+        fetchLeaves()
     }, []);
 
     const fetchProjects = async () => {
@@ -220,6 +230,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             manager_id: record?.details?.manager_id,
             start_date: dayjs(record?.details?.start_date, dateFormat),
             end_date: dayjs(record?.details?.end_date, dateFormat),
+            linked_leave: record?.linked_leave
         }
         if (copy) {
             delete item.id;
@@ -254,6 +265,28 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             } else {
                 updatedUsers[index].rate = "0"; // Default rate if not found
             }
+            // const leaveDays=leaves?.find(i => i?.leave_type === editItem?.project_name)?.min 
+            // updatedUsers[index].allocated_hours = editItem?.linked_leave ? leaveDays* session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours : "0"; // Default rate if not found
+            // Determine leaveDays based on the given logic
+            let leaveDays = 0;
+            const matchingLeaves = leaves.filter(i => i.leave_type === editItem?.project_name);
+
+            if (matchingLeaves.length > 1) {
+                // Check for row with matching location_id
+                const locationSpecificLeave = matchingLeaves.find(i => i.location_id === session?.user?.location?.id);
+                leaveDays = locationSpecificLeave ? locationSpecificLeave.min : 0;
+            }
+
+            if (leaveDays === 0) {
+                // Fall back to row where level === 'organization'
+                const orgSpecificLeave = matchingLeaves.find(i => i.level === 'organization');
+                leaveDays = orgSpecificLeave ? orgSpecificLeave.min : 0;
+            }
+
+            // Calculate allocated hours
+            updatedUsers[index].allocated_hours = editItem?.linked_leave
+                ? leaveDays * session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours
+                : "0";
         }
         setProjectUsers(updatedUsers);
     };

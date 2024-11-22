@@ -122,13 +122,13 @@ const TimesheetSettings = ({ locationId }) => {
 
                 {/* 3. Default Working Hours */}
                 <Panel header="Default Working Hours" key="3">
-                    <Form.Item name={["workingHours", "standardDailyHours"]} label="Standard Daily Hours">
+                    <Form.Item name={["workingHours", "standardDailyHours"]} label="Standard Daily Hours" disable >
                         <InputNumber min={1} max={24} />
                     </Form.Item>
                     <Form.Item name={["workingHours", "maxOvertimeHours"]} label="Max Overtime Hours">
                         <InputNumber min={0} />
                     </Form.Item>
-                    <Form.Item name={["workingHours", "standardWeeklyHours"]} label="Standard Weekly Hours">
+                    <Form.Item name={["workingHours", "standardWeeklyHours"]} label="Standard Weekly Hours" disable >
                         <InputNumber min={1} max={168} />
                     </Form.Item>
                     <Form.Item name={["workingHours", "projectFinalHours"]} label="Project Final Hours(%)">

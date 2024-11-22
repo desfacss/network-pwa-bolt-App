@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 
 const { TabPane } = Tabs;
 
-const LeaveApplications = () => {
+const LeaveApp = () => {
     const { session } = useSelector((state) => state.auth);
 
     return (
@@ -23,4 +23,4 @@ const LeaveApplications = () => {
     );
 };
 
-export default LeaveApplications;
+export default LeaveApp;
