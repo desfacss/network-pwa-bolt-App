@@ -767,7 +767,7 @@ const Timesheet = () => {
       title: 'Timesheet Date',
       dataIndex: 'timesheet_date',
       key: 'timesheet_date',
-      render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
+      // render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
     },
     {
       title: 'Submitted Time',

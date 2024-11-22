@@ -1,9 +1,10 @@
-import { Button, Card, notification, Table, Drawer, Form, Input } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
+const { confirm } = Modal;
 
 const LeaveSettings = () => {
     const componentRef = useRef(null);
@@ -96,14 +97,27 @@ const LeaveSettings = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        const { error } = await supabase.from('leaves').delete().eq('id', id);
-        if (!error) {
-            notification.success({ message: "Leave deleted successfully" });
-            fetchLeaves();
-        } else {
-            notification.error({ message: error?.message || "Failed to delete Leave" });
-        }
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Are you sure delete  - ${record.leave_type} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('leaves').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: "Leave deleted successfully" });
+                    fetchLeaves();
+                } else {
+                    notification.error({ message: error?.message || "Failed to delete Leave" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
     };
 
     const columns = [
@@ -159,7 +173,7 @@ const LeaveSettings = () => {
                         type="primary" ghost
                         icon={<DeleteOutlined />}
                         size="small"
-                        onClick={() => handleDelete(record.id)}
+                        onClick={() => showDeleteConfirm(record)}
                     />
                 </div>
             ),

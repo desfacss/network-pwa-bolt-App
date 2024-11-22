@@ -38,9 +38,10 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
-        key: 'leaves',
-        path: `#`,
+      { //Comment for Prod
+        key: 'leave_app',
+        path: `${APP_PREFIX_PATH}/leave_app`,
+        //Comment for Prod
         title: 'Leaves',
         icon: CalendarOutlined,
         breadcrumb: false,
