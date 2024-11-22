@@ -34,7 +34,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
     useEffect(() => {
 
-        const fetchDataForDropdown = async (table, column, filters) => {
+        const fetchDataForDropdown = async (table, column, filters, noId) => {
             try {
                 // Normalize the column name for JSONB fields
                 const normalizedColumn = column.replace('-', '.');
@@ -42,7 +42,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                 // Initialize the Supabase query
                 let query = supabase
                     .from(table)
-                    .select(`id, ${normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn}`);
+                    .select(`${noId ? "" : "id, "}${normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn}`);
                 // .select('*');
                 // Iterate over filters and chain them directly onto the query
                 filters?.forEach(filter => {
@@ -63,7 +63,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
                 // Execute the constructed query
                 const { data, error } = await query;
-                console.log("filters,", data);
+                console.log("filters,", table, data, error);
 
                 if (error) {
                     console.error("Error fetching data from Supabase:", error);
@@ -152,6 +152,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
             const keys = Object.keys(obj);
             for (let key of keys) {
                 const enumValue = obj[key]?.enum;
+                const noId = enumValue?.no_id;
                 const filterConditions = obj[key]?.enum?.filters || [];
                 // filterConditions && console.log("Ob", filterConditions);
                 if (enumValue) {
@@ -167,12 +168,12 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                         }
                     } else if (typeof enumValue === 'object' && enumValue.table && enumValue.column) {
                         // Handle the new case where `enum` is an object with a table and column
-                        const options = await fetchDataForDropdown(enumValue.table, enumValue.column, filterConditions);
+                        const options = await fetchDataForDropdown(enumValue.table, enumValue.column, filterConditions, noId);
                         console.log("Op", options);
                         obj[key] = {
                             type: obj[key]?.type,
                             title: obj[key].title,
-                            enum: options.map(item => item.id),
+                            enum: options.map(item => (noId ? item[`${enumValue.column}`] : item.id)),
                             enumNames: options.map(item => item[`${enumValue.column}`])
                         };
                     }
