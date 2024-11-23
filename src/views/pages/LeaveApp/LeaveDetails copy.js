@@ -6,7 +6,6 @@ import { useSelector } from 'react-redux';
 const LeaveDetails = ({ leave_details }) => {
 
     const [projects, setProjects] = useState([]);
-    const [leaves, setLeaves] = useState([]);
 
     const { session } = useSelector((state) => state.auth);
     const standardDailyHours = session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours
@@ -20,32 +19,19 @@ const LeaveDetails = ({ leave_details }) => {
             notification.error({ message: error?.message || "Failed to fetch projects" });
         }
     };
-    const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('leaves').select('*');
-        if (data) {
-            setLeaves(data);
-            console.log("Leaves", data)
-        }
-        if (error) {
-            notification.error({ message: error?.message || "Failed to fetch Leaves" });
-        }
-    };
 
     useEffect(() => {
         fetchProjects();
-        fetchLeaves();
     }, []);
 
     const dataSource = leave_details && Object.keys(leave_details)?.map((key, index) => {
         const leave = leave_details[key];
         return {
             key: index,
-            // type: key.charAt(0).toUpperCase() + key.slice(1),
-            type: leaves.find(i => i?.id === key)?.leave_type || "",
+            type: key.charAt(0).toUpperCase() + key.slice(1),
             taken: leave.taken,
-            allocated: leave.allocated !== null ? leave.allocated : 'N/A',
-            remaining: leave.allocated !== null ? Math.max(leave.allocated - leave.expensed, 0) : 'N/A',
-            expensed: leave.expensed
+            min: leave.min !== null ? leave.min : 'N/A',
+            remaining: leave.min !== null ? Math.max(leave.min - leave.taken, 0) : 'N/A'
         };
     });
 
@@ -74,22 +60,28 @@ const LeaveDetails = ({ leave_details }) => {
 
     return (
         <Row gutter={[16, 16]}>
-            {dataSource?.map((leave) => (
-                <Col key={leave.key} xs={24} sm={12} md={8} lg={6}>
+            {projects?.map((leave) => {
+                const filteredUser = leave?.details?.project_users?.filter(
+                    (i) => i?.user_id === session?.user?.id
+                )[0];
+                console.log("TT")
+                return (<Col key={leave.id} xs={24} sm={12} md={8} lg={6}>
                     <Card>
                         <div>
-                            <strong>{leave.type}</strong>
+                            <strong>{leave.project_name}</strong>
                         </div>
                         <div>
-                            {leave.remaining !== 'N/A' ? (
-                                `${leave.expensed} of ${leave.allocated} available`
+                            {Number(filteredUser?.allocated_hours / standardDailyHours) - Number(filteredUser?.expensed_hours / standardDailyHours)} of {filteredUser?.allocated_hours / standardDailyHours} available
+                            {/* {leave.remaining !== 'N/A' ? (
+                                `${leave.remaining} of ${leave.min} available`
                             ) : (
                                 'Not Applicable'
-                            )}
+                            )} */}
                         </div>
                     </Card>
                 </Col>
-            ))}
+                )
+            })}
         </Row>
     );
 };

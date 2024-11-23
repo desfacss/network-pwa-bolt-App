@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Table, Input, Button, Select, message, Row, Col, notification, Card, Drawer, Modal, Spin, Tooltip } from 'antd';
 import { useSelector } from 'react-redux';
 import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHideNext, isTimesheetDisabled } from 'components/common/utils';
@@ -11,7 +11,12 @@ import TimesheetInstructions from './TimesheetInstructions';
 const { confirm } = Modal;
 const { Option } = Select;
 
-const Timesheet = () => {
+const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
+
+  useImperativeHandle(ref, () => ({
+    showDrawer,
+  }));
+
   const [viewMode, setViewMode] = useState('Weekly');
   const [approvedTimeSheet, setApprovedTimeSheet] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(false);
@@ -34,8 +39,10 @@ const Timesheet = () => {
   const { timesheet_settings } = session?.user?.organization
 
   useEffect(() => {
-    fetchTimesheets()
-  }, [])
+    if (startDate && endDate) {
+      fetchTimesheets()
+    }
+  }, [startDate, endDate])
 
   // Function to open the drawer
   const showDrawer = () => {
@@ -59,6 +66,10 @@ const Timesheet = () => {
         .from('timesheet')
         .select('*')
         .eq('user_id', session?.user?.id)
+        .gte('timesheet_date', startDate)
+        .lte('timesheet_date', endDate)
+        .order('updated_at', { ascending: true })
+
       if (error) {
         throw error;
       }
@@ -824,6 +835,10 @@ const Timesheet = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      filters: Array.from(
+        new Set(timesheets?.map((record) => record?.status))
+      )?.map((status) => ({ text: status, value: status })), // Create unique filters from status
+      onFilter: (value, record) => record?.status === value,
     },
     // {
     //   title: 'Last Updated',
@@ -881,9 +896,9 @@ const Timesheet = () => {
 
   return (
     <>
-      <Button type="primary" onClick={showDrawer} style={{ marginBottom: 16 }}>
+      {/* <Button type="primary" onClick={showDrawer} style={{ marginBottom: 16 }}>
         Add Timesheet
-      </Button>
+      </Button> */}
       {/* <Modal visible={timesheetToDelete} closable={false}
         title={`Confirm Delete ${timesheetToDelete?.timesheet_date} Timesheet`}
         onCancel={() => setTimesheetToDelete()} onOk={handleDelete}
@@ -934,6 +949,6 @@ const Timesheet = () => {
       </Drawer>}
     </>
   );
-};
+});
 
 export default Timesheet;

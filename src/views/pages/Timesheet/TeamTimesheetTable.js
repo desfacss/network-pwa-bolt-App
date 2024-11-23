@@ -6,7 +6,7 @@ import Review1 from '../Review/Review1';
 // import { supabase } from './supabaseClient'; // Import your Supabase client or API
 import { format } from 'date-fns';
 
-const TeamTimesheetTable = () => {
+const TeamTimesheetTable = ({ startDate, endDate }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -50,7 +50,10 @@ const TeamTimesheetTable = () => {
                 .from('timesheet')
                 .select('*,user:user_id (user_name)')
                 // .eq('approver_id', session?.user?.id)
-                // .eq('status', 'Submitted')
+                .neq('status', 'Draft')
+                .gte('timesheet_date', startDate)
+                .lte('timesheet_date', endDate)
+                .order('updated_at', { ascending: true })
                 ;
 
             if (error) {
@@ -67,8 +70,10 @@ const TeamTimesheetTable = () => {
     };
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (startDate && endDate) {
+            fetchData();
+        }
+    }, [startDate, endDate]);
 
     // Define the columns for the table
     const columns = [
@@ -82,6 +87,10 @@ const TeamTimesheetTable = () => {
             title: 'Name',
             dataIndex: ['user', 'user_name'],
             key: 'user',
+            filters: Array.from(
+                new Set(data?.map((record) => record?.user?.user_name))
+            )?.map((name) => ({ text: name, value: name })), // Create unique filters from names
+            onFilter: (value, record) => record?.user?.user_name === value,
         },
         {
             title: 'Submitted Time',
@@ -138,6 +147,10 @@ const TeamTimesheetTable = () => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            filters: Array.from(
+                new Set(data?.map((record) => record?.status))
+            )?.map((status) => ({ text: status, value: status })), // Create unique filters from status
+            onFilter: (value, record) => record?.status === value,
         },
         // {
         //     title: 'Last Updated',

@@ -12,10 +12,22 @@ const LeaveApplications = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [schema, setSchema] = useState();
     const [applicationSchema, setApplicationSchema] = useState();
+    const [leaves, setLeaves] = useState([]);
 
     const { session } = useSelector((state) => state.auth);
 
     const [form] = Form.useForm();
+
+    const fetchLeaves = async () => {
+        let { data, error } = await supabase.from('leaves').select('*');
+        if (data) {
+            setLeaves(data);
+            console.log("Leaves", data)
+        }
+        if (error) {
+            notification.error({ message: error?.message || "Failed to fetch Leaves" });
+        }
+    };
 
     const getApprovalForm = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_approval_form").single()
@@ -45,13 +57,14 @@ const LeaveApplications = () => {
     }
 
     useEffect(() => {
+        fetchLeaves();
         getApprovalForm()
         getApplicationForm()
         fetchLeaveApplications();
     }, []);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*').neq('status', 'Approved');
+        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved');
         if (data) {
             setLeaveApplications(data);
         }
@@ -71,22 +84,23 @@ const LeaveApplications = () => {
                 .eq('id', editItem.id);
             if (values?.status === 'Approved') {
                 console.log("T", values?.status);
-                const leaveType = editItem?.details?.leaveType?.split(" ")[0]?.toLowerCase(); // Extract first word and convert to lowercase
+                const leaveType = editItem?.details?.leaveType//?.split(" ")[0]?.toLowerCase(); // Extract first word and convert to lowercase
                 var leaveDetails = session?.user?.leave_details
-                if (leaveDetails?.leaves[leaveType]) {
+                var leaveTypeId = leaves?.find(i => i?.leave_type === leaveType)?.id
+                if (leaveDetails[leaveTypeId]) {
                     leaveDetails = {
-                        leaves: {
-                            ...leaveDetails?.leaves,
-                            [leaveType]: {
-                                ...leaveDetails?.leaves[leaveType],
-                                taken: leaveDetails?.leaves[leaveType]?.taken + editItem?.details?.daysTaken
-                            }
+                        // leaves: {
+                        ...leaveDetails,
+                        [leaveTypeId]: {
+                            ...leaveDetails[leaveTypeId],
+                            taken: leaveDetails[leaveTypeId]?.taken + editItem?.details?.daysTaken
                         }
+                        // }
                     };
                     const { data: data2, error: error2 } = await supabase.from('users')
                         .update({ leave_details: leaveDetails })
                         .eq('id', editItem?.user_id);
-                    console.log("T", data2);
+                    // console.log("T", data2, leaveDetails, editItem?.user_id);
                 }
 
                 notification.success({ message: "Leave Application updated successfully" });
@@ -136,8 +150,8 @@ const LeaveApplications = () => {
     const columns = [
         {
             title: 'Name',
-            dataIndex: ['details', 'name'],
-            key: 'name',
+            dataIndex: ['user', 'user_name'],
+            key: 'user_name',
         },
         {
             title: 'Leave Type',

@@ -17,6 +17,8 @@ const LeaveApplications = () => {
 
     const { session } = useSelector((state) => state.auth);
 
+    const { timesheet_settings } = session?.user?.organization
+
     const [form] = Form.useForm();
 
     const getForms = async () => {
@@ -72,7 +74,13 @@ const LeaveApplications = () => {
             // Update existing service
             const { data, error } = await supabase
                 .from('leave_applications')
-                .update({ details: values, user_id: session?.user?.id, status: "Submitted" })
+                .update({
+                    details: values,
+                    user_id: session?.user?.id,
+                    status: "Submitted",
+                    approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
+                    submitted_time: new Date()
+                })
                 .eq('id', editItem.id);
 
             if (data) {
@@ -85,7 +93,13 @@ const LeaveApplications = () => {
             // Add new leaveApplication
             const { data, error } = await supabase
                 .from('leave_applications')
-                .insert([{ details: values, user_id: session?.user?.id, status: "Submitted" }]);
+                .insert([{
+                    details: values,
+                    user_id: session?.user?.id,
+                    status: "Submitted",
+                    approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
+                    submitted_time: new Date()
+                }]);
 
             if (data) {
                 notification.success({ message: "Leave Application added successfully" });

@@ -1,7 +1,7 @@
 import Form from "@rjsf/antd";
 // import { RJSFSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-import { Card } from "antd";
+import { Card, Spin } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useEffect, useState } from "react";
 // import { ReactElement } from "react";
@@ -373,14 +373,14 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
         // }
 
     }
-    console.log("Schemas", schemas, formData, updateId)
+    // console.log("Schemas", schemas, formData, updateId)
 
     let _RJSFSchema = schema && JSON.parse(JSON.stringify(schema?.data_schema));
     const log = (type) => console.log.bind(console, type);
 
     return (
         <>
-            {schema && <Form
+            {schema ? <Form
                 schema={_RJSFSchema}
                 validator={validator}
                 templates={{ ObjectFieldTemplate: ObjectFieldTemplate, }}
@@ -397,7 +397,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                 onSubmit={onSubmit}
                 onError={log('errors')}
             // onChange={log('changed')}
-            />}
+            /> : <Spin spinning={true}></Spin>}
         </>
     );
 };
