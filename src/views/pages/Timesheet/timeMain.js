@@ -84,11 +84,15 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   };
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase.from('projects').select('*')
-      .or(`project_users.cs.{${session?.user?.id}},project_users.is.null`)
-      .neq('is_closed', true)
-      .order('is_non_project', { ascending: true })  // is_non_project=false rows come first
-      .order('project_name', { ascending: true });
+    // const { data, error } = await supabase.from('projects').select('*')
+    // .or(`project_users.cs.{${session?.user?.id}},project_users.is.null`)
+    // .neq('is_closed', true)
+    // .order('is_non_project', { ascending: true })  // is_non_project=false rows come first
+    // .order('project_name', { ascending: true });
+
+    const { data, error } = await supabase.rpc('get_projects_list_with_allocation', { userid: session?.user?.id })
+
+
     // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
@@ -731,9 +735,10 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const calculateBalanceHours = (projectName, projectTotals) => {
     const project = projects.find((p) => p.id === projectName);
     // console.log("YR", project, projectName, projectTotals)
-    if (!project || !project?.details?.project_users) return 0;
-
-    const userDetails = project?.details?.project_users?.find(user => user.user_id === session?.user?.id);
+    console.log("pro", project)
+    if (!project || !project?.project_users) return 0;
+    // const userDetails = project?.details?.project_users?.find(user => user.user_id === session?.user?.id);
+    const userDetails = project?.project_users;
     if (!userDetails) return 0;
 
     const allocatedHours = parseInt(userDetails?.allocated_hours, 10) || 0;
