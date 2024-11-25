@@ -109,7 +109,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
                 ...values,
                 start_date: values?.start_date.format(dateFormat),
                 end_date: values?.end_date.format(dateFormat),
-                project_users: projectUsers
+                // project_users: projectUsers
             },
             allocation_tracking: true,
             is_non_project: false,
@@ -119,18 +119,56 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             project_name: values?.project_name,
             client_id: values?.client_id,
             hrpartner_id: values?.hrpartner_id,
-            manager_id: values?.manager_id
+            manager_id: values?.manager_id,
+            start_date: values?.start_date.format(dateFormat),
+            end_date: values?.end_date.format(dateFormat)
         };
 
         const { data, error } = (editItem && !clone)
-            ? await supabase.from('projects').update(projectData).eq('id', editItem?.id)
-            : await supabase.from('projects').insert([projectData]);
+            ? await supabase.from('projects').update(projectData).eq('id', editItem?.id).select('id')
+            : await supabase.from('projects').insert([projectData]).select('id');
 
         if (error) {
             notification.error({ message: error?.message || (editItem && !clone) ? "Failed to update project" : "Failed to add project" });
         } else {
-            notification.success({ message: (editItem && !clone) ? "Project updated successfully" : "Project added successfully" });
-            fetchProjects();
+            try {
+                // const details = projectUsers
+                const projectId = data[0]?.id
+                const payload = projectUsers.map((user) => {
+                    const { rate, user_id, end_date, start_date, expensed_hours, allocated_hours } = user;
+
+                    // Find user_name if provided in userNames object
+                    const user_name = users?.find(user => user?.id === user_id)?.user_name || null;
+
+                    return {
+                        user_id,
+                        project_id: projectId,
+                        user_name,
+                        details: {
+                            rate,
+                            end_date,
+                            start_date,
+                            project_id: projectId,
+                            expensed_hours: parseFloat(expensed_hours), // Ensure numeric value
+                            allocated_hours: parseFloat(allocated_hours) // Ensure numeric value
+                        }
+                    };
+                });
+
+                const { error } = await supabase
+                    .from('allocations')
+                    .upsert(payload, { onConflict: ['project_id', 'user_id'] });
+
+                if (error) {
+                    console.error('Error upserting allocation:', error.message);
+                } else {
+                    //   console.log('Allocation upserted successfully');
+                    notification.success({ message: (editItem && !clone) ? "Project updated successfully" : "Project added successfully" });
+                    fetchProjects();
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+            }
         }
 
         setIsDrawerOpen(false);
@@ -188,38 +226,48 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     //     setEditItem(null);
     // };
 
-    const handleEdit = (record, copy) => {
-        const item = {
-            id: record?.id,
-            project_name: record?.details?.project_name,
-            description: record?.details?.description,
-            project_hours: record?.details?.project_hours,
-            is_closed: record?.details?.is_closed,
-            status: record?.details?.status,
-            hrpartner_id: record?.details?.hrpartner_id,
-            client_id: record?.details?.client_id,
-            manager_id: record?.details?.manager_id,
-            start_date: dayjs(record?.details?.start_date, dateFormat),
-            end_date: dayjs(record?.details?.end_date, dateFormat),
-        }
-        if (copy) {
-            delete item.id;
-            delete item.project_name;
-            delete item.description;
-        }
-        setEditItem(item);
-        form.setFieldsValue(item);
+    const handleEdit = async (record, copy) => {
 
-        const updatedProjectUsers = (copy
-            ? record?.details?.project_users?.map(user => ({
-                ...user,
-                expensed_hours: "0", // Reset expensed_hours if needed
-            }))
-            : record?.details?.project_users) || [];
-        setProjectUsers(updatedProjectUsers || []);
-        setIsDrawerOpen(true);
-        if (copy) {
-            setClone(true)
+        // let { data, error } = await supabase.rpc('get_project_details_with_project_users', { project_id: record?.id });
+        let { data, error } = await supabase.rpc('get_project_details_with_project_users', { projectid: record?.id });
+
+        console.log("RPC data", data)
+        if (data) {
+            const item = {
+                id: record?.id,
+                project_name: record?.project_name,
+                description: record?.details?.description,
+                project_hours: record?.details?.project_hours,
+                is_closed: record?.details?.is_closed,
+                status: record?.details?.status,
+                hrpartner_id: record?.details?.hrpartner_id,
+                client_id: record?.details?.client_id,
+                manager_id: record?.details?.manager_id,
+                start_date: dayjs(record?.start_date, dateFormat),
+                end_date: dayjs(record?.end_date, dateFormat),
+            }
+            if (copy) {
+                delete item.id;
+                delete item.project_name;
+                delete item.description;
+            }
+            setEditItem(item);
+            form.setFieldsValue(item);
+
+            const updatedProjectUsers = (copy
+                ? data?.details?.project_users?.map(user => ({
+                    ...user,
+                    expensed_hours: "0", // Reset expensed_hours if needed
+                }))
+                : data?.details?.project_users) || [];
+            setProjectUsers(updatedProjectUsers || []);
+            setIsDrawerOpen(true);
+            if (copy) {
+                setClone(true)
+            }
+        }
+        if (error) {
+            notification.error({ message: error?.message || "Failed to fetch project users" });
         }
     };
 

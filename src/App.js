@@ -25,7 +25,7 @@ function App() {
       if (!session || !session.user) return;
 
       // Fetch user data from the users table
-      const { data: userData, error: userError } = await supabase.from('users').select('*,location (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', session.user.id).single();
+      const { data: userData, error: userError } = await supabase.from('users').select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', session.user.id).single();
 
       if (userError) {
         console.error('Error fetching user data:', userError);

@@ -13,7 +13,8 @@ const { confirm } = Modal;
 
 const { Option } = Select;
 
-const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
+const NonProjectLeave = () => {
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const componentRef = useRef(null);
     const [projects, setProjects] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -95,7 +96,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('projects').select('*').eq('is_non_project', true);
+        let { data, error } = await supabase.from('projects_leaves').select('*').eq('is_non_project', true);
         if (data) {
             setProjects(data);
         }
@@ -121,8 +122,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
         const updatedDetails = {
             ...values,
-            start_date: values?.start_date?.format(dateFormat),
-            end_date: values?.end_date?.format(dateFormat),
             // project_users: allocationTracking ? projectUsers : []
         };
 
@@ -142,13 +141,13 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             hrpartner_id: session?.user?.id,
             manager_id: session?.user?.id,
             start_date: values?.start_date?.format(dateFormat),
-            end_date: values?.end_date?.format(dateFormat)
+            end_date: values?.end_date?.format(dateFormat),
         };
 
         try {
             const { data, error } = (editItem && !clone)
-                ? await supabase.from('projects').update(commonPayload).eq('id', editItem?.id).select('id')
-                : await supabase.from('projects').insert([commonPayload]).select('id');
+                ? await supabase.from('projects_leaves').update(commonPayload).eq('id', editItem?.id).select('id')
+                : await supabase.from('projects_leaves').insert([commonPayload]).select('id');
 
             if (data) {
                 try {
@@ -256,6 +255,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const handleEdit = async (record, copy) => {
         let { data, error } = await supabase.rpc('get_project_details_with_project_users', { projectid: record?.id });
 
+        console.log("rec", record)
         console.log("RPC data", data)
         if (data) {
             const item = {
@@ -382,7 +382,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             okType: 'danger',
             cancelText: 'No',
             onOk: async () => {
-                const { error } = await supabase.from('projects').delete().eq('id', record?.id);
+                const { error } = await supabase.from('projects_leaves').delete().eq('id', record?.id);
                 if (!error) {
                     notification.success({ message: "Project deleted successfully" });
                     fetchProjects();
@@ -440,24 +440,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
                             size="small"
                             className="mr-2"
                             onClick={() => handleEdit(record)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Copy">
-                        <Button
-                            type="primary"
-                            icon={<CopyFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record, true)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                        <Button
-                            type="primary" ghost
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            // onClick={() => handleDelete(record.id)}
-                            onClick={() => showDeleteConfirm(record)}
                         />
                     </Tooltip>
                 </div>
@@ -653,4 +635,4 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     );
 };
 
-export default NonProject;
+export default NonProjectLeave;

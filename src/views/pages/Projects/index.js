@@ -2,6 +2,7 @@ import { Button, Card, Tabs } from 'antd';
 import React, { useState } from 'react';
 // import { useSelector } from 'react-redux';
 import NonProject from './NonProject';
+import NonProjectLeave from './NonProjectLeave';
 import Project from './Project';
 
 const { TabPane } = Tabs;
@@ -25,7 +26,7 @@ const Index = () => {
             <Tabs
                 defaultActiveKey="1"
                 tabBarExtraContent={
-                    <Button type='primary' onClick={handleAddButtonClick}>
+                    activeKey !== '3' && <Button type='primary' onClick={handleAddButtonClick}>
                         {`Add ${activeKey === '1' ? "Project" : "Non Project"}`}
                     </Button>
                 }
@@ -38,6 +39,9 @@ const Index = () => {
                 {/* {session?.user?.features?.feature?.viewTeamTimesheet && */}
                 <TabPane tab="Non Projects" key="2">
                     <NonProject isDrawerOpen={isNonProjectDrawerOpen} setIsDrawerOpen={setIsNonProjectDrawerOpen} />
+                </TabPane>
+                <TabPane tab="Leaves" key="3">
+                    <NonProjectLeave />
                 </TabPane>
                 {/* } */}
             </Tabs>
