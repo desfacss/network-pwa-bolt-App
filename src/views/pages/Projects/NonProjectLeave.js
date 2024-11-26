@@ -1,6 +1,6 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, CopyFilled } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, ExclamationCircleOutlined, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
@@ -26,7 +26,7 @@ const NonProjectLeave = () => {
     const dateFormat = 'YYYY/MM/DD';
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
     const [schema, setSchema] = useState();
-    const [allocationTracking, setAllocationTracking] = useState(false);
+    const [allocationTracking, setAllocationTracking] = useState(true);
     const [clone, setClone] = useState();
     const [leaves, setLeaves] = useState([]);
 
@@ -42,6 +42,9 @@ const NonProjectLeave = () => {
     const formattedTomorrow = getFormattedDate(tomorrow);  // "2024-11-13"
 
     const { session } = useSelector((state) => state.auth);
+
+    const { timesheet_settings } = session?.user?.organization
+
     const [form] = Form.useForm();
 
 
@@ -314,18 +317,18 @@ const NonProjectLeave = () => {
             // updatedUsers[index].allocated_hours = editItem?.linked_leave ? leaveDays* session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours : "0"; // Default rate if not found
             // Determine leaveDays based on the given logic
             let leaveDays = 0;
-            const matchingLeaves = leaves.filter(i => i.leave_type === editItem?.project_name);
+            const matchingLeaves = leaves?.filter(i => i.leave_type === editItem?.project_name);
 
             if (matchingLeaves.length > 1) {
                 // Check for row with matching location_id
-                const locationSpecificLeave = matchingLeaves.find(i => i.location_id === session?.user?.location?.id);
-                leaveDays = locationSpecificLeave ? locationSpecificLeave.min : 0;
+                const locationSpecificLeave = matchingLeaves?.find(i => i.location_id === session?.user?.location?.id);
+                leaveDays = locationSpecificLeave ? locationSpecificLeave?.allocated : 0;
             }
 
             if (leaveDays === 0) {
                 // Fall back to row where level === 'organization'
-                const orgSpecificLeave = matchingLeaves.find(i => i.level === 'organization');
-                leaveDays = orgSpecificLeave ? orgSpecificLeave.min : 0;
+                const orgSpecificLeave = matchingLeaves?.find(i => i.level === 'organization');
+                leaveDays = orgSpecificLeave ? orgSpecificLeave?.allocated : 0;
             }
 
             // Calculate allocated hours
@@ -396,6 +399,72 @@ const NonProjectLeave = () => {
         });
     };
 
+    const handleAllocate = async (record) => {
+        console.log("r", record)
+        let leaveDays = 0;
+        let location_id = null
+        const matchingLeaves = leaves?.filter(i => i.leave_type === record?.project_name);
+
+        // if (matchingLeaves.length > 1) {
+        //     // Check for row with matching location_id
+        //     const locationSpecificLeave = matchingLeaves?.find(i => i.location_id === session?.user?.location?.id);
+        //     leaveDays = locationSpecificLeave ? locationSpecificLeave?.allocated : 0;
+        //     location_id=null
+        // }
+
+        // TODO - Call rpc for each location id ,if no rows then only for organization
+
+        if (leaveDays === 0) {
+            // Fall back to row where level === 'organization'
+            const orgSpecificLeave = matchingLeaves?.find(i => i.level === 'organization');
+            leaveDays = orgSpecificLeave ? orgSpecificLeave?.allocated : 0;
+        }
+
+        const payload = {
+            orgid: record?.organization_id, // Organization ID
+            projectid: record?.id, // Project ID
+            tablename: 'allocations', // Table name
+            location_id, // Location ID (can be null)
+            allocated_hours: leaveDays, // Allocated hours
+            standard_hours: timesheet_settings?.workingHours?.standardDailyHours || 8 // Standard hours
+        }
+        let { data, error } = await supabase.rpc('insert_allocations_for_users', payload);
+
+        if (error) {
+            console.error('Error calling insert_allocations_for_users:', error);
+            notification.error({ message: error?.message || "Failed to Auto Allocated" });
+        } else {
+            notification.success({ message: "Auto Allocated successfully" });
+            console.log('Function result:', data);
+        }
+    }
+
+    const handleAllocateWithConfirm = (record) => {
+        const level = leaves?.filter(i => i.leave_type === record?.project_name)[0]?.level
+        let leaveDays = 0;
+        let location_id = null
+        const matchingLeaves = leaves?.filter(i => i.leave_type === record?.project_name);
+
+        if (leaveDays === 0) {
+            const orgSpecificLeave = matchingLeaves?.find(i => i.level === 'organization');
+            leaveDays = orgSpecificLeave ? orgSpecificLeave?.allocated : 0;
+        }
+        confirm({
+            // title: 'Are you sure you want to auto-allocate?',
+            title: `Are you sure you want to auto-allocate for ${record?.project_name}?\n all users in ${level} will be allocated with ${leaveDays} days and ${timesheet_settings?.workingHours?.standardDailyHours || 8} hours`,
+            icon: <ExclamationCircleOutlined />,
+            content: 'This action will overwrite allocated hours automatically. Proceed with caution. If you want to update leave settings click here',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk: async () => {
+                await handleAllocate(record); // Call the actual function
+            },
+            onCancel: () => {
+                console.log('Auto allocation canceled.');
+            },
+        });
+    };
+
     const columns = [
         {
             title: 'Name',
@@ -433,6 +502,14 @@ const NonProjectLeave = () => {
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
+                    <Tooltip title="Auto Allocate">
+                        <Button
+                            icon={<EditFilled />}
+                            size="small"
+                            className="mr-2"
+                            onClick={() => handleAllocateWithConfirm(record)} // Use the modal confirm
+                        />
+                    </Tooltip>
                     <Tooltip title="Edit">
                         <Button
                             type="primary"
@@ -590,12 +667,12 @@ const NonProjectLeave = () => {
                             }}
                         />
                     </Form.Item>
-                    <Form.Item name="allocation_tracking" label="Allocation Tracking" valuePropName="checked">
+                    {/* <Form.Item name="allocation_tracking" label="Allocation Tracking" valuePropName="checked">
                         <Checkbox onChange={(e) => handleAllocationChange(e.target.checked)} />
-                    </Form.Item>
-                    {allocationTracking && (<Form.Item name="project_hours" label="Project Hours">
+                    </Form.Item> */}
+                    {/* {allocationTracking && (<Form.Item name="project_hours" label="Project Hours">
                         <Input type="number" />
-                    </Form.Item>)}
+                    </Form.Item>)} */}
                     {allocationTracking && (<>
                         <h3>Project Users</h3>
                         <Table size={'small'}
