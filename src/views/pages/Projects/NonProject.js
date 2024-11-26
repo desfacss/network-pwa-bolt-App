@@ -95,7 +95,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('projects').select('*').eq('is_non_project', true);
+        let { data, error } = await supabase.from('projects').select('*').eq('is_non_project', true).order('project_name', { ascending: true });
         if (data) {
             setProjects(data);
         }

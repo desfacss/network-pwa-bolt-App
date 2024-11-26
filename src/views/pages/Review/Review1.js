@@ -33,13 +33,15 @@ const Review1 = ({ date, employee, fetchData }) => {
 
 
   const fetchProjects = async () => {
+    const { data: leavesData, error: leavesError } = await supabase.from('projects_leaves').select('*')
     const { data, error } = await supabase.from('projects').select('*')
     // .contains('project_users', [session?.user?.id]);
-    if (data) {
-      setProjects(data);
+    if (data && leavesData) {
+      setProjects([...data, ...leavesData]);
       console.log("Proj", data)
     } else {
-      notification.error({ message: error?.message || 'Failed to fetch projects' });
+      console.error("op", error, leavesError, data, leavesData);
+      notification.error({ message: error?.message || leavesError?.message || 'Failed to fetch projects' });
     }
   };
 
@@ -414,10 +416,13 @@ const Review1 = ({ date, employee, fetchData }) => {
         const { error: rpcError } = await supabase.rpc("update_expensed_hours", {
           timesheet_id: existingTimesheet?.id,
         });
+        const { error: rpcError2 } = await supabase.rpc("update_expensed_hours_for_projects_leaves", {
+          timesheet_id: existingTimesheet?.id,
+        });
 
-        if (rpcError) {
-          console.error("Error updating expensed hours:", rpcError);
-          message.error(`Error updating expensed hours: ${rpcError.message}`);
+        if (rpcError || rpcError2) {
+          console.error("Error updating expensed hours:", rpcError || rpcError2);
+          message.error(`Error updating expensed hours: ${rpcError.message || rpcError2.message}`);
           return;
         }
 

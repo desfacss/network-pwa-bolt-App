@@ -99,7 +99,7 @@ const NonProjectLeave = () => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('projects_leaves').select('*').eq('is_non_project', true);
+        let { data, error } = await supabase.from('projects_leaves').select('*').eq('is_non_project', true).order('project_name', { ascending: true });
         if (data) {
             setProjects(data);
         }
@@ -177,10 +177,10 @@ const NonProjectLeave = () => {
                         };
                     });
 
-                    const { error } = await supabase
+                    const { allocationsData, error } = await supabase
                         .from('allocations')
-                        .upsert(payload, { onConflict: ['project_id', 'user_id'] });
-
+                        .upsert(payload, { onConflict: ['project_id', 'user_id'] }).select('*');
+                    console.log("ap", allocationsData, payload)
                     if (error) {
                         console.error('Error upserting allocation:', error.message);
                     } else {
@@ -292,7 +292,7 @@ const NonProjectLeave = () => {
                 : data?.details?.project_users) || [];
             setProjectUsers(updatedProjectUsers || []);
             setIsDrawerOpen(true);
-            setAllocationTracking(record?.details?.allocation_tracking);
+            setAllocationTracking(record?.details?.allocation_tracking || true);
             if (copy) {
                 setClone(true)
             }
@@ -479,12 +479,12 @@ const NonProjectLeave = () => {
         },
         {
             title: 'Start Date',
-            dataIndex: ['details', 'start_date'],
+            dataIndex: ['start_date'],
             key: 'start_date',
         },
         {
             title: 'End Date',
-            dataIndex: ['details', 'end_date'],
+            dataIndex: ['end_date'],
             key: 'end_date',
         },
         {
@@ -504,11 +504,13 @@ const NonProjectLeave = () => {
                 <div className="d-flex">
                     <Tooltip title="Auto Allocate">
                         <Button
-                            icon={<EditFilled />}
+                            // icon={<EditFilled />}
                             size="small"
                             className="mr-2"
                             onClick={() => handleAllocateWithConfirm(record)} // Use the modal confirm
-                        />
+                        >
+                            Auto Allocate
+                        </Button>
                     </Tooltip>
                     <Tooltip title="Edit">
                         <Button
@@ -640,7 +642,11 @@ const NonProjectLeave = () => {
                 width={1000}
                 title={(editItem && !clone) ? "Edit Non Project" : "Add Non Project"}
                 open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setEditItem(null); form.resetFields(); setAllocationTracking(false); setIsDrawerOpen(false); setProjectUsers(); setClone(false) }}
+                onClose={() => {
+                    setEditItem(null); form.resetFields();
+                    // setAllocationTracking(false);
+                    setIsDrawerOpen(false); setProjectUsers(); setClone(false)
+                }}
                 onOk={() => form.submit()}
                 okText="Save"
             >

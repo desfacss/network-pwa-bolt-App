@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, message, Popconfirm } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
+import { EditFilled } from "@ant-design/icons";
 
 const LeaveTypes = () => {
     const [leaveTypes, setLeaveTypes] = useState([]);
@@ -101,12 +102,13 @@ const LeaveTypes = () => {
             render: (text, record) => (
                 <>
                     <Button
-                        type="link"
+                        icon={<EditFilled />}
+                        type="primary"
                         onClick={() => handleEdit(record)}
                     >
-                        Edit
+                        {/* Edit */}
                     </Button>
-                    <Popconfirm
+                    {/* <Popconfirm
                         title="Are you sure you want to delete this leave type?"
                         onConfirm={() => handleDelete(record.id)}
                         okText="Yes"
@@ -115,7 +117,7 @@ const LeaveTypes = () => {
                         <Button type="link" danger>
                             Delete
                         </Button>
-                    </Popconfirm>
+                    </Popconfirm> */}
                 </>
             ),
         },

@@ -30,7 +30,7 @@ const LeaveApplications = () => {
     }
 
     const getLocationDetails = async () => {
-        const { data, error } = await supabase.from('locations').select('*').eq('id', session?.user?.location).single()
+        const { data, error } = await supabase.from('locations').select('*').eq('id', session?.user?.location?.id).single()
         if (data) {
             // console.log(data)
             setLeavePolicy(data?.details?.leave_policy)
@@ -56,7 +56,7 @@ const LeaveApplications = () => {
     }, [leaveApplications, leavePolicy]);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*');
+        let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id);
         if (data) {
             console.log("leaves", data);
             setLeaveApplications(data);
@@ -197,7 +197,9 @@ const LeaveApplications = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <LeaveDetails leave_details={session?.user?.leave_details} />
+            <LeaveDetails
+            // leave_details={session?.user?.leave_details} 
+            />
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 {/* <h2 style={{ margin: 0 }}>Leave Application</h2> */}
                 <div>
