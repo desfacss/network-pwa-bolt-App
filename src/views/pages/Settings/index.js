@@ -6,6 +6,7 @@ import RoleFeatureEdit from './Roles'
 import TimesheetSettings from './Timesheet';
 import EnumEditor from './enumeditor';
 import LeaveSettings from '../LeaveSettings';
+import LeaveTypes from '../LeaveSettings/LeaveTypes';
 
 const { TabPane } = Tabs;
 
@@ -25,12 +26,15 @@ const index = () => {
                 <TabPane tab="Timesheet Settings" key="4">
                     <TimesheetSettings />
                 </TabPane>
-                <TabPane tab="Leave Settings" key="5">
+                <TabPane tab="Leave Types" key="5">
+                    <LeaveTypes />
+                </TabPane>
+                <TabPane tab="Leave Settings" key="6">
                     <LeaveSettings />
                 </TabPane>
-                <TabPane tab="Types" key="6">
+                {/* <TabPane tab="Types" key="6">
                     <EnumEditor />
-                </TabPane>
+                </TabPane> */}
                 {/* <TabPane tab="Leave Policy" key="7">
                     <Locations />
                 </TabPane>

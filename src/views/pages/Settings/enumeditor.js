@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Button, Input, Form, Row, Col, message, Modal, List } from 'antd';
+import { Select, Button, Input, Form, Row, Col, message, Modal, List, Popconfirm } from 'antd';
 import { supabase } from 'configs/SupabaseConfig'; // Ensure you import from the correct config file
 import { useSelector } from 'react-redux';
 
@@ -9,6 +9,8 @@ const EnumEditor = () => {
   const [newOption, setNewOption] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalEnumName, setModalEnumName] = useState('');
+  const [editingOption, setEditingOption] = useState(null);
+  const [editingValue, setEditingValue] = useState('');
   const [organizationId, setOrganizationId] = useState('');
 
   const { session } = useSelector((state) => state.auth);
@@ -52,11 +54,29 @@ const EnumEditor = () => {
     updateEnum(selectedEnum.id, updatedOptions);
   };
 
+  const handleEditOption = (option) => {
+    setEditingOption(option);
+    setEditingValue(option);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingValue) {
+      const updatedOptions = selectedEnum.options.map(opt =>
+        opt === editingOption ? editingValue : opt
+      );
+      updateEnum(selectedEnum.id, updatedOptions);
+      setEditingOption(null);
+      setEditingValue('');
+    } else {
+      message.error('Option cannot be empty');
+    }
+  };
+
   const updateEnum = async (enumId, updatedOptions) => {
     const { data, error } = await supabase
       .from('enums')
       .update({ options: updatedOptions })
-      .eq('id', enumId)
+      .eq('id', enumId);
 
     if (error) {
       message.error('Failed to update enum');
@@ -129,12 +149,32 @@ const EnumEditor = () => {
               renderItem={(option) => (
                 <List.Item
                   actions={[
-                    <Button danger onClick={() => handleDeleteOption(option)}>
-                      Delete
-                    </Button>,
+                    editingOption === option ? (
+                      <Button type="primary" onClick={handleSaveEdit}>
+                        Save
+                      </Button>
+                    ) : (
+                      <Button onClick={() => handleEditOption(option)}>Edit</Button>
+                    ),
+                    <Popconfirm
+                      title="Are you sure you want to delete this option?"
+                      onConfirm={() => handleDeleteOption(option)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button danger>Delete</Button>
+                    </Popconfirm>,
                   ]}
                 >
-                  {option}
+                  {editingOption === option ? (
+                    <Input
+                      value={editingValue}
+                      onChange={(e) => setEditingValue(e.target.value)}
+                      placeholder="Edit option"
+                    />
+                  ) : (
+                    option
+                  )}
                 </List.Item>
               )}
             />
@@ -142,13 +182,11 @@ const EnumEditor = () => {
             {/* Add Option */}
             <Row gutter={16}>
               <Col span={8}>
-                {/* <Form.Item label="New Option"> */}
                 <Input
                   value={newOption}
                   onChange={(e) => setNewOption(e.target.value)}
                   placeholder="Enter new option"
                 />
-                {/* </Form.Item> */}
               </Col>
               <Col span={8}>
                 <Button type="primary" onClick={handleAddOption}>

@@ -122,11 +122,6 @@ const LeaveSettings = () => {
 
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
             title: 'Type',
             dataIndex: 'leave_type',
             key: 'leave_type',
@@ -142,14 +137,9 @@ const LeaveSettings = () => {
             ),
         },
         {
-            title: 'Min',
-            dataIndex: 'min',
-            key: 'min',
-        },
-        {
-            title: 'Max',
-            dataIndex: 'max',
-            key: 'max',
+            title: 'Allocated',
+            dataIndex: 'allocated',
+            key: 'allocated',
         },
         // {
         //     title: 'Users',
@@ -201,7 +191,7 @@ const LeaveSettings = () => {
                     pagination={false}
                 />
             </div>
-            <Drawer footer={null} width={'100%'} //size="large"
+            <Drawer footer={null} // width={'100%'} //size="large"
                 title={editItem ? "Edit Leave" : "Add Leave"}
                 open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
