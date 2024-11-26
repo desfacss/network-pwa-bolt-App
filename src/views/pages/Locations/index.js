@@ -1,37 +1,31 @@
-import { Button, Card, notification, Table, Drawer, Form, Input } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, DatePicker, Grid } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
-import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
+import dayjs from "dayjs";
+import Utils from 'utils';
 
 const Locations = () => {
     const componentRef = useRef(null);
     const [locations, setLocations] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [schema, setSchema] = useState();
-
+    const [holidays, setHolidays] = useState([]);
     const { session } = useSelector((state) => state.auth);
 
     const [form] = Form.useForm();
 
-    const getForms = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "location_add_edit_form").single()
-        console.log("A", data)
-        if (data) {
-            console.log(data)
-            setSchema(data)
-        }
-    }
+    const { useBreakpoint } = Grid;
+    const screens = Utils.getBreakPoint(useBreakpoint());
+    const isMobile = screens.length === 0 ? false : !screens.includes("lg");
 
     useEffect(() => {
-        getForms()
         fetchLocations();
     }, []);
 
     const fetchLocations = async () => {
-        let { data, error } = await supabase.from('locations').select('*');
+        let { data, error } = await supabase.from("locations").select("*").order('name', { ascending: true });
         if (data) {
             setLocations(data);
         }
@@ -40,54 +34,19 @@ const Locations = () => {
         }
     };
 
-    const handleAddOrEdit = async (values) => {
-        // const { service_name, cost, duration, description } = values;
-        console.log("Pyload", values)
-        if (editItem) {
-            // Update existing service
-            const { data, error } = await supabase
-                .from('locations')
-                .update({ details: values, name: values?.name }) //, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName 
-                .eq('id', editItem.id);
-
-            if (data) {
-                notification.success({ message: "Location updated successfully" });
-                setEditItem(null);
-            } else if (error) {
-                notification.error({ message: error?.message || "Failed to update location" });
-            }
-        } else {
-            // Add new location
-            const { data, error } = await supabase
-                .from('locations')
-                .insert([{ details: values, name: values?.name }]) //, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
-
-            if (data) {
-                notification.success({ message: "Location added successfully" });
-            } else if (error) {
-                notification.error({ message: error?.message || "Failed to add location" });
-            }
-        }
-        fetchLocations();
-        setIsDrawerOpen(false);
-        form.resetFields();
-        setEditItem()
-    };
-
     const handleEdit = (record) => {
         setEditItem(record);
         form.setFieldsValue({
-            service_name: record?.details?.service_name,
-            cost: record?.details?.cost,
-            duration: record?.details?.duration,
-            description: record?.details?.description,
-            name: record?.details?.name,
-        });
+            name: record?.name,
+            pin: record?.details?.pin,
+            address: record?.details?.address
+        })
+        setHolidays(record.holidays || []);
         setIsDrawerOpen(true);
     };
 
     const handleDelete = async (id) => {
-        const { error } = await supabase.from('locations').delete().eq('id', id);
+        const { error } = await supabase.from("locations").delete().eq("id", id);
         if (!error) {
             notification.success({ message: "Location deleted successfully" });
             fetchLocations();
@@ -96,31 +55,48 @@ const Locations = () => {
         }
     };
 
+    const handleHolidayChange = (index, field, value) => {
+        const updatedHolidays = [...holidays];
+        updatedHolidays[index][field] = value;
+        if (field === "date") {
+            updatedHolidays[index].date = dayjs(value).format("YYYY-MM-DD"); // Ensure date is in 'YYYY-MM-DD'
+            updatedHolidays[index].day = dayjs(value).format("dddd"); // Compute the day
+        }
+        setHolidays(updatedHolidays);
+    };
+
+    const addHoliday = () => {
+        setHolidays([
+            ...holidays,
+            { date: null, name: "", optional: false, day: "" }, // New row with default values
+        ]);
+    };
+
+    const handleHolidayDelete = (index) => {
+        const updatedHolidays = [...holidays];
+        updatedHolidays.splice(index, 1);
+        setHolidays(updatedHolidays);
+    };
+
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
         },
         {
-            title: 'Address',
-            dataIndex: ['details', 'address'],
-            key: 'address',
+            title: "Address",
+            dataIndex: ["details", "address"],
+            key: "address",
         },
         {
-            title: 'Pin',
-            dataIndex: ['details', 'pin'],
-            key: 'pin',
+            title: "Pin",
+            dataIndex: ["details", "pin"],
+            key: "pin",
         },
-        // {
-        //     title: 'Users',
-        //     dataIndex: ['details', 'location_users'],
-        //     key: 'location_users',
-        //     render: (location_users) => location_users?.join(', '),
-        // },
         {
-            title: 'Actions',
-            key: 'actions',
+            title: "Actions",
+            key: "actions",
             render: (_, record) => (
                 <div className="d-flex">
                     <Button
@@ -131,7 +107,8 @@ const Locations = () => {
                         onClick={() => handleEdit(record)}
                     />
                     <Button
-                        type="primary" ghost
+                        type="primary"
+                        ghost
                         icon={<DeleteOutlined />}
                         size="small"
                         onClick={() => handleDelete(record.id)}
@@ -141,20 +118,108 @@ const Locations = () => {
         },
     ];
 
+    const holidayColumns = [
+        {
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
+            render: (_, record, index) => (
+                <Input
+                    value={record.name}
+                    onChange={(e) => handleHolidayChange(index, "name", e.target.value)}
+                />
+            ),
+        },
+        {
+            title: "Date",
+            dataIndex: "date",
+            key: "date",
+            render: (_, record, index) => (
+                <DatePicker
+                    value={record.date ? dayjs(record.date, "YYYY-MM-DD") : null}
+                    format="YYYY-MM-DD" // Ensure DatePicker displays in 'YYYY-MM-DD'
+                    onChange={(date, dateString) => handleHolidayChange(index, "date", dateString)}
+                // value={record.date ? dayjs(record.date) : null}
+                // onChange={(date, dateString) => handleHolidayChange(index, "date", dateString)}
+                />
+            ),
+        },
+        {
+            title: "Day",
+            dataIndex: "day",
+            key: "day",
+            render: (_, record) => <Input value={record.day} disabled />,
+        },
+        {
+            title: "Optional",
+            dataIndex: "optional",
+            key: "optional",
+            render: (_, record, index) => (
+                <Input
+                    type="checkbox"
+                    checked={record.optional}
+                    onChange={(e) => handleHolidayChange(index, "optional", e.target.checked)}
+                />
+            ),
+        },
+        {
+            title: "Actions",
+            render: (_, __, index) => (
+                <Button
+                    danger
+                    onClick={() => handleHolidayDelete(index)}
+                >
+                    Delete
+                </Button>
+            ),
+        },
+    ];
+
+    const handleSubmit = async () => {
+        const values = await form.validateFields();
+        const payload = {
+            name: values?.name,
+            details: values,
+            holidays,
+        };
+
+        if (editItem) {
+            const { error } = await supabase.from("locations").update(payload).eq("id", editItem.id);
+            if (!error) {
+                notification.success({ message: "Location updated successfully" });
+                fetchLocations();
+                setIsDrawerOpen(false);
+                form.resetFields()
+            } else {
+                notification.error({ message: error.message });
+            }
+        } else {
+            const { error } = await supabase.from("locations").insert(payload);
+            if (!error) {
+                notification.success({ message: "Location added successfully" });
+                fetchLocations();
+                setIsDrawerOpen(false);
+                form.resetFields()
+            } else {
+                notification.error({ message: error.message });
+            }
+        }
+    };
+
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+            <div
+                className="d-flex p-2 justify-content-between align-items-center"
+                style={{ marginBottom: "16px" }}
+            >
                 <h2 style={{ margin: 0 }}>Locations</h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)}>
                     Add Location
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
+                <Table
+                    size={"small"}
                     columns={columns}
                     dataSource={locations}
                     rowKey={(record) => record.id}
@@ -162,16 +227,44 @@ const Locations = () => {
                     pagination={false}
                 />
             </div>
-            <Drawer footer={null} width={'100%'} //size="large"
+            <Drawer
+                footer={null}
+                width={isMobile ? "100%" : "50%"}
                 title={editItem ? "Edit Location" : "Add Location"}
-                open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
-                onOk={() => form.submit()}
-                okText="Save"
+                open={isDrawerOpen}
+                maskClosable={false}
+                onClose={() => {
+                    setIsDrawerOpen(false);
+                    setEditItem(null);
+                    form.resetFields();
+                }}
             >
-                <DynamicForm schemas={schema}
-                    onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.details} />
+                <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                    <Form.Item name="name" label="Name">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="pin" label="Pin">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="address" label="Address">
+                        <Input />
+                    </Form.Item>
+                    <h4>Holidays</h4>
+                    <Table
+                        dataSource={holidays}
+                        columns={holidayColumns}
+                        rowKey={(record, index) => index}
+                        pagination={false}
+                    />
+                    <Button onClick={addHoliday} type="dashed" style={{ marginTop: "16px" }}>
+                        Add Holiday
+                    </Button>
+                    <div style={{ marginTop: "16px" }}>
+                        <Button type="primary" htmlType="submit">
+                            Save
+                        </Button>
+                    </div>
+                </Form>
             </Drawer>
         </Card>
     );

@@ -124,15 +124,17 @@ export const NavProfile = ({ mode, profileData }) => {
     items = items.filter(item => clientMenu.includes(item.key))
   }
 
+  const { session } = useSelector((state) => state.auth);
+
   return (
     <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
       <NavItem mode={mode}>
-        <Profile>
-          <Avatar src="/img/avatars/thumb-7.jpg" alt={profileData?.user?.user_name[0]} >{profileData?.user?.user_name[0] || ""}</Avatar>
+        {session?.user?.user_name && <Profile>
+          <Avatar src="/img/avatars/thumb-7.jpg" alt={session?.user?.user_name[0]} >{session?.user?.user_name[0] || ""}</Avatar>
           <UserInfo className="profile-text">
-            <Name>{profileData?.user?.user_name || ""}</Name>
+            <Name>{session?.user?.user_name || ""}</Name>
           </UserInfo>
-        </Profile>
+        </Profile>}
       </NavItem>
     </Dropdown>
   );

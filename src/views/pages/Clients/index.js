@@ -34,7 +34,7 @@ const Clients = () => {
     }, []);
 
     const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*').neq('default', true);
+        let { data, error } = await supabase.from('clients').select('*').neq('default', true).order('name', { ascending: true });
         if (data) {
             setClients(data);
         }

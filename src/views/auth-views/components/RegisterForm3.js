@@ -16,13 +16,19 @@ export const RegisterForm = (props) => {
   const [enums, setEnums] = useState();
   const [signIn, setSignIn] = useState(false)
   const [schema, setSchema] = useState();
+  const [roles, setRoles] = useState();
 
   const getForms = async () => {
     const { data, error } = await supabase.from('forms').select('*').eq('name', "user_admin_registration_form").single()
-    console.log("A", data)
     if (data) {
-      console.log(data)
       setSchema(data)
+    }
+  }
+
+  const getRoles = async () => {
+    const { data, error } = await supabase.from('roles').select('*')
+    if (data) {
+      setRoles(data)
     }
   }
 
@@ -48,6 +54,7 @@ export const RegisterForm = (props) => {
     };
     getForms()
     // getUserType();
+    getRoles()
     getEnums();
   }, []);
 
@@ -100,8 +107,13 @@ export const RegisterForm = (props) => {
           {
             id: user_id,
             organization_id: data2[0]?.id,
-            details: values,
-            role_type: values?.role
+            details: { ...values, user_name: values?.orgName },
+            user_name: values?.orgName,
+            role_type: values?.role,
+            manager_id: user_id,
+            hr_id: user_id,
+            role_id: roles?.find(i => i.role_name === values?.role)?.id
+            // TODO role_id, location_id
           },
         ]);
         if (insertError3) {

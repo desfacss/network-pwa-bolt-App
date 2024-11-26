@@ -31,7 +31,7 @@ const Users = () => {
         }
     }
     const getLocations = async () => {
-        const { data, error } = await supabase.from('locations').select('*')
+        const { data, error } = await supabase.from('locations').select('*').order('name', { ascending: true })
         if (data) {
             setLocations(data)
             console.log("Locations", data)
@@ -40,7 +40,7 @@ const Users = () => {
 
     // Fetch all roles from the database
     const fetchRoles = async () => {
-        const { data, error } = await supabase.from('roles').select('*');
+        const { data, error } = await supabase.from('roles').select('*').order('role_name', { ascending: true });
         if (error) {
             console.error('Error fetching roles:', error);
         } else {
@@ -60,7 +60,7 @@ const Users = () => {
         let { data, error } = await supabase.from('users')
             // .select(`*,location (name), hr:users (user_name), manager:users (user_name)`);
             .select(`*,location:location_id (*), hr:hr_id (*), manager:manager_id (*)`)
-            .eq('organization_id', session?.user?.organization_id);
+            .eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true });
         if (data) {
             setUsers(data);
             console.log("users1", data);

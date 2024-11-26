@@ -56,7 +56,7 @@ const LeaveApplications = () => {
     }, [leaveApplications, leavePolicy]);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id);
+        let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id).order('created_at', { ascending: true });
         if (data) {
             console.log("leaves", data);
             setLeaveApplications(data);
@@ -197,7 +197,7 @@ const LeaveApplications = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <LeaveDetails
+            <LeaveDetails userId={session?.user?.id}
             // leave_details={session?.user?.leave_details} 
             />
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>

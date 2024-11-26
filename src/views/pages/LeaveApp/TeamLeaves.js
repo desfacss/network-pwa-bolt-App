@@ -4,6 +4,7 @@ import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
+import LeaveDetails from "./LeaveDetails";
 
 const LeaveApplications = () => {
     const componentRef = useRef(null);
@@ -64,7 +65,7 @@ const LeaveApplications = () => {
     }, []);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved');
+        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').order('created_at', { ascending: true });
         if (data) {
             setLeaveApplications(data);
         }
@@ -231,6 +232,7 @@ const LeaveApplications = () => {
                 onOk={() => form.submit()}
                 okText="Save"
             >
+                <LeaveDetails userId={editItem?.user_id} />
                 <DynamicForm schemas={applicationSchema}
                     // onFinish={handleAddOrEdit}
                     formData={editItem && editItem?.details} />
