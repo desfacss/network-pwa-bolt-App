@@ -355,15 +355,25 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: ['details', 'project_name'],
             key: 'project_name',
         },
-        {
-            title: 'Hours',
-            dataIndex: ['details', 'project_hours'],
-            key: 'project_hours',
-        },
+        // {
+        //     title: 'Hours',
+        //     dataIndex: ['details', 'project_hours'],
+        //     key: 'project_hours',
+        // },
         {
             title: 'Description',
             dataIndex: ['details', 'description'],
             key: 'description',
+        },
+        {
+            title: 'Start Date',
+            dataIndex: ['details', 'start_date'],
+            key: 'start_date',
+        },
+        {
+            title: 'End Date',
+            dataIndex: ['details', 'end_date'],
+            key: 'end_date',
         },
         {
             title: 'Actions',
