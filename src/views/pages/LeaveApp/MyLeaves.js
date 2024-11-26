@@ -137,7 +137,7 @@ const LeaveApplications = () => {
     const columns = [
         {
             title: 'Application',
-            dataIndex: ['details', 'applicationDate'],
+            dataIndex: ['details', 'toDate'],
             key: 'applicationDate',
         },
         {
