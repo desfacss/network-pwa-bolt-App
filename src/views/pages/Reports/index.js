@@ -53,7 +53,7 @@ const ReportComponent = () => {
 
         const [startDate, endDate] = dateRange;
         setLoading(true);
-        const { data, error } = await supabase.rpc('generate_timesheet_view_v2', {
+        const { data, error } = await supabase.rpc('generate_timesheet_view_v3', {
             start_date: startDate.format('YYYY-MM-DD'),
             end_date: endDate.format('YYYY-MM-DD'),
             selected_project: projectName || null,

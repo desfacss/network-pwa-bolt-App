@@ -41,7 +41,7 @@ const Dashboaard = () => {
 
     //         // Make the RPC call to the generate_timesheet_view function
     //         const { data: viewData, error } = await supabase
-    //             .rpc('generate_timesheet_view_v2', {
+    //             .rpc('generate_timesheet_view_v3', {
     //                 start_date: startDate,
     //                 end_date: endDate,
     //                 // project_name: projectName, // Pass null if querying all projects

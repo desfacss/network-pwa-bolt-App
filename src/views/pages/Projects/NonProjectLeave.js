@@ -138,7 +138,7 @@ const NonProjectLeave = () => {
             allocation_tracking: allocationTracking,
             is_non_project: true,
             status: values?.status,
-            project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null,
+            // project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null,
             project_name: values?.project_name,
             client_id: clients[0]?.id,
             hrpartner_id: session?.user?.id,
@@ -528,7 +528,7 @@ const NonProjectLeave = () => {
 
     const userColumns = [
         {
-            title: 'User ID',
+            title: 'User Name',
             dataIndex: 'user_id',
             render: (text, record, index) => (
                 // <Input
@@ -553,8 +553,9 @@ const NonProjectLeave = () => {
             ),
         },
         {
-            title: 'Expensed Hours',
+            title: 'Expensed Hr',
             dataIndex: 'expensed_hours',
+            width: 120,
             render: (text, record, index) => (
                 <Input
                     value={text} disabled
@@ -563,8 +564,9 @@ const NonProjectLeave = () => {
             ),
         },
         {
-            title: 'Allocated Hours',
+            title: 'Allocated Hr',
             dataIndex: 'allocated_hours',
+            width: 120,
             render: (text, record, index) => (
                 <Input
                     value={text}
@@ -575,6 +577,7 @@ const NonProjectLeave = () => {
         {
             title: 'Start',
             dataIndex: 'start_date',
+            width: 150,
             render: (text, record, index) => (
                 <DatePicker
                     value={dayjs(text?.replace('/', '-'), dateFormat)}
@@ -586,6 +589,7 @@ const NonProjectLeave = () => {
         {
             title: 'End',
             dataIndex: 'end_date',
+            width: 150,
             render: (text, record, index) => (
                 <DatePicker
                     value={dayjs(text?.replace('/', '-'), dateFormat)}
@@ -596,21 +600,22 @@ const NonProjectLeave = () => {
             ),
         },
         {
-            title: 'Rate/hr',
+            title: 'Rate/Hr',
             dataIndex: 'rate',
+            width: 120,
             render: (text, record, index) => (
                 <InputNumber value={text} style={{ width: '100%' }} onChange={(e) => handleUserChange(index, 'rate', e)} />
             ),
         },
         {
-            title: 'Actions',
+            title: '',
             render: (_, __, index) => (
                 <Button
-                    type="link"
+                    // type="link"
                     danger
                     onClick={() => removeUser(index)}
                 >
-                    Remove
+                    X
                 </Button>
             ),
         },

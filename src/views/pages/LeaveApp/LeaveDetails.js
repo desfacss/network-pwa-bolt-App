@@ -57,11 +57,11 @@ const LeaveDetails = ({ userId }) => {
                             <strong>{leave.project_name}</strong>
                         </div>
                         <div>
-                            {/* {leave.remaining !== 'N/A' ? ( */}
-                            {Number(leave?.details?.allocated_hours - leave?.details?.expensed_hours) / standardDailyHours} of {Number(leave?.details?.allocated_hours) / standardDailyHours} available
-                            {/* ) : (
-                                'Not Applicable'
-                            )} */}
+                            Allocated Leaves: {leave?.details?.allocated_hours / standardDailyHours} Days
+                        </div>
+                        <div>Application Approved: {session?.user?.leave_details[leave?.project_id]?.taken || 0} days
+                        </div>
+                        <div> Timesheet Approved: {leave?.details?.expensed_hours / standardDailyHours} days
                         </div>
                     </Card>
                 </Col>

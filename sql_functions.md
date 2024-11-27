@@ -4,7 +4,7 @@ CREATE TRIGGER set_updated_at_projects
 CREATE TRIGGER set_updated_at_timesheet
 
 -------
-CREATE OR REPLACE FUNCTION generate_timesheet_view_v2(
+CREATE OR REPLACE FUNCTION generate_timesheet_view_v3(
     start_date DATE,
     end_date DATE,
     selected_project UUID DEFAULT NULL,
