@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Row, Col } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -591,34 +591,54 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
                 okText="Save"
             >
                 <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
-                    <Form.Item name="project_name" label="Project Name" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="description" label="Description">
-                        <Input.TextArea />
-                    </Form.Item>
-                    <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
-                        <DatePicker style={{ width: '100%' }}
-                            disabledDate={(current) => {
-                                const endDate = form.getFieldValue('end_date');
-                                return current && endDate && current.isAfter(dayjs(endDate, dateFormat));
-                            }}
-                        />
-                    </Form.Item>
-                    <Form.Item name="end_date" label="end_date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
-                        <DatePicker style={{ width: '100%' }}
-                            disabledDate={(current) => {
-                                const startDate = form.getFieldValue('start_date');
-                                return current && startDate && current.isBefore(dayjs(startDate, dateFormat));
-                            }}
-                        />
-                    </Form.Item>
-                    <Form.Item name="allocation_tracking" label="Allocation Tracking" valuePropName="checked">
-                        <Checkbox onChange={(e) => handleAllocationChange(e.target.checked)} />
-                    </Form.Item>
-                    {allocationTracking && (<Form.Item name="project_hours" label="Project Hours">
-                        <Input type="number" />
-                    </Form.Item>)}
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item name="project_name" label="Project Name" rules={[{ required: true }]}>
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item name="description" label="Description">
+                                <Input.TextArea />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
+                                <DatePicker style={{ width: '100%' }}
+                                    disabledDate={(current) => {
+                                        const endDate = form.getFieldValue('end_date');
+                                        return current && endDate && current.isAfter(dayjs(endDate, dateFormat));
+                                    }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="end_date" label="end_date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
+                                <DatePicker style={{ width: '100%' }}
+                                    disabledDate={(current) => {
+                                        const startDate = form.getFieldValue('start_date');
+                                        return current && startDate && current.isBefore(dayjs(startDate, dateFormat));
+                                    }}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="allocation_tracking" label="Allocation Tracking" valuePropName="checked">
+                                <Checkbox onChange={(e) => handleAllocationChange(e.target.checked)} />
+                            </Form.Item>
+                        </Col>
+                        {/* <Col xs={24} md={12}>
+                            {allocationTracking && (<Form.Item name="project_hours" label="Project Hours">
+                                <Input type="number" />
+                            </Form.Item>)}
+                        </Col> */}
+                    </Row>
                     {allocationTracking && (<>
                         <h3>Project Users</h3>
                         <Table size={'small'}

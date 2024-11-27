@@ -198,6 +198,7 @@ const LeaveApplications = () => {
                         size="small"
                         className="mr-2"
                         onClick={() => handleEdit(record)}
+                        disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
                     >Approve / Reject</Button>
                     {/* <Button
                         type="primary" ghost

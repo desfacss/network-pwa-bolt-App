@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Empty } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Empty, Col, Row } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -541,69 +541,97 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
                 okText="Save"
             >
                 <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
-                    <Form.Item name="project_name" label="Project Name" rules={[{ required: true }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="description" label="Description">
-                        <Input.TextArea />
-                    </Form.Item>
-                    <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
-                        <DatePicker style={{ width: '100%' }}
-                            disabledDate={(current) => {
-                                const endDate = form.getFieldValue('end_date');
-                                return current && endDate && current.isAfter(dayjs(endDate, dateFormat));
-                            }}
-                        />
-                    </Form.Item>
-                    <Form.Item name="end_date" label="end_date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
-                        <DatePicker style={{ width: '100%' }}
-                            disabledDate={(current) => {
-                                const startDate = form.getFieldValue('start_date');
-                                return current && startDate && current.isBefore(dayjs(startDate, dateFormat));
-                            }}
-                        />
-                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item name="project_name" label="Project Name" rules={[{ required: true }]}>
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item name="description" label="Description">
+                                <Input.TextArea />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
+                                <DatePicker style={{ width: '100%' }}
+                                    disabledDate={(current) => {
+                                        const endDate = form.getFieldValue('end_date');
+                                        return current && endDate && current.isAfter(dayjs(endDate, dateFormat));
+                                    }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="end_date" label="end_date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
+                                <DatePicker style={{ width: '100%' }}
+                                    disabledDate={(current) => {
+                                        const startDate = form.getFieldValue('start_date');
+                                        return current && startDate && current.isBefore(dayjs(startDate, dateFormat));
+                                    }}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="status" label="Status" rules={[{ required: true }]}>
+                                <Select>
+                                    <Option value="Pending">Pending</Option>
+                                    <Option value="In Progress">In Progress</Option>
+                                    <Option value="Completed">Completed</Option>
+                                    <Option value="Cancelled">Cancelled</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="client_id" label="Client ID" rules={[{ required: true }]}>
+                                <Select placeholder="Select users">
+                                    {clients?.map((user) => (
+                                        <Select.Option key={user?.id} value={user?.id}>
+                                            {user?.name}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="manager_id" label="Manager ID">
+                                <Select placeholder="Select Manager">
+                                    {users?.filter(user => ["hr", "manager", "admin"]?.includes(user.role_type))?.map((user) => (
+                                        <Select.Option key={user?.id} value={user?.id}>
+                                            {user?.user_name}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="hrpartner_id" label="HR Partner ID">
+                                <Select placeholder="Select HR partner">
+                                    {users?.filter(user => ["hr", "admin"]?.includes(user.role_type))?.map((user) => (
+                                        <Select.Option key={user?.id} value={user?.id}>
+                                            {user?.user_name}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
                     {/* <Form.Item name="project_hours" label="Project Hours">
                         <Input type="number" />
                     </Form.Item> */}
-                    <Form.Item name="status" label="Status" rules={[{ required: true }]}>
-                        <Select>
-                            <Option value="Pending">Pending</Option>
-                            <Option value="In Progress">In Progress</Option>
-                            <Option value="Completed">Completed</Option>
-                            <Option value="Cancelled">Cancelled</Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item name="client_id" label="Client ID" rules={[{ required: true }]}>
-                        <Select placeholder="Select users">
-                            {clients?.map((user) => (
-                                <Select.Option key={user?.id} value={user?.id}>
-                                    {user?.name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+
                     {/* <Form.Item name="is_closed" label="Is Closed" valuePropName="checked">
                         <Checkbox />
                     </Form.Item> */}
-                    <Form.Item name="manager_id" label="Manager ID">
-                        <Select placeholder="Select Manager">
-                            {users?.filter(user => ["hr", "manager", "admin"]?.includes(user.role_type))?.map((user) => (
-                                <Select.Option key={user?.id} value={user?.id}>
-                                    {user?.user_name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item name="hrpartner_id" label="HR Partner ID">
-                        <Select placeholder="Select HR partner">
-                            {users?.filter(user => ["hr", "admin"]?.includes(user.role_type))?.map((user) => (
-                                <Select.Option key={user?.id} value={user?.id}>
-                                    {user?.user_name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+
                     <h3>Project Users</h3>
                     <Table size={'small'}
                         columns={userColumns}
