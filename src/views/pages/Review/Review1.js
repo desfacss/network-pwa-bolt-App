@@ -610,7 +610,7 @@ const Review1 = ({ date, employee, fetchData }) => {
         {disabled ? <div style={{ width: 200 }}>{existingTimesheet?.status}</div> :
           timeSheetData ? <Col>
             <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>Approve</Button>
-            <Button type="primary" onClick={() => setIsRejectModal(true)} >Reject</Button>
+            <Button onClick={() => setIsRejectModal(true)} >Reject</Button>
           </Col> : <div style={{ width: 200 }}></div>}
       </Row>
       {(timeSheetData) ? <Table

@@ -75,7 +75,7 @@ const Users = () => {
 
         const {
             email, mobile, firstName, lastName, role_id, manager, hr_contact,
-            location_id, has_resigned, last_date, rate
+            location_id, has_resigned, last_date, rate, designation, department, joiningDate, birthDate, address, emergencyContact
         } = values;
 
         const role_type = roles?.find((r) => r.id === role_id)?.role_name
@@ -86,8 +86,9 @@ const Users = () => {
             role_id,
             role_type,
             details: {
+
                 rate, role_id, role_type, email, mobile, lastName, userName, firstName,
-                has_resigned, last_date,
+                has_resigned, last_date, designation, department, joiningDate, birthDate, address, emergencyContact
                 // orgName: session?.user?.details?.orgName,
             },
             user_name: userName,
@@ -160,7 +161,10 @@ const Users = () => {
             ...record?.details,
             // manager: record?.manager?.id,
             // hr_contact: record?.hr?.id,
-            // location: record?.location?.id,
+            has_resigned: record?.details?.has_resigned,
+            department: record?.details?.department,
+            designation: record?.details?.designation,
+            joiningDate: record?.details?.joiningDate,
             id: record?.id,
             manager: record?.manager?.id,
             hr_contact: record?.hr?.id,

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, notification, Row, Table } from 'antd';
+import { Card, Col, notification, Row, Table, Tooltip } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
+import { InfoOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 
 const LeaveDetails = ({ userId }) => {
 
@@ -54,15 +55,22 @@ const LeaveDetails = ({ userId }) => {
                 <Col key={leave.key} xs={24} sm={12} md={8} lg={6}>
                     <Card>
                         <div>
-                            <strong>{leave.project_name}</strong>
+                            <h4>{leave.project_name}</h4>
                         </div>
-                        <div>
+                        <strong>{Number(leave?.details?.allocated_hours / standardDailyHours) - Number(leave?.details?.expensed_hours / standardDailyHours)}</strong> of <strong>{leave?.details?.allocated_hours / standardDailyHours}</strong> available
+                        <Tooltip title={"Balance after timesheet approval"} placement="rightBottom" >
+                            <QuestionCircleOutlined className='ml-2' />
+                        </Tooltip>
+                        {/* <div>
                             Allocated Leaves: {leave?.details?.allocated_hours / standardDailyHours} Days
+                        </div> */}
+                        <div>Leave Approved: <strong>{session?.user?.leave_details[leave?.project_id]?.taken || 0}</strong> days
+                            <Tooltip title={"Leave application approved"} placement="rightBottom" >
+                                <QuestionCircleOutlined className='ml-2' />
+                            </Tooltip>
                         </div>
-                        <div>Application Approved: {session?.user?.leave_details[leave?.project_id]?.taken || 0} days
-                        </div>
-                        <div> Timesheet Approved: {leave?.details?.expensed_hours / standardDailyHours} days
-                        </div>
+                        {/* <div> Timesheet Approved: {leave?.details?.expensed_hours / standardDailyHours} days
+                        </div> */}
                     </Card>
                 </Col>
             ))}

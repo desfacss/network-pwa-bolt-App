@@ -42,7 +42,7 @@ const LeaveApplications = () => {
         }
     }
     const getApplicationForm = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_add_edit_form").single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_app_add_edit_form").single()
         console.log("A", data)
         if (data) {
             console.log(data)
@@ -249,14 +249,27 @@ const LeaveApplications = () => {
                 />
             </div>
             <Drawer footer={null} width='100%' //size="large"
-                title={editItem ? "Leave Approval" : "Add Leave Approval"}
+                // title={editItem ? "Leave Approval" : "Add Leave Approval"}
+                title={
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <span>{editItem ? "Leave Approval for " + editItem?.user?.user_name : "Add Leave Approval"}</span>
+                        <div>
+                            <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>
+                                Approve
+                            </Button>
+                            <Button onClick={() => setIsRejectModal(true)}>
+                                Reject
+                            </Button>
+                        </div>
+                    </div>
+                }
                 open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
-                <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>Approve</Button>
-                <Button type="primary" onClick={() => setIsRejectModal(true)} >Reject</Button>
+                {/* <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>Approve</Button>
+                <Button type="primary" onClick={() => setIsRejectModal(true)} >Reject</Button> */}
                 <LeaveDetails userId={editItem?.user_id} />
                 <DynamicForm schemas={applicationSchema}
                     // onFinish={handleAddOrEdit}
