@@ -75,7 +75,7 @@ const Users = () => {
 
         const {
             email, mobile, firstName, lastName, role_id, manager, hr_contact,
-            location, has_resigned, last_date, rate
+            location_id, has_resigned, last_date, rate
         } = values;
 
         const role_type = roles?.find((r) => r.id === role_id)?.role_name
@@ -92,8 +92,8 @@ const Users = () => {
             },
             user_name: userName,
             is_active: true,
-            location,
-            leave_details: locations?.find((item) => item?.id === location)?.leave_settings,
+            location_id,
+            leave_details: locations?.find((item) => item?.id === location_id)?.leave_settings,
             manager_id: manager,
             hr_id: hr_contact,
             // password_confirmed: false,
@@ -164,7 +164,7 @@ const Users = () => {
             id: record?.id,
             manager: record?.manager?.id,
             hr_contact: record?.hr?.id,
-            location: record?.location?.id,
+            location_id: record?.location?.id,
         }
         copy && (delete item?.email)
         copy && (delete item?.firstName)

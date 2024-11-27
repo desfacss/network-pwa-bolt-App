@@ -233,7 +233,7 @@ const LeaveApplications = () => {
             <Drawer footer={null} width="100%" //size="large"
                 title={editItem ? "Edit Leave Application" : "Add Leave Application"}
                 open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
+                onClose={() => { setIsDrawerOpen(false); setEditItem(); form.resetFields(); }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
