@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Divider } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Divider, Modal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -14,13 +14,16 @@ const LeaveApplications = () => {
     const [schema, setSchema] = useState();
     const [applicationSchema, setApplicationSchema] = useState();
     const [leaves, setLeaves] = useState([]);
+    const [isApproveModal, setIsApproveModal] = useState(false);
+    const [isRejectModal, setIsRejectModal] = useState(false);
+    const [rejectComment, setRejectComment] = useState('');
 
     const { session } = useSelector((state) => state.auth);
 
     const [form] = Form.useForm();
 
     const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('leaves').select('*');
+        let { data, error } = await supabase.from('projects_leaves').select('*');
         if (data) {
             setLeaves(data);
             console.log("Leaves", data)
@@ -74,57 +77,60 @@ const LeaveApplications = () => {
         }
     };
 
-    const handleAddOrEdit = async (values) => {
+    const handleSubmit = async (status) => {
         // const { service_name, cost, duration, description } = values;
-        console.log("Pyload", values)
         if (editItem) {
             // Update existing service
             const { data, error } = await supabase
                 .from('leave_applications')
-                .update({ status: values?.status, manager_details: { ...values, id: session?.user?.id } })
+                .update({
+                    approved_by_id: session?.user?.id,
+                    status: isApproveModal ? "Approved" : "Rejected",
+                    approver_details: { approved_time: new Date(), comment: (isApproveModal ? "" : rejectComment), },
+                })
                 .eq('id', editItem.id);
-            if (values?.status === 'Approved') {
-                console.log("T", values?.status);
+            if (!error && status === 'Approved') {
                 const leaveType = editItem?.details?.leaveType//?.split(" ")[0]?.toLowerCase(); // Extract first word and convert to lowercase
                 var leaveDetails = session?.user?.leave_details
-                var leaveTypeId = leaves?.find(i => i?.leave_type === leaveType)?.id
-                if (leaveDetails[leaveTypeId]) {
-                    leaveDetails = {
-                        // leaves: {
-                        ...leaveDetails,
-                        [leaveTypeId]: {
-                            ...leaveDetails[leaveTypeId],
-                            taken: leaveDetails[leaveTypeId]?.taken + editItem?.details?.daysTaken
-                        }
-                        // }
-                    };
-                    const { data: data2, error: error2 } = await supabase.from('users')
-                        .update({ leave_details: leaveDetails })
-                        .eq('id', editItem?.user_id);
-                    // console.log("T", data2, leaveDetails, editItem?.user_id);
-                }
-
-                notification.success({ message: "Leave Application updated successfully" });
+                var leaveTypeId = leaves?.find(i => i?.project_name === leaveType)?.id
+                console.log("T", leaveDetails, leaveTypeId);
+                // if (leaveDetails[leaveTypeId]) {
+                leaveDetails = {
+                    // leaves: {
+                    ...leaveDetails,
+                    [leaveTypeId]: {
+                        ...leaveDetails[leaveTypeId],
+                        taken: Number(leaveDetails[leaveTypeId]?.taken || 0) + Number(editItem?.details?.daysTaken)
+                    }
+                    // }
+                };
+                const { data: data2, error: error2 } = await supabase.from('users')
+                    .update({ leave_details: leaveDetails })
+                    .eq('id', editItem?.user_id);
+                console.log("T", data2, leaveDetails, editItem?.user_id);
+                // }
+                notification.success({ message: `Leave Application ${isApproveModal ? "Approved" : "Rejected"}` });
                 setEditItem(null);
             } else if (error) {
-                notification.error({ message: error?.message || "Failed to update leave Application" });
+                notification.error({ message: error?.message || `Failed to ${isApproveModal ? "Approve" : "Rejecte"} Leave Application` });
             }
+        }
+        if (isApproveModal) {
+            setIsApproveModal(false);
         } else {
-            // Add new leaveApplication
-            const { data, error } = await supabase
-                .from('leave_applications')
-                .insert([{ details: values, job_name: values?.job_name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
-
-            if (data) {
-                notification.success({ message: "Leave Application added successfully" });
-            } else if (error) {
-                notification.error({ message: error?.message || "Failed to add leave Application" });
-            }
+            setIsRejectModal(false);
+            setRejectComment("");
         }
         fetchLeaveApplications();
         setIsDrawerOpen(false);
         form.resetFields();
         setEditItem()
+    };
+
+    const handleCancel = () => {
+        setIsApproveModal(false);
+        setIsRejectModal(false);
+        setRejectComment('');
     };
 
     const handleEdit = (record) => {
@@ -206,6 +212,22 @@ const LeaveApplications = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
+            {(isApproveModal || isRejectModal) &&
+                <Modal
+                    title={"Confirm " + (isApproveModal ? "Approval" : "Rejection")}
+                    visible={isApproveModal || isRejectModal}
+                    onOk={() => handleSubmit(isApproveModal ? "Approved" : "Rejected")}
+                    onCancel={handleCancel}
+                >
+                    <p>{`Are you sure you want to ${isApproveModal ? "Approve" : "Reject"}?`}</p>
+                    {isRejectModal && <Input.TextArea
+                        rows={4}
+                        value={rejectComment}
+                        onChange={(e) => setRejectComment(e.target.value)}
+                        placeholder="Please provide a reason for rejection"
+                    />}
+                </Modal>
+            }
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 {/* <h2 style={{ margin: 0 }}>Leave Application</h2> */}
                 {/* <Button
@@ -232,14 +254,16 @@ const LeaveApplications = () => {
                 onOk={() => form.submit()}
                 okText="Save"
             >
+                <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>Approve</Button>
+                <Button type="primary" onClick={() => setIsRejectModal(true)} >Reject</Button>
                 <LeaveDetails userId={editItem?.user_id} />
                 <DynamicForm schemas={applicationSchema}
                     // onFinish={handleAddOrEdit}
                     formData={editItem && editItem?.details} />
                 <Divider />
-                <DynamicForm schemas={schema}
+                {/* <DynamicForm schemas={schema}
                     onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.manager_details} />
+                    formData={editItem && editItem?.manager_details} /> */}
             </Drawer>
         </Card>
     );

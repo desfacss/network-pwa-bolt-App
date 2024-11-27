@@ -68,19 +68,23 @@ const LeaveApplications = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        // const { service_name, cost, duration, description } = values;
-        console.log("Pyload", values)
+        const today = new Date();
+        const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
+
+        const payload = {
+            details: values,
+            user_id: session?.user?.id,
+            status: "Submitted",
+            approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
+            last_date: lastDate.toISOString(),
+            submitted_time: new Date()
+        }
+
         if (editItem) {
             // Update existing service
             const { data, error } = await supabase
                 .from('leave_applications')
-                .update({
-                    details: values,
-                    user_id: session?.user?.id,
-                    status: "Submitted",
-                    approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
-                    submitted_time: new Date()
-                })
+                .update(payload)
                 .eq('id', editItem.id);
 
             if (data) {
@@ -93,13 +97,7 @@ const LeaveApplications = () => {
             // Add new leaveApplication
             const { data, error } = await supabase
                 .from('leave_applications')
-                .insert([{
-                    details: values,
-                    user_id: session?.user?.id,
-                    status: "Submitted",
-                    approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
-                    submitted_time: new Date()
-                }]);
+                .insert([payload]);
 
             if (data) {
                 notification.success({ message: "Leave Application added successfully" });
@@ -137,7 +135,7 @@ const LeaveApplications = () => {
     const columns = [
         {
             title: 'Application',
-            dataIndex: ['details', 'toDate'],
+            dataIndex: ['created_at'],
             key: 'applicationDate',
         },
         {
@@ -165,6 +163,11 @@ const LeaveApplications = () => {
             dataIndex: 'status',
             key: 'status',
             // render: (status) => (status === 'Approved' ? 'Yes' : 'No'),
+        },
+        {
+            title: 'Review Date',
+            dataIndex: ['approver_details', 'approved_time'],
+            key: 'applicationDate',
         },
         // {
         //     title: 'Billable',
