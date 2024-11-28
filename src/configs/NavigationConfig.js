@@ -49,7 +49,7 @@ const navigationConfig = [
       },
       {
         key: 'expenses',
-        path: `#`,
+        path: `${APP_PREFIX_PATH}/expenses`,
         title: 'Expense',
         icon: WalletOutlined,
         breadcrumb: false,
