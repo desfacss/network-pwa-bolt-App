@@ -1,8 +1,10 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Divider, Modal } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
+import { EditOutlined } from "@ant-design/icons";
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "configs/SupabaseConfig";
-import DynamicForm from "../DynamicForm";
+// import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
+import Expensesheet from "./Expensesheet";
 // import ExpenseDetails from "./ExpenseDetails";
 
 const TeamExpenses = () => {
@@ -10,6 +12,7 @@ const TeamExpenses = () => {
     const [expenses, setExpenses] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [viewMode, setViewMode] = useState(true);
     const [schema, setSchema] = useState();
     const [applicationSchema, setApplicationSchema] = useState();
     const [leaves, setLeaves] = useState([]);
@@ -67,7 +70,7 @@ const TeamExpenses = () => {
     }, []);
 
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved').order('created_at', { ascending: true });
+        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved').order('submitted_time', { ascending: false });
         if (data) {
             setExpenses(data);
         }
@@ -213,6 +216,10 @@ const TeamExpenses = () => {
         },
     ];
 
+    const onAdd = () => {
+
+    }
+
     return (
         <Card bodyStyle={{ padding: "0px" }}>
             {(isApproveModal || isRejectModal) &&
@@ -256,6 +263,8 @@ const TeamExpenses = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                         <span>{editItem ? "Expense Approval for " + editItem?.user?.user_name : "Add Expense Approval"}</span>
                         <div>
+                            <Button className="mr-2" icon={<EditOutlined />} onClick={() => setViewMode(prev => !prev)}>
+                            </Button>
                             <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>
                                 Approve
                             </Button>
@@ -270,16 +279,7 @@ const TeamExpenses = () => {
                 onOk={() => form.submit()}
                 okText="Save"
             >
-                {/* <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>Approve</Button>
-                <Button type="primary" onClick={() => setIsRejectModal(true)} >Reject</Button> */}
-                {/* <ExpenseDetails userId={editItem?.user_id} /> */}
-                <DynamicForm schemas={applicationSchema}
-                    // onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.details} />
-                <Divider />
-                {/* <DynamicForm schemas={schema}
-                    onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.manager_details} /> */}
+                <Expensesheet editItem={editItem} onAdd={onAdd} viewMode={viewMode} />
             </Drawer>
         </Card>
     );

@@ -68,7 +68,7 @@ const LeaveApplications = () => {
     }, []);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').order('submitted_at', { ascending: false });
+        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').order('submitted_time', { ascending: false });
         if (data) {
             setLeaveApplications(data);
         }

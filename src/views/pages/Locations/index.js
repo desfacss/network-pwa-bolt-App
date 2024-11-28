@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, DatePicker, Grid } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, DatePicker, Grid, message } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -66,8 +66,12 @@ const Locations = () => {
     };
 
     const addHoliday = () => {
-        setHolidays([
-            ...holidays,
+        // setHolidays([
+        //     ...holidays,
+        //     { date: null, name: "", optional: false, day: "" }, // New row with default values
+        // ]);
+        setHolidays((prevHolidays) => [
+            ...prevHolidays,
             { date: null, name: "", optional: false, day: "" }, // New row with default values
         ]);
     };
@@ -176,6 +180,11 @@ const Locations = () => {
     ];
 
     const handleSubmit = async () => {
+        const invalidRow = holidays?.some(row => !row?.name || !row?.date);
+        if (invalidRow) {
+            message.error(`Error: Some rows have empty name or date`);
+            return
+        }
         const values = await form.validateFields();
         const payload = {
             name: values?.name,
@@ -236,6 +245,7 @@ const Locations = () => {
                 onClose={() => {
                     setIsDrawerOpen(false);
                     setEditItem(null);
+                    setHolidays()
                     form.resetFields();
                 }}
             >
@@ -266,7 +276,7 @@ const Locations = () => {
                     </div>
                 </Form>
             </Drawer>
-        </Card>
+        </Card >
     );
 };
 
