@@ -68,7 +68,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
         .eq('user_id', session?.user?.id)
         .gte('timesheet_date', startDate)
         .lte('timesheet_date', endDate)
-        .order('updated_at', { ascending: true })
+        .order('created_at', { ascending: false })
 
       if (error) {
         throw error;

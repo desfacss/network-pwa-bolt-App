@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Divider, Modal } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Divider, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -68,7 +68,7 @@ const LeaveApplications = () => {
     }, []);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').order('created_at', { ascending: true });
+        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').order('submitted_at', { ascending: false });
         if (data) {
             setLeaveApplications(data);
         }
@@ -166,9 +166,15 @@ const LeaveApplications = () => {
             key: 'leaveType',
         },
         {
-            title: 'Reason',
-            dataIndex: ['details', 'reason'],
-            key: 'reason',
+            title: 'Leave Days',
+            // dataIndex: ['submitted_time'],
+            key: 'submitted_time',
+            width: 200,
+            render: (record) => (
+                <div>
+                    {record?.details?.fromDate} -- {record?.details?.toDate}
+                </div>
+            )
         },
         {
             title: 'Days',
@@ -176,10 +182,58 @@ const LeaveApplications = () => {
             key: 'daysTaken',
         },
         {
+            title: 'Days Away',
+            dataIndex: ['details', 'daysAway'],
+            key: 'daysAway',
+        },
+        // {
+        //     title: 'Reason',
+        //     // dataIndex: ['details', 'reason'],
+        //     key: 'reason',
+        //     render: (record) => {
+        //         const comment = record?.details?.reason || '';  // Ensure the comment is defined
+        //         const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
+
+        //         return (
+        //             <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
+        //                 <div style={{
+        //                     whiteSpace: 'nowrap',
+        //                     overflow: 'hidden',
+        //                     textOverflow: 'ellipsis',
+        //                     maxWidth: '200px', // You can adjust this based on your table column width
+        //                 }}>
+        //                     {truncatedComment}  {/* Truncated comment for the table cell */}
+        //                 </div>
+        //             </Tooltip>
+        //         );
+        //     }
+        // },
+        {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
             // render: (status) => (status === 'Approved' ? 'Yes' : 'No'),
+        },
+        {
+            title: 'Review Comment',
+            key: 'approver_id',
+            render: (record) => {
+                const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
+                const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
+
+                return (
+                    <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
+                        <div style={{
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '150px', // You can adjust this based on your table column width
+                        }}>
+                            {truncatedComment}  {/* Truncated comment for the table cell */}
+                        </div>
+                    </Tooltip>
+                );
+            }
         },
         // {
         //     title: 'Billable',

@@ -32,17 +32,6 @@ function App() {
         return;
       }
 
-      // Fetch the role feature based on the user's role_type
-      // const { data: roleData, error: roleError } = await supabase
-      //   .from('roles')
-      //   .select('feature')
-      //   .eq('role_name', userData.role_type)
-      //   .single();
-
-      // if (roleError) {
-      //   console.error('Error fetching role data:', roleError);
-      // }
-
       // Combine user data with role feature
       const updatedSession = {
         ...session,

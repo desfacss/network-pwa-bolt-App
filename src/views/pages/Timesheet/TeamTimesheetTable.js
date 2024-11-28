@@ -53,7 +53,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                 .neq('status', 'Draft')
                 .gte('timesheet_date', startDate)
                 .lte('timesheet_date', endDate)
-                .order('updated_at', { ascending: true })
+                .order('submitted_time', { ascending: false })
                 ;
 
             if (error) {
