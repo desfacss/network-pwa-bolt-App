@@ -1,10 +1,11 @@
-import { Button, Card, notification, Table, Drawer, Form, Input } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import LeaveDetails from "./LeaveDetails";
+const { confirm } = Modal;
 
 const LeaveApplications = () => {
     const componentRef = useRef(null);
@@ -122,21 +123,49 @@ const LeaveApplications = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        const { error } = await supabase.from('leave_applications').delete().eq('id', id);
-        if (!error) {
-            notification.success({ message: "Leave Application deleted successfully" });
-            fetchLeaveApplications();
-        } else {
-            notification.error({ message: error?.message || "Failed to delete Leave Application" });
-        }
+    // const handleDelete = async (id) => {
+    //     const { error } = await supabase.from('leave_applications').delete().eq('id', id);
+    //     if (!error) {
+    //         notification.success({ message: "Leave Application deleted successfully" });
+    //         fetchLeaveApplications();
+    //     } else {
+    //         notification.error({ message: error?.message || "Failed to delete Leave Application" });
+    //     }
+    // };
+
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Are you sure, You want to delete ${record?.details?.leaveType} from ${record?.details?.fromDate} to ${record?.details?.toDate} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('leave_applications').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: `${record?.details?.leaveType} deleted` });
+                    fetchLeaveApplications();
+                } else {
+                    notification.error({ message: error?.message || `Failed to delete ${record?.details?.leaveType}` });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
     };
 
     const columns = [
         {
             title: 'Application',
-            dataIndex: ['created_at'],
-            key: 'applicationDate',
+            // dataIndex: ['submitted_time'],
+            key: 'submitted_time',
+            render: (record) => (
+                <div>
+                    {record?.submitted_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")}
+                </div>
+            )
         },
         {
             title: 'Reason',
@@ -166,8 +195,14 @@ const LeaveApplications = () => {
         },
         {
             title: 'Review Date',
-            dataIndex: ['approver_details', 'approved_time'],
-            key: 'applicationDate',
+            // dataIndex: ['approver_details', 'approved_time'],
+            key: 'approved_time',
+            render: (record) => (
+                <div>
+                    {/* {record?.approver_details?.approved_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")} */}
+                    {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
+                </div>
+            )
         },
         // {
         //     title: 'Billable',
@@ -191,7 +226,7 @@ const LeaveApplications = () => {
                         type="primary" ghost
                         icon={<DeleteOutlined />}
                         size="small"
-                        onClick={() => handleDelete(record.id)}
+                        onClick={() => showDeleteConfirm(record)}
                     />}
                 </div>
             ),
@@ -215,7 +250,7 @@ const LeaveApplications = () => {
                 </div>
                 <Button
                     type="primary"
-                    icon={<PlusOutlined />}
+                    // icon={<PlusOutlined />}
                     onClick={() => setIsDrawerOpen(true)}
                 >
                     Add Leave Application
