@@ -5,6 +5,7 @@ import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import LeaveDetails from "./LeaveDetails";
+import dayjs from "dayjs";
 const { confirm } = Modal;
 
 const LeaveApplications = () => {
@@ -69,9 +70,27 @@ const LeaveApplications = () => {
     };
 
     const handleAddOrEdit = async (values) => {
+        // Parse dates using dayjs
+        const { toDate, fromDate, dateReturning } = values;
+        const from = dayjs(fromDate);
+        const to = dayjs(toDate);
+        const returning = dayjs(dateReturning);
+
+        // Validate toDate >= fromDate
+        if (to.isBefore(from)) {
+            notification.error({ message: "'To Date' should be greater than or equal to 'From Date'." });
+            return
+        }
+
+        // Validate dateReturning > toDate
+        if (!returning.isAfter(to)) {
+            notification.error({ message: "'Date Returning' should be greater than 'To Date'." });
+            return false;
+        }
+
         const today = new Date();
         const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
-
+        console.log("a")
         const payload = {
             details: values,
             user_id: session?.user?.id,
@@ -102,6 +121,7 @@ const LeaveApplications = () => {
 
             if (data) {
                 notification.success({ message: "Leave Application added successfully" });
+                setEditItem(null)
             } else if (error) {
                 notification.error({ message: error?.message || "Failed to add leave Application" });
             }
@@ -109,7 +129,7 @@ const LeaveApplications = () => {
         fetchLeaveApplications();
         setIsDrawerOpen(false);
         form.resetFields();
-        setEditItem()
+        setEditItem(null)
     };
 
     const handleEdit = (record) => {
@@ -251,7 +271,7 @@ const LeaveApplications = () => {
                 <Button
                     type="primary"
                     // icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
+                    onClick={() => { form.resetFields(); setIsDrawerOpen(true) }}
                 >
                     Add Leave Application
                 </Button>
@@ -268,7 +288,7 @@ const LeaveApplications = () => {
             <Drawer footer={null} width="100%" //size="large"
                 title={editItem ? "Edit Leave Application" : "Add Leave Application"}
                 open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setIsDrawerOpen(false); setEditItem(); form.resetFields(); }}
+                onClose={() => { setIsDrawerOpen(false); form.resetFields(); setEditItem(); }}
                 onOk={() => form.submit()}
                 okText="Save"
             >
