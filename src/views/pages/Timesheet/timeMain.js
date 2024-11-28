@@ -90,7 +90,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     // .order('is_non_project', { ascending: true })  // is_non_project=false rows come first
     // .order('project_name', { ascending: true });
 
-    const { data, error } = await supabase.rpc('get_projects_list_with_allocation', { userid: session?.user?.id })
+    const { data, error } = await supabase.rpc('get_projects_with_allocation', { userid: session?.user?.id })
 
 
     // .contains('project_users', [session?.user?.id]);

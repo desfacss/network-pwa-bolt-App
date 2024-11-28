@@ -55,17 +55,17 @@ const Clients = () => {
 
         try {
             const { data, error } = editItem
-                ? await supabase.from('clients').update(clientPayload).eq('id', editItem.id) // Update existing client
-                : await supabase.from('clients').insert([clientPayload]); // Add new client
+                ? await supabase.from('clients').update(clientPayload).eq('id', editItem.id).select('*') // Update existing client
+                : await supabase.from('clients').insert([clientPayload]).select('*'); // Add new client
 
             if (data) {
                 notification.success({
-                    message: editItem ? "Client updated successfully" : "Client added successfully"
+                    message: editItem ? `Client ${values?.name} Updated` : `New Client ${values?.name} Added`
                 });
                 setEditItem(null);
             } else if (error) {
                 notification.error({
-                    message: error?.message || (editItem ? "Failed to update client" : "Failed to add client")
+                    message: error?.message || (editItem ? `Failed to update Client ${values?.name}` : `Failed to add Client ${values?.name}`)
                 });
             }
         } catch (err) {

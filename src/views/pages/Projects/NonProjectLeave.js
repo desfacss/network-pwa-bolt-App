@@ -255,8 +255,38 @@ const NonProjectLeave = () => {
     //     setEditItem(null);
     // };
 
+    const showUserDeleteConfirm = async (index, record) => {
+        console.log("UU", projectUsers, record)
+        confirm({
+            title: `Are you sure you want to remove the allocation ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                if (record?.id) {
+                    const { error } = await supabase.from('allocations').delete().eq('id', record?.id);
+                    if (!error) {
+                        notification.success({ message: "User Deleted" });
+                        const updatedUsers = projectUsers?.filter((_, i) => i !== index);
+                        setProjectUsers(updatedUsers);
+                    } else {
+                        notification.error({ message: error?.message || "Failed to Delete User" });
+                    }
+                } else {
+                    const updatedUsers = projectUsers?.filter((_, i) => i !== index);
+                    setProjectUsers(updatedUsers);
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
     const handleEdit = async (record, copy) => {
-        let { data, error } = await supabase.rpc('get_project_details_with_project_users', { projectid: record?.id });
+        let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: record?.id });
 
         console.log("rec", record)
         console.log("RPC data", data)
@@ -609,14 +639,13 @@ const NonProjectLeave = () => {
         },
         {
             title: '',
-            render: (_, __, index) => (
-                <Button
-                    // type="link"
-                    danger
-                    onClick={() => removeUser(index)}
-                >
-                    X
-                </Button>
+            render: (_, record, index) => (
+                <>
+                    {Number(projectUsers[index].expensed_hours) === 0 && <Button
+                        danger onClick={() => showUserDeleteConfirm(index, record)} >
+                        X
+                    </Button>}
+                </>
             ),
         },
     ];

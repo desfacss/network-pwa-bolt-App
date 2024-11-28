@@ -6,6 +6,7 @@ import DownloadMenu from 'components/common/DownloadMenu';
 // import { supabase } from './supabaseClient'; // Adjust the import based on your Supabase setup
 // import dayjs from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
+import { useSelector } from 'react-redux';
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
@@ -21,6 +22,8 @@ const ReportComponent = () => {
     const [emptyData, setEmptytData] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const { session } = useSelector((state) => state.auth);
+
     const reportDataRef = useRef();
 
     const handlePrint = useReactToPrint({
@@ -35,7 +38,12 @@ const ReportComponent = () => {
     };
 
     const fetchProjects = async () => {
-        const { data, error } = await supabase.from('projects').select('id, project_name');
+        // const { data, error } = await supabase.from('projects').select('id, project_name');
+        const { data, error } = await supabase.rpc('get_projects_with_allocation', {
+            userid: null,
+            include_leaves: false,
+            include_non_project: true
+        });
         if (error) console.error(error);
         else setProjects(data);
     };

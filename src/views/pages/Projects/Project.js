@@ -228,8 +228,8 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     const handleEdit = async (record, copy) => {
 
-        // let { data, error } = await supabase.rpc('get_project_details_with_project_users', { project_id: record?.id });
-        let { data, error } = await supabase.rpc('get_project_details_with_project_users', { projectid: record?.id });
+        // let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { project_id: record?.id });
+        let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: record?.id });
 
         console.log("RPC data", data)
         if (data) {
@@ -295,9 +295,10 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
         setProjectUsers([...projectUsers || [], { user_id: "", expensed_hours: "0", allocated_hours: "", start_date: formStartDate || formattedToday, end_date: formEndDate || formattedTomorrow, rate: '0' }]);
     };
 
-    const removeUser = (index) => {
-        const updatedUsers = projectUsers?.filter((_, i) => i !== index);
-        setProjectUsers(updatedUsers);
+    const removeUser = (index, record) => {
+        console.log("remove", record)
+        // const updatedUsers = projectUsers?.filter((_, i) => i !== index);
+        // setProjectUsers(updatedUsers);
     };
 
     function validateData(data) {
@@ -341,6 +342,36 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     fetchProjects();
                 } else {
                     notification.error({ message: error?.message || "Failed to delete Project" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
+    const showUserDeleteConfirm = async (index, record) => {
+        console.log("UU", projectUsers, record)
+        confirm({
+            title: `Are you sure you want to remove the allocation ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                if (record?.id) {
+                    const { error } = await supabase.from('allocations').delete().eq('id', record?.id);
+                    if (!error) {
+                        notification.success({ message: "User Deleted" });
+                        const updatedUsers = projectUsers?.filter((_, i) => i !== index);
+                        setProjectUsers(updatedUsers);
+                    } else {
+                        notification.error({ message: error?.message || "Failed to Delete User" });
+                    }
+                } else {
+                    const updatedUsers = projectUsers?.filter((_, i) => i !== index);
+                    setProjectUsers(updatedUsers);
                 }
             },
             onCancel() {
@@ -495,14 +526,13 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
         },
         {
             title: '',
-            render: (_, __, index) => (
-                <Button
-                    // type="link"
-                    danger
-                    onClick={() => removeUser(index)}
-                >
-                    X
-                </Button>
+            render: (e, record, index) => (
+                <>
+                    {Number(projectUsers[index].expensed_hours) === 0 && <Button
+                        danger onClick={() => showUserDeleteConfirm(index, record)} >
+                        X
+                    </Button>}
+                </>
             ),
         },
     ];
