@@ -4,6 +4,7 @@ import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import './timesheet.css';
 import dayjs from 'dayjs'
+import { generateEmailData, sendEmail } from 'components/common/SendEmail';
 
 const { Option } = Select;
 
@@ -13,10 +14,23 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     const [data, setData] = useState([{ key: '1' }]);
     const [projects, setProjects] = useState();
     const [selectedProject, setSelectedProject] = useState();
+    const [users, setUsers] = useState();
 
     const { session } = useSelector((state) => state.auth);
 
     const { timesheet_settings } = session?.user?.organization
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const { data, error } = await supabase.from('users').select('*');
+            if (error) {
+                console.error('Error fetching users:', error);
+            } else {
+                setUsers(data || []);
+            }
+        };
+        fetchUsers();
+    }, []);
 
     const fetchProjects = async () => {
         // const { data, error } = await supabase.from('projects').select('*').eq('is_non_project', false); // Call the stored function
@@ -190,30 +204,40 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
 
         const today = new Date();
         const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
+        const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id
 
         const timesheetData = {
             user_id: session.user.id,
             details: data,
             status: 'Submitted',
             project_id: selectedProject,
-            approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
+            approver_id,
             last_date: lastDate.toISOString(),
             submitted_time: new Date()
         };
+        const emailPayload = generateEmailData("Expense Sheet", "Submitted", {
+            username: session?.user?.user_name,
+            approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
+            hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
+            applicationDate: new Date(new Date)?.toISOString()?.slice(0, 10)?.replace("T", " "),
+            submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
+        })
 
+        console.log("Payload", emailPayload)
         let result;
         if (editItem) {  // Update the existing timesheet
             console.log("update", editItem);
-            result = await supabase.from('expensesheet').update(timesheetData).eq('id', editItem?.id);
+            result = await supabase.from('expensesheet').update(timesheetData).eq('id', editItem?.id).select('*');
         } else {         // Insert a new timesheet
             console.log("create");
-            result = await supabase.from('expensesheet').insert([timesheetData]);
+            result = await supabase.from('expensesheet').insert([timesheetData]).select('*');
         }
         const { data, error } = result;
         if (error) {
-            message.error(`Failed to submit timesheet: ${error.message}`);
+            message.error(error.message || "Failed to submit ExpenseSheet");
         } else {
-            message.success('Timesheet submitted successfully.');
+            await sendEmail(emailPayload)
+            message.success('ExpenseSheet Submitted.');
             onAdd()
         }
     };

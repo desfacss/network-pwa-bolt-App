@@ -435,7 +435,7 @@ const Users = () => {
                             dataSource={users}
                             rowKey={(record) => record.id}
                             loading={!users}
-                            pagination={false}
+                            pagination={true}
                         />
                     </div>
                 )}

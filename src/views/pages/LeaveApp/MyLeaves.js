@@ -1,14 +1,15 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Modal, Tooltip } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import LeaveDetails from "./LeaveDetails";
 import dayjs from "dayjs";
+import { generateEmailData, sendEmail } from "components/common/SendEmail";
 const { confirm } = Modal;
 
-const LeaveApplications = () => {
+const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
     const componentRef = useRef(null);
     const [leaveApplications, setLeaveApplications] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -16,12 +17,40 @@ const LeaveApplications = () => {
     const [schema, setSchema] = useState();
     const [leavePolicy, setLeavePolicy] = useState();
     const [remainingLeaves, setRemainingLeaves] = useState();
+    const [users, setUsers] = useState();
 
     const { session } = useSelector((state) => state.auth);
 
     const { timesheet_settings } = session?.user?.organization
 
     const [form] = Form.useForm();
+
+    useImperativeHandle(ref, () => ({
+        showDrawer,
+    }));
+
+    const showDrawer = () => {
+        form.resetFields();
+        setIsDrawerOpen(true)
+    }
+
+    useEffect(() => {
+        if (startDate && endDate) {
+            fetchLeaveApplications();
+        }
+    }, [startDate, endDate])
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const { data, error } = await supabase.from('users').select('*');
+            if (error) {
+                console.error('Error fetching users:', error);
+            } else {
+                setUsers(data || []);
+            }
+        };
+        fetchUsers();
+    }, []);
 
     const getForms = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_app_add_edit_form").single()
@@ -42,7 +71,7 @@ const LeaveApplications = () => {
     useEffect(() => {
         getForms()
         getLocationDetails()
-        fetchLeaveApplications();
+        // fetchLeaveApplications();
     }, []);
 
     useEffect(() => {
@@ -58,7 +87,8 @@ const LeaveApplications = () => {
     }, [leaveApplications, leavePolicy]);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id).order('created_at', { ascending: false });
+        let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id)
+            .gte('submitted_time', startDate).lte('submitted_time', endDate).order('created_at', { ascending: false });
         if (data) {
             console.log("leaves", data);
             setLeaveApplications(data);
@@ -91,15 +121,27 @@ const LeaveApplications = () => {
         const today = new Date();
         const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
         console.log("a")
+
+        const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id
+
         const payload = {
             details: values,
             user_id: session?.user?.id,
             status: "Submitted",
-            approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
+            approver_id,
             last_date: lastDate.toISOString(),
             submitted_time: new Date()
         }
 
+        const emailPayload = generateEmailData("Leave Application", "Submitted", {
+            username: session?.user?.user_name,
+            approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
+            hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
+            applicationDate: `for ${values?.leaveType} from ${fromDate} to ${toDate}`,
+            submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
+        })
+
+        console.log("Payload", emailPayload)
         if (editItem) {
             // Update existing service
             const { data, error } = await supabase
@@ -109,6 +151,7 @@ const LeaveApplications = () => {
 
             if (data) {
                 notification.success({ message: "Leave Application updated successfully" });
+                await sendEmail(emailPayload)
                 setEditItem(null);
             } else if (error) {
                 notification.error({ message: error?.message || "Failed to update leave Application" });
@@ -121,6 +164,7 @@ const LeaveApplications = () => {
 
             if (data) {
                 notification.success({ message: "Leave Application added successfully" });
+                await sendEmail(emailPayload)
                 setEditItem(null)
             } else if (error) {
                 notification.error({ message: error?.message || "Failed to add leave Application" });
@@ -302,22 +346,6 @@ const LeaveApplications = () => {
             // leave_details={session?.user?.leave_details} 
             />
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-                {/* <h2 style={{ margin: 0 }}>Leave Application</h2> */}
-                <div>
-                    {/* <p>
-                        {remainingLeaves?.leaves} Leaves Remaining
-                    </p>
-                    <p>
-                        {remainingLeaves?.sickLeaves} Sick Leaves Remaining
-                    </p> */}
-                </div>
-                <Button
-                    type="primary"
-                    // icon={<PlusOutlined />}
-                    onClick={() => { form.resetFields(); setIsDrawerOpen(true) }}
-                >
-                    Add Leave Application
-                </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
@@ -341,6 +369,6 @@ const LeaveApplications = () => {
             </Drawer>
         </Card>
     );
-};
+});
 
 export default LeaveApplications;

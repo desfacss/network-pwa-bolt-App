@@ -35,10 +35,7 @@ const Index = () => {
 
     return (
         <Card>
-            <Tabs
-                defaultActiveKey="1"
-                activeKey={activeKey}
-                onChange={(key) => setActiveKey(key)}
+            <Tabs defaultActiveKey="1" activeKey={activeKey} onChange={(key) => setActiveKey(key)}
                 tabBarExtraContent={
                     <>
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddTimesheet} >

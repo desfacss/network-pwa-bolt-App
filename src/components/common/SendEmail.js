@@ -1,61 +1,84 @@
-// import { Resend } from 'resend';
-
-// const resend = new Resend('re_VTPe8tkE_GRAog5gbk5kxjhUKUVpSsRF2'); // Replace 'YOUR_API_KEY' with your Resend API key
-
-// export const sendEmail = async () => {
-//     try {
-//         // Email data for the first user
-//         const email1 = {
-//             from: 'your-email@example.com', // Your sender email address
-//             to: 'ratedrnagesh28@gmail.com', // Recipient 1 email
-//             subject: 'Subject for User 1',
-//             html: '<p>Hello User 1, this is your message.</p>',
-//         };
-
-//         // Email data for the second user
-//         const email2 = {
-//             from: 'your-email@example.com', // Your sender email address
-//             to: 'ganeshmr3003@gmail.com', // Recipient 2 email
-//             subject: 'Subject for User 2',
-//             html: '<p>Hello User 2, this is your message.</p>',
-//         };
-
-//         // Send both emails in parallel
-//         await Promise.all([resend.sendEmail(email1), resend.sendEmail(email2)]);
-
-//         console.log('Emails sent successfully');
-//     } catch (error) {
-//         console.error('Error sending emails:', error);
-//     }
-// };
-
 import { Resend } from 'resend';
 
 const resend = new Resend('re_VTPe8tkE_GRAog5gbk5kxjhUKUVpSsRF2'); // Replace 'YOUR_API_KEY' with your Resend API key
 
-export const sendEmail = async () => {
+export const sendEmail = async (emails) => {
     try {
-        // Email data for the first user
-        const email1 = {
-            from: 'your-email@example.com', // Your sender email address
-            to: 'ratedrnagesh28@gmail.com', // Recipient 1 email
-            subject: 'Subject for User 1',
-            html: '<p>Hello User 1, this is your message.</p>',
-        };
+        const emails = [
+            {
+                from: 'team@optionsify.com',
+                to: ['ratedrnagesh28@gmail.com', 'ganeshmr3003@gmail.com', 'optionsalgotrade@gmail.com'],
+                subject: 'Subject for Users',
+                html: '<p>Hello User 1, this is your message.</p>',
+            },
+            {
+                from: 'team@optionsify.com',
+                to: 'ravishankar.s@gmail.com',
+                subject: 'Subject for User 2',
+                html: '<p>Hello User 2, this is your message.</p>',
+            },
+        ];
+        if (!Array.isArray(emails) || emails.length === 0) {
+            console.error('Emails array is empty or invalid');
+            return;
+        }
+        const response = await fetch(`https://azzqopnihybgniqzrszl.supabase.co/functions/v1/send_email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emails),
+        });
 
-        // Email data for the second user
-        const email2 = {
-            from: 'your-email@example.com', // Your sender email address
-            to: 'ganeshmr3003@gmail.com', // Recipient 2 email
-            subject: 'Subject for User 2',
-            html: '<p>Hello User 2, this is your message.</p>',
-        };
+        if (!response.ok) {
+            throw new Error('Failed to send emails');
+        }
 
-        // Send both emails in parallel
-        await Promise.all([resend.emails.send(email1), resend.emails.send(email2)]);
-
-        console.log('Emails sent successfully');
+        const data = await response.json();
+        console.log('Emails sent successfully:', data);
     } catch (error) {
         console.error('Error sending emails:', error);
     }
 };
+
+export const generateEmailData = (type, action, details) => {
+    const {
+        username, approverUsername,
+        approverEmail, hrEmails, userEmail,
+        applicationDate, submittedTime, reviewedTime,
+        comment,
+    } = details;
+
+    let subject, body, recipients;
+
+    // Determine subject and body content
+    switch (type) {
+        case "Timesheet":
+        case "Leave Application":
+        case "Expense Sheet":
+            if (action === "Submitted") {
+                subject = `${type} submitted by ${username}`;
+                body = `${type} ${applicationDate} submitted by ${username} on ${submittedTime}`;
+                recipients = [approverEmail, ...hrEmails];
+            } else if (["Approved", "Rejected"].includes(action)) {
+                subject = `${type} ${action} by ${approverUsername}`;
+                body = `${type} ${applicationDate} ${action.toLowerCase()} by ${approverUsername} on ${reviewedTime}${comment ? ` with the following comment: ${comment}` : ""
+                    }`;
+                recipients = [userEmail];
+            }
+            break;
+
+        default:
+            throw new Error("Invalid type or action");
+    }
+
+    // Return the email data object
+    return {
+        from: 'team@optionsify.com',
+        to: recipients,
+        subject: subject,
+        html: `<p>${body}</p>`,
+    };
+};
+
+

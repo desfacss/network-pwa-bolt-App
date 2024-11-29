@@ -5,9 +5,10 @@ import { supabase } from "configs/SupabaseConfig";
 // import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import Expensesheet from "./Expensesheet";
+import { generateEmailData, sendEmail } from "components/common/SendEmail";
 // import ExpenseDetails from "./ExpenseDetails";
 
-const TeamExpenses = () => {
+const TeamExpenses = ({ startDate, endDate }) => {
     const componentRef = useRef(null);
     const [expenses, setExpenses] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -19,10 +20,40 @@ const TeamExpenses = () => {
     const [isApproveModal, setIsApproveModal] = useState(false);
     const [isRejectModal, setIsRejectModal] = useState(false);
     const [rejectComment, setRejectComment] = useState('');
+    const [users, setUsers] = useState();
+    const [projects, setProjects] = useState();
 
     const { session } = useSelector((state) => state.auth);
 
     const [form] = Form.useForm();
+
+    const fetchProjects = async () => {
+        const { data, error } = await supabase.rpc('get_projects_with_allocation', {
+            userid: session?.user?.id,
+            include_leaves: false,
+            include_non_project: false
+        }); // Call the stored function
+        if (error) {
+            console.error('Error fetching projects:', error);
+        } else {
+            setProjects(data);
+            console.log('Project data:', data);
+        }
+    };
+
+    const fetchUsers = async () => {
+        const { data, error } = await supabase.from('users').select('*');
+        if (error) {
+            console.error('Error fetching users:', error);
+        } else {
+            setUsers(data || []);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+        fetchProjects()
+    }, []);
 
     const fetchLeaves = async () => {
         let { data, error } = await supabase.from('projects_leaves').select('*');
@@ -63,14 +94,20 @@ const TeamExpenses = () => {
     }
 
     useEffect(() => {
-        fetchExpenses();
         getApprovalForm()
         getApplicationForm()
         fetchLeaves();
     }, []);
 
+    useEffect(() => {
+        if (startDate && endDate) {
+            fetchExpenses();
+        }
+    }, [startDate, endDate]);
+
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved').order('submitted_time', { ascending: false });
+        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved')
+            .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {
             setExpenses(data);
         }
@@ -81,17 +118,28 @@ const TeamExpenses = () => {
 
     const handleSubmit = async (status) => {
         // const { service_name, cost, duration, description } = values;
+        const comment = isApproveModal ? "" : rejectComment;
+        const emailPayload = generateEmailData("Expense Sheet", status, {
+            approverUsername: session?.user?.user_name,
+            comment,
+            userEmail: users?.find(user => user?.id === editItem?.user_id)?.details?.email,
+            applicationDate: `for ${projects?.find(project => project?.id === editItem?.project_id)?.project_name} - ${editItem?.submitted_time?.slice(0, 10)?.replace("T", " ")}`,
+            reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
+        })
+        console.log("Payload", emailPayload, editItem)
         if (editItem) {
             console.log(editItem.id, session?.user?.id)
-            // Update existing service
             const { data, error } = await supabase
                 .from('expensesheet')
                 .update({
                     approved_by_id: session?.user?.id,
-                    status: isApproveModal ? "Approved" : "Rejected",
+                    status,
                     approver_details: { approved_time: new Date(), comment: (isApproveModal ? "" : rejectComment), },
                 })
-                .eq('id', editItem.id);
+                .eq('id', editItem.id).select('*');
+            if (data) {
+                await sendEmail(emailPayload)
+            }
             // if (!error && status === 'Approved') {
             //     const expenseType = editItem?.details?.expenseType//?.split(" ")[0]?.toLowerCase(); // Extract first word and convert to lowercase
             //     var expenseDetails = session?.user?.expense_details

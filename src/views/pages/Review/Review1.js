@@ -6,6 +6,7 @@ import { formatDate, getFirstDayOfMonth, getMonday, goToNext, goToPrevious, isHi
 import { useSelector } from 'react-redux';
 import { supabase } from 'configs/SupabaseConfig';
 import { WarningOutlined } from '@ant-design/icons';
+import { generateEmailData, sendEmail } from 'components/common/SendEmail';
 // import { sendEmail } from 'components/common/SendEmail';
 const { Option } = Select;
 
@@ -26,11 +27,23 @@ const Review1 = ({ date, employee, fetchData }) => {
   const [selectedEmployeesId, setSelectedEmployeeId] = useState(employee);
   const [columns, setColumns] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [users, setUsers] = useState();
 
   const { session } = useSelector((state) => state.auth);
 
   const { timesheet_settings } = session?.user?.organization
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const { data, error } = await supabase.from('users').select('*');
+      if (error) {
+        console.error('Error fetching users:', error);
+      } else {
+        setUsers(data || []);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const fetchProjects = async () => {
     const { data: leavesData, error: leavesError } = await supabase.from('projects_leaves').select('*')
@@ -394,12 +407,22 @@ const Review1 = ({ date, employee, fetchData }) => {
   const handleSubmit = async () => {
     try {
       // Define the values to update based on approval or rejection
+      const status = isApproveModal ? "Approved" : "Rejected";
+      const comment = isApproveModal ? "" : rejectComment;
       const updatedValues = {
         approved_by_id: session?.user?.id,
-        status: isApproveModal ? "Approved" : "Rejected",
-        approver_details: { approved_time: new Date(), comment: (isApproveModal ? "" : rejectComment), },
+        status,
+        approver_details: { approved_time: new Date(), comment },
       }
+      const emailPayload = generateEmailData("Timesheet", status, {
+        approverUsername: session?.user?.user_name,
+        comment,
+        userEmail: users?.find(user => user?.id === existingTimesheet?.user_id)?.details?.email,
+        applicationDate: existingTimesheet?.timesheet_date,
+        reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
+      })
 
+      // console.log("Payload", emailPayload)
       // Perform the update query
       const { data, error } = await supabase.from("timesheet").update(updatedValues).eq("id", existingTimesheet?.id);
 
@@ -436,11 +459,11 @@ const Review1 = ({ date, employee, fetchData }) => {
         setIsRejectModal(false);
         setRejectComment("");
       }
-
       // Refresh data and notify the user
       checkExistingTimesheet();
       fetchData();
-      message.success(`${isApproveModal ? "Approved" : "Rejected"} successfully`);
+      message.success(`${status} successfully`);
+      await sendEmail(emailPayload)
     } catch (error) {
       console.error("Unexpected error:", error);
       message.error("An unexpected error occurred. Please try again.");

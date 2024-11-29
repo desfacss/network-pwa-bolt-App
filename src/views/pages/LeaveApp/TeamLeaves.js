@@ -5,8 +5,9 @@ import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import LeaveDetails from "./LeaveDetails";
+import { generateEmailData, sendEmail } from "components/common/SendEmail";
 
-const LeaveApplications = () => {
+const LeaveApplications = ({ startDate, endDate }) => {
     const componentRef = useRef(null);
     const [leaveApplications, setLeaveApplications] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -17,10 +18,23 @@ const LeaveApplications = () => {
     const [isApproveModal, setIsApproveModal] = useState(false);
     const [isRejectModal, setIsRejectModal] = useState(false);
     const [rejectComment, setRejectComment] = useState('');
+    const [users, setUsers] = useState();
 
     const { session } = useSelector((state) => state.auth);
 
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const { data, error } = await supabase.from('users').select('*');
+            if (error) {
+                console.error('Error fetching users:', error);
+            } else {
+                setUsers(data || []);
+            }
+        };
+        fetchUsers();
+    }, []);
 
     const fetchLeaves = async () => {
         let { data, error } = await supabase.from('projects_leaves').select('*');
@@ -64,11 +78,17 @@ const LeaveApplications = () => {
         fetchLeaves();
         getApprovalForm()
         getApplicationForm()
-        fetchLeaveApplications();
     }, []);
 
+    useEffect(() => {
+        if (startDate && endDate) {
+            fetchLeaveApplications();
+        }
+    }, [startDate, endDate]);
+
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').order('submitted_time', { ascending: false });
+        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved')
+            .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {
             setLeaveApplications(data);
         }
@@ -79,14 +99,24 @@ const LeaveApplications = () => {
 
     const handleSubmit = async (status) => {
         // const { service_name, cost, duration, description } = values;
+        const comment = isApproveModal ? "" : rejectComment;
+        const { toDate, fromDate, leaveType } = editItem?.details
+        const emailPayload = generateEmailData("Leave Application", status, {
+            approverUsername: session?.user?.user_name,
+            comment,
+            userEmail: users?.find(user => user?.id === editItem?.user_id)?.details?.email,
+            applicationDate: `for ${leaveType} from ${fromDate} to ${toDate}`,
+            reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
+        })
+        // console.log("Payload", emailPayload)
         if (editItem) {
             // Update existing service
             const { data, error } = await supabase
                 .from('leave_applications')
                 .update({
                     approved_by_id: session?.user?.id,
-                    status: isApproveModal ? "Approved" : "Rejected",
-                    approver_details: { approved_time: new Date(), comment: (isApproveModal ? "" : rejectComment), },
+                    status,
+                    approver_details: { approved_time: new Date(), comment },
                 })
                 .eq('id', editItem.id);
             if (!error && status === 'Approved') {
@@ -111,6 +141,7 @@ const LeaveApplications = () => {
                 // }
                 notification.success({ message: `Leave Application ${isApproveModal ? "Approved" : "Rejected"}` });
                 setEditItem(null);
+                await sendEmail(emailPayload)
             } else if (error) {
                 notification.error({ message: error?.message || `Failed to ${isApproveModal ? "Approve" : "Rejecte"} Leave Application` });
             }

@@ -4,6 +4,7 @@ import { PlusOutlined, EditFilled, DeleteFilled, ExclamationCircleFilled, Delete
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
+import { serverErrorParsing } from "components/util-components/serverErrorParsing";
 const { confirm } = Modal;
 
 const Clients = () => {
@@ -146,7 +147,7 @@ const Clients = () => {
                 notification.success({ message: "Client deleted successfully" });
                 fetchClients();
             } else {
-                notification.error({ message: error?.message });
+                notification.error({ message: serverErrorParsing(error?.message) });
             }
         }
         setDeleteModalVisible(false);
@@ -167,7 +168,7 @@ const Clients = () => {
                     notification.success({ message: "Client deleted successfully" });
                     fetchClients();
                 } else {
-                    notification.error({ message: error?.message });
+                    notification.error({ message: serverErrorParsing(error?.message) });
                 }
             },
             onCancel() {
@@ -258,7 +259,7 @@ const Clients = () => {
                     dataSource={clients}
                     rowKey={(record) => record.id}
                     loading={!clients}
-                    pagination={false}
+                    pagination={true}
                 />
             </div>
             <Drawer footer={null} width={500} //size="large"

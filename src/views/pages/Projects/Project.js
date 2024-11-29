@@ -558,7 +558,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     dataSource={projects}
                     rowKey={(record) => record.id}
                     loading={!projects}
-                    pagination={false}
+                    pagination={true}
                 />
             </div>
             <Drawer //size="large"

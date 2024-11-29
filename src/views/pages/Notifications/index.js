@@ -313,7 +313,7 @@ const Notifications = () => {
                     dataSource={notifications}
                     rowKey={(record) => record.id}
                     loading={!notifications}
-                    pagination={false}
+                    pagination={true}
                 />
             </div>
             <Drawer footer={null} width={500} //size="large"

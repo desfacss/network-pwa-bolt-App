@@ -7,6 +7,7 @@ import { supabase } from 'configs/SupabaseConfig';
 import { EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import './Tableview.css';
 import TimesheetInstructions from './TimesheetInstructions';
+import { generateEmailData, sendEmail } from 'components/common/SendEmail';
 
 const { confirm } = Modal;
 const { Option } = Select;
@@ -31,12 +32,26 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const [defaultData, setDefaultData] = useState();
   const [timesheets, setTimesheets] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState();
   const [projectDetails, setProjectDetails] = useState();
+  const [highlightRows, setHighlightRows] = useState([3, 5, 6]);
   // const [timesheetToDelete, setTimesheetToDelete] = useState();
 
   const { session } = useSelector((state) => state.auth);
 
   const { timesheet_settings } = session?.user?.organization
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const { data, error } = await supabase.from('users').select('*');
+      if (error) {
+        console.error('Error fetching users:', error);
+      } else {
+        setUsers(data || []);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     if (startDate && endDate) {
@@ -62,13 +77,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const fetchTimesheets = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('timesheet')
-        .select('*')
-        .eq('user_id', session?.user?.id)
-        .gte('timesheet_date', startDate)
-        .lte('timesheet_date', endDate)
-        .order('created_at', { ascending: false })
+      const { data, error } = await supabase.from('timesheet').select('*').eq('user_id', session?.user?.id).gte('timesheet_date', startDate).lte('timesheet_date', endDate).order('created_at', { ascending: false })
 
       if (error) {
         throw error;
@@ -86,12 +95,8 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const fetchProjects = async () => {
     // const { data, error } = await supabase.from('projects').select('*')
     // .or(`project_users.cs.{${session?.user?.id}},project_users.is.null`)
-    // .neq('is_closed', true)
-    // .order('is_non_project', { ascending: true })  // is_non_project=false rows come first
-    // .order('project_name', { ascending: true });
 
     const { data, error } = await supabase.rpc('get_projects_with_allocation', { userid: session?.user?.id })
-
 
     // .contains('project_users', [session?.user?.id]);
     if (data) {
@@ -120,8 +125,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   };
 
   const setCurrentTimesheet = (data) => {
-    // console.log("edit", data)
-    // console.log("CET")
     const timesheetDetails = data?.details || [];
     const projectDataMap = {};
 
@@ -169,12 +172,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('timesheet')
-      .select('*')
-      .eq('user_id', session?.user?.id)
-      .eq('timesheet_date', currentDate.toISOString())
-      .eq('timesheet_type', viewMode);
+    const { data, error } = await supabase.from('timesheet').select('*').eq('user_id', session?.user?.id).eq('timesheet_date', currentDate.toISOString()).eq('timesheet_type', viewMode);
 
     if (error) {
       console.error('Error fetching timesheet:', error.message);
@@ -183,44 +181,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     } else if (data && data.length > 0) {
       // console.log("CET-D")
       setCurrentTimesheet(data[0])
-
-      // const timesheetDetails = data[0]?.details || [];
-      // const projectDataMap = {};
-
-      // // Transform timesheetDetails to the structure needed for the table
-      // timesheetDetails.forEach((day) => {
-      //   const date = day.date;
-      //   const dailyEntries = day.dailyEntries;
-
-      //   // For each project, initialize the array if not present, and push the day entry
-      //   Object.keys(dailyEntries).forEach((projectName) => {
-      //     if (!projectDataMap[projectName]) {
-      //       projectDataMap[projectName] = [];
-      //     }
-
-      //     // Push the formatted data for each project
-      //     projectDataMap[projectName].push({
-      //       key: date,
-      //       date: date,
-      //       dailyEntries: {
-      //         [projectName]: {
-      //           hours: dailyEntries[projectName]?.hours || '0',
-      //           description: dailyEntries[projectName]?.description || '',
-      //         },
-      //       },
-      //     });
-      //   });
-      // });
-      // // console.log("Existing Data", projectDataMap, projectData)
-      // const columns = Object.keys(projectDataMap).reduce((acc, id) => {
-      //   acc[id] = id;
-      //   return acc;
-      // }, {});
-      // setSelectedProjectColumns(columns)
-      // setProjectData(projectDataMap);
-      // setExistingTimesheetId(data[0]?.id);
-      // setDisabled(['Approved'].includes(data[0]?.status));
-
 
     } else {
       setExistingTimesheetId(null);
@@ -236,7 +196,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     setLoading(false);
   };
 
-
   const handleSubmit = async (status) => {
 
     if (!session?.user?.id) {
@@ -251,14 +210,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
         dailyEntries: {},
       };
 
-      // const filteredData = Object.fromEntries(
-      //   Object.entries(projectData).filter(([id, entries]) =>
-      //     entries.some(entry =>
-      //       entry.dailyEntries[id].hours !== "0"
-      //     )
-      //   )
-      // );
-
       const filteredData = Object.fromEntries(
         Object.entries(projectData).filter(([id, entries]) =>
           entries.some(entry =>
@@ -266,14 +217,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
           )
         )
       );
-
-      // // Fill in the daily entries for each project
-      // for (let projectName of Object.keys(projectData)) {
-      //   dailyEntry.dailyEntries[projectName] = {
-      //     hours: projectData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.hours || '0',
-      //     description: projectData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.description || '',
-      //   };
-      // }
 
       // Fill in the daily entries for each project
       for (let projectName of Object.keys(filteredData)) {
@@ -283,8 +226,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
           description: (hours && hours !== '0') ? filteredData[projectName]?.find(entry => entry?.key === day?.key)?.dailyEntries[projectName]?.description || '' : '',
         };
       }
-      // console.log("PU", filteredData)
-
       return dailyEntry;
     });
 
@@ -313,6 +254,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       })
     }
 
+    const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id
 
     const timesheetPayload = {
       user_id: session.user.id,
@@ -321,38 +263,44 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       status,
       details: timesheetDetails,
       project_details: projectDetails,
-      approver_id: session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id,
+      approver_id,
       last_date: lastDate.toISOString(),
       submitted_time: new Date()
     };
 
-    // console.log("Payload", timesheetDetails)
+    const emailPayload = generateEmailData("Timesheet", "Submitted", {
+      username: session?.user?.user_name,
+      approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
+      hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
+      applicationDate: currentDate?.toISOString()?.slice(0, 10)?.replace("T", " "),
+      submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
+    })
+
+    console.log("Payload", emailPayload)
     try {
       if (existingTimesheetId) {
         // Update existing timesheet
-        const { error } = await supabase
-          .from('timesheet')
-          .update(timesheetPayload)
-          .eq('id', existingTimesheetId);
+        const { error } = await supabase.from('timesheet').update(timesheetPayload).eq('id', existingTimesheetId);
 
         if (error) throw error;
         message.success('Timesheet updated successfully.');
+        if (status === 'Submitted') {
+          await sendEmail(emailPayload)
+        }
       } else {
         // Insert new timesheet
-        const { error } = await supabase
-          .from('timesheet')
-          .insert(timesheetPayload);
+        const { error } = await supabase.from('timesheet').insert(timesheetPayload);
 
         if (error) throw error;
         message.success('Timesheet submitted successfully.');
-        // form.resetFields();
+        if (status === 'Submitted') {
+          await sendEmail(emailPayload)
+        }
         setProjectData()
         closeDrawer()
       }
       // console.log("Pr", projectDetails)
       fetchTimesheets()
-      // // Refetch the timesheet data after submission
-      // checkExistingTimesheet();
     } catch (error) {
       message.error(`Error submitting timesheet: ${error.message}`);
     }
@@ -424,19 +372,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const handleProjectChange = (projectName, columnIndex) => {
     console.log("PC", projectName, columnIndex, selectedProjectColumns, projectData)
 
-    // setSelectedProjectColumns((prevState) => ({
-    //   ...prevState,
-    //   [columnIndex]: projectName,
-    // }));
-
-    // if (!projectData[projectName]) {
-    //   setProjectData((prevData) => ({
-    //     ...prevData,
-    //     // [projectName]: generateRows(projectName),
-    //     [projectName]: projectData[columnIndex],
-    //   }));
-    // }
-
     // if (!projectData[projectName]) {
     setProjectData((prevData) => {
       const newState = {
@@ -458,23 +393,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
       return newState;
     });
-
-    // // Update projectData
-    // if (!projectData[projectName]) {
-    //   setProjectData((prevData) => ({
-    //     ...prevData,
-    //     [projectName]: generateRows(projectName),
-    //   }));
-    // } else {
-    //   setProjectData((prevData) => {
-    //     const newData = { ...prevData };
-
-    //     // Delete the data associated with the columnIndex if needed
-    //     delete newData[columnIndex];
-
-    //     return newData;
-    //   });
-    // }
 
   };
 
@@ -947,7 +865,12 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
           {/* <Table size={'small'} size={'small'} columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
 
           <Table size={'small'} columns={columns} dataSource={generateAllRows()} pagination={false}
-            summary={getSummary} scroll={{ x: 'max-content' }} />
+            summary={getSummary} scroll={{ x: 'max-content' }}
+            rowClassName={(_, index) => highlightRows?.includes(index) ? "ant-table-row-selected" : ""}
+          // ant-table-row-selected
+          // ant-table-placeholder
+          // ant-table-expanded-row
+          />
         </Spin>
       </Drawer>}
     </>

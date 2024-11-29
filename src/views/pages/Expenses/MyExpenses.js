@@ -1,5 +1,5 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
@@ -7,7 +7,7 @@ import Expensesheet from "./Expensesheet";
 // import ExpenseDetails from "./ExpenseDetails";
 const { confirm } = Modal;
 
-const MyExpenses = () => {
+const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
     const componentRef = useRef(null);
     const [expenses, setExpenses] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -15,12 +15,23 @@ const MyExpenses = () => {
 
     const { session } = useSelector((state) => state.auth);
 
+    useImperativeHandle(ref, () => ({
+        showDrawer,
+    }));
+
+    const showDrawer = () => {
+        setIsDrawerOpen(true)
+    }
+
     useEffect(() => {
-        fetchExpenses();
-    }, []);
+        if (startDate && endDate) {
+            fetchExpenses();
+        }
+    }, [startDate, endDate])
 
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,project:project_id(*)').eq('user_id', session?.user?.id).order('created_at', { ascending: false });
+        let { data, error } = await supabase.from('expensesheet').select('*,project:project_id(*)').eq('user_id', session?.user?.id)
+            .gte('submitted_time', startDate).lte('submitted_time', endDate).order('created_at', { ascending: false });
         if (data) {
             console.log("expenses", data);
             setExpenses(data);
@@ -124,11 +135,11 @@ const MyExpenses = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+            {/* <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <Button type="primary" onClick={() => setIsDrawerOpen(true)} >
                     Add Expense
                 </Button>
-            </div>
+            </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'} columns={columns} dataSource={expenses}
                     rowKey={(record) => record.id} loading={!expenses} pagination={false} />
@@ -141,6 +152,6 @@ const MyExpenses = () => {
             </Drawer>
         </Card>
     );
-};
+});
 
 export default MyExpenses;
