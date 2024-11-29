@@ -10,7 +10,7 @@ const { Option } = Select;
 const Expensesheet = ({ editItem, onAdd, viewMode }) => {
 
     const [types, setTypes] = useState();
-    const [data, setData] = useState([]);
+    const [data, setData] = useState([{ key: '1' }]);
     const [projects, setProjects] = useState();
     const [selectedProject, setSelectedProject] = useState();
 
@@ -48,7 +48,9 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     }
 
     useEffect(() => {
-        setData(editItem?.details)
+        if (editItem) {
+            setData(editItem?.details)
+        }
     }, [editItem])
 
     const handleAddRow = () => {
@@ -90,6 +92,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             {
                 title: 'Date',
                 dataIndex: 'date',
+                fixed: "left",
                 render: (_, record, rowIndex) => (
                     <>
                         {!viewMode ? <DatePicker value={record?.date ? dayjs(record.date, 'YYYY-MM-DD') : null} format='YYYY-MM-DD' allowClear={false}
@@ -137,10 +140,19 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             {
                 title: 'Total',
                 dataIndex: 'total',
-                render: (_, record) => <Typography.Text>{record.total || "-"}</Typography.Text>,
+                // width: 100,
+                fixed: "right",
+                render: (_, record, rowIndex) =>
+                    <>
+                        <Typography.Text>{record.total || "-"}</Typography.Text>
+                        {/* {!viewMode ? <Button onClick={() => handleDeleteRow(rowIndex)}>X</Button>
+                            : <></>} */}
+                    </>
             },
             {
                 title: '',
+                // width: 100,
+                fixed: "right",
                 render: (_, record, rowIndex) => (
                     <>
                         {!viewMode ? <Button onClick={() => handleDeleteRow(rowIndex)}>X</Button>
@@ -216,16 +228,17 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
         }, {});
 
         return (
-            <Table.Summary.Row>
-                <Table.Summary.Cell>Total</Table.Summary.Cell>
+            <Table.Summary.Row className="table-summary-row">
+                <Table.Summary.Cell className="sticky-left">Total</Table.Summary.Cell>
                 <Table.Summary.Cell></Table.Summary.Cell>
                 {types?.map((type) => {
                     const key = type?.name?.toLowerCase().replace(/\s+/g, '');
                     return (<Table.Summary.Cell key={key}> {totals[key]} </Table.Summary.Cell>);
                 })}
-                <Table.Summary.Cell>
+                <Table.Summary.Cell className="sticky-right">
                     {Object.values(totals)?.reduce((sum, val) => sum + val, 0)}
                 </Table.Summary.Cell>
+                <Table.Summary.Cell className="sticky-right" >{" "}</Table.Summary.Cell>
             </Table.Summary.Row>
         );
     }
@@ -249,7 +262,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
                     <Button type="primary" onClick={handleSubmit} className='ml-2'>Submit</Button>
                 </Col>
             </Row>}
-            <Table dataSource={data} columns={columns} pagination={false} summary={getSummary} />
+            <Table dataSource={data} columns={columns} pagination={false} summary={getSummary} scroll={{ x: 'max-content' }} />
         </>
     );
 };

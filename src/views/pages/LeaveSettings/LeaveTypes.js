@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, message, Popconfirm } from "antd";
+import { Table, Button, Modal, Form, Input, message, Popconfirm, Select } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import { EditFilled } from "@ant-design/icons";
+const { Option } = Select
 
 const LeaveTypes = () => {
+    const [types, setTypes] = useState();
+    const [selectedType, setSelectedType] = useState();
     const [leaveTypes, setLeaveTypes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,26 +16,47 @@ const LeaveTypes = () => {
 
     const { session } = useSelector((state) => state.auth);
     const organizationId = session?.user?.organization?.id
-    useEffect(() => {
-        fetchLeaveTypes();
-    }, []);
+
+    const formatTitle = (str) => {
+        return str?.split('_')?.map(word => word.charAt(0).toUpperCase() + word.slice(1))?.join(' '); // Join the words with a space
+    };
 
     const fetchLeaveTypes = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase
-                .from("leave_type")
-                .select("id, name")
-                .eq("organization_id", organizationId);
+            const { data, error } = await supabase.from(selectedType).select("id, name").eq("organization_id", organizationId);
 
             if (error) throw error;
             setLeaveTypes(data);
+        } catch (error) {
+            message.error(`Failed to fetch ${selectedType} types.`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchTypes = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase.from("enums").select("options").eq("name", 'types_crud');
+            if (error) throw error;
+            console.log("dt", data[0]?.options)
+            setTypes(data[0]?.options);
         } catch (error) {
             message.error("Failed to fetch leave types.");
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchTypes();
+    }, []);
+    useEffect(() => {
+        if (selectedType) {
+            fetchLeaveTypes();
+        }
+    }, [selectedType]);
 
     const handleAdd = () => {
         setEditingRow(null);
@@ -49,7 +73,7 @@ const LeaveTypes = () => {
     const handleDelete = async (id) => {
         try {
             const { error } = await supabase
-                .from("leave_type")
+                .from(selectedType)
                 .delete()
                 .eq("id", id);
 
@@ -66,7 +90,7 @@ const LeaveTypes = () => {
             if (editingRow) {
                 // Update existing leave type
                 const { error } = await supabase
-                    .from("leave_type")
+                    .from(selectedType)
                     .update({ name: values.name })
                     .eq("id", editingRow.id);
 
@@ -74,19 +98,19 @@ const LeaveTypes = () => {
                 message.success("Leave type updated successfully.");
             } else {
                 // Add new leave type
-                const { error } = await supabase.from("leave_type").insert({
+                const { error } = await supabase.from(selectedType).insert({
                     name: values.name,
                     organization_id: organizationId,
                 });
 
                 if (error) throw error;
-                message.success("Leave type added successfully.");
+                message.success(`${formatTitle(selectedType)} added successfully.`);
             }
 
             fetchLeaveTypes();
             setIsModalOpen(false);
         } catch (error) {
-            message.error("Failed to save leave type.");
+            message.error(`Failed to save ${formatTitle(selectedType)}.`);
         }
     };
 
@@ -125,35 +149,44 @@ const LeaveTypes = () => {
 
     return (
         <div>
-            <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
-                Add Leave Type
-            </Button>
-            <Table
-                dataSource={leaveTypes}
-                columns={columns}
-                rowKey="id"
-                loading={loading}
-            />
-            <Modal
-                title={editingRow ? "Edit Leave Type" : "Add Leave Type"}
-                visible={isModalOpen}
-                onCancel={() => setIsModalOpen(false)}
-                onOk={() => form.submit()}
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleSave}
+            {types && <Select placeholder='Select Type' style={{ width: 200 }} onChange={(e) => setSelectedType(e)} value={selectedType}>
+                {types?.map(type =>
+                    <Option value={type} key={type}>
+                        {formatTitle(type)}
+                    </Option>
+                )}
+            </Select>}
+            {selectedType && <div>
+                <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16, marginTop: 10 }}>
+                    Add {formatTitle(selectedType)}
+                </Button>
+                <Table
+                    dataSource={leaveTypes}
+                    columns={columns}
+                    rowKey="id"
+                    loading={loading}
+                />
+                <Modal
+                    title={editingRow ? `Edit ${formatTitle(selectedType)}` : `Add ${formatTitle(selectedType)}`}
+                    visible={isModalOpen}
+                    onCancel={() => setIsModalOpen(false)}
+                    onOk={() => form.submit()}
                 >
-                    <Form.Item
-                        name="name"
-                        label="Leave Type Name"
-                        rules={[{ required: true, message: "Please enter the leave type name." }]}
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={handleSave}
                     >
-                        <Input />
-                    </Form.Item>
-                </Form>
-            </Modal>
+                        <Form.Item
+                            name="name"
+                            label={`${formatTitle(selectedType)} Name`}
+                            rules={[{ required: true, message: `Please enter the ${formatTitle(selectedType)} name.` }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Form>
+                </Modal>
+            </div>}
         </div>
     );
 };

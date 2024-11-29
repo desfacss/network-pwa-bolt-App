@@ -497,7 +497,7 @@ const Review1 = ({ date, employee, fetchData }) => {
     return (
       <Table.Summary>
         <Table.Summary.Row className="table-summary-row">
-          <Table.Summary.Cell fixed="left" >Total</Table.Summary.Cell>
+          <Table.Summary.Cell className="sticky-left">Total</Table.Summary.Cell>
           {columns.slice(1, -2).map(column => (
             <Table.Summary.Cell key={column.key}>
               <div className='ml-2'>
@@ -510,11 +510,11 @@ const Review1 = ({ date, employee, fetchData }) => {
               {Object.values(projectTotals).reduce((acc, total) => acc + total, 0)}
             </div>
           </Table.Summary.Cell>
-          <Table.Summary.Cell /> {/* Empty cell for the description column */}
+          <Table.Summary.Cell className="sticky-right" /> {/* Empty cell for the description column */}
         </Table.Summary.Row>
 
         <Table.Summary.Row className="table-summary-row">
-          <Table.Summary.Cell fixed="left">Allocated Hours</Table.Summary.Cell>
+          <Table.Summary.Cell className="sticky-left">Allocated Hours</Table.Summary.Cell>
           {columns.slice(1, -2).map(column => (
             <Table.Summary.Cell key={column.key}>
               <div className='ml-2'>
@@ -527,14 +527,14 @@ const Review1 = ({ date, employee, fetchData }) => {
               {/* {Object.values(projectDetails).reduce((acc, total) => acc?.weekly_total + total, 0)} */}
             </div>
           </Table.Summary.Cell>
-          <Table.Summary.Cell align="left">
+          <Table.Summary.Cell className="sticky-right">
             <div className='ml-2'>
               {/* {Object.values(projectDetails).reduce((acc, total) => acc?.weekly_total + total, 0)} */}
             </div>
           </Table.Summary.Cell>
         </Table.Summary.Row>
         <Table.Summary.Row className="table-summary-row">
-          <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
+          <Table.Summary.Cell className="sticky-left">Balance Hours</Table.Summary.Cell>
           {columns.slice(1, -2).map(column => (
             <Table.Summary.Cell key={column.key}>
               <div className='ml-2'>
@@ -546,7 +546,7 @@ const Review1 = ({ date, employee, fetchData }) => {
             <div className='ml-2'>
             </div>
           </Table.Summary.Cell>
-          <Table.Summary.Cell align="left">
+          <Table.Summary.Cell className="sticky-right">
             <div className='ml-2'>
             </div>
           </Table.Summary.Cell>
@@ -614,7 +614,7 @@ const Review1 = ({ date, employee, fetchData }) => {
           </Col> : <div style={{ width: 200 }}></div>}
       </Row>
       {(timeSheetData) ? <Table
-        columns={columns}
+        columns={columns} scroll={{ x: 'max-content' }}
         summary={() => renderSummaryRow(timeSheetData)}
         // dataSource={dataSource}
         dataSource={timeSheetData}

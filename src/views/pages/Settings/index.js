@@ -26,7 +26,7 @@ const index = () => {
                 <TabPane tab="Timesheet Settings" key="4">
                     <TimesheetSettings />
                 </TabPane>
-                <TabPane tab="Leave Types" key="5">
+                <TabPane tab="Types" key="5">
                     <LeaveTypes />
                 </TabPane>
                 <TabPane tab="Leave Settings" key="6">

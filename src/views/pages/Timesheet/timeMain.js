@@ -686,8 +686,8 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
     return (
       <Table.Summary>
-        <Table.Summary.Row className="table-summary-row sticky-left">
-          <Table.Summary.Cell fixed="left">Total</Table.Summary.Cell>
+        <Table.Summary.Row className="table-summary-row">
+          <Table.Summary.Cell className="sticky-left">Total</Table.Summary.Cell>
           {Object.keys(selectedProjectColumns).map((columnIndex) => {
             const projectName = selectedProjectColumns[columnIndex];
             return (
@@ -696,14 +696,14 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
               </Table.Summary.Cell>
             );
           })}
-          <Table.Summary.Cell>
+          <Table.Summary.Cell className="sticky-right">
             <div style={{ color: invalidweeklyTotal && 'red' }}>
               {total}
             </div>
           </Table.Summary.Cell>
         </Table.Summary.Row>
-        <Table.Summary.Row className="table-summary-row sticky-left">
-          <Table.Summary.Cell fixed="left">Balance Hours</Table.Summary.Cell>
+        <Table.Summary.Row className="table-summary-row">
+          <Table.Summary.Cell className="sticky-left">Balance Hours</Table.Summary.Cell>
           {Object.keys(selectedProjectColumns)?.map((columnIndex) => {
             const projectName = selectedProjectColumns[columnIndex];
             const { balance, allocated, expensed, color } = calculateBalanceHours(projectName, projectTotals)
@@ -724,7 +724,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
               </Table.Summary.Cell>
             );
           })}
-          <Table.Summary.Cell>
+          <Table.Summary.Cell className="sticky-right">
             {/* {Object.values(projectTotals).reduce((allocated, value) => allocated + value, 0)} */}
           </Table.Summary.Cell>
         </Table.Summary.Row>
@@ -768,10 +768,10 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     if (record) {
       const { error } = await supabase.from('timesheet').delete().eq('id', record?.id);
       if (!error) {
-        notification.success({ message: "Client deleted successfully" });
+        notification.success({ message: "Timesheet deleted successfully" });
         fetchTimesheets();
       } else {
-        notification.error({ message: error?.message || "Failed to delete client" });
+        notification.error({ message: error?.message || "Failed to delete Timesheet" });
       }
     }
     // setTimesheetToDelete();
@@ -947,9 +947,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
           {/* <Table size={'small'} size={'small'} columns={columns} dataSource={generateRows(Object.keys(selectedProjectColumns)[0])} pagination={false} /> */}
 
           <Table size={'small'} columns={columns} dataSource={generateAllRows()} pagination={false}
-            summary={getSummary}
-          // <>{getSummary}{renderBalanceHoursSummary}</>}
-          />
+            summary={getSummary} scroll={{ x: 'max-content' }} />
         </Spin>
       </Drawer>}
     </>

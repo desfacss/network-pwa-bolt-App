@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { TEMPLATE } from "constants/ThemeConstant";
-import { CaretLeftOutlined, CaretRightOutlined, UserOutlined } from "@ant-design/icons";  // Changed icons
+import { CaretLeftOutlined, CaretRightOutlined, UserOutlined, MenuUnfoldOutlined } from "@ant-design/icons";  // Changed icons
 import Logo from "../Logo";
 import NavProfile from "../NavProfile";
 import Header from "./Header";
@@ -123,7 +123,9 @@ export const HeaderNav = (props) => {
               <div className="d-flex align-items-center">
                 {navCollapsed || isMobile ? (
                   <>
-                    <CaretRightOutlined className="nav-icon" style={{ fontSize: '90%', color: '#ccc' }} />
+
+                    {navCollapsed && <CaretRightOutlined className="nav-icon" style={{ fontSize: '90%', color: '#999' }} />}
+                    {isMobile && <MenuUnfoldOutlined className="nav-icon" />}
                     {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
@@ -137,7 +139,7 @@ export const HeaderNav = (props) => {
                   </>
                 ) : (
                   <>
-                    <CaretLeftOutlined className="nav-icon" style={{ fontSize: '90%', color: '#ccc' }} />
+                    <CaretLeftOutlined className="nav-icon" style={{ fontSize: '90%', color: '#999' }} />
                     {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
