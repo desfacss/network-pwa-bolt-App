@@ -414,13 +414,13 @@ const Review1 = ({ date, employee, fetchData }) => {
         status,
         approver_details: { approved_time: new Date(), comment },
       }
-      const emailPayload = generateEmailData("Timesheet", status, {
+      const emailPayload = [generateEmailData("Timesheet", status, {
         approverUsername: session?.user?.user_name,
         comment,
         userEmail: users?.find(user => user?.id === existingTimesheet?.user_id)?.details?.email,
         applicationDate: existingTimesheet?.timesheet_date,
         reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
-      })
+      })]
 
       // console.log("Payload", emailPayload)
       // Perform the update query
@@ -463,7 +463,9 @@ const Review1 = ({ date, employee, fetchData }) => {
       checkExistingTimesheet();
       fetchData();
       message.success(`${status} successfully`);
-      await sendEmail(emailPayload)
+      if (emailPayload[0] !== null) {
+        await sendEmail(emailPayload)
+      }
     } catch (error) {
       console.error("Unexpected error:", error);
       message.error("An unexpected error occurred. Please try again.");

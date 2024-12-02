@@ -101,14 +101,15 @@ const LeaveApplications = ({ startDate, endDate }) => {
         // const { service_name, cost, duration, description } = values;
         const comment = isApproveModal ? "" : rejectComment;
         const { toDate, fromDate, leaveType } = editItem?.details
-        const emailPayload = generateEmailData("Leave Application", status, {
+        const emailPayload = [generateEmailData("Leave Application", status, {
             approverUsername: session?.user?.user_name,
             comment,
             userEmail: users?.find(user => user?.id === editItem?.user_id)?.details?.email,
             applicationDate: `for ${leaveType} from ${fromDate} to ${toDate}`,
             reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
-        })
-        // console.log("Payload", emailPayload)
+        })]
+        console.log("Payload", emailPayload)
+        // return
         if (editItem) {
             // Update existing service
             const { data, error } = await supabase
@@ -119,7 +120,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
                     approver_details: { approved_time: new Date(), comment },
                 })
                 .eq('id', editItem.id);
-            if (!error && status === 'Approved') {
+            if (!error) {
                 const leaveType = editItem?.details?.leaveType//?.split(" ")[0]?.toLowerCase(); // Extract first word and convert to lowercase
                 var leaveDetails = session?.user?.leave_details
                 var leaveTypeId = leaves?.find(i => i?.project_name === leaveType)?.id
@@ -141,7 +142,9 @@ const LeaveApplications = ({ startDate, endDate }) => {
                 // }
                 notification.success({ message: `Leave Application ${isApproveModal ? "Approved" : "Rejected"}` });
                 setEditItem(null);
-                await sendEmail(emailPayload)
+                if (emailPayload[0] !== null) {
+                    await sendEmail(emailPayload)
+                }
             } else if (error) {
                 notification.error({ message: error?.message || `Failed to ${isApproveModal ? "Approve" : "Rejecte"} Leave Application` });
             }

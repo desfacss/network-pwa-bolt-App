@@ -1,23 +1,25 @@
 import { Resend } from 'resend';
+import { store } from 'store';
 
 const resend = new Resend('re_VTPe8tkE_GRAog5gbk5kxjhUKUVpSsRF2'); // Replace 'YOUR_API_KEY' with your Resend API key
 
 export const sendEmail = async (emails) => {
     try {
-        const emails = [
-            {
-                from: 'team@optionsify.com',
-                to: ['ratedrnagesh28@gmail.com', 'ganeshmr3003@gmail.com', 'optionsalgotrade@gmail.com'],
-                subject: 'Subject for Users',
-                html: '<p>Hello User 1, this is your message.</p>',
-            },
-            {
-                from: 'team@optionsify.com',
-                to: 'ravishankar.s@gmail.com',
-                subject: 'Subject for User 2',
-                html: '<p>Hello User 2, this is your message.</p>',
-            },
-        ];
+        // const emails = [
+        //     {
+        //         from: 'team@optionsify.com',
+        //         to: ['ratedrnagesh28@gmail.com', 'ganeshmr3003@gmail.com', 'optionsalgotrade@gmail.com'],
+        //         subject: 'Subject for Users',
+        //         html: '<p>Hello User 1, this is your message.</p>',
+        //     },
+        //     {
+        //         from: 'team@optionsify.com',
+        //         to: 'ravishankar.s@gmail.com',
+        //         subject: 'Subject for User 2',
+        //         html: '<p>Hello User 2, this is your message.</p>',
+        //     },
+        // ];
+
         if (!Array.isArray(emails) || emails.length === 0) {
             console.error('Emails array is empty or invalid');
             return;
@@ -45,9 +47,13 @@ export const generateEmailData = (type, action, details) => {
     const {
         username, approverUsername,
         approverEmail, hrEmails, userEmail,
-        applicationDate, submittedTime, reviewedTime,
+        applicationDate,
+        // submittedTime, reviewedTime,
         comment,
     } = details;
+
+    const state = store.getState();
+    const { submissionEmail, reviewEmail } = state?.auth?.session?.user?.organization?.timesheet_settings?.approvalWorkflow;
 
     let subject, body, recipients;
 
@@ -57,13 +63,16 @@ export const generateEmailData = (type, action, details) => {
         case "Leave Application":
         case "Expense Sheet":
             if (action === "Submitted") {
+                if (!submissionEmail) return;
                 subject = `${type} submitted by ${username}`;
-                body = `${type} ${applicationDate} submitted by ${username} on ${submittedTime}`;
+                // body = `${type} ${applicationDate} submitted by ${username} on ${submittedTime}`;
+                body = `${type} ${applicationDate} submitted by ${username}`;
                 recipients = [approverEmail, ...hrEmails];
             } else if (["Approved", "Rejected"].includes(action)) {
+                if (!reviewEmail) return;
                 subject = `${type} ${action} by ${approverUsername}`;
-                body = `${type} ${applicationDate} ${action.toLowerCase()} by ${approverUsername} on ${reviewedTime}${comment ? ` with the following comment: ${comment}` : ""
-                    }`;
+                // body = `${type} ${applicationDate} ${action.toLowerCase()} by ${approverUsername} on ${reviewedTime}${comment ? ` with the following comment: ${comment}` : ""}`;
+                body = `${type} ${applicationDate} ${action.toLowerCase()} by ${approverUsername} ${comment ? `<br/>With the following comment: ${comment}` : ""}`;
                 recipients = [userEmail];
             }
             break;
@@ -77,7 +86,8 @@ export const generateEmailData = (type, action, details) => {
         from: 'team@optionsify.com',
         to: recipients,
         subject: subject,
-        html: `<p>${body}</p>`,
+        html: `<p>${body}</p><p>If you are not intended reciepient, You can safely ignore this message or contact HR for assistance.
+</p><p>Best regards,<br/>The UKPE - TrackMate Team</p>`,
     };
 };
 

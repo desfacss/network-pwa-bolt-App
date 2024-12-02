@@ -268,13 +268,13 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       submitted_time: new Date()
     };
 
-    const emailPayload = generateEmailData("Timesheet", "Submitted", {
+    const emailPayload = [generateEmailData("Timesheet", "Submitted", {
       username: session?.user?.user_name,
       approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
       hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
-      applicationDate: currentDate?.toISOString()?.slice(0, 10)?.replace("T", " "),
+      applicationDate: `for the week staring ${currentDate?.toISOString()?.slice(0, 10)?.replace("T", " ")}`,
       submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
-    })
+    })]
 
     console.log("Payload", emailPayload)
     try {
@@ -284,7 +284,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
         if (error) throw error;
         message.success('Timesheet updated successfully.');
-        if (status === 'Submitted') {
+        if (status === 'Submitted' && emailPayload[0] !== null) {
           await sendEmail(emailPayload)
         }
       } else {
@@ -293,12 +293,12 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
         if (error) throw error;
         message.success('Timesheet submitted successfully.');
-        if (status === 'Submitted') {
+        if (status === 'Submitted' && emailPayload[0] !== null) {
           await sendEmail(emailPayload)
         }
-        setProjectData()
-        closeDrawer()
       }
+      setProjectData()
+      closeDrawer()
       // console.log("Pr", projectDetails)
       fetchTimesheets()
     } catch (error) {

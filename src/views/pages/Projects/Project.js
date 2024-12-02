@@ -429,7 +429,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
                             onClick={() => handleEdit(record, true)}
                         />
                     </Tooltip>
-                    {/* <Tooltip title="Delete">
+                    <Tooltip title="Delete">
                         <Button
                             type="primary" ghost
                             icon={<DeleteOutlined />}
@@ -437,7 +437,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
                             // onClick={() => handleDelete(record.id)}
                             onClick={() => showDeleteConfirm(record)}
                         />
-                    </Tooltip> */}
+                    </Tooltip>
                 </div>
             ),
         },

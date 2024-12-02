@@ -112,20 +112,20 @@ const TeamExpenses = ({ startDate, endDate }) => {
             setExpenses(data);
         }
         if (error) {
-            notification.error({ message: error?.message || "Failed to fetch expense s" });
+            notification.error({ message: error?.message || "Failed to fetch expenses" });
         }
     };
 
     const handleSubmit = async (status) => {
         // const { service_name, cost, duration, description } = values;
         const comment = isApproveModal ? "" : rejectComment;
-        const emailPayload = generateEmailData("Expense Sheet", status, {
+        const emailPayload = [generateEmailData("Expense Sheet", status, {
             approverUsername: session?.user?.user_name,
             comment,
             userEmail: users?.find(user => user?.id === editItem?.user_id)?.details?.email,
             applicationDate: `for ${projects?.find(project => project?.id === editItem?.project_id)?.project_name} - ${editItem?.submitted_time?.slice(0, 10)?.replace("T", " ")}`,
             reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
-        })
+        })]
         console.log("Payload", emailPayload, editItem)
         if (editItem) {
             console.log(editItem.id, session?.user?.id)
@@ -137,7 +137,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
                     approver_details: { approved_time: new Date(), comment: (isApproveModal ? "" : rejectComment), },
                 })
                 .eq('id', editItem.id).select('*');
-            if (data) {
+            if (data && emailPayload[0] !== null) {
                 await sendEmail(emailPayload)
             }
             // if (!error && status === 'Approved') {

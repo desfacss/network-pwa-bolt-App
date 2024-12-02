@@ -93,9 +93,10 @@ const Profile = () => {
                     display: 'flex', alignItems: 'center'
                     // justifyContent: 'space-between',
                 }}>
-                    <span className='mr-1'>Personal Info</span>
-                    <Button icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
+                    <span className='mr-2'>Personal Info</span>
+                    <Button className='mr-5' icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
                     </Button>
+                    <ChangePassword />
                 </div>
             }
             >
@@ -125,7 +126,6 @@ const Profile = () => {
                     </Descriptions>
                 </div>
             </Card >
-            <ChangePassword />
             {/* <FileUpload /> */}
         </Card >
     );

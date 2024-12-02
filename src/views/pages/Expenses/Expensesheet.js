@@ -15,6 +15,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     const [projects, setProjects] = useState();
     const [selectedProject, setSelectedProject] = useState();
     const [users, setUsers] = useState();
+    const [total, setTotal] = useState()
 
     const { session } = useSelector((state) => state.auth);
 
@@ -213,15 +214,17 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             project_id: selectedProject,
             approver_id,
             last_date: lastDate.toISOString(),
-            submitted_time: new Date()
+            submitted_time: new Date(),
+            grand_total: total
         };
-        const emailPayload = generateEmailData("Expense Sheet", "Submitted", {
+        const projectName = projects?.find(project => project?.id === selectedProject)?.project_name
+        const emailPayload = [generateEmailData("Expense Sheet", "Submitted", {
             username: session?.user?.user_name,
             approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
             hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
-            applicationDate: new Date(new Date)?.toISOString()?.slice(0, 10)?.replace("T", " "),
+            applicationDate: `for ${projectName} - ${new Date(new Date)?.toISOString()?.slice(0, 10)?.replace("T", " ")}`,
             submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
-        })
+        })]
 
         console.log("Payload", emailPayload)
         let result;
@@ -232,12 +235,15 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             console.log("create");
             result = await supabase.from('expensesheet').insert([timesheetData]).select('*');
         }
-        const { data, error } = result;
+        const { data: data2, error } = result;
         if (error) {
             message.error(error.message || "Failed to submit ExpenseSheet");
         } else {
-            await sendEmail(emailPayload)
+            if (emailPayload[0] !== null) {
+                await sendEmail(emailPayload)
+            }
             message.success('ExpenseSheet Submitted.');
+            setTotal()
             onAdd()
         }
     };
@@ -251,6 +257,9 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             return acc;
         }, {});
 
+        const grandTotal = Object.values(totals)?.reduce((sum, val) => sum + val, 0)
+        setTotal(grandTotal)
+
         return (
             <Table.Summary.Row className="table-summary-row">
                 <Table.Summary.Cell className="sticky-left">Total</Table.Summary.Cell>
@@ -260,7 +269,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
                     return (<Table.Summary.Cell key={key}> {totals[key]} </Table.Summary.Cell>);
                 })}
                 <Table.Summary.Cell className="sticky-right">
-                    {Object.values(totals)?.reduce((sum, val) => sum + val, 0)}
+                    {grandTotal}
                 </Table.Summary.Cell>
                 <Table.Summary.Cell className="sticky-right" >{" "}</Table.Summary.Cell>
             </Table.Summary.Row>

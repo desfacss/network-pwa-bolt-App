@@ -7,6 +7,7 @@ import DownloadMenu from 'components/common/DownloadMenu';
 // import dayjs from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import { useSelector } from 'react-redux';
+import { FilePdfFilled } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
@@ -234,7 +235,7 @@ const ReportComponent = () => {
                 <RangePicker onChange={(dates) => setDateRange(dates)} />
                 <Button type="primary" onClick={fetchReportData}>Get Report</Button>
                 <div style={{ flexGrow: 1, textAlign: 'right' }}>
-                    {summary && <Button type="primary" onClick={handlePrint}>Download Report</Button>}
+                    {summary && <Button type="primary" icon={<FilePdfFilled />} onClick={handlePrint}>Download Report</Button>}
                 </div>
             </div>
 

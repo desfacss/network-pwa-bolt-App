@@ -86,24 +86,14 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
             )
         },
         {
-            title: 'Reason',
-            dataIndex: ['details', 'reason'],
-            key: 'reason',
-            render: (_, record) => (
-                <>
-                    {record?.details?.reason?.substring(0, 100) + (record?.details?.reason?.length > 100 ? "..." : "")}
-                </>
-            ),
+            title: 'Project',
+            dataIndex: ['project', 'project_name'],
+            key: 'project_name',
         },
         {
-            title: 'Days',
-            dataIndex: ['details', 'daysTaken'],
-            key: 'daysTaken',
-        },
-        {
-            title: 'Expense Type',
-            dataIndex: ['details', 'expenseType'],
-            key: 'expenseType',
+            title: 'Amount (GBP)',
+            dataIndex: ['grand_total'],
+            key: 'grand_total',
         },
         {
             title: 'status',

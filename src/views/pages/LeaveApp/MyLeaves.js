@@ -133,13 +133,13 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             submitted_time: new Date()
         }
 
-        const emailPayload = generateEmailData("Leave Application", "Submitted", {
+        const emailPayload = [generateEmailData("Leave Application", "Submitted", {
             username: session?.user?.user_name,
             approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
             hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
             applicationDate: `for ${values?.leaveType} from ${fromDate} to ${toDate}`,
             submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
-        })
+        })]
 
         console.log("Payload", emailPayload)
         if (editItem) {
@@ -151,7 +151,9 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
 
             if (data) {
                 notification.success({ message: "Leave Application updated successfully" });
-                await sendEmail(emailPayload)
+                if (emailPayload[0] !== null) {
+                    await sendEmail(emailPayload)
+                }
                 setEditItem(null);
             } else if (error) {
                 notification.error({ message: error?.message || "Failed to update leave Application" });
@@ -164,7 +166,9 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
 
             if (data) {
                 notification.success({ message: "Leave Application added successfully" });
-                await sendEmail(emailPayload)
+                if (emailPayload[0] !== null) {
+                    await sendEmail(emailPayload)
+                }
                 setEditItem(null)
             } else if (error) {
                 notification.error({ message: error?.message || "Failed to add leave Application" });

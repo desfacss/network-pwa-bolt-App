@@ -59,7 +59,7 @@ const TimesheetSettings = ({ locationId }) => {
         >
             <Collapse defaultActiveKey={["1"]}>
                 {/* 1. Timesheet Approval Workflow */}
-                <Panel header="Timesheet Approval Workflow" key="1">
+                <Panel header="Approval Workflow" key="1">
                     {/* <Form.Item name={["approvalWorkflow", "enableApproval"]} label="Enable Approval Workflow" valuePropName="checked">
                         <Switch disabled />
                     </Form.Item> */}
@@ -89,6 +89,12 @@ const TimesheetSettings = ({ locationId }) => {
                     </Form.Item> */}
                     <Form.Item name={["approvalWorkflow", "timeLimitForApproval"]} label="Time Limit for Approval (Days)">
                         <InputNumber min={0} />
+                    </Form.Item>
+                    <Form.Item name={["approvalWorkflow", "submissionEmail"]} label="Send Email for submissin" valuePropName="checked">
+                        <Switch />
+                    </Form.Item>
+                    <Form.Item name={["approvalWorkflow", "reviewEmail"]} label="Send Email for Review" valuePropName="checked">
+                        <Switch />
                     </Form.Item>
                 </Panel>
 
@@ -131,7 +137,7 @@ const TimesheetSettings = ({ locationId }) => {
                     <Form.Item name={["workingHours", "standardWeeklyHours"]} label="Standard Weekly Hours" disable >
                         <InputNumber min={1} max={168} />
                     </Form.Item>
-                    <Form.Item name={["workingHours", "projectFinalHours"]} label="Project Final Hours(%)">
+                    <Form.Item name={["workingHours", "projectFinalHours"]} label="Project Warning Threshold(%)">
                         <InputNumber min={1} max={100} />
                     </Form.Item>
                     {/* <Form.Item name={["workingHours", "shiftPatterns"]} label="Shift Patterns">

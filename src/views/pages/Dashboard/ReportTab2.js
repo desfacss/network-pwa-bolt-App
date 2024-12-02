@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 import { supabase } from 'configs/SupabaseConfig';
 import { useReactToPrint } from 'react-to-print';
-import { MenuOutlined } from '@ant-design/icons';
+import { FilePdfFilled } from '@ant-design/icons';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -299,7 +299,7 @@ const TimesheetComponent = ({ data, printRef }) => {
                         >
                             Non-Project
                         </Checkbox>
-                        {reportData && <Tooltip title='Download Report'><Button onClick={handlePrint}><MenuOutlined /></Button></Tooltip>
+                        {reportData && <Tooltip title='Download Report'><Button type='primary' icon={<FilePdfFilled />} onClick={handlePrint}></Button></Tooltip>
                         }
                     </>
                 }
