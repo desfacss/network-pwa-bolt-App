@@ -2,7 +2,6 @@ import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "a
 import { EditOutlined } from "@ant-design/icons";
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "configs/SupabaseConfig";
-// import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import Expensesheet from "./Expensesheet";
 import { generateEmailData, sendEmail } from "components/common/SendEmail";
@@ -14,9 +13,9 @@ const TeamExpenses = ({ startDate, endDate }) => {
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [viewMode, setViewMode] = useState(true);
-    const [schema, setSchema] = useState();
-    const [applicationSchema, setApplicationSchema] = useState();
-    const [leaves, setLeaves] = useState([]);
+    // const [schema, setSchema] = useState();
+    // const [applicationSchema, setApplicationSchema] = useState();
+    // const [leaves, setLeaves] = useState([]);
     const [isApproveModal, setIsApproveModal] = useState(false);
     const [isRejectModal, setIsRejectModal] = useState(false);
     const [rejectComment, setRejectComment] = useState('');
@@ -37,12 +36,12 @@ const TeamExpenses = ({ startDate, endDate }) => {
             console.error('Error fetching projects:', error);
         } else {
             setProjects(data);
-            console.log('Project data:', data);
+            // console.log('Project data:', data);
         }
     };
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').eq('organization_id', session?.user?.organization_id).select('*');
+        const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
         if (error) {
             console.error('Error fetching users:', error);
         } else {
@@ -55,49 +54,44 @@ const TeamExpenses = ({ startDate, endDate }) => {
         fetchProjects()
     }, []);
 
-    const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('projects_leaves').eq('organization_id', session?.user?.organization_id).select('*');
-        if (data) {
-            setLeaves(data);
-            console.log("Leaves", data)
-        }
-        if (error) {
-            notification.error({ message: error?.message || "Failed to fetch Leaves" });
-        }
-    };
+    // const fetchLeaves = async () => {
+    //     let { data, error } = await supabase.from('projects_leaves').eq('organization_id', session?.user?.organization_id).select('*');
+    //     if (data) {
+    //         setLeaves(data);
+    //     }
+    //     if (error) {
+    //         notification.error({ message: error?.message || "Failed to fetch Leaves" });
+    //     }
+    // };
 
-    const getApprovalForm = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_approval_form").single()
-        // console.log("A", data)
-        if (data) {
-            console.log(data)
-            setSchema(data)
-        }
-    }
-    const getApplicationForm = async () => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', "expense_app_add_edit_form").single()
-        console.log("A", data)
-        if (data) {
-            console.log(data)
-            const updatedSchema = {
-                ...data,
-                ui_schema: {
-                    ...data?.ui_schema,
-                    "ui:readonly": true,
-                    "ui:submitButtonOptions": {
-                        "norender": true
-                    }
-                }
-            }
-            setApplicationSchema(updatedSchema)
-        }
-    }
+    // const getApprovalForm = async () => {
+    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_approval_form").single()
+    //     if (data) {
+    //         setSchema(data)
+    //     }
+    // }
+    // const getApplicationForm = async () => {
+    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "expense_app_add_edit_form").single()
+    //     if (data) {
+    //         const updatedSchema = {
+    //             ...data,
+    //             ui_schema: {
+    //                 ...data?.ui_schema,
+    //                 "ui:readonly": true,
+    //                 "ui:submitButtonOptions": {
+    //                     "norender": true
+    //                 }
+    //             }
+    //         }
+    //         setApplicationSchema(updatedSchema)
+    //     }
+    // }
 
-    useEffect(() => {
-        getApprovalForm()
-        getApplicationForm()
-        fetchLeaves();
-    }, []);
+    // useEffect(() => {
+    //     getApprovalForm()
+    //     getApplicationForm()
+    //     fetchLeaves();
+    // }, []);
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -106,7 +100,8 @@ const TeamExpenses = ({ startDate, endDate }) => {
     }, [startDate, endDate]);
 
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved').eq('organization_id', session?.user?.organization_id)
+        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved')
+            .eq('organization_id', session?.user?.organization_id)//.neq('user_id', session?.user?.id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {
             setExpenses(data);
@@ -126,7 +121,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
             applicationDate: `for ${projects?.find(project => project?.id === editItem?.project_id)?.project_name} - ${editItem?.submitted_time?.slice(0, 10)?.replace("T", " ")}`,
             reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
         })]
-        console.log("Payload", emailPayload, editItem)
+        // console.log("Payload", emailPayload, editItem)
         if (editItem) {
             console.log(editItem.id, session?.user?.id)
             const { data, error } = await supabase
@@ -186,7 +181,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     };
 
     const handleEdit = (record) => {
-        console.log("R", record)
+        // console.log("R", record)
         setEditItem(record);
         form.setFieldsValue({
             service_name: record.details.service_name,
@@ -196,16 +191,6 @@ const TeamExpenses = ({ startDate, endDate }) => {
         });
         setIsDrawerOpen(true);
     };
-
-    // const handleDelete = async (id) => {
-    //     const { error } = await supabase.from('expenses').delete().eq('id', id);
-    //     if (!error) {
-    //         notification.success({ message: "Expense  deleted successfully" });
-    //         fetchExpenses();
-    //     } else {
-    //         notification.error({ message: error?.message || "Failed to delete Expense " });
-    //     }
-    // };
 
     const columns = [
         {
@@ -232,32 +217,16 @@ const TeamExpenses = ({ startDate, endDate }) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            // render: (status) => (status === 'Approved' ? 'Yes' : 'No'),
         },
-        // {
-        //     title: 'Billable',
-        //     dataIndex: ['details', 'billable'],
-        //     key: 'billable',
-        //     render: (billable) => (billable ? 'Yes' : 'No'),
-        // },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        // icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
+                    <Button type="primary" size="small" className="mr-2" onClick={() => handleEdit(record)}
                         disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
                     >Approve / Reject</Button>
-                    {/* <Button
-                        type="primary" ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
+                    {/* <Button type="primary" ghost icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(record.id)}
                     /> */}
                 </div>
             ),
@@ -265,7 +234,6 @@ const TeamExpenses = ({ startDate, endDate }) => {
     ];
 
     const onAdd = () => {
-
     }
 
     return (
@@ -278,35 +246,17 @@ const TeamExpenses = ({ startDate, endDate }) => {
                     onCancel={handleCancel}
                 >
                     <p>{`Are you sure you want to ${isApproveModal ? "Approve" : "Reject"}?`}</p>
-                    {isRejectModal && <Input.TextArea
-                        rows={4}
-                        value={rejectComment}
-                        onChange={(e) => setRejectComment(e.target.value)}
-                        placeholder="Please provide a reason for rejection"
-                    />}
+                    {isRejectModal && <Input.TextArea rows={4} value={rejectComment}
+                        onChange={(e) => setRejectComment(e.target.value)} placeholder="Please provide a reason for rejection" />}
                 </Modal>
             }
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-                {/* <h2 style={{ margin: 0 }}>Expense </h2> */}
-                {/* <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
-                    Add Expense 
-                </Button> */}
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    columns={columns}
-                    dataSource={expenses}
-                    rowKey={(record) => record.id}
-                    loading={!expenses}
-                    pagination={false}
-                />
+                <Table size={'small'} columns={columns} dataSource={expenses}
+                    rowKey={(record) => record.id} loading={!expenses} pagination={false} />
             </div>
-            <Drawer footer={null} width='100%' //size="large"
-                // title={editItem ? "Expense Approval" : "Add Expense Approval"}
+            <Drawer footer={null} width='100%'
                 title={
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                         <span>{editItem ? "Expense Approval for " + editItem?.user?.user_name : "Add Expense Approval"}</span>
@@ -323,10 +273,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
                     </div>
                 }
                 open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
+                onClose={() => { setIsDrawerOpen(false); setEditItem() }} onOk={() => form.submit()} okText="Save" >
                 <Expensesheet editItem={editItem} onAdd={onAdd} viewMode={viewMode} />
             </Drawer>
         </Card>

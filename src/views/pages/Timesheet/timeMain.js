@@ -33,8 +33,8 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const [timesheets, setTimesheets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState();
-  const [projectDetails, setProjectDetails] = useState();
   const [holidays, setHolidays] = useState([5, 6]);
+  // const [projectDetails, setProjectDetails] = useState();
   // const [timesheetToDelete, setTimesheetToDelete] = useState();
 
   const { session } = useSelector((state) => state.auth);
@@ -101,7 +101,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     // .contains('project_users', [session?.user?.id]);
     if (data) {
       setProjects(data);
-      console.log("TE", data)
+      // console.log("TE", data)
 
       // Automatically initialize project columns and data
       const projectColumns = {};
@@ -208,7 +208,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       // const dateValue = formatDate(date);
       // Only check holidays for dayIndex 0 to 4 (Mon-Fri)
       if (dayIndex >= 0 && dayIndex <= 4) {
-        console.log(date, session?.user?.location?.holidays)
+        // console.log(date, session?.user?.location?.holidays)
         const isHoliday = session?.user?.location?.holidays.some(holiday => holiday.date === dateString);
         if (isHoliday) {
           holidayIndices?.push(dayIndex);
@@ -302,7 +302,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
     })]
 
-    console.log("Payload", emailPayload)
+    // console.log("Payload", emailPayload)
     try {
       if (existingTimesheetId) {
         // Update existing timesheet
@@ -513,19 +513,13 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
           key: projectName,
           render: (_, record) => (
             <div>
-              <Input
-                type="number"
-                placeholder="Hours" min={0} precision={0}
-                value={record?.dailyEntries[projectName]?.hours}
+              <Input type="number" placeholder="Hours" min={0} precision={0} value={record?.dailyEntries[projectName]?.hours}
                 status={checkhoursIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
                 onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'hours')}
                 disabled={approvedTimeSheet}
                 style={{ width: '100%' }}
               />
-              <Input
-                type="text"
-                placeholder="Description"
-                value={record?.dailyEntries[projectName]?.description}
+              <Input type="text" placeholder="Description" value={record?.dailyEntries[projectName]?.description}
                 status={checkDescriptionIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
                 onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'description')}
                 disabled={!record?.dailyEntries[projectName]?.hours || approvedTimeSheet}
@@ -544,8 +538,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       className: 'sticky-right',
       render: (_, record) => {
         var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
-        // var invalid=dailyTotal > 10 || dailyTotal<8
-        // console.log("first", timesheet_settings?.workingHours?.standardDailyHours)
 
         var isWeekend = record?.weekend;
         var minHrs = timesheet_settings?.workingHours?.standardDailyHours || 8
@@ -573,8 +565,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     setApprovedTimeSheet(isTimesheetDisabled(viewMode, currentDate));
     setHideNext(isHideNext(currentDate));
   }, [currentDate, viewMode]);
-
-  // console.log("G", projectData, generateRows(Object.keys(selectedProjectColumns)))
 
   const generateAllRows = () => {
     const startDate = new Date(currentDate);
@@ -679,7 +669,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const calculateBalanceHours = (projectName, projectTotals) => {
     const project = projects.find((p) => p.id === projectName);
     // console.log("YR", project, projectName, projectTotals)
-    console.log("pro", project)
+    // console.log("pro", project)
     if (!project || !project?.project_users) return 0;
     // const userDetails = project?.details?.project_users?.find(user => user.user_id === session?.user?.id);
     const userDetails = project?.project_users;
@@ -838,7 +828,6 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
         handleDelete(record);
       },
       onCancel() {
-
       },
     });
   };
@@ -854,19 +843,10 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       >
       </Modal> */}
       {/* <MyTimesheetTable /> */}
-      <Table size={'small'}
-        columns={timesheetColumns}
-        dataSource={timesheets}
-        rowKey="id" // Assuming `id` is unique
-        loading={loading}
-        pagination={{ pageSize: 10 }}
-      />
-      {(drawerVisible && selectedProjectColumns) && <Drawer
-        title="Add Timesheet"
-        width={'100%'}
-        onClose={closeDrawer}
-        visible={drawerVisible} maskClosable={false}
-      >
+      <Table size={'small'} columns={timesheetColumns} dataSource={timesheets} rowKey="id"
+        loading={loading} pagination={{ pageSize: 10 }} />
+      {(drawerVisible && selectedProjectColumns) && <Drawer title="Add Timesheet" width={'100%'}
+        onClose={closeDrawer} visible={drawerVisible} maskClosable={false} >
         <Spin spinning={loading}>
           <Row justify="space-between" align="middle">
             <Col>
@@ -893,9 +873,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
           <Table size={'small'} columns={columns} dataSource={generateAllRows()} pagination={false}
             summary={getSummary} scroll={{ x: 'max-content' }}
             rowClassName={(_, index) => holidays?.includes(index) ? "ant-table-row-selected" : ""}
-          // ant-table-row-selected
-          // ant-table-placeholder
-          // ant-table-expanded-row
+          // ant-table-row-selected , ant-table-placeholder , ant-table-expanded-row
           />
         </Spin>
       </Drawer>}

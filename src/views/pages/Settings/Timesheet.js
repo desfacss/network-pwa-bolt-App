@@ -66,9 +66,9 @@ const TimesheetSettings = ({ locationId }) => {
                     <Form.Item name={["approvalWorkflow", "defaultApprover"]} label="Default Approver">
                         <Select>
                             <Option value="manager">Line Manager</Option>
-                            <Option value="hr_partner">HR Partner</Option>
-                            <Option value="admin">Admin</Option>
-                            {/* <Option value="Custom">Custom</Option> */}
+                            <Option value="hr">HR Partner</Option>
+                            {/* <Option value="admin">Admin</Option>
+                            <Option value="Custom">Custom</Option> */}
                         </Select>
                     </Form.Item>
                     {/* <Form.Item name={["approvalWorkflow", "multiLevelApproval"]} label="Multi-Level Approval" valuePropName="checked">

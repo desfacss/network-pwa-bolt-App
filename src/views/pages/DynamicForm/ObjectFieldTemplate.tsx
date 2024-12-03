@@ -3,18 +3,7 @@ import isObject from 'lodash/isObject';
 import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
 import {
-    FormContextType,
-    GenericObjectType,
-    ObjectFieldTemplateProps,
-    ObjectFieldTemplatePropertyType,
-    RJSFSchema,
-    StrictRJSFSchema,
-    UiSchema,
-    canExpand,
-    descriptionId,
-    getTemplate,
-    getUiOptions,
-    titleId,
+    FormContextType, GenericObjectType, ObjectFieldTemplateProps, ObjectFieldTemplatePropertyType, RJSFSchema, StrictRJSFSchema, UiSchema, canExpand, descriptionId, getTemplate, getUiOptions, titleId,
 } from '@rjsf/utils';
 import Col from 'antd/lib/col';
 import Row from 'antd/lib/row';
@@ -37,21 +26,22 @@ export default function ObjectFieldTemplate<
     S extends StrictRJSFSchema = RJSFSchema,
     F extends FormContextType = any
 >(props: ObjectFieldTemplateProps<T, S, F>) {
-    const {
-        description,
-        disabled,
-        formContext,
-        formData,
-        idSchema,
-        onAddClick,
-        properties,
-        readonly,
-        required,
-        registry,
-        schema,
-        title,
-        uiSchema,
+    const { description, disabled, formContext, formData, idSchema, onAddClick, properties, readonly, required, registry, schema, title, uiSchema,
     } = props;
+
+    function validateAndFixGridOrder(uiGrid, uiOrder) {
+        return uiGrid.map((row) => {
+            const orderedRow = {};
+            Object.keys(row)
+                .sort((a, b) => uiOrder.indexOf(a) - uiOrder.indexOf(b)) // Sort keys based on uiOrder
+                .forEach((key) => {
+                    orderedRow[key] = row[key];
+                });
+            return orderedRow;
+        });
+    }
+
+    uiSchema["ui:grid"] = validateAndFixGridOrder(uiSchema["ui:grid"], uiSchema["ui:order"]);
 
     const { useBreakpoint } = Grid;
     const screens = Utils.getBreakPoint(useBreakpoint());

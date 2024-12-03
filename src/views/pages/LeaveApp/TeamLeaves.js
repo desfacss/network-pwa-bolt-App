@@ -1,6 +1,5 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Divider, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
@@ -37,7 +36,8 @@ const LeaveApplications = ({ startDate, endDate }) => {
     }, []);
 
     const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('projects_leaves').select('*').eq('organization_id', session?.user?.organization_id);
+        let { data, error } = await supabase.from('projects_leaves').select('*')
+            .eq('organization_id', session?.user?.organization_id);
         if (data) {
             setLeaves(data);
             console.log("Leaves", data)
@@ -57,9 +57,8 @@ const LeaveApplications = ({ startDate, endDate }) => {
     }
     const getApplicationForm = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_app_add_edit_form").single()
-        console.log("A", data)
+        // console.log("A", data)
         if (data) {
-            console.log(data)
             const updatedSchema = {
                 ...data,
                 ui_schema: {
@@ -87,7 +86,8 @@ const LeaveApplications = ({ startDate, endDate }) => {
     }, [startDate, endDate]);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').eq('organization_id', session?.user?.organization_id)
+        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)')
+            .neq('status', 'Approved').eq('organization_id', session?.user?.organization_id)//.neq('user_id', session?.user?.id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {
             setLeaveApplications(data);
@@ -108,7 +108,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
             applicationDate: `for ${leaveType} from ${fromDate} to ${toDate}`,
             reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
         })]
-        console.log("Payload", emailPayload)
+        // console.log("Payload", emailPayload)
         // return
         if (editItem) {
             // Update existing service
@@ -124,7 +124,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
                 const leaveType = editItem?.details?.leaveType//?.split(" ")[0]?.toLowerCase(); // Extract first word and convert to lowercase
                 var leaveDetails = session?.user?.leave_details
                 var leaveTypeId = leaves?.find(i => i?.project_name === leaveType)?.id
-                console.log("T", leaveDetails, leaveTypeId);
+                // console.log("T", leaveDetails, leaveTypeId);
                 // if (leaveDetails[leaveTypeId]) {
                 leaveDetails = {
                     // leaves: {
@@ -138,7 +138,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
                 const { data: data2, error: error2 } = await supabase.from('users')
                     .update({ leave_details: leaveDetails })
                     .eq('id', editItem?.user_id);
-                console.log("T", data2, leaveDetails, editItem?.user_id);
+                // console.log("T", data2, leaveDetails, editItem?.user_id);
                 // }
                 notification.success({ message: `Leave Application ${isApproveModal ? "Approved" : "Rejected"}` });
                 setEditItem(null);
@@ -177,16 +177,6 @@ const LeaveApplications = ({ startDate, endDate }) => {
         });
         setIsDrawerOpen(true);
     };
-
-    // const handleDelete = async (id) => {
-    //     const { error } = await supabase.from('leave_applications').delete().eq('id', id);
-    //     if (!error) {
-    //         notification.success({ message: "Leave Application deleted successfully" });
-    //         fetchLeaveApplications();
-    //     } else {
-    //         notification.error({ message: error?.message || "Failed to delete Leave Application" });
-    //     }
-    // };
 
     const columns = [
         {
@@ -227,15 +217,9 @@ const LeaveApplications = ({ startDate, endDate }) => {
         //     render: (record) => {
         //         const comment = record?.details?.reason || '';  // Ensure the comment is defined
         //         const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
-
         //         return (
         //             <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
-        //                 <div style={{
-        //                     whiteSpace: 'nowrap',
-        //                     overflow: 'hidden',
-        //                     textOverflow: 'ellipsis',
-        //                     maxWidth: '200px', // You can adjust this based on your table column width
-        //                 }}>
+        //                 <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>
         //                     {truncatedComment}  {/* Truncated comment for the table cell */}
         //                 </div>
         //             </Tooltip>
@@ -246,7 +230,6 @@ const LeaveApplications = ({ startDate, endDate }) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            // render: (status) => (status === 'Approved' ? 'Yes' : 'No'),
         },
         {
             title: 'Review Comment',
@@ -257,42 +240,22 @@ const LeaveApplications = ({ startDate, endDate }) => {
 
                 return (
                     <Tooltip title={comment}>  {/* Tooltip will show the full comment */}
-                        <div style={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '150px', // You can adjust this based on your table column width
-                        }}>
+                        <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>
                             {truncatedComment}  {/* Truncated comment for the table cell */}
                         </div>
                     </Tooltip>
                 );
             }
         },
-        // {
-        //     title: 'Billable',
-        //     dataIndex: ['details', 'billable'],
-        //     key: 'billable',
-        //     render: (billable) => (billable ? 'Yes' : 'No'),
-        // },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        // icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
+                    <Button type="primary" size="small" className="mr-2" onClick={() => handleEdit(record)}
                         disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
                     >Approve / Reject</Button>
-                    {/* <Button
-                        type="primary" ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
+                    {/* <Button type="primary" ghost icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(record.id)}
                     /> */}
                 </div>
             ),
@@ -309,35 +272,17 @@ const LeaveApplications = ({ startDate, endDate }) => {
                     onCancel={handleCancel}
                 >
                     <p>{`Are you sure you want to ${isApproveModal ? "Approve" : "Reject"}?`}</p>
-                    {isRejectModal && <Input.TextArea
-                        rows={4}
-                        value={rejectComment}
-                        onChange={(e) => setRejectComment(e.target.value)}
-                        placeholder="Please provide a reason for rejection"
-                    />}
+                    {isRejectModal && <Input.TextArea rows={4} value={rejectComment}
+                        onChange={(e) => setRejectComment(e.target.value)} placeholder="Please provide a reason for rejection" />}
                 </Modal>
             }
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-                {/* <h2 style={{ margin: 0 }}>Leave Application</h2> */}
-                {/* <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
-                    Add Leave Application
-                </Button> */}
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    columns={columns}
-                    dataSource={leaveApplications}
-                    rowKey={(record) => record.id}
-                    loading={!leaveApplications}
-                    pagination={false}
-                />
+                <Table size={'small'} columns={columns} dataSource={leaveApplications}
+                    rowKey={(record) => record.id} loading={!leaveApplications} pagination={false} />
             </div>
-            <Drawer footer={null} width='100%' //size="large"
-                // title={editItem ? "Leave Approval" : "Add Leave Approval"}
+            <Drawer footer={null} width='100%'
                 title={
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                         <span>{editItem ? "Leave Approval for " + editItem?.user?.user_name : "Add Leave Approval"}</span>
@@ -353,19 +298,10 @@ const LeaveApplications = ({ startDate, endDate }) => {
                 }
                 open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
-                {/* <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>Approve</Button>
-                <Button type="primary" onClick={() => setIsRejectModal(true)} >Reject</Button> */}
+                onOk={() => form.submit()} okText="Save" >
                 <LeaveDetails userId={editItem?.user_id} />
-                <DynamicForm schemas={applicationSchema}
-                    // onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.details} />
+                <DynamicForm schemas={applicationSchema} formData={editItem && editItem?.details} />
                 <Divider />
-                {/* <DynamicForm schemas={schema}
-                    onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.manager_details} /> */}
             </Drawer>
         </Card>
     );

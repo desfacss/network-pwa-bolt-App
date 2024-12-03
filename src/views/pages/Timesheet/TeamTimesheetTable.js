@@ -47,19 +47,16 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
             //     );
             // }
             const { data, error } = await supabase
-                .from('timesheet')
-                .select('*,user:user_id (user_name)')
+                .from('timesheet').select('*,user:user_id (user_name)')//.neq('user_id', session?.user?.id)
                 // .eq('approver_id', session?.user?.id)
                 .neq('status', 'Draft').eq('organization_id', session?.user?.organization_id)
-                .gte('timesheet_date', startDate)
-                .lte('timesheet_date', endDate)
-                .order('submitted_time', { ascending: false })
-                ;
+                .gte('timesheet_date', startDate).lte('timesheet_date', endDate)
+                .order('submitted_time', { ascending: false });
 
             if (error) {
                 throw error;
             }
-            console.log("TS", data)
+            // console.log("TS", data)
             setData(data);
         } catch (error) {
             message.error('Failed to load timesheet data');
@@ -191,7 +188,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
 
     // Function to open the drawer and set the selected record
     const handleOpenDrawer = (record) => {
-        console.log("edit", record)
+        // console.log("edit", record)
         setSelectedRecord(record);
         setDrawerVisible(true);
     };
