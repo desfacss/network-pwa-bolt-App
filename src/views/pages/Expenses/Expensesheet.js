@@ -55,7 +55,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     }, []);
 
     const getTypes = async () => {
-        const { data, error } = await supabase.from('expense_type').eq('organization_id', session?.user?.organization_id).select('*')
+        const { data, error } = await supabase.from('expense_type').select('*').eq('organization_id', session?.user?.organization_id)
         if (data) {
             console.log("d", data)
             setTypes(data)

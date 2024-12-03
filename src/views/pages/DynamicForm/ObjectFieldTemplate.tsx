@@ -30,11 +30,11 @@ export default function ObjectFieldTemplate<
     } = props;
 
     function validateAndFixGridOrder(uiGrid, uiOrder) {
-        return uiGrid.map((row) => {
+        return uiGrid?.map((row) => {
             const orderedRow = {};
             Object.keys(row)
-                .sort((a, b) => uiOrder.indexOf(a) - uiOrder.indexOf(b)) // Sort keys based on uiOrder
-                .forEach((key) => {
+                ?.sort((a, b) => uiOrder?.indexOf(a) - uiOrder?.indexOf(b)) // Sort keys based on uiOrder
+                ?.forEach((key) => {
                     orderedRow[key] = row[key];
                 });
             return orderedRow;

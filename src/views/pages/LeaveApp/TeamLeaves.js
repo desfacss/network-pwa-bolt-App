@@ -120,10 +120,10 @@ const LeaveApplications = ({ startDate, endDate }) => {
                     approver_details: { approved_time: new Date(), comment },
                 })
                 .eq('id', editItem.id);
-            if (!error) {
+            if (!error && status === "Approved") {
                 const leaveType = editItem?.details?.leaveType//?.split(" ")[0]?.toLowerCase(); // Extract first word and convert to lowercase
-                var leaveDetails = session?.user?.leave_details
                 var leaveTypeId = leaves?.find(i => i?.project_name === leaveType)?.id
+                var leaveDetails = session?.user?.leave_details
                 // console.log("T", leaveDetails, leaveTypeId);
                 // if (leaveDetails[leaveTypeId]) {
                 leaveDetails = {
