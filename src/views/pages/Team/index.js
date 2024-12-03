@@ -6,6 +6,7 @@ import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import './Services.css'; // Add a CSS file to style the cards grid
 import axios from "axios";
+import { serverErrorParsing } from "components/util-components/serverErrorParsing";
 const { confirm } = Modal;
 
 const Users = () => {
@@ -208,7 +209,7 @@ const Users = () => {
                         fetchUsers();
                     } else {
                         // console.log("EE", error)
-                        notification.error({ message: error?.message || "Failed to delete user" });
+                        notification.error({ message: serverErrorParsing(error?.message) || "Failed to delete user" });
                     }
                 } catch (e) {
                     // console.log("EEE", e)
