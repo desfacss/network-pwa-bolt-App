@@ -11,9 +11,9 @@ const ErrorOne = () => {
 	return (
 		<div className={`h-100 ${theme === 'light' ? 'bg-white' : ''}`}>
 			<div className="container-fluid d-flex flex-column justify-content-between h-100 px-md-4 pb-md-4 pt-md-1">
-				<div>
+				{/* <div>
 					<img className="img-fluid" src={`/img/${theme === 'light' ? 'logo.png' : 'knba.png'}`} alt="" />
-				</div>
+				</div> */}
 				<div className="container">
 					<Row align="middle">
 						<Col xs={24} sm={24} md={8}>
@@ -29,14 +29,14 @@ const ErrorOne = () => {
 					</Row>
 				</div>
 				<Flex mobileFlex={false} justifyContent="space-between">
-					{/* <span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">claritiz.com</span></span> */}
+					{/* <span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">claritiz.com</span></span>
 					<span>Developed by <span className="font-weight-semibold">claritiz.com
 			</span></span>
 					<div>
 						<a className="text-gray" href="/#" onClick={e => e.preventDefault()}>Developed by Claritiz Innovations Pvt Ltd</a>
 						<span className="mx-2 text-muted"> | </span>
 						<a className="text-gray" href="/#" onClick={e => e.preventDefault()}>Privacy & Policy</a>
-					</div>
+					</div> */}
 				</Flex>
 			</div>
 		</div>

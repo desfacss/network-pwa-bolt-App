@@ -7,9 +7,10 @@ export const publicRoutes = [
         path: `${APP_PREFIX_PATH}/login`,
         component: React.lazy(() => import('views/auth-views/authentication/login')),
     },
+    //ONLY APPLICABLE ON A SAAS WEBSITE(FOR NEW COMPANY REGISTRATION)
     {
         key: 'register',
-        path: `${APP_PREFIX_PATH}/register`,
+        path: `${APP_PREFIX_PATH}/web-register`,
         component: React.lazy(() => import('views/auth-views/authentication/register')),
     },
     {
@@ -38,7 +39,7 @@ export const protectedRoutes = (feature) => {
             path: `${APP_PREFIX_PATH}/timesheet`,
             component: React.lazy(() => import('views/pages/Timesheet')),
         },
-        feature?.timesheets && {
+        feature?.timesheetsH && {
             key: 'timesheeth',
             path: `${APP_PREFIX_PATH}/timesheeth`,
             component: React.lazy(() => import('views/pages/TimesheetH')),
@@ -47,11 +48,6 @@ export const protectedRoutes = (feature) => {
             key: 'leave_app',
             path: `${APP_PREFIX_PATH}/leave_app`,
             component: React.lazy(() => import('views/pages/LeaveApp')),
-        },
-        {
-            key: 'leaves',
-            path: `${APP_PREFIX_PATH}/leaves`,
-            component: React.lazy(() => import('views/pages/LeaveSettings')),
         },
         feature?.expenses && {
             key: 'expenses',
@@ -88,37 +84,22 @@ export const protectedRoutes = (feature) => {
             path: `${APP_PREFIX_PATH}/settings`,
             component: React.lazy(() => import('views/pages/Settings')),
         },
-        {
-            key: 'locations',
-            path: `${APP_PREFIX_PATH}/locations`,
-            component: React.lazy(() => import('views/pages/Locations')),
-        },
-        {
-            key: 'change_password',
-            path: `${APP_PREFIX_PATH}/change_password`,
-            component: React.lazy(() => import('views/auth-views/components/ChangePassword')),
-        },
-        {
-            key: 'review',
-            path: `${APP_PREFIX_PATH}/review`,
-            component: React.lazy(() => import('views/pages/Review')),
-        },
-        {
+        feature?.schedule && {
             key: 'schedule',
             path: `${APP_PREFIX_PATH}/schedule`,
             component: React.lazy(() => import('views/pages/Schedule')),
         },
-        {
+        feature?.services && {
             key: 'services',
             path: `${APP_PREFIX_PATH}/services`,
             component: React.lazy(() => import('views/pages/Services')),
         },
-        {
+        feature?.tasks && {
             key: 'tasks',
             path: `${APP_PREFIX_PATH}/tasks`,
             component: React.lazy(() => import('views/pages/Tasks')),
         },
-        {
+        feature?.jobs && {
             key: 'jobs',
             path: `${APP_PREFIX_PATH}/jobs`,
             component: React.lazy(() => import('views/pages/Jobs')),
@@ -128,23 +109,23 @@ export const protectedRoutes = (feature) => {
             path: `${APP_PREFIX_PATH}/profile`,
             component: React.lazy(() => import('views/pages/Profile/index')),
         },
-        {
-            key: 'users',
-            path: `${APP_PREFIX_PATH}/users`,
-            component: React.lazy(() => import('views/pages/Users')),
-        },
-        {
-            key: 'user_info',
-            path: `${APP_PREFIX_PATH}/users/:user_id`,
-            component: React.lazy(() => import('views/pages/UserInfo')),
-        },
-        {
-            key: 'error-page-1',
-            path: `${APP_PREFIX_PATH}/error-page-1`,
-            component: React.lazy(() => import('views/auth-views/errors/error-page-1')),
-            meta: {
-                blankLayout: true
-            }
-        },
+        // {
+        //     key: 'users',
+        //     path: `${APP_PREFIX_PATH}/users`,
+        //     component: React.lazy(() => import('views/pages/Users')),
+        // },
+        // {
+        //     key: 'user_info',
+        //     path: `${APP_PREFIX_PATH}/users/:user_id`,
+        //     component: React.lazy(() => import('views/pages/UserInfo')),
+        // },
+        // {
+        //     key: 'error-page-1',
+        //     path: `${APP_PREFIX_PATH}/error-page-1`,
+        //     component: React.lazy(() => import('views/auth-views/errors/error-page-1')),
+        //     meta: {
+        //         blankLayout: true
+        //     }
+        // },
     ].filter(Boolean)
 }
