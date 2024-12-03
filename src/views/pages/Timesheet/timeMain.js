@@ -34,7 +34,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState();
   const [projectDetails, setProjectDetails] = useState();
-  const [highlightRows, setHighlightRows] = useState([3, 5, 6]);
+  const [holidays, setHolidays] = useState([5, 6]);
   // const [timesheetToDelete, setTimesheetToDelete] = useState();
 
   const { session } = useSelector((state) => state.auth);
@@ -43,7 +43,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from('users').select('*');
+      const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
       if (error) {
         console.error('Error fetching users:', error);
       } else {
@@ -77,7 +77,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const fetchTimesheets = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('timesheet').select('*').eq('user_id', session?.user?.id).gte('timesheet_date', startDate).lte('timesheet_date', endDate).order('created_at', { ascending: false })
+      const { data, error } = await supabase.from('timesheet').select('*').eq('organization_id', session?.user?.organization_id).eq('user_id', session?.user?.id).gte('timesheet_date', startDate).lte('timesheet_date', endDate).order('created_at', { ascending: false })
 
       if (error) {
         throw error;
@@ -172,7 +172,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       return;
     }
 
-    const { data, error } = await supabase.from('timesheet').select('*').eq('user_id', session?.user?.id).eq('timesheet_date', currentDate.toISOString()).eq('timesheet_type', viewMode);
+    const { data, error } = await supabase.from('timesheet').select('*').eq('organization_id', session?.user?.organization_id).eq('user_id', session?.user?.id).eq('timesheet_date', currentDate.toISOString()).eq('timesheet_type', viewMode);
 
     if (error) {
       console.error('Error fetching timesheet:', error.message);
@@ -193,6 +193,31 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       });
       setProjectData(projectDataMap)
     }
+
+    const startDate = new Date(currentDate);
+    const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
+    const rowCount = viewMode === 'Weekly' ? 7 : daysInMonth;
+    const holidayIndices = [];
+
+    Array.from({ length: rowCount }, (_, dayIndex) => {
+      const date = new Date(currentDate?.getFullYear(), currentDate?.getMonth(), currentDate?.getDate() + dayIndex);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
+      // const dateValue = formatDate(date);
+      // Only check holidays for dayIndex 0 to 4 (Mon-Fri)
+      if (dayIndex >= 0 && dayIndex <= 4) {
+        console.log(date, session?.user?.location?.holidays)
+        const isHoliday = session?.user?.location?.holidays.some(holiday => holiday.date === dateString);
+        if (isHoliday) {
+          holidayIndices?.push(dayIndex);
+        }
+      }
+    });
+    holidayIndices.push(5, 6); //saturday,sunday
+    setHolidays(holidayIndices)
+
     setLoading(false);
   };
 
@@ -265,7 +290,8 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       project_details: projectDetails,
       approver_id,
       last_date: lastDate.toISOString(),
-      submitted_time: new Date()
+      submitted_time: new Date(),
+      organization_id: session?.user?.organization_id,
     };
 
     const emailPayload = [generateEmailData("Timesheet", "Submitted", {
@@ -370,7 +396,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   };
 
   const handleProjectChange = (projectName, columnIndex) => {
-    console.log("PC", projectName, columnIndex, selectedProjectColumns, projectData)
+    // console.log("PC", projectName, columnIndex, selectedProjectColumns, projectData)
 
     // if (!projectData[projectName]) {
     setProjectData((prevData) => {
@@ -413,7 +439,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const handleInputChange = (inputValue, date, project, field) => {
     const hours = field === 'hours' ? Number(inputValue.trim().replace(".", "")) : 0
     const value = field === 'hours' ? (hours > 0 ? Math.round(hours) : 0) : inputValue;
-    console.log("HC", field, inputValue, value, date, project)
+    // console.log("HC", field, inputValue, value, date, project)
     // console.log("first", inputValue)
     setProjectData(prevData => ({
       ...prevData,
@@ -433,7 +459,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
           : item
       ),
     }));
-    console.log("second", projectData)
+    // console.log("second", projectData)
   };
 
   const handleViewModeChange = (value) => {
@@ -866,7 +892,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
           <Table size={'small'} columns={columns} dataSource={generateAllRows()} pagination={false}
             summary={getSummary} scroll={{ x: 'max-content' }}
-            rowClassName={(_, index) => highlightRows?.includes(index) ? "ant-table-row-selected" : ""}
+            rowClassName={(_, index) => holidays?.includes(index) ? "ant-table-row-selected" : ""}
           // ant-table-row-selected
           // ant-table-placeholder
           // ant-table-expanded-row

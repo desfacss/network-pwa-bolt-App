@@ -28,6 +28,7 @@ const Review1 = ({ date, employee, fetchData }) => {
   const [columns, setColumns] = useState([]);
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState();
+  const [holidays, setHolidays] = useState([5, 6]);
 
   const { session } = useSelector((state) => state.auth);
 
@@ -35,7 +36,7 @@ const Review1 = ({ date, employee, fetchData }) => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from('users').select('*');
+      const { data, error } = await supabase.from('users').select('*,location:location_id(*)').eq('organization_id', session?.user?.organization_id);
       if (error) {
         console.error('Error fetching users:', error);
       } else {
@@ -46,8 +47,8 @@ const Review1 = ({ date, employee, fetchData }) => {
   }, []);
 
   const fetchProjects = async () => {
-    const { data: leavesData, error: leavesError } = await supabase.from('projects_leaves').select('*')
-    const { data, error } = await supabase.from('projects').select('*')
+    const { data: leavesData, error: leavesError } = await supabase.from('projects_leaves').select('*').eq('organization_id', session?.user?.organization_id)
+    const { data, error } = await supabase.from('projects').select('*').eq('organization_id', session?.user?.organization_id)
     // .contains('project_users', [session?.user?.id]);
     if (data && leavesData) {
       setProjects([...data, ...leavesData]);
@@ -73,7 +74,7 @@ const Review1 = ({ date, employee, fetchData }) => {
       .select('*')
       .eq('user_id', selectedEmployeesId)
       .eq('timesheet_date', currentDate.toISOString())
-      .eq('timesheet_type', viewMode);
+      .eq('timesheet_type', viewMode).eq('organization_id', session?.user?.organization_id);
 
     // const error = null
 
@@ -81,6 +82,7 @@ const Review1 = ({ date, employee, fetchData }) => {
       console.log('Error fetching timesheet:', error.message);
       setExistingTimesheet(null);
       setTimeSheetData();
+      setHolidays([5, 6])
 
     } else if (data && data.length > 0 && data[0]?.status !== 'Draft') {
       console.log('Existing timesheet:', data[0]);
@@ -115,9 +117,33 @@ const Review1 = ({ date, employee, fetchData }) => {
 
         const { columns, dataSource } = getDynamicColumnsAndDataSource(timesheetDetails);
         setColumns(columns); // Store columns in state if needed
-        console.log("formatted Data", columns, dataSource, timesheetDetails)
+        // console.log("formatted Data", columns, dataSource, timesheetDetails)
         setProjectDetails(data[0] && data[0]?.project_details)
         setTimeSheetData(dataSource);
+
+        const startDate = new Date(currentDate);
+        const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
+        const rowCount = viewMode === 'Weekly' ? 7 : daysInMonth;
+        const holidayIndices = [];
+
+        Array.from({ length: rowCount }, (_, dayIndex) => {
+          const date = new Date(currentDate?.getFullYear(), currentDate?.getMonth(), currentDate?.getDate() + dayIndex);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+          const day = String(date.getDate()).padStart(2, '0');
+          const dateString = `${year}-${month}-${day}`;
+          // const dateValue = formatDate(date);
+          // Only check holidays for dayIndex 0 to 4 (Mon-Fri)
+          // console.log("LH", users?.find(user => user?.id === data[0]?.user_id)?.location?.holidays)
+          if (dayIndex >= 0 && dayIndex <= 4) {
+            const isHoliday = users?.find(user => user?.id === data[0]?.user_id)?.location?.holidays?.some(holiday => holiday.date === dateString);
+            if (isHoliday) {
+              holidayIndices?.push(dayIndex);
+            }
+          }
+        });
+        holidayIndices.push(5, 6); //saturday,sunday
+        setHolidays(holidayIndices)
 
       }
 
@@ -152,10 +178,11 @@ const Review1 = ({ date, employee, fetchData }) => {
       //   setTimeSheetData(treeData);
       // }
     } else {
-      console.log('No existing timesheet found');
+      // console.log('No existing timesheet found');
       setExistingTimesheet();
       setTimeSheetData();
       setDisabled(true)
+      setHolidays([5, 6])
     }
   };
 
@@ -641,6 +668,7 @@ const Review1 = ({ date, employee, fetchData }) => {
       {(timeSheetData) ? <Table
         columns={columns} scroll={{ x: 'max-content' }}
         summary={() => renderSummaryRow(timeSheetData)}
+        rowClassName={(_, index) => holidays?.includes(index) ? "ant-table-row-selected" : ""}
         // dataSource={dataSource}
         dataSource={timeSheetData}
         pagination={false}

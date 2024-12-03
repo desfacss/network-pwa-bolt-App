@@ -26,7 +26,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('*');
+            const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
@@ -37,7 +37,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
     }, []);
 
     const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('projects_leaves').select('*');
+        let { data, error } = await supabase.from('projects_leaves').select('*').eq('organization_id', session?.user?.organization_id);
         if (data) {
             setLeaves(data);
             console.log("Leaves", data)
@@ -87,7 +87,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
     }, [startDate, endDate]);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved')
+        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)').neq('status', 'Approved').eq('organization_id', session?.user?.organization_id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {
             setLeaveApplications(data);

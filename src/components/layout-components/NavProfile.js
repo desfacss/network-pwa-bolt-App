@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import NavItem from "./NavItem";
 import Flex from "components/shared-components/Flex";
-import { setSession, signOut } from "store/slices/authSlice";
+import { setSelectedOrganization, setSession } from "store/slices/authSlice";
 import styled from "@emotion/styled";
 import {
   FONT_WEIGHT,
@@ -66,6 +66,7 @@ const MenuItemSignOut = (props) => {
       notification.error({ message: 'Error signing out' })
       return
     }
+    store.dispatch(setSelectedOrganization())
     store.dispatch(setSession())
     navigate(`${APP_PREFIX_PATH}/login`)
   }

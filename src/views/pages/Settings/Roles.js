@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Checkbox, Button, message } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
+import { useSelector } from 'react-redux';
 
 const RoleFeatureEdit = () => {
     const [roles, setRoles] = useState([]);
     const [features, setFeatures] = useState([]); // State for features
     const [loading, setLoading] = useState(true);
 
+    const { session } = useSelector((state) => state.auth);
+
     // Fetch roles from Supabase
     const fetchRoles = async () => {
         const { data, error } = await supabase
             .from('roles')
             .select('id, role_name, feature')
-            .neq('is_superadmin', true);
+            .neq('is_superadmin', true).eq('organization_id', session?.user?.organization_id);
 
         if (error) {
             console.error('Error fetching roles:', error);
@@ -26,7 +29,7 @@ const RoleFeatureEdit = () => {
         const { data, error } = await supabase
             .from('enums')
             .select('options')
-            .eq('name', 'features')
+            .eq('name', 'features').eq('organization_id', session?.user?.organization_id)
             .single(); // Get the single row
 
         if (error) {

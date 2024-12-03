@@ -31,7 +31,7 @@ const Users = () => {
         }
     }
     const getLocations = async () => {
-        const { data, error } = await supabase.from('locations').select('*').order('name', { ascending: true })
+        const { data, error } = await supabase.from('locations').select('*').eq('organization_id', session?.user?.organization_id).order('name', { ascending: true })
         if (data) {
             setLocations(data)
             console.log("Locations", data)
@@ -40,7 +40,7 @@ const Users = () => {
 
     // Fetch all roles from the database
     const fetchRoles = async () => {
-        const { data, error } = await supabase.from('roles').select('*').order('role_name', { ascending: true });
+        const { data, error } = await supabase.from('roles').select('*').eq('organization_id', session?.user?.organization_id).order('role_name', { ascending: true });
         if (error) {
             console.error('Error fetching roles:', error);
         } else {
@@ -116,7 +116,7 @@ const Users = () => {
                 const { data: existingUser, error: checkError } = await supabase
                     .from('users')
                     .select('id')
-                    .eq('details->>email', email);
+                    .eq('details->>email', email).eq('organization_id', session?.user?.organization_id);
 
                 if (checkError && checkError?.code !== 'PGRST116') throw checkError;
 

@@ -32,7 +32,7 @@ const LeaveSettings = () => {
     }, []);
 
     const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('leaves').select('*,location:location_id (*)');
+        let { data, error } = await supabase.from('leaves').select('*,location:location_id (*)').eq('organization_id', session?.user?.organization_id);
         if (data) {
             setLeaves(data);
         }

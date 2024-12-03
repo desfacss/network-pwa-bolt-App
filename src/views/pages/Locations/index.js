@@ -25,7 +25,7 @@ const Locations = () => {
     }, []);
 
     const fetchLocations = async () => {
-        let { data, error } = await supabase.from("locations").select("*").order('name', { ascending: true });
+        let { data, error } = await supabase.from("locations").select("*").eq('organization_id', session?.user?.organization_id).order('name', { ascending: true });
         if (data) {
             setLocations(data);
         }
@@ -190,6 +190,7 @@ const Locations = () => {
             name: values?.name,
             details: values,
             holidays,
+            organization_id: session?.user?.organization_id,
         };
 
         if (editItem) {

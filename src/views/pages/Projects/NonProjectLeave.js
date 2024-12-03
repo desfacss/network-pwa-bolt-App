@@ -62,7 +62,7 @@ const NonProjectLeave = () => {
     // }, []);
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details');
+        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id);
         if (error) {
             console.error('Error fetching users:', error);
         } else {
@@ -71,7 +71,7 @@ const NonProjectLeave = () => {
         }
     };
     const fetchClients = async () => {
-        const { data, error } = await supabase.from('clients').select('id, name').eq('default', true);
+        const { data, error } = await supabase.from('clients').select('id, name').eq('default', true).eq('organization_id', session?.user?.organization_id);
         if (error) {
             console.error('Error fetching users:', error);
         } else {
@@ -81,7 +81,7 @@ const NonProjectLeave = () => {
     };
 
     const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('leaves').select('*');
+        let { data, error } = await supabase.from('leaves').select('*').eq('organization_id', session?.user?.organization_id);
         if (data) {
             setLeaves(data);
             console.log("B", data)
@@ -99,7 +99,7 @@ const NonProjectLeave = () => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('projects_leaves').select('*').eq('is_non_project', true).order('project_name', { ascending: true });
+        let { data, error } = await supabase.from('projects_leaves').select('*').eq('is_non_project', true).eq('organization_id', session?.user?.organization_id).order('project_name', { ascending: true });
         if (data) {
             setProjects(data);
         }
@@ -145,6 +145,7 @@ const NonProjectLeave = () => {
             manager_id: session?.user?.id,
             start_date: values?.start_date?.format(dateFormat),
             end_date: values?.end_date?.format(dateFormat),
+            organization_id: session?.user?.organization_id,
         };
 
         try {

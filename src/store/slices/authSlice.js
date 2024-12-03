@@ -8,7 +8,8 @@ export const initialState = {
   showMessage: false,
   redirect: "",
   token: localStorage.getItem(AUTH_TOKEN) || null,
-  session: null
+  session: null,
+  selectedOrganization: null
 };
 
 export const signIn = createAsyncThunk(
@@ -95,6 +96,12 @@ export const authSlice = createSlice({
     removeSession: (state) => {
       state.session = null;
     },
+    setSelectedOrganization: (state, action) => {
+      state.selectedOrganization = action.payload;
+    },
+    removeSelectedOrganization: (state) => {
+      state.selectedOrganization = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -143,6 +150,7 @@ export const {
   showLoading,
   signInSuccess,
   setSession,
+  setSelectedOrganization,
   removeSession
 } = authSlice.actions;
 

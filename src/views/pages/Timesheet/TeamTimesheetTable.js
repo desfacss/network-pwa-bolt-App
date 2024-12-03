@@ -50,7 +50,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                 .from('timesheet')
                 .select('*,user:user_id (user_name)')
                 // .eq('approver_id', session?.user?.id)
-                .neq('status', 'Draft')
+                .neq('status', 'Draft').eq('organization_id', session?.user?.organization_id)
                 .gte('timesheet_date', startDate)
                 .lte('timesheet_date', endDate)
                 .order('submitted_time', { ascending: false })

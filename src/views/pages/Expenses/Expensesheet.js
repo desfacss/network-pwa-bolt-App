@@ -23,7 +23,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('*');
+            const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
@@ -55,7 +55,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     }, []);
 
     const getTypes = async () => {
-        const { data, error } = await supabase.from('expense_type').select('*')
+        const { data, error } = await supabase.from('expense_type').eq('organization_id', session?.user?.organization_id).select('*')
         if (data) {
             console.log("d", data)
             setTypes(data)
@@ -215,7 +215,8 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             approver_id,
             last_date: lastDate.toISOString(),
             submitted_time: new Date(),
-            grand_total: total
+            grand_total: total,
+            organization_id: session?.user?.organization_id,
         };
         const projectName = projects?.find(project => project?.id === selectedProject)?.project_name
         const emailPayload = [generateEmailData("Expense Sheet", "Submitted", {

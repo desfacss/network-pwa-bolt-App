@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col, Table, Spin, Empty } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
-import DownloadMenu from 'components/common/DownloadMenu';
+// import DownloadMenu from 'components/common/DownloadMenu';
 // import dayjs from 'dayjs';
 // import { supabase } from './supabaseClient'; // Adjust the import based on your Supabase setup
 // import dayjs from 'dayjs';
@@ -33,7 +33,7 @@ const ReportComponent = () => {
     })
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('id, user_name');
+        const { data, error } = await supabase.from('users').select('id, user_name').eq('organization_id', session?.user?.organization_id);
         if (error) console.error(error);
         else setUsers(data);
     };

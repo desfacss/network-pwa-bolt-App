@@ -11,6 +11,8 @@ import { useLocation } from "react-router-dom";
 // import { supabase } from "configs/SupabaseConfig";
 
 import enGB from 'antd/lib/locale/en_GB';
+import { store } from "store";
+import { setSession } from "store/slices/authSlice";
 
 const currentAppLocale = enGB;
 
@@ -22,19 +24,57 @@ const Layouts = () => {
   const location = useLocation();
   const { session } = useSelector((state) => state?.auth);
 
-  // const [session, setSession] = useState(null)
+  const { selectedOrganization } = useSelector((state) => state.auth);
 
-  // useEffect(() => {
-  //   supabase.auth.getSession().then(({ data: { session } }) => {
-  //     setSession(session)
-  //   })
-  //   const {
-  //     data: { subscription },
-  //   } = supabase.auth.onAuthStateChange((_event, session) => {
-  //     setSession(session)
-  //   })
-  //   return () => subscription.unsubscribe()
-  // }, [])
+  useEffect(() => {
+    // Fetch the session and user data
+    const fetchUserData = async (session) => {
+      if (!session || !session.user) return;
+
+      // Fetch user data from the users table
+      const { data: userData, error: userError } = await supabase.from('users').select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', session.user.id).single();
+
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+        return;
+      }
+
+      const updatedSession = {
+        ...session,
+        user: {
+          ...userData,
+          ...(selectedOrganization && {
+            organization: selectedOrganization,
+            organization_id: selectedOrganization.id,
+          }),
+        },
+      };
+      console.log("Session", updatedSession);
+
+      // Dispatch the updated session to Redux
+      store.dispatch(setSession(updatedSession));
+    };
+
+    // Get the initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        fetchUserData(session);
+      }
+    });
+
+    // Listen for authentication state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      // console.log('Supabase Event', _event);
+      if (session) {
+        fetchUserData(session);
+      }
+    });
+
+    // Cleanup subscription on component unmount
+    return () => subscription.unsubscribe();
+  }, [supabase, selectedOrganization]);
 
   // const { token, session } = useSelector((state) => state.auth);
   const blankLayout = useSelector((state) => state.theme.blankLayout);

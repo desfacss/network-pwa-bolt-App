@@ -22,9 +22,7 @@ const Clients = () => {
 
     const getForms = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "client_add_edit_form").single()
-        console.log("A", data)
         if (data) {
-            console.log(data)
             setSchema(data)
         }
     }
@@ -35,7 +33,7 @@ const Clients = () => {
     }, []);
 
     const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*').neq('default', true).order('name', { ascending: true });
+        let { data, error } = await supabase.from('clients').select('*').eq('organization_id', session?.user?.organization_id).neq('default', true).order('name', { ascending: true });
         if (data) {
             setClients(data);
         }
@@ -45,8 +43,6 @@ const Clients = () => {
     };
 
     const handleAddOrEdit = async (values) => {
-        console.log("Payload", values);
-
         const clientPayload = {
             details: values,
             name: values?.name,
@@ -79,41 +75,6 @@ const Clients = () => {
         setEditItem(null);
     };
 
-
-    // const handleAddOrEdit = async (values) => {
-    //     // const { service_name, cost, duration, description } = values;
-    //     console.log("Pyload", values)
-    //     if (editItem) {
-    //         // Update existing service
-    //         const { data, error } = await supabase
-    //             .from('clients')
-    //             .update({ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName })
-    //             .eq('id', editItem.id);
-
-    //         if (data) {
-    //             notification.success({ message: "Client updated successfully" });
-    //             setEditItem(null);
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to update client" });
-    //         }
-    //     } else {
-    //         // Add new client
-    //         const { data, error } = await supabase
-    //             .from('clients')
-    //             .insert([{ details: values, name: values?.name, organization_id: session?.user?.organization_id, organization_name: session?.user?.details?.orgName }]);
-
-    //         if (data) {
-    //             notification.success({ message: "Client added successfully" });
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to add client" });
-    //         }
-    //     }
-    //     fetchClients();
-    //     setIsDrawerOpen(false);
-    //     form.resetFields();
-    //     setEditItem()
-    // };
-
     const handleEdit = (record) => {
         setEditItem(record);
         form.setFieldsValue({
@@ -124,16 +85,6 @@ const Clients = () => {
         });
         setIsDrawerOpen(true);
     };
-
-    // const handleDelete = async (id) => {
-    //     const { error } = await supabase.from('clients').delete().eq('id', id);
-    //     if (!error) {
-    //         notification.success({ message: "Client deleted successfully" });
-    //         fetchClients();
-    //     } else {
-    //         notification.error({ message: "Failed to delete Client" });
-    //     }
-    // };
 
     const confirmDelete = (id) => {
         setClientToDelete(id);
@@ -203,16 +154,6 @@ const Clients = () => {
             dataIndex: ['details', 'zip'],
             key: 'zip',
         },
-        // {
-        //     title: 'State',
-        //     dataIndex: ['details', 'state'],
-        //     key: 'state',
-        // },
-        // {
-        //     title: 'Address',
-        //     dataIndex: ['details', 'address'],
-        //     key: 'address',
-        // },
         {
             title: 'Actions',
             key: 'actions',

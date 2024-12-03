@@ -25,6 +25,7 @@ import { supabase } from "configs/SupabaseConfig";
 import { setSession } from "store/slices/authSlice";
 import { store } from "store";
 import Notifications from "components/common/Notifications";
+import OrganiztionSelect from "./OrganiztionSelect";
 
 export const HeaderNav = (props) => {
   const { Option } = Select;
@@ -179,6 +180,7 @@ export const HeaderNav = (props) => {
           </NavEdge>
           <NavEdge right>
             <div className="border-bottom d-flex justify-content-between align-items-center py-2 px-1">
+              {session?.user?.role_type === 'superadmin' && <OrganiztionSelect />}
               <Notifications />
               {/* <Button onClick={onLogOut}>LogOut</Button> */}
             </div>

@@ -42,7 +42,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('*');
+            const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
@@ -61,7 +61,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
     }
 
     const getLocationDetails = async () => {
-        const { data, error } = await supabase.from('locations').select('*').eq('id', session?.user?.location?.id).single()
+        const { data, error } = await supabase.from('locations').select('*').eq('organization_id', session?.user?.organization_id).eq('id', session?.user?.location?.id).single()
         if (data) {
             // console.log(data)
             setLeavePolicy(data?.details?.leave_policy)
@@ -87,7 +87,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
     }, [leaveApplications, leavePolicy]);
 
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id)
+        let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id).eq('organization_id', session?.user?.organization_id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('created_at', { ascending: false });
         if (data) {
             console.log("leaves", data);
@@ -130,7 +130,8 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             status: "Submitted",
             approver_id,
             last_date: lastDate.toISOString(),
-            submitted_time: new Date()
+            submitted_time: new Date(),
+            organization_id: session?.user?.organization_id,
         }
 
         const emailPayload = [generateEmailData("Leave Application", "Submitted", {

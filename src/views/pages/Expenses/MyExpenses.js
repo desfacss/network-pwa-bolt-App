@@ -30,7 +30,7 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
     }, [startDate, endDate])
 
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,project:project_id(*)').eq('user_id', session?.user?.id)
+        let { data, error } = await supabase.from('expensesheet').select('*,project:project_id(*)').eq('user_id', session?.user?.id).eq('organization_id', session?.user?.organization_id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('created_at', { ascending: false });
         if (data) {
             console.log("expenses", data);

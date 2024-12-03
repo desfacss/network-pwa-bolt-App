@@ -42,7 +42,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     };
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('*');
+        const { data, error } = await supabase.from('users').eq('organization_id', session?.user?.organization_id).select('*');
         if (error) {
             console.error('Error fetching users:', error);
         } else {
@@ -56,7 +56,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     }, []);
 
     const fetchLeaves = async () => {
-        let { data, error } = await supabase.from('projects_leaves').select('*');
+        let { data, error } = await supabase.from('projects_leaves').eq('organization_id', session?.user?.organization_id).select('*');
         if (data) {
             setLeaves(data);
             console.log("Leaves", data)
@@ -106,7 +106,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     }, [startDate, endDate]);
 
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved')
+        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved').eq('organization_id', session?.user?.organization_id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {
             setExpenses(data);

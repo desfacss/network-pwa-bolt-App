@@ -51,18 +51,18 @@ const MenuItem = ({ title, icon, path }) => {
 
 const getSideNavMenuItem = (navItem) => navItem.map(nav => {
 	return {
-		key: nav.key,
-		label: <MenuItem title={nav.title} {...(nav.isGroupTitle ? {} : { path: nav.path, icon: nav.icon })} />,
-		...(nav.isGroupTitle ? { type: 'group' } : {}),
-		...(nav.submenu.length > 0 ? { children: getSideNavMenuItem(nav.submenu) } : {})
+		key: nav?.key,
+		label: <MenuItem title={nav?.title} {...(nav?.isGroupTitle ? {} : { path: nav?.path, icon: nav?.icon })} />,
+		...(nav?.isGroupTitle ? { type: 'group' } : {}),
+		...(nav?.submenu?.length > 0 ? { children: getSideNavMenuItem(nav?.submenu) } : {})
 	}
 })
 
 const getTopNavMenuItem = (navItem) => navItem.map(nav => {
 	return {
-		key: nav.key,
-		label: <MenuItem title={nav.title} icon={nav.icon} {...(nav.isGroupTitle ? {} : { path: nav.path })} />,
-		...(nav.submenu.length > 0 ? { children: getTopNavMenuItem(nav.submenu) } : {})
+		key: nav?.key,
+		label: <MenuItem title={nav?.title} icon={nav?.icon} {...(nav?.isGroupTitle ? {} : { path: nav?.path })} />,
+		...(nav?.submenu?.length > 0 ? { children: getTopNavMenuItem(nav?.submenu) } : {})
 	}
 })
 
@@ -74,35 +74,27 @@ const SideNavContent = (props) => {
 
 	const { userData } = useSelector((state) => state?.profile);
 	const { session } = useSelector((state) => state.auth);
+	const { feature } = session?.user?.features?.feature
 	const clientSubmenu = ['Dashboard']
 	// useEffect(() => {
 	// if (userData?.role_type === 'client') {
 	// navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => clientSubmenu.includes(item.title))
 	// }
 
-	// METHOD 1
-	// if (userData) {
-	// 	navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Strategy-builder' && !userData?.feature?.viewStrategyBuilder)
-	// 	navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Portfolio' && !userData?.feature?.viewPorfolio)
-	// 	navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Broker' && !userData?.feature?.viewBroker)
-	// 	navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Order-Book' && !userData?.feature?.viewOrderBook)
-	// 	navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position-Book' && !userData?.feature?.viewPositionBook)
-	// 	navigationConfig[0].submenu = navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboards-Position' && !userData?.feature?.viewPosition)
-	// }
 	// METHOD 2
-	if (session) {
-		console.log("rt", session.user.feature);
-		navigationConfig[0].submenu = session?.user?.features?.feature?.Projects === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'projects')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.settings === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'settings')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.notifications === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'notifications')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.Clients === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'clients')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.dashboard === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboard')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.timesheets === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'timesheets')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.leaves === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'leaves')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.expenses === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'expenses')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.Team === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'team')
-		navigationConfig[0].submenu = session?.user?.features?.feature?.viewReports === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'reports')
-	}
+	// if (session) {
+	// 	console.log("rt", session.user.feature);
+	// navigationConfig[0].submenu = feature?.Projects === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'projects')
+	// navigationConfig[0].submenu = feature?.settings === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'settings')
+	// navigationConfig[0].submenu = feature?.notifications === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'notifications')
+	// navigationConfig[0].submenu = feature?.Clients === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'clients')
+	// navigationConfig[0].submenu = feature?.dashboard === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'dashboard')
+	// navigationConfig[0].submenu = feature?.timesheets === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'timesheets')
+	// navigationConfig[0].submenu = feature?.leaves === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'leaves')
+	// navigationConfig[0].submenu = feature?.expenses === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'expenses')
+	// navigationConfig[0].submenu = feature?.Team === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'team')
+	// navigationConfig[0].submenu = feature?.viewReports === true ? navigationConfig[0]?.submenu : navigationConfig[0]?.submenu?.filter(item => item.key !== 'reports')
+	// }
 
 	// }, [session])
 

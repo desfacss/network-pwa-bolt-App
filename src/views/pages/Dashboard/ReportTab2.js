@@ -14,7 +14,7 @@ const { RangePicker } = DatePicker;
 
 const TimesheetComponent = ({ data, printRef }) => {
 
-    const defaultStartDate = dayjs().subtract(30, 'days');
+    const defaultStartDate = dayjs().subtract(7, 'days');
     const defaultEndDate = dayjs();
     const [reportData, setReportData] = useState();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);

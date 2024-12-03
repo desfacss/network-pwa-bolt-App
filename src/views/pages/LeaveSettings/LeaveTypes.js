@@ -38,9 +38,9 @@ const LeaveTypes = () => {
     const fetchTypes = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase.from("enums").select("options").eq("name", 'types_crud');
+            const { data, error } = await supabase.from("enums").select("options").eq("name", 'types_crud').eq('organization_id', session?.user?.organization_id);
             if (error) throw error;
-            console.log("dt", data[0]?.options)
+            // console.log("dt", data[0]?.options)
             setTypes(data[0]?.options);
         } catch (error) {
             message.error("Failed to fetch leave types.");

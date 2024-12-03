@@ -26,47 +26,72 @@ export const publicRoutes = [
 
 // export const protectedRoutes = [
 export const protectedRoutes = (feature) => {
-    console.log("Features", feature)
+    // console.log("Features", feature)
     return [
-        {
-            key: 'reports',
-            path: `${APP_PREFIX_PATH}/reports`,
-            component: React.lazy(() => import('views/pages/Reports')),
+        feature?.dashboard && {
+            key: 'dashboard',
+            path: `${APP_PREFIX_PATH}/dashboard`,
+            component: React.lazy(() => import('views/pages/Dashboard')),
         },
-        {
-            key: 'settings',
-            path: `${APP_PREFIX_PATH}/settings`,
-            component: React.lazy(() => import('views/pages/Settings')),
+        feature?.timesheets && {
+            key: 'timesheet',
+            path: `${APP_PREFIX_PATH}/timesheet`,
+            component: React.lazy(() => import('views/pages/Timesheet')),
         },
-        {
+        feature?.timesheets && {
+            key: 'timesheeth',
+            path: `${APP_PREFIX_PATH}/timesheeth`,
+            component: React.lazy(() => import('views/pages/TimesheetH')),
+        },
+        feature?.leaves && {
             key: 'leave_app',
             path: `${APP_PREFIX_PATH}/leave_app`,
             component: React.lazy(() => import('views/pages/LeaveApp')),
         },
-        // {
-        //     key: 'leave_settings',
-        //     path: `${APP_PREFIX_PATH}/leave_settings`,
-        //     component: React.lazy(() => import('views/pages/LeaveSettings')),
-        // },
         {
             key: 'leaves',
             path: `${APP_PREFIX_PATH}/leaves`,
             component: React.lazy(() => import('views/pages/LeaveSettings')),
         },
-        {
-            key: 'locations',
-            path: `${APP_PREFIX_PATH}/locations`,
-            component: React.lazy(() => import('views/pages/Locations')),
+        feature?.expenses && {
+            key: 'expenses',
+            path: `${APP_PREFIX_PATH}/expenses`,
+            component: React.lazy(() => import('views/pages/Expenses')),
         },
-        {
+        feature?.viewReports && {
+            key: 'reports',
+            path: `${APP_PREFIX_PATH}/reports`,
+            component: React.lazy(() => import('views/pages/Reports')),
+        },
+        feature?.Clients && {
+            key: 'clients',
+            path: `${APP_PREFIX_PATH}/clients`,
+            component: React.lazy(() => import('views/pages/Clients')),// /Clients is view table/card, /client/:id is view detail page
+        },
+        feature?.Projects && {
+            key: 'projects',
+            path: `${APP_PREFIX_PATH}/projects`,
+            component: React.lazy(() => import('views/pages/Projects/index')),
+        },
+        feature?.Team && {
+            key: 'team',
+            path: `${APP_PREFIX_PATH}/team`,
+            component: React.lazy(() => import('views/pages/Team/index')),
+        },
+        feature?.notifications && {
             key: 'notifications',
             path: `${APP_PREFIX_PATH}/notifications`,
             component: React.lazy(() => import('views/pages/Notifications')),
         },
+        feature?.settings && {
+            key: 'settings',
+            path: `${APP_PREFIX_PATH}/settings`,
+            component: React.lazy(() => import('views/pages/Settings')),
+        },
         {
-            key: 'dashboard',
-            path: `${APP_PREFIX_PATH}/dashboard`,
-            component: React.lazy(() => import('views/pages/Dashboard')),
+            key: 'locations',
+            path: `${APP_PREFIX_PATH}/locations`,
+            component: React.lazy(() => import('views/pages/Locations')),
         },
         {
             key: 'change_password',
@@ -77,26 +102,6 @@ export const protectedRoutes = (feature) => {
             key: 'review',
             path: `${APP_PREFIX_PATH}/review`,
             component: React.lazy(() => import('views/pages/Review')),
-        },
-        {
-            key: 'timesheet',
-            path: `${APP_PREFIX_PATH}/timesheet`,
-            component: React.lazy(() => import('views/pages/Timesheet')),
-        },
-        {
-            key: 'expenses',
-            path: `${APP_PREFIX_PATH}/expenses`,
-            component: React.lazy(() => import('views/pages/Expenses')),
-        },
-        {
-            key: 'timesheeth',
-            path: `${APP_PREFIX_PATH}/timesheeth`,
-            component: React.lazy(() => import('views/pages/TimesheetH')),
-        },
-        {
-            key: 'team',
-            path: `${APP_PREFIX_PATH}/team`,
-            component: React.lazy(() => import('views/pages/Team/index')),
         },
         {
             key: 'schedule',
@@ -117,16 +122,6 @@ export const protectedRoutes = (feature) => {
             key: 'jobs',
             path: `${APP_PREFIX_PATH}/jobs`,
             component: React.lazy(() => import('views/pages/Jobs')),
-        },
-        {
-            key: 'projects',
-            path: `${APP_PREFIX_PATH}/projects`,
-            component: React.lazy(() => import('views/pages/Projects/index')),
-        },
-        {
-            key: 'clients',
-            path: `${APP_PREFIX_PATH}/clients`,
-            component: React.lazy(() => import('views/pages/Clients')),// /Clients is view table/card, /client/:id is view detail page
         },
         {
             key: 'profile',

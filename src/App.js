@@ -19,53 +19,53 @@ const themes = {
 
 function App() {
 
-  useEffect(() => {
-    // Fetch the session and user data
-    const fetchUserData = async (session) => {
-      if (!session || !session.user) return;
+  // useEffect(() => {
+  //   // Fetch the session and user data
+  //   const fetchUserData = async (session) => {
+  //     if (!session || !session.user) return;
 
-      // Fetch user data from the users table
-      const { data: userData, error: userError } = await supabase.from('users').select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', session.user.id).single();
+  //     // Fetch user data from the users table
+  //     const { data: userData, error: userError } = await supabase.from('users').select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', session.user.id).single();
 
-      if (userError) {
-        console.error('Error fetching user data:', userError);
-        return;
-      }
+  //     if (userError) {
+  //       console.error('Error fetching user data:', userError);
+  //       return;
+  //     }
 
-      // Combine user data with role feature
-      const updatedSession = {
-        ...session,
-        user: {
-          ...userData,
-          // feature: roleData?.feature || null, // Add the role feature here
-        },
-      };
-      console.log("Session", updatedSession);
+  //     // Combine user data with role feature
+  //     const updatedSession = {
+  //       ...session,
+  //       user: {
+  //         ...userData,
+  //         // feature: roleData?.feature || null, // Add the role feature here
+  //       },
+  //     };
+  //     console.log("Session", updatedSession);
 
-      // Dispatch the updated session to Redux
-      store.dispatch(setSession(updatedSession));
-    };
+  //     // Dispatch the updated session to Redux
+  //     store.dispatch(setSession(updatedSession));
+  //   };
 
-    // Get the initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        fetchUserData(session);
-      }
-    });
+  //   // Get the initial session
+  //   supabase.auth.getSession().then(({ data: { session } }) => {
+  //     if (session) {
+  //       fetchUserData(session);
+  //     }
+  //   });
 
-    // Listen for authentication state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      // console.log('Supabase Event', _event);
-      if (session) {
-        fetchUserData(session);
-      }
-    });
+  //   // Listen for authentication state changes
+  //   const {
+  //     data: { subscription },
+  //   } = supabase.auth.onAuthStateChange((_event, session) => {
+  //     // console.log('Supabase Event', _event);
+  //     if (session) {
+  //       fetchUserData(session);
+  //     }
+  //   });
 
-    // Cleanup subscription on component unmount
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+  //   // Cleanup subscription on component unmount
+  //   return () => subscription.unsubscribe();
+  // }, [supabase]);
 
 
   return (

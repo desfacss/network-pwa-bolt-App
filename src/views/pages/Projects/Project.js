@@ -60,7 +60,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('id, user_name,role_type,details');
+            const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
@@ -69,7 +69,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             }
         };
         const fetchClients = async () => {
-            const { data, error } = await supabase.from('clients').select('id, name').neq('default', true);
+            const { data, error } = await supabase.from('clients').select('id, name').neq('default', true).eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
@@ -86,7 +86,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('projects').select('*').neq('is_non_project', true).order('project_name', { ascending: true });
+        let { data, error } = await supabase.from('projects').select('*').eq('organization_id', session?.user?.organization_id).neq('is_non_project', true).order('project_name', { ascending: true });
         if (data) {
             setProjects(data);
         }
@@ -121,7 +121,8 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             hrpartner_id: values?.hrpartner_id,
             manager_id: values?.manager_id,
             start_date: values?.start_date.format(dateFormat),
-            end_date: values?.end_date.format(dateFormat)
+            end_date: values?.end_date.format(dateFormat),
+            organization_id: session?.user?.organization_id,
         };
 
         const { data, error } = (editItem && !clone)

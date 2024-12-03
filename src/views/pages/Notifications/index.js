@@ -21,7 +21,7 @@ const Notifications = () => {
     // Fetch users from Supabase
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from('users').select('id, user_name');
+            const { data, error } = await supabase.from('users').select('id, user_name').eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
@@ -35,7 +35,7 @@ const Notifications = () => {
     // Fetch locations from Supabase
     useEffect(() => {
         const fetchLocations = async () => {
-            const { data, error } = await supabase.from('locations').select('id, name');
+            const { data, error } = await supabase.from('locations').select('id, name').eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching locations:', error);
             } else {
@@ -65,7 +65,7 @@ const Notifications = () => {
     }, []);
 
     const fetchNotifications = async () => {
-        let { data, error } = await supabase.from('notifications').select('*');
+        let { data, error } = await supabase.from('notifications').select('*').eq('organization_id', session?.user?.organization_id);
         if (data) {
             console.log("Notifications", data);
             setNotifications(data);
@@ -88,6 +88,7 @@ const Notifications = () => {
             // expiry: expiry?.format(dateFormat),
             users: type === 'users' ? values?.users : null,
             locations: type === 'location' ? values?.locations : null,
+            organization_id: session?.user?.organization_id,
         };
 
         try {

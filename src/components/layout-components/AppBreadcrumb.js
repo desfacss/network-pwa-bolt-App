@@ -9,13 +9,13 @@ let breadcrumbData = {
 };
 
 navigationConfig.forEach((elm, i) => {
-	const assignBreadcrumb = (obj) => breadcrumbData[obj.path] = <IntlMessage id={obj.title} />;
+	const assignBreadcrumb = (obj) => breadcrumbData[obj?.path] = <IntlMessage id={obj?.title} />;
 	assignBreadcrumb(elm);
-	if (elm.submenu) {
-		elm.submenu.forEach(elm => {
+	if (elm?.submenu) {
+		elm?.submenu?.forEach(elm => {
 			assignBreadcrumb(elm)
-			if (elm.submenu) {
-				elm.submenu.forEach(elm => {
+			if (elm?.submenu) {
+				elm?.submenu.forEach(elm => {
 					assignBreadcrumb(elm)
 				})
 			}
@@ -25,9 +25,9 @@ navigationConfig.forEach((elm, i) => {
 
 const BreadcrumbRoute = props => {
 	const location = useLocation();
-	const pathSnippets = location.pathname.split('/').filter(i => i);
-	const breadcrumbItems = pathSnippets.map((_, index) => {
-		const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+	const pathSnippets = location?.pathname?.split('/')?.filter(i => i);
+	const breadcrumbItems = pathSnippets?.map((_, index) => {
+		const url = `/${pathSnippets?.slice(0, index + 1).join('/')}`;
 		return {
 			title: <Link to={url}>{breadcrumbData[url]}</Link>
 		}

@@ -12,6 +12,11 @@ import {
   CalendarOutlined,
 } from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig';
+import { store } from 'store';
+
+const state = store.getState();
+const feature = state?.auth?.session?.user?.features?.feature;
+
 
 const navigationConfig = [
   {
@@ -22,7 +27,7 @@ const navigationConfig = [
     // icon: DashboardOutlined,
     breadcrumb: false,
     submenu: [
-      {
+      feature?.dashboard && {
         key: 'dashboard',
         path: `${APP_PREFIX_PATH}/dashboard`,
         title: 'Dashboard',
@@ -30,7 +35,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.timesheets && {
         key: 'timesheets',
         path: `${APP_PREFIX_PATH}/timesheet`,
         title: 'Timesheet',
@@ -38,7 +43,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      { //Comment for Prod
+      feature?.leaves && { //Comment for Prod
         key: 'leave_app',
         path: `${APP_PREFIX_PATH}/leave_app`,
         //Comment for Prod
@@ -47,7 +52,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.expenses && {
         key: 'expenses',
         path: `${APP_PREFIX_PATH}/expenses`,
         title: 'Expense',
@@ -55,7 +60,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.viewReports && {
         key: 'reports',
         path: `${APP_PREFIX_PATH}/reports`,
         title: 'Reports',
@@ -78,7 +83,7 @@ const navigationConfig = [
       //   breadcrumb: false,
       //   isGroupTitle: true,
       //   submenu: [
-      {
+      feature?.Clients && {
         key: 'clients',
         path: `${APP_PREFIX_PATH}/clients`,
         title: 'Clients',
@@ -86,7 +91,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.Projects && {
         key: 'projects',
         path: `${APP_PREFIX_PATH}/projects`,
         title: 'Projects',
@@ -94,7 +99,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.Team && {
         key: 'team',
         path: `${APP_PREFIX_PATH}/team`,
         title: 'Team',
@@ -102,7 +107,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.notifications && {
         key: 'notifications',
         path: `${APP_PREFIX_PATH}/notifications`,
         title: 'Notifications',
@@ -110,7 +115,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.settings && {
         key: 'settings',
         path: `${APP_PREFIX_PATH}/settings`,
         title: 'Settings',
@@ -118,7 +123,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-    ]
+    ]?.filter(Boolean)
   }
   // ],
   // },
