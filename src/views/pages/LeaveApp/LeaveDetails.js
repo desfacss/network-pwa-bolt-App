@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, notification, Row, Table, Tooltip } from 'antd';
+import { Card, Col, Row, Tooltip } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
-import { InfoOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 const LeaveDetails = ({ userId }) => {
 
     const [leaveDetails, setLeaveDetails] = useState();
+    const [user, setUser] = useState();
+    const [standardDailyHours, setStandardDailyHours] = useState();
 
     const { session } = useSelector((state) => state.auth);
-    const standardDailyHours = session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours || 8
+    // const standardDailyHours = session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours || 8
 
     const fetchLeaveDetails = async () => {
-
         const { data, error } = await supabase.rpc('get_leave_details_for_user', { userid: userId });
         if (error) {
             console.error("Error fetching report data:", error);
@@ -22,7 +23,19 @@ const LeaveDetails = ({ userId }) => {
         }
     };
 
+    const fetchUsers = async () => {
+        const { data, error } = await supabase.from('users').select('*,organization:organization_id(*)').eq('organization_id', session?.user?.organization_id).eq('id', userId);
+        if (error) {
+            console.error('Error fetching users:', error);
+        } else {
+            const currentUser = data && data[0]
+            setUser(currentUser || []);
+            setStandardDailyHours(currentUser?.organization?.timesheet_settings?.workingHours?.standardDailyHours || 8);
+        }
+    };
+
     useEffect(() => {
+        fetchUsers();
         fetchLeaveDetails();
     }, []);
 
@@ -64,7 +77,7 @@ const LeaveDetails = ({ userId }) => {
                         {/* <div>
                             Allocated Leaves: {leave?.details?.allocated_hours / standardDailyHours} Days
                         </div> */}
-                        <div>Leave Approved: <strong>{session?.user?.leave_details[leave?.project_id]?.taken || 0}</strong> days
+                        <div>Leave Approved: <strong>{user?.leave_details[leave?.project_id]?.taken || 0}</strong> days
                             <Tooltip title={"Leave application approved"} placement="rightBottom" >
                                 <QuestionCircleOutlined className='ml-2' />
                             </Tooltip>

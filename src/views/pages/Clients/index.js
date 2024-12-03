@@ -47,7 +47,7 @@ const Clients = () => {
             details: values,
             name: values?.name,
             organization_id: session?.user?.organization_id,
-            organization_name: session?.user?.details?.orgName
+            // organization_name: session?.user?.details?.orgName
         };
 
         try {

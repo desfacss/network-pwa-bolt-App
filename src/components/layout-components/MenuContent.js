@@ -74,7 +74,7 @@ const SideNavContent = (props) => {
 
 	const { userData } = useSelector((state) => state?.profile);
 	const { session } = useSelector((state) => state.auth);
-	const { feature } = session?.user?.features?.feature
+	// const { feature } = session?.user?.features?.feature
 	const clientSubmenu = ['Dashboard']
 	// useEffect(() => {
 	// if (userData?.role_type === 'client') {
