@@ -107,7 +107,7 @@ const Clients = () => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete this Client - ${record?.name} ?`,
+            title: `Confirm deletion of Client - ${record?.name} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',

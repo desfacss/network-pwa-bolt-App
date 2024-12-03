@@ -16,6 +16,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     const [selectedProject, setSelectedProject] = useState();
     const [users, setUsers] = useState();
     const [total, setTotal] = useState()
+    const [loading, setLoading] = useState(false);
 
     const { session } = useSelector((state) => state.auth);
 
@@ -185,27 +186,31 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     const columns = generateColumns(types);
 
     const handleSubmit = async () => {
-        if (!data) {
+        if (!data || !total) {
             message.error(`Empty Data`);
             return
         }
-        let emptyDate = false
+        let emptyRow = false
         data?.forEach((row, index) => {
             if (!row.date) { // Check if date is empty, null, or undefined
                 message.error(`Row with Empty date`);
-                emptyDate = true
+                emptyRow = true
+            }
+            if (!row.description) { // Check if date is empty, null, or undefined
+                message.error(`Row with Empty description`);
+                emptyRow = true
             }
         });
-        if (emptyDate) { return }
+        if (emptyRow) { return }
 
         if (!session?.user?.id) {
             message.error('User is not authenticated.');
             return;
-        }
-
+        } 
+        setLoading(true)
         const today = new Date();
         const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
-        const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id
+        const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager']?.id
 
         const timesheetData = {
             user_id: session.user.id,
@@ -246,6 +251,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             message.success('ExpenseSheet Submitted.');
             setTotal()
             onAdd()
+            setLoading(false)
         }
     };
 
@@ -292,8 +298,8 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
                     </Select>
                 </Col>
                 <Col>
-                    <Button onClick={handleSubmit} disabled={!data}>Save Draft</Button>
-                    <Button type="primary" onClick={handleSubmit} className='ml-2'>Submit</Button>
+                    <Button onClick={handleSubmit} disabled={!data} loading={loading}>Save Draft</Button>
+                    <Button type="primary" onClick={handleSubmit} className='ml-2' loading={loading}>Submit</Button>
                 </Col>
             </Row>}
             <Table dataSource={data} columns={columns} pagination={false} summary={getSummary} scroll={{ x: 'max-content' }} />

@@ -186,7 +186,7 @@ const Users = () => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete - ${record?.user_name} ?`,
+            title: `Confirm deletion of ${record?.user_name} ?`,
             icon: <ExclamationCircleFilled />,
             okText: 'Yes',
             okType: 'danger',

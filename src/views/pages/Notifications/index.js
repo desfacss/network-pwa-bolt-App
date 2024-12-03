@@ -203,7 +203,7 @@ const Notifications = () => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete this Notification - ${record?.title} ?`,
+            title: `Confirm deletion of Notification - ${record?.title} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',

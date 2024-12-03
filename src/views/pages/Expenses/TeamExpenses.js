@@ -100,7 +100,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     }, [startDate, endDate]);
 
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*)').neq('status', 'Approved')
+        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*),project:project_id(*)').neq('status', 'Approved')
             .eq('organization_id', session?.user?.organization_id)//.neq('user_id', session?.user?.id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {
@@ -199,24 +199,37 @@ const TeamExpenses = ({ startDate, endDate }) => {
             key: 'user_name',
         },
         {
-            title: 'Expense Type',
-            dataIndex: ['details', 'expenseType'],
-            key: 'expenseType',
+            title: 'Application',
+            key: 'submitted_time',
+            render: (record) => (
+                <div>
+                    {(record?.submitted_time || record?.created_at)?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")?.slice(0, 10)}
+                </div>
+            )
         },
         {
-            title: 'Reason',
-            dataIndex: ['details', 'reason'],
-            key: 'reason',
+            title: 'Project',
+            dataIndex: ['project', 'project_name'],
+            key: 'project_name',
         },
         {
-            title: 'Days',
-            dataIndex: ['details', 'daysTaken'],
-            key: 'daysTaken',
+            title: 'Amount (GBP)',
+            dataIndex: ['grand_total'],
+            key: 'grand_total',
         },
         {
-            title: 'Status',
+            title: 'status',
             dataIndex: 'status',
             key: 'status',
+        },
+        {
+            title: 'Review Date',
+            key: 'approved_time',
+            render: (record) => (
+                <div>
+                    {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
+                </div>
+            )
         },
         {
             title: 'Actions',

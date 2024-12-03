@@ -227,7 +227,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       message.error('User is not authenticated.');
       return;
     }
-
+    setLoading(true)
     const timesheetDetails = generateRows(selectedProjectColumns[0]).map(day => {
       const dailyEntry = {
         key: day.key,
@@ -279,17 +279,17 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       })
     }
 
-    const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id
+    const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager']?.id
 
     const timesheetPayload = {
       user_id: session.user.id,
-      timesheet_date: currentDate.toISOString(),
+      timesheet_date: currentDate?.toISOString(),
       timesheet_type: viewMode,
       status,
       details: timesheetDetails,
       project_details: projectDetails,
       approver_id,
-      last_date: lastDate.toISOString(),
+      last_date: lastDate?.toISOString(),
       submitted_time: new Date(),
       organization_id: session?.user?.organization_id,
     };
@@ -298,11 +298,12 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       username: session?.user?.user_name,
       approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
       hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
-      applicationDate: `for the week staring ${currentDate?.toISOString()?.slice(0, 10)?.replace("T", " ")}`,
+      // applicationDate: `for the week staring ${currentDate?.toISOString()?.slice(0, 10)?.replace("T", " ")}`,
+      applicationDate: `for the week Ending ${getSunday(currentDate)}`,
       submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
     })]
 
-    // console.log("Payload", emailPayload)
+    console.log("Payload", emailPayload)
     try {
       if (existingTimesheetId) {
         // Update existing timesheet
@@ -324,9 +325,10 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
         }
       }
       setProjectData()
-      closeDrawer()
-      // console.log("Pr", projectDetails)
       fetchTimesheets()
+      closeDrawer()
+      setLoading(false)
+      // console.log("Pr", projectDetails)
     } catch (error) {
       message.error(`Error submitting timesheet: ${error.message}`);
     }
@@ -497,7 +499,11 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
         return {
           title: (
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
-              <Select defaultValue={projectName} style={{ width: '100%', fontWeight: 'bold' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
+              <Select showSearch
+                filterOption={(input, option) =>
+                  (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                }
+                defaultValue={projectName} style={{ width: '100%', fontWeight: 'bold' }} onChange={(value) => handleProjectChange(value, columnIndex)} >
                 {getAvailableProjects()?.map((option) => (
                   <Option key={option?.id} value={option?.id} disabled={option?.disabled} style={{ fontWeight: 'bold' }}>
                     {option?.project_name}
@@ -564,6 +570,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     checkExistingTimesheet();
     setApprovedTimeSheet(isTimesheetDisabled(viewMode, currentDate));
     setHideNext(isHideNext(currentDate));
+    // console.log("Y", currentDate)
   }, [currentDate, viewMode]);
 
   const generateAllRows = () => {
@@ -715,9 +722,9 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   const timesheetColumns = [
     {
       title: 'Timesheet Date',
-      dataIndex: 'timesheet_date',
+      // dataIndex: 'timesheet_date',
       key: 'timesheet_date',
-      // render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
+      render: (record) => getSundayDate(record?.timesheet_date), // Format date as needed
     },
     {
       title: 'Submitted Time',
@@ -818,7 +825,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
   const showDeleteConfirm = (record) => {
     confirm({
-      title: `Are you sure delete ${record?.timesheet_date} timesheet?`,
+      title: `Confirm deletion of timesheet - ${record?.timesheet_date}?`,
       icon: <ExclamationCircleFilled />,
       // content: 'Some descriptions',
       okText: 'Yes',
@@ -831,6 +838,37 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       },
     });
   };
+
+  const getSunday = (day) => {
+    const monday = new Date(day);
+
+    // Add 6 days to get to the upcoming Sunday
+    const upcomingSunday = new Date(monday);
+    upcomingSunday?.setDate(monday?.getDate() + 6);
+
+    // Format the date to the desired string format
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    // return upcomingSunday.toLocaleDateString('en-US', options);
+    return upcomingSunday?.toDateString()?.slice(4, 10);
+  }
+
+  const getSundayDate = (day) => {
+    const monday = new Date(day);
+
+    // Add 6 days to get the upcoming Sunday
+    const upcomingSunday = new Date(monday);
+    upcomingSunday.setDate(monday.getDate() + 6);
+
+    // Format the date to "YYYY-MM-DD"
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero
+      const day = String(date.getDate()).padStart(2, '0');       // Add leading zero
+      return `${year}-${month}-${day}`;
+    };
+
+    return formatDate(upcomingSunday);
+  }
 
   return (
     <>
@@ -858,12 +896,13 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
             </Col>
             <Col>
               <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
-              <span className='m-2'>{currentDate.toDateString()}</span>
+              {/* <span className='m-2'>{currentDate.toDateString()}</span> */}
+              <span className='m-2'>Week Ending - {getSunday(currentDate)}</span>
               <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
             </Col>
             {approvedTimeSheet ? "Approved" : <Col>
-              <Button onClick={() => handleSubmit('Draft')}>Save</Button>
-              <Button onClick={() => handleSubmit('Submitted')} disabled={submitDisabled} className='ml-2 mr-2'>Submit</Button>
+              <Button onClick={() => handleSubmit('Draft')} loading={loading}>Save</Button>
+              <Button onClick={() => handleSubmit('Submitted')} loading={loading} disabled={submitDisabled} className='ml-2 mr-2'>Submit</Button>
               <TimesheetInstructions />
             </Col>}
           </Row>

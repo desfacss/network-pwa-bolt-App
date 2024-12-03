@@ -330,7 +330,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete  - ${record.project_name} ?`,
+            title: `Confirm deletion of ${record.project_name} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',

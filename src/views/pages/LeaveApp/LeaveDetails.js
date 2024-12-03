@@ -18,7 +18,7 @@ const LeaveDetails = ({ userId }) => {
         if (error) {
             console.error("Error fetching report data:", error);
         } else {
-            console.log("Report Data", data)
+            // console.log("Report Data", data)
             setLeaveDetails(data);
         }
     };
@@ -68,7 +68,7 @@ const LeaveDetails = ({ userId }) => {
                 <Col key={leave.key} xs={24} sm={12} md={8} lg={6}>
                     <Card>
                         <div>
-                            <h4>{leave.project_name}</h4>
+                            <h4>{leave?.project_name}</h4>
                         </div>
                         <strong>{Number(leave?.details?.allocated_hours / standardDailyHours) - Number(leave?.details?.expensed_hours / standardDailyHours)}</strong> of <strong>{leave?.details?.allocated_hours / standardDailyHours}</strong> available
                         <Tooltip title={"Balance after timesheet approval"} placement="rightBottom" >
@@ -77,7 +77,7 @@ const LeaveDetails = ({ userId }) => {
                         {/* <div>
                             Allocated Leaves: {leave?.details?.allocated_hours / standardDailyHours} Days
                         </div> */}
-                        <div>Leave Approved: <strong>{user?.leave_details[leave?.project_id]?.taken || 0}</strong> days
+                        <div>Leave Approved: <strong>{(user && user?.leave_details && user?.leave_details[leave?.project_id]?.taken) || 0}</strong> days
                             <Tooltip title={"Leave application approved"} placement="rightBottom" >
                                 <QuestionCircleOutlined className='ml-2' />
                             </Tooltip>

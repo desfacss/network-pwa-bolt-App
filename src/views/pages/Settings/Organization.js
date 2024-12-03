@@ -26,7 +26,7 @@ const OrganizationSetup = () => {
             } else {
                 setOrganizationData(data);
                 form.setFieldsValue({
-                    organizationName: data.name,
+                    name: data.name,
                     organizationLogo: data.details?.organizationLogo || null,
                     street: data.details?.organizationAddress?.street,
                     city: data.details?.organizationAddress?.city,
@@ -59,7 +59,7 @@ const OrganizationSetup = () => {
         setLoading(true);
 
         const organizationDetails = {
-            organizationName: values.organizationName,
+            name: values.name,
             organizationLogo: values.organizationLogo ? values.organizationLogo[0].response.url : null,
             organizationAddress: {
                 street: values.street,
@@ -92,7 +92,7 @@ const OrganizationSetup = () => {
         const { data, error } = await supabase
             .from('organizations')
             .update({
-                name: values.organizationName,
+                name: values.name,
                 details: organizationDetails,
                 updated_at: new Date(),
             })
@@ -112,7 +112,7 @@ const OrganizationSetup = () => {
             {/* Organization Details */}
             <Row gutter={16}>
                 <Col span={8}>
-                    <Form.Item label="Organization Name" name="organizationName" rules={[{ required: true, message: 'Please input the organization name' }]}>
+                    <Form.Item label="Organization Name" name="name" rules={[{ required: true, message: 'Please input the organization name' }]}>
                         <Input disabled />
                     </Form.Item>
                 </Col>

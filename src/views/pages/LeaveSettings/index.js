@@ -99,7 +99,7 @@ const LeaveSettings = () => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete  - ${record.leave_type} ?`,
+            title: `Confirm deletion of ${record.leave_type} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',

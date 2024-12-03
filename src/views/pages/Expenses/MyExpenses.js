@@ -54,7 +54,7 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure delete ${record?.expense_date} for ${record?.project?.project_name} ?`,
+            title: `Confirm deletion of Expense Sheet - ${(record?.submitted_time || record?.created_at)?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")?.slice(0, 10)} for ${record?.project?.project_name} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',
@@ -63,10 +63,10 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
             onOk: async () => {
                 const { error } = await supabase.from('expensesheet').delete().eq('id', record?.id);
                 if (!error) {
-                    notification.success({ message: "Expense  deleted successfully" });
+                    notification.success({ message: "Expense Sheet deleted successfully" });
                     fetchExpenses();
                 } else {
-                    notification.error({ message: error?.message || "Failed to delete Expense " });
+                    notification.error({ message: error?.message || "Failed to delete Expense Sheet" });
                 }
             },
             onCancel() {
@@ -81,7 +81,7 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
             key: 'submitted_time',
             render: (record) => (
                 <div>
-                    {record?.submitted_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")}
+                    {(record?.submitted_time || record?.created_at)?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")?.slice(0, 10)}
                 </div>
             )
         },

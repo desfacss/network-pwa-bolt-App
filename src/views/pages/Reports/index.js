@@ -214,22 +214,28 @@ const ReportComponent = () => {
                 <h2 style={{ margin: 0 }}>Reports</h2>
             </div>
             <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <Select
+                <Select showSearch
+                    filterOption={(input, option) =>
+                        (option?.children ?? "").toLowerCase().includes(input?.toLowerCase())
+                    }
                     placeholder="Select User"
                     onChange={setUserId}
                     style={{ width: 200 }}
                 >
-                    {users.map((user) => (
-                        <Option key={user.id} value={user.id}>{user.user_name}</Option>
+                    {users?.map((user) => (
+                        <Option key={user?.id} value={user?.id}>{user?.user_name}</Option>
                     ))}
                 </Select>
-                <Select
+                <Select showSearch
+                    filterOption={(input, option) =>
+                        (option?.children ?? "").toLowerCase().includes(input?.toLowerCase())
+                    }
                     placeholder="Select Project"
                     onChange={setProjectName}
                     style={{ width: 200 }}
                 >
-                    {projects.map((project) => (
-                        <Option key={project.id} value={project.id}>{project.project_name}</Option>
+                    {projects?.map((project) => (
+                        <Option key={project?.id} value={project?.id}>{project?.project_name}</Option>
                     ))}
                 </Select>
                 <RangePicker onChange={(dates) => setDateRange(dates)} />

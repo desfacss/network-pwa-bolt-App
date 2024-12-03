@@ -72,13 +72,33 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
         }
     }, [startDate, endDate]);
 
+
+    const getSundayDate = (day) => {
+        const monday = new Date(day);
+
+        // Add 6 days to get the upcoming Sunday
+        const upcomingSunday = new Date(monday);
+        upcomingSunday.setDate(monday.getDate() + 6);
+
+        // Format the date to "YYYY-MM-DD"
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero
+            const day = String(date.getDate()).padStart(2, '0');       // Add leading zero
+            return `${year}-${month}-${day}`;
+        };
+
+        return formatDate(upcomingSunday);
+    }
+
     // Define the columns for the table
     const columns = [
         {
             title: 'Timesheet Date',
-            dataIndex: 'timesheet_date',
+            // dataIndex: 'timesheet_date',
             key: 'timesheet_date',
-            render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
+            // render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
+            render: (record) => getSundayDate(record?.timesheet_date),
         },
         {
             title: 'Name',

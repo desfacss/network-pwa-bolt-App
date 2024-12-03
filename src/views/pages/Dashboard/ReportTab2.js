@@ -313,7 +313,10 @@ const TimesheetComponent = ({ data, printRef }) => {
                             format="YYYY-MM-DD"
                         /> */}
 
-                        <Select allowClear
+                        <Select allowClear showSearch
+                            filterOption={(input, option) =>
+                                (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                            }
                             value={selectedUserId}
                             onChange={setSelectedUserId}
                             style={{ width: 200, marginBottom: 16 }}
@@ -346,7 +349,10 @@ const TimesheetComponent = ({ data, printRef }) => {
                             format="YYYY-MM-DD"
                         /> */}
 
-                        <Select allowClear
+                        <Select allowClear showSearch
+                            filterOption={(input, option) =>
+                                (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                            }
                             value={selectedProjectName}
                             onChange={setSelectedProjectName}
                             style={{ width: 200, marginBottom: 16 }}

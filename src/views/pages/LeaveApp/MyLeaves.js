@@ -122,7 +122,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
         const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
         console.log("a")
 
-        const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager_id']?.id
+        const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager']?.id
 
         const payload = {
             details: values,
@@ -204,7 +204,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
 
     const showDeleteConfirm = async (record) => {
         confirm({
-            title: `Are you sure, You want to delete ${record?.details?.leaveType} from ${record?.details?.fromDate} to ${record?.details?.toDate} ?`,
+            title: `Confirm deletion of ${record?.details?.leaveType} from ${record?.details?.fromDate} to ${record?.details?.toDate} ?`,
             icon: <ExclamationCircleFilled />,
             //   content: 'Some descriptions',
             okText: 'Yes',
