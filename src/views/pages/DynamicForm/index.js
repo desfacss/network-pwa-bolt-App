@@ -1,9 +1,10 @@
 import Form from "@rjsf/antd";
 // import { RJSFSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-import { Card, Spin } from "antd";
+import { Spin } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 // import { ReactElement } from "react";
 // import schema from "./FormSchema.json";
 import ObjectFieldTemplate from "./ObjectFieldTemplate.tsx";
@@ -12,6 +13,9 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     const [enums, setEnums] = useState()
     const [schema, setSchema] = useState()
     const [userId, setUserId] = useState();
+
+    const { session } = useSelector((state) => state.auth);
+
     useEffect(() => {
         const getUser = async () => {
             supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -23,9 +27,9 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
     useEffect(() => {
         const getEnums = async () => {
-            let { data, error } = await supabase.from('enums').select('*')
+            let { data, error } = await supabase.from('enums').select('*').eq('organization_id', session?.user?.organization_id)
             if (data) {
-                console.log("Enums", data)
+                // console.log("Enums", data)
                 setEnums(data)
             }
         }
@@ -42,7 +46,8 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                 // Initialize the Supabase query
                 let query = supabase
                     .from(table)
-                    .select(`${noId ? "" : "id, "}${normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn}`);
+                    .select(`${noId ? "" : "id, "}${normalizedColumn.includes('.') ? `${normalizedColumn} ->>` : normalizedColumn}`)
+                    .eq('organization_id', session?.user?.organization_id);
                 // .select('*');
                 // Iterate over filters and chain them directly onto the query
                 filters?.forEach(filter => {
@@ -63,7 +68,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
                 // Execute the constructed query
                 const { data, error } = await query;
-                console.log("filters,", table, data, error);
+                // console.log("filters,", table, data, error);
 
                 if (error) {
                     console.error("Error fetching data from Supabase:", error);
@@ -169,7 +174,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                     } else if (typeof enumValue === 'object' && enumValue.table && enumValue.column) {
                         // Handle the new case where `enum` is an object with a table and column
                         const options = await fetchDataForDropdown(enumValue.table, enumValue.column, filterConditions, noId);
-                        console.log("Op", options);
+                        // console.log("Op", options);
                         obj[key] = {
                             type: obj[key]?.type,
                             title: obj[key].title,
@@ -189,7 +194,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
             if (schemas && enums) {
                 const schemaCopy = JSON.parse(JSON.stringify(schemas));
                 await replaceEnums(schemaCopy);
-                console.log("Updated schema", schemaCopy);
+                // console.log("Updated schema", schemaCopy);
                 setSchema(schemaCopy);
             }
         };

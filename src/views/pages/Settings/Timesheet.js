@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, Switch, InputNumber, Collapse, message, Divider } from "antd";
+import { Form, Button, Select, Switch, InputNumber, Collapse, message, Divider } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 // import supabase from "../supabase"; // Adjust this import to your Supabase client instance
@@ -19,7 +19,6 @@ const TimesheetSettings = ({ locationId }) => {
 
     const fetchSettings = async () => {
         setLoading(true);
-        console.log("id", session?.user?.organization)
         const { data, error } = await supabase
             .from("organizations")
             .select("*")
@@ -55,15 +54,15 @@ const TimesheetSettings = ({ locationId }) => {
             form={form}
             onFinish={onFinish}
             layout="vertical"
-            initialValues={{ approvalWorkflow: { defaultApprover: 'manager' }, breakPolicy: {} }}
+        // initialValues={{ approvalWorkflow: { defaultApprover: 'manager' }, breakPolicy: {} }}
         >
-            <Collapse defaultActiveKey={["1"]}>
+            <Collapse defaultActiveKey={["1"]} >
                 {/* 1. Timesheet Approval Workflow */}
-                <Panel header="Approval Workflow" key="1">
+                <Panel forceRender header="Approval Workflow" key="1">
                     {/* <Form.Item name={["approvalWorkflow", "enableApproval"]} label="Enable Approval Workflow" valuePropName="checked">
                         <Switch disabled />
                     </Form.Item> */}
-                    <Form.Item name={["approvalWorkflow", "defaultApprover"]} label="Default Approver">
+                    <Form.Item name={["approvalWorkflow", "defaultApprover"]} label="Default Approver" required={true}>
                         <Select>
                             <Option value="manager">Line Manager</Option>
                             <Option value="hr">HR Partner</Option>
@@ -99,7 +98,7 @@ const TimesheetSettings = ({ locationId }) => {
                 </Panel>
 
                 {/* 2. Time Entry Rounding */}
-                {/* <Panel header="Time Entry Rounding" key="2">
+                {/* <Panel forceRender header="Time Entry Rounding" key="2">
                     <Form.Item name={["timeEntryRounding", "roundTimeEntries"]} label="Round Time Entries" valuePropName="checked">
                         <Switch />
                     </Form.Item>
@@ -127,7 +126,7 @@ const TimesheetSettings = ({ locationId }) => {
                 </Panel> */}
 
                 {/* 3. Default Working Hours */}
-                <Panel header="Default Working Hours" key="3">
+                <Panel forceRender header="Default Working Hours" key="3">
                     <Form.Item name={["workingHours", "standardDailyHours"]} label="Standard Daily Hours" disable >
                         <InputNumber min={1} max={24} />
                     </Form.Item>
@@ -149,7 +148,7 @@ const TimesheetSettings = ({ locationId }) => {
                 </Panel>
 
                 {/* 4. Overtime Tracking
-                <Panel header="Overtime Tracking" key="4">
+                <Panel forceRender header="Overtime Tracking" key="4">
                     <Form.Item name={["overtimeTracking", "enableOvertime"]} label="Enable Overtime" valuePropName="checked">
                         <Switch disabled />
                     </Form.Item>
@@ -165,7 +164,7 @@ const TimesheetSettings = ({ locationId }) => {
                 </Panel> */}
 
                 {/* 5. Break Policy */}
-                {/* <Panel header="Break Policy" key="5">
+                {/* <Panel forceRender header="Break Policy" key="5">
                     <Form.Item name={["breakPolicy", "enableBreakTracking"]} label="Enable Break Tracking" valuePropName="checked">
                         <Switch />
                     </Form.Item>
