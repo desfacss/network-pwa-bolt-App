@@ -39,7 +39,8 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
         const { data, error } = await supabase.rpc('get_projects_with_allocation_v2', {
             userid: session?.user?.id,
             include_leaves: false,
-            include_non_project: true
+            include_non_project: true,
+            include_allocation_tracking: true
         }); // Call the stored function
         if (error) {
             console.error('Error fetching projects:', error);

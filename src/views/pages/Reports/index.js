@@ -35,12 +35,12 @@ const ReportComponent = () => {
     };
 
     const fetchProjects = async () => {
-        // const { data, error } = await supabase.from('projects').select('id, project_name');
-        const { data, error } = await supabase.rpc('get_projects_with_allocation_v2', {
-            userid: null,
-            include_leaves: false,
-            include_non_project: true
-        });
+        const { data, error } = await supabase.from('projects').select('id, project_name').eq('organization_id', session?.user?.organization_id);
+        // const { data, error } = await supabase.rpc('get_projects_with_allocation_v2', {
+        //     userid: null,
+        //     include_leaves: false,
+        //     include_non_project: true
+        // });
         if (error) console.error(error);
         else setProjects(data);
     };
