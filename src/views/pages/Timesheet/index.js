@@ -1,7 +1,7 @@
 import { Button, Card, DatePicker, Drawer, Tabs } from 'antd'
 import React, { useRef, useState } from 'react'
 // import Timesheet from './AntDTable-v'
-import Timesheet from './timeMain'
+import Timesheet from './timesheet'
 // import MyTimesheetTable from './MyTimesheetTable';
 import TeamTimesheetTable from './TeamTimesheetTable';
 import { useSelector } from 'react-redux';

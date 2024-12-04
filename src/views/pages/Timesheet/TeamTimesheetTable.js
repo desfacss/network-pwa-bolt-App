@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, message, Button, Drawer, Tooltip } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
-import Review1 from '../Review/Review1';
+import Review1 from '../Review/Review';
 // import { supabase } from './supabaseClient'; // Import your Supabase client or API
 import { format } from 'date-fns';
 
