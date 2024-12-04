@@ -40,7 +40,7 @@ const ReportComponent = () => {
 
     const fetchProjects = async () => {
         // const { data, error } = await supabase.from('projects').select('id, project_name');
-        const { data, error } = await supabase.rpc('get_projects_with_allocation', {
+        const { data, error } = await supabase.rpc('get_projects_with_allocation_v2', {
             userid: null,
             include_leaves: false,
             include_non_project: true

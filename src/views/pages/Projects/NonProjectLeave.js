@@ -702,7 +702,7 @@ const NonProjectLeave = () => {
                     </Row>
                     <Row gutter={16}>
                         <Col xs={24} md={12}>
-                            <Form.Item name="start_date" label="start_date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
+                            <Form.Item name="start_date" label="Start Date" format={dateFormat} rules={[{ required: true, message: 'Please select the Start date' }]}>
                                 <DatePicker style={{ width: '100%' }}
                                     disabledDate={(current) => {
                                         const endDate = form.getFieldValue('end_date');
@@ -712,7 +712,7 @@ const NonProjectLeave = () => {
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
-                            <Form.Item name="end_date" label="end_date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
+                            <Form.Item name="end_date" label="End Date" format={dateFormat} rules={[{ required: true, message: 'Please select the End date' }]}>
                                 <DatePicker style={{ width: '100%' }}
                                     disabledDate={(current) => {
                                         const startDate = form.getFieldValue('start_date');

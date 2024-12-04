@@ -292,7 +292,8 @@ const TimesheetComponent = ({ data, printRef }) => {
                                 ]);
                             }}
                             // onChange={(date) => { console.log(date[0]); setDateRange([date?.startDate, date?.endDate]) }} 
-                            style={{ marginBottom: '20px' }} />
+                            // style={{ marginBottom: '20px' }} 
+                            />
                         <Checkbox className='ml-2'
                             checked={nonProject}
                             onChange={(e) => { setSelectedProjectName(); setNonProject(e.target.checked) }}

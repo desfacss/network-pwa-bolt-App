@@ -96,7 +96,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     // const { data, error } = await supabase.from('projects').select('*')
     // .or(`project_users.cs.{${session?.user?.id}},project_users.is.null`)
 
-    const { data, error } = await supabase.rpc('get_projects_with_allocation', { userid: session?.user?.id })
+    const { data, error } = await supabase.rpc('get_projects_with_allocation_v2', { userid: session?.user?.id })
 
     // .contains('project_users', [session?.user?.id]);
     if (data) {

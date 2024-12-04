@@ -27,10 +27,10 @@ const TeamExpenses = ({ startDate, endDate }) => {
     const [form] = Form.useForm();
 
     const fetchProjects = async () => {
-        const { data, error } = await supabase.rpc('get_projects_with_allocation', {
+        const { data, error } = await supabase.rpc('get_projects_with_allocation_v2', {
             userid: session?.user?.id,
             include_leaves: false,
-            include_non_project: false
+            include_non_project: true
         }); // Call the stored function
         if (error) {
             console.error('Error fetching projects:', error);
