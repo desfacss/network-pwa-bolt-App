@@ -1,6 +1,6 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Modal, Tooltip } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
@@ -160,22 +160,10 @@ const Clients = () => {
             render: (_, record) => (
                 <div className="d-flex">
                     <Tooltip title="Edit">
-                        <Button
-                            type="primary"
-                            icon={<EditFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record)}
-                        />
+                        <Button type="primary" icon={<EditFilled />} size="small" className="mr-2" onClick={() => handleEdit(record)} />
                     </Tooltip>
                     <Tooltip title="Delete">
-                        <Button
-                            type="primary" ghost
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            // onClick={() => handleDelete(record.id)}
-                            onClick={() => showDeleteConfirm(record)}
-                        />
+                        <Button type="primary" ghost icon={<DeleteOutlined />} size="small" onClick={() => showDeleteConfirm(record)} />
                     </Tooltip>
                 </div>
             ),
@@ -186,42 +174,21 @@ const Clients = () => {
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Clients</h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)} >
                     Add Client
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    columns={columns}
-                    dataSource={clients}
-                    rowKey={(record) => record.id}
-                    loading={!clients}
-                    pagination={true}
-                />
+                <Table size={'small'} columns={columns} dataSource={clients}
+                    rowKey={(record) => record.id} loading={!clients} pagination={true} />
             </div>
-            <Drawer footer={null} width={500} //size="large"
-                title={editItem ? "Edit Client" : "Add Client"}
-                open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
-                <DynamicForm schemas={schema}
-                    onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.details} />
+            <Drawer footer={null} width={500} title={editItem ? "Edit Client" : "Add Client"}
+                open={isDrawerOpen} maskClosable={false} onClose={() => { setIsDrawerOpen(false); setEditItem() }}
+                onOk={() => form.submit()} okText="Save" >
+                <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem?.details} />
             </Drawer>
-            <Modal
-                title="Confirm Delete"
-                visible={deleteModalVisible}
-                onOk={handleDelete}
-                onCancel={() => setDeleteModalVisible(false)}
-                okText="Delete"
-                okButtonProps={{ danger: true }}
-            >
+            <Modal title="Confirm Delete" visible={deleteModalVisible} onOk={handleDelete}
+                onCancel={() => setDeleteModalVisible(false)} okText="Delete" okButtonProps={{ danger: true }} >
                 <p>Are you sure you want to delete this client?</p>
             </Modal>
         </Card>

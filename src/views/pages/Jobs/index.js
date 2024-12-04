@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input } from "antd";
+import { Button, Card, notification, Table, Drawer, Form } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";

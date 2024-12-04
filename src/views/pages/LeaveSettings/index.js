@@ -1,4 +1,4 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Modal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
@@ -19,9 +19,8 @@ const LeaveSettings = () => {
 
     const getForms = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "leaves_add_edit_form").single()
-        console.log("A", data)
         if (data) {
-            console.log(data)
+            // console.log(data)
             setSchema(data)
         }
     }
@@ -141,30 +140,13 @@ const LeaveSettings = () => {
             dataIndex: 'allocated',
             key: 'allocated',
         },
-        // {
-        //     title: 'Users',
-        //     dataIndex: ['details', 'leave_users'],
-        //     key: 'leave_users',
-        //     render: (leave_users) => leave_users?.join(', '),
-        // },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
-                    />
-                    <Button
-                        type="primary" ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => showDeleteConfirm(record)}
-                    />
+                    <Button type="primary" icon={<EditFilled />} size="small" className="mr-2" onClick={() => handleEdit(record)} />
+                    <Button type="primary" ghost icon={<DeleteOutlined />} size="small" onClick={() => showDeleteConfirm(record)} />
                 </div>
             ),
         },
@@ -174,33 +156,20 @@ const LeaveSettings = () => {
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Leaves</h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)} >
                     Add Leave
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    columns={columns}
-                    dataSource={leaves}
-                    rowKey={(record) => record.id}
-                    loading={!leaves}
-                    pagination={false}
-                />
+                <Table size={'small'} columns={columns} dataSource={leaves} rowKey={(record) => record.id}
+                    loading={!leaves} pagination={false} />
             </div>
             <Drawer footer={null} // width={'100%'} //size="large"
                 title={editItem ? "Edit Leave" : "Add Leave"}
                 open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setIsDrawerOpen(false); setEditItem() }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
-                <DynamicForm schemas={schema}
-                    onFinish={handleAddOrEdit}
-                    formData={editItem && editItem} />
+                onOk={() => form.submit()} okText="Save" >
+                <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem} />
             </Drawer>
         </Card>
     );

@@ -49,9 +49,8 @@ const LeaveApplications = ({ startDate, endDate }) => {
 
     const getApprovalForm = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_approval_form").single()
-        // console.log("A", data)
         if (data) {
-            console.log(data)
+            // console.log(data)
             setSchema(data)
         }
     }

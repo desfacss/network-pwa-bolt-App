@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Tabs, Card, Row, Col, Descriptions, Button, Modal, Divider } from 'antd';
+import React, { useState } from 'react';
+import { Card, Descriptions, Button, Modal, Divider } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
-// import DynamicForm from '../net_app/DynamicForm';
-// import DynamicFormCustom from '../net_app/DynamicFormCustom';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-// import PivotTableComponent from './PT';
-// import Timesheet from './AntDTable9';
-// import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
-import FileUpload from './FileUpload';
+// import FileUpload from './FileUpload';
 import { useNavigate } from 'react-router-dom';
-// import Timesheet1 from './working-static-fixed';
 
 const Profile = () => {
     const [schema, setSchema] = useState();
@@ -30,9 +24,8 @@ const Profile = () => {
 
     const getForms = async (formName) => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', formName).single()
-        console.log(data, formName)
         if (data) {
-            console.log(data)
+            // console.log(data)
             setSchema(data)
         }
     }
@@ -45,7 +38,7 @@ const Profile = () => {
     };
 
     const onFinish = async (values) => {
-        console.log("payload", values, formData);
+        // console.log("payload", values, formData);
         const { data, error } = await supabase.from('users')
             .update({
                 role_type: values?.role_type,
@@ -80,10 +73,7 @@ const Profile = () => {
         <Card>
             {(edit && schema) && <Modal footer={null}
                 title={schema?.data_schema?.title || ""}
-                visible={edit}
-                onOk={handleOk}
-                onCancel={handleCancel}
-            >
+                visible={edit} onOk={handleOk} onCancel={handleCancel} >
                 {/* <DynamicForm schema={schema?.data} initialValues={[{ ...formData }]} /> */}
                 <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
             </Modal>}

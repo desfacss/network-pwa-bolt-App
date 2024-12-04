@@ -2,13 +2,11 @@ import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePic
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
-import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
 const { confirm } = Modal;
 
 const Notifications = () => {
-    // const [form] = Form.useForm();
     const componentRef = useRef(null);
     const [notifications, setNotifications] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -18,21 +16,20 @@ const Notifications = () => {
     const [users, setUsers] = useState([]);
     const [locations, setLocations] = useState([]);
     const dateFormat = 'YYYY/MM/DD';
-    // Fetch users from Supabase
+
     useEffect(() => {
         const fetchUsers = async () => {
             const { data, error } = await supabase.from('users').select('id, user_name').eq('organization_id', session?.user?.organization_id);
             if (error) {
                 console.error('Error fetching users:', error);
             } else {
-                console.log("US", data)
+                // console.log("US", data)
                 setUsers(data || []);
             }
         };
         fetchUsers();
     }, []);
 
-    // Fetch locations from Supabase
     useEffect(() => {
         const fetchLocations = async () => {
             const { data, error } = await supabase.from('locations').select('id, name').eq('organization_id', session?.user?.organization_id);
@@ -52,9 +49,8 @@ const Notifications = () => {
 
     const getForms = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "add_edit_notifications_form").single()
-        console.log("A", data)
         if (data) {
-            console.log(data)
+            // console.log(data)
             setSchema(data)
         }
     }
@@ -67,7 +63,7 @@ const Notifications = () => {
     const fetchNotifications = async () => {
         let { data, error } = await supabase.from('notifications').select('*').eq('organization_id', session?.user?.organization_id);
         if (data) {
-            console.log("Notifications", data);
+            // console.log("Notifications", data);
             setNotifications(data);
         }
         if (error) {
@@ -123,56 +119,6 @@ const Notifications = () => {
         }
     };
 
-
-    // const handleAddOrEdit = async (values) => {
-    //     const { type, ...rest } = values;
-    //     let payload = { ...rest, users: null, locations: null, type: type, expiry: values?.expiry?.format(dateFormat) };
-
-    //     if (type === 'users') {
-    //         payload.users = values.users;
-    //         // delete payload?.locations
-    //     } else if (type === 'location') {
-    //         payload.locations = values.locations;
-    //     }
-    //     // delete payload?.users
-    //     // } else if (type === 'public') {
-    //     //     delete payload?.locations
-    //     //     delete payload?.users
-    //     // }
-    //     console.log("payload", payload);
-    //     // const { service_name, cost, duration, description } = values;
-    //     // console.log("Pyload", values)
-    //     if (editItem) {
-    //         // Update existing service
-    //         const { data, error } = await supabase
-    //             .from('notifications')
-    //             .update(payload)
-    //             .eq('id', editItem.id);
-
-    //         if (data) {
-    //             notification.success({ message: "Notification updated successfully" });
-    //             setEditItem(null);
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to update notification" });
-    //         }
-    //     } else {
-    //         // Add new notification
-    //         const { data, error } = await supabase
-    //             .from('notifications')
-    //             .insert([payload]);
-
-    //         if (data) {
-    //             notification.success({ message: "Notification added successfully" });
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to add notification" });
-    //         }
-    //     }
-    //     fetchNotifications();
-    //     setIsDrawerOpen(false);
-    //     form.resetFields();
-    //     setEditItem()
-    // };
-
     const handleEdit = (record) => {
         setEditItem(record);
         setType(record?.type)
@@ -190,16 +136,6 @@ const Notifications = () => {
         });
         setIsDrawerOpen(true);
     };
-
-    // const handleDelete = async (id) => {
-    //     const { error } = await supabase.from('notifications').delete().eq('id', id);
-    //     if (!error) {
-    //         notification.success({ message: "Notification deleted successfully" });
-    //         fetchNotifications();
-    //     } else {
-    //         notification.error({ message: "Failed to delete Notification" });
-    //     }
-    // };
 
     const showDeleteConfirm = async (record) => {
         confirm({
@@ -235,49 +171,24 @@ const Notifications = () => {
             dataIndex: 'message',
             key: 'message',
         },
-        // {
-        //     title: 'Expiry',
-        //     dataIndex: 'expiry',
-        //     key: 'expiry',
-        // },
         {
             title: 'Type',
             dataIndex: 'type',
             key: 'type',
         },
-        // {
-        //     title: 'Users',
-        //     dataIndex: 'users',
-        //     key: 'users',
-        //     render: (users) => users?.join(', '),
-        // },
-        // {
-        //     title: 'Service',
-        //     dataIndex: ['details', 'service_name'],
-        //     key: 'service_name',
-        // },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
                     <Tooltip title="Edit">
-                        <Button
-                            type="primary"
-                            icon={<EditFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record)}
-                        />
+                        <Button type="primary" icon={<EditFilled />} size="small"
+                            className="mr-2" onClick={() => handleEdit(record)} />
                     </Tooltip>
                     <Tooltip title="Delete">
-                        <Button
-                            type="primary" ghost
-                            icon={<DeleteOutlined />}
-                            size="small"
+                        <Button type="primary" ghost icon={<DeleteOutlined />} size="small"
                             // onClick={() => handleDelete(record.id)}
-                            onClick={() => showDeleteConfirm(record)}
-                        />
+                            onClick={() => showDeleteConfirm(record)} />
                     </Tooltip>
                 </div>
             ),
@@ -300,30 +211,18 @@ const Notifications = () => {
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Notifications</h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsDrawerOpen(true)}
-                >
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)} >
                     Add Notification
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    columns={columns}
-                    dataSource={notifications}
-                    rowKey={(record) => record.id}
-                    loading={!notifications}
-                    pagination={true}
-                />
+                <Table size={'small'} columns={columns} dataSource={notifications}
+                    rowKey={(record) => record.id} loading={!notifications} pagination={true} />
             </div>
-            <Drawer footer={null} width={500} //size="large"
-                title={editItem ? "Edit Notification" : "Add Notification"}
+            <Drawer footer={null} width={500} title={editItem ? "Edit Notification" : "Add Notification"}
                 open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setIsDrawerOpen(false); setEditItem() }}
                 // onOk={() => form.submit()}
-                okText="Save"
-            >
+                onClose={() => { setIsDrawerOpen(false); setEditItem() }} okText="Save" >
                 <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
                     <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please enter the Title' }]}>
                         <Input />
@@ -349,7 +248,6 @@ const Notifications = () => {
                             style={{ width: '100%' }} />
                     </Form.Item>
 
-                    {/* Conditional inputs based on type */}
                     {type === 'users' && (
                         <Form.Item name="users" label="Select Users" rules={[{ required: true, message: 'Please select Users' }]}>
                             <Select mode="multiple" placeholder="Select users">
@@ -379,9 +277,6 @@ const Notifications = () => {
                         </Button>
                     </Form.Item>
                 </Form>
-                {/* <DynamicForm schemas={schema}
-                    onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.details} /> */}
             </Drawer>
         </Card>
     );

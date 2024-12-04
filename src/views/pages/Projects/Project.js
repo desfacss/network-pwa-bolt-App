@@ -1,17 +1,11 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Empty, Col, Row } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker, InputNumber, Modal, Tooltip, Empty, Col, Row } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
-import DynamicTable from "./DynamicTable";
-import ProjectForm from "./DynamicTable3";
-import App from "./A";
-// import App from "./CustomTemplate";
-// import DynamicForm from "../DynamicForm";
+
 const { confirm } = Modal;
-
-
 const { Option } = Select;
 
 const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
@@ -26,8 +20,6 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const [clone, setClone] = useState();
 
     const dateFormat = 'YYYY/MM/DD';
-    const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
-    // const [schema, setSchema] = useState();
 
     const getFormattedDate = (date) => {
         return date.toISOString().split('T')[0];
@@ -43,20 +35,6 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     const { session } = useSelector((state) => state.auth);
     const [form] = Form.useForm();
-
-
-    // const getForms = async () => {
-    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "x_project_form_array").single()
-    //     console.log("A", data)
-    //     if (data) {
-    //         console.log(data)
-    //         setSchema(data)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     getForms()
-    // }, []);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -179,60 +157,12 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
         setClone(null);
     };
 
-
-    // const handleAddOrEdit = async (values) => {
-    //     setIsInvalid(false)
-    //     console.log("PU", projectUsers)
-    //     const validData = validateData(projectUsers)
-    //     if (!validData) {
-    //         setIsInvalid(true)
-    //         return
-    //     }
-    //     const updatedDetails = {
-    //         ...values,
-    //         start_date: values?.start_date?.format(dateFormat),
-    //         end_date: values?.end_date?.format(dateFormat),
-    //         project_users: projectUsers
-    //     };
-    //     console.log(updatedDetails);
-    //     if (editItem) {
-    //         const { data, error } = await supabase
-    //             .from('projects')
-    //             .update({ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id })
-    //             .eq('id', editItem.id);
-
-    //         if (data) {
-    //             notification.success({ message: "Project updated successfully" });
-    //             setEditItem(null);
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to update project" });
-    //         }
-    //         console.log("Resp", supabase, data, error)
-    //     } else {
-    //         const { data, error } = await supabase
-    //             .from('projects')
-    //             .insert([{ details: updatedDetails, allocation_tracking: true, is_non_project: false, status: values?.status, project_users: projectUsers?.map(item => item?.user_id), project_name: values?.project_name, client_id: updatedDetails?.client_id, hrpartner_id: values?.hrpartner_id, manager_id: values?.manager_id }]);
-
-    //         if (data) {
-    //             notification.success({ message: "Project added successfully" });
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to add project" });
-    //         }
-    //         console.log("Resp", supabase, data, error)
-    //     }
-    //     fetchProjects();
-    //     setIsDrawerOpen(false);
-    //     form.resetFields();
-    //     setProjectUsers()
-    //     setEditItem(null);
-    // };
-
     const handleEdit = async (record, copy) => {
 
         // let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { project_id: record?.id });
         let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: record?.id });
 
-        console.log("RPC data", data)
+        // console.log("RPC data", data)
         if (data) {
             const item = {
                 id: record?.id,
@@ -273,7 +203,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     };
 
     const handleUserChange = (index, field, value) => {
-        console.log("PD", projectUsers)
+        // console.log("PD", projectUsers)
         setIsInvalid(false)
         const updatedUsers = [...projectUsers];
         updatedUsers[index][field] = value;
@@ -297,7 +227,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     };
 
     const removeUser = (index, record) => {
-        console.log("remove", record)
+        // console.log("remove", record)
         // const updatedUsers = projectUsers?.filter((_, i) => i !== index);
         // setProjectUsers(updatedUsers);
     };
@@ -318,12 +248,6 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             });
 
         });
-
-        // if (errors.length > 0) {
-        //     console.log(errors.join('\n'));
-        // } else {
-        //     console.log('Data is valid.');
-        // }
 
         return !(errors.length > 0);
     }
@@ -387,11 +311,6 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: ['details', 'project_name'],
             key: 'project_name',
         },
-        // {
-        //     title: 'Hours',
-        //     dataIndex: ['details', 'project_hours'],
-        //     key: 'project_hours',
-        // },
         {
             title: 'Description',
             dataIndex: ['details', 'description'],
@@ -413,31 +332,17 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             render: (_, record) => (
                 <div className="d-flex">
                     <Tooltip title="Edit">
-                        <Button
-                            type="primary"
-                            icon={<EditFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record)}
-                        />
+                        <Button type="primary" icon={<EditFilled />} size="small"
+                            className="mr-2" onClick={() => handleEdit(record)} />
                     </Tooltip>
                     <Tooltip title="Copy">
-                        <Button
-                            type="primary"
-                            icon={<CopyFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record, true)}
-                        />
+                        <Button type="primary" icon={<CopyFilled />} size="small"
+                            className="mr-2" onClick={() => handleEdit(record, true)} />
                     </Tooltip>
                     <Tooltip title="Delete">
-                        <Button
-                            type="primary" ghost
-                            icon={<DeleteOutlined />}
-                            size="small"
+                        <Button type="primary" ghost icon={<DeleteOutlined />} size="small"
                             // onClick={() => handleDelete(record.id)}
-                            onClick={() => showDeleteConfirm(record)}
-                        />
+                            onClick={() => showDeleteConfirm(record)} />
                     </Tooltip>
                 </div>
             ),
@@ -449,16 +354,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             title: 'User Name',
             dataIndex: 'user_id',
             render: (text, record, index) => (
-                // <Input
-                //     value={text}
-                //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
-                // />
                 <Select placeholder="Select users" style={{ minWidth: '120px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
-                    {/* {users?.map((user) => (
-                        <Select.Option key={user?.id} value={user?.id}>
-                            {user?.user_name}
-                        </Select.Option>
-                    ))} */}
                     {users?.map((user) => {
                         const isDisabled = projectUsers?.some((projectUser) => projectUser.user_id === user.id);
                         return (
@@ -475,10 +371,8 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'expensed_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input
-                    value={text} disabled
-                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)}
-                />
+                <Input value={text} disabled
+                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)} />
             ),
         },
         {
@@ -486,10 +380,8 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'allocated_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input
-                    value={text}
-                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)}
-                />
+                <Input value={text}
+                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)} />
             ),
         },
         {
@@ -497,9 +389,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'start_date',
             width: 150,
             render: (text, record, index) => (
-                <DatePicker
-                    value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }} allowClear={false}
+                <DatePicker value={dayjs(text?.replace('/', '-'), dateFormat)} style={{ width: '100%' }} allowClear={false}
                     format={dateFormat} maxDate={dayjs(projectUsers[index].end_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'start_date', e?.format(dateFormat))} />
             ),
@@ -509,9 +399,7 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'end_date',
             width: 150,
             render: (text, record, index) => (
-                <DatePicker
-                    value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }} allowClear={false}
+                <DatePicker value={dayjs(text?.replace('/', '-'), dateFormat)} style={{ width: '100%' }} allowClear={false}
                     // format="DD/MM/YYYY"
                     format={dateFormat} minDate={dayjs(projectUsers[index].start_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'end_date', e?.format(dateFormat))} />
@@ -540,36 +428,19 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            {/* <div className="d-flex p-2 justify-content-between align-items-center">
-                <h2 style={{ margin: 0 }}> </h2> */}
-            {/* <Button
-                type="primary"
-                // icon={<PlusOutlined />}
-                onClick={() => setIsDrawerOpen(true)}
-            >
-                Add Project
-            </Button> */}
-            {/* </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
                     locale={{
                         emptyText: <Empty description="No Data!" />,
                     }}
-                    columns={columns}
-                    dataSource={projects}
-                    rowKey={(record) => record.id}
-                    loading={!projects}
-                    pagination={true}
-                />
+                    columns={columns} dataSource={projects} rowKey={(record) => record.id}
+                    loading={!projects} pagination={true} />
             </div>
-            <Drawer //size="large"
-                footer={null}
-                width={1000}
+            <Drawer footer={null} width={1000}
                 title={(editItem && !clone) ? "Edit Project" : "Add Project"}
                 open={isDrawerOpen} maskClosable={false}
                 onClose={() => { setEditItem(null); form.resetFields(); setIsDrawerOpen(false); setProjectUsers(); setClone(false) }}
-                onOk={() => form.submit()}
-                okText="Save"
+                onOk={() => form.submit()} okText="Save"
             >
                 <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
                     <Row gutter={16}>
@@ -683,18 +554,6 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     </Form.Item>
                 </Form>
             </Drawer>
-            {/* <DatePicker /> */}
-
-            {/* <App /> */}
-
-
-            {/* {schema && <ProjectForm schema={schema?.data_schema} />} */}
-
-
-            {/* {schema && <DynamicTable schema={schema?.dataSchema} />} */}
-            {/* {schema && <DynamicForm schemas={schema}
-                onFinish={handleAddOrEdit}
-                formData={editItem && editItem?.details} />} */}
         </Card>
     );
 };

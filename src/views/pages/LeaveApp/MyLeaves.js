@@ -1,6 +1,6 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Modal, Tooltip } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Modal, Tooltip } from "antd";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
+import { EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
@@ -71,7 +71,6 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
     useEffect(() => {
         getForms()
         getLocationDetails()
-        // fetchLeaveApplications();
     }, []);
 
     useEffect(() => {
@@ -90,7 +89,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
         let { data, error } = await supabase.from('leave_applications').select('*').eq('user_id', session?.user?.id).eq('organization_id', session?.user?.organization_id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('created_at', { ascending: false });
         if (data) {
-            console.log("leaves", data);
+            // console.log("leaves", data);
             setLeaveApplications(data);
             // setRemainingSickLeaves(policy.sickleaves - totalSickLeaveTaken);
         }
@@ -120,7 +119,6 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
 
         const today = new Date();
         const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
-        console.log("a")
 
         const approver_id = session?.user[timesheet_settings?.approvalWorkflow?.defaultApprover || 'manager']?.id
 
@@ -142,7 +140,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
         })]
 
-        console.log("Payload", emailPayload)
+        // console.log("Payload", emailPayload)
         if (editItem) {
             // Update existing service
             const { data, error } = await supabase
@@ -191,16 +189,6 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
         });
         setIsDrawerOpen(true);
     };
-
-    // const handleDelete = async (id) => {
-    //     const { error } = await supabase.from('leave_applications').delete().eq('id', id);
-    //     if (!error) {
-    //         notification.success({ message: "Leave Application deleted successfully" });
-    //         fetchLeaveApplications();
-    //     } else {
-    //         notification.error({ message: error?.message || "Failed to delete Leave Application" });
-    //     }
-    // };
 
     const showDeleteConfirm = async (record) => {
         confirm({
@@ -327,19 +315,10 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    {record?.status !== 'Approved' && <Button
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
-                    />}
-                    {record?.status !== 'Approved' && <Button
-                        type="primary" ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => showDeleteConfirm(record)}
-                    />}
+                    {record?.status !== 'Approved' && <Button type="primary" icon={<EditFilled />} size="small"
+                        className="mr-2" onClick={() => handleEdit(record)} />}
+                    {record?.status !== 'Approved' && <Button type="primary" ghost icon={<DeleteOutlined />}
+                        size="small" onClick={() => showDeleteConfirm(record)} />}
                 </div>
             ),
         },
@@ -347,30 +326,18 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <LeaveDetails userId={session?.user?.id}
-            // leave_details={session?.user?.leave_details} 
-            />
+            <LeaveDetails userId={session?.user?.id} />
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    columns={columns}
-                    dataSource={leaveApplications}
-                    rowKey={(record) => record.id}
-                    loading={!leaveApplications}
-                    pagination={false}
-                />
+                <Table size={'small'} columns={columns} dataSource={leaveApplications} rowKey={(record) => record.id}
+                    loading={!leaveApplications} pagination={false} />
             </div>
             <Drawer footer={null} width="100%" //size="large"
                 title={editItem ? "Edit Leave Application" : "Add Leave Application"}
-                open={isDrawerOpen} maskClosable={false}
-                onClose={() => { setIsDrawerOpen(false); form.resetFields(); setEditItem(); }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
-                <DynamicForm schemas={schema}
-                    onFinish={handleAddOrEdit}
-                    formData={editItem && editItem?.details} />
+                open={isDrawerOpen} maskClosable={false} onOk={() => form.submit()} okText="Save"
+                onClose={() => { setIsDrawerOpen(false); form.resetFields(); setEditItem(); }} >
+                <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem?.details} />
             </Drawer>
         </Card>
     );

@@ -4,14 +4,8 @@ import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, Copy
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
-import DynamicTable from "./DynamicTable";
-import ProjectForm from "./DynamicTable3";
-import App from "./A";
-// import App from "./CustomTemplate";
-// import DynamicForm from "../DynamicForm";
 const { confirm } = Modal;
 
-const { Option } = Select;
 
 const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const componentRef = useRef(null);
@@ -23,8 +17,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const [users, setUsers] = useState([]);
     const [clients, setClients] = useState([]);
     const dateFormat = 'YYYY/MM/DD';
-    const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
-    const [schema, setSchema] = useState();
     const [allocationTracking, setAllocationTracking] = useState(false);
     const [clone, setClone] = useState();
     const [leaves, setLeaves] = useState([]);
@@ -42,20 +34,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     const { session } = useSelector((state) => state.auth);
     const [form] = Form.useForm();
-
-
-    // const getForms = async () => {
-    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "x_project_form_array").single()
-    //     console.log("A", data)
-    //     if (data) {
-    //         console.log(data)
-    //         setSchema(data)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     getForms()
-    // }, []);
 
     const fetchUsers = async () => {
         const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id);
@@ -203,56 +181,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         setEditItem(null);
         setClone(null);
     };
-
-
-    // const handleAddOrEdit = async (values) => {
-    //     setIsInvalid(false)
-    //     console.log("PU", values, projectUsers)
-    //     const validData = allocationTracking && validateData(projectUsers)
-    //     if (allocationTracking && !validData) {
-    //         setIsInvalid(true)
-    //         return
-    //     }
-
-    //     const updatedDetails = {
-    //         ...values,
-    //         start_date: values?.start_date?.format(dateFormat),
-    //         end_date: values?.end_date?.format(dateFormat),
-    //         project_users: allocationTracking ? projectUsers : []
-    //     };
-
-    //     !allocationTracking && delete updatedDetails?.projectUsers
-
-    //     console.log(updatedDetails);
-    //     if (editItem) {
-    //         const { data, error } = await supabase
-    //             .from('projects')
-    //             .update({ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id })
-    //             .eq('id', editItem?.id);
-
-    //         if (data) {
-    //             notification.success({ message: "Project updated successfully" });
-    //             setEditItem(null);
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to update project" });
-    //         }
-    //     } else {
-    //         const { data, error } = await supabase
-    //             .from('projects')
-    //             .insert([{ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id }]);
-
-    //         if (data) {
-    //             notification.success({ message: "Project added successfully" });
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to add project" });
-    //         }
-    //     }
-    //     fetchProjects();
-    //     setIsDrawerOpen(false);
-    //     form.resetFields();
-    //     setProjectUsers()
-    //     setEditItem(null);
-    // };
 
     const showUserDeleteConfirm = async (index, record) => {
         console.log("UU", projectUsers, record)
@@ -527,10 +455,8 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'expensed_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input
-                    value={text} disabled
-                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)}
-                />
+                <Input value={text} disabled
+                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)} />
             ),
         },
         {
@@ -538,10 +464,8 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'allocated_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input
-                    value={text}
-                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)}
-                />
+                <Input value={text}
+                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)} />
             ),
         },
         {
@@ -549,9 +473,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'start_date',
             width: 150,
             render: (text, record, index) => (
-                <DatePicker
-                    value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }} allowClear={false}
+                <DatePicker value={dayjs(text?.replace('/', '-'), dateFormat)} style={{ width: '100%' }} allowClear={false}
                     format={dateFormat} maxDate={dayjs(projectUsers[index].end_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'start_date', e?.format(dateFormat))} />
             ),
@@ -561,9 +483,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'end_date',
             width: 150,
             render: (text, record, index) => (
-                <DatePicker
-                    value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }} allowClear={false}
+                <DatePicker value={dayjs(text?.replace('/', '-'), dateFormat)} style={{ width: '100%' }} allowClear={false}
                     // format="DD/MM/YYYY"
                     format={dateFormat} minDate={dayjs(projectUsers[index].start_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'end_date', e?.format(dateFormat))} />
@@ -592,16 +512,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            {/* <div className="d-flex p-2 justify-content-between align-items-center"> */}
-            {/* <h2 style={{ margin: 0 }}> </h2> */}
-            {/* <Button
-                type="primary"
-                // icon={<PlusOutlined />}
-                onClick={() => setIsDrawerOpen(true)}
-            >
-                Add Non Project
-            </Button> */}
-            {/* </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
                     columns={columns}
@@ -692,18 +602,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     </Form.Item>
                 </Form>
             </Drawer>
-            {/* <DatePicker /> */}
-
-            {/* <App /> */}
-
-
-            {/* {schema && <ProjectForm schema={schema?.data_schema} />} */}
-
-
-            {/* {schema && <DynamicTable schema={schema?.dataSchema} />} */}
-            {/* {schema && <DynamicForm schemas={schema}
-                onFinish={handleAddOrEdit}
-                formData={editItem && editItem?.details} />} */}
         </Card>
     );
 };

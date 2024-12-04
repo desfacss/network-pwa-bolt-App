@@ -1,17 +1,11 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Row, Col } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker, InputNumber, Modal, Tooltip, Row, Col } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, ExclamationCircleOutlined, CopyFilled } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, ExclamationCircleFilled, ExclamationCircleOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
-import DynamicTable from "./DynamicTable";
-import ProjectForm from "./DynamicTable3";
-import App from "./A";
-// import App from "./CustomTemplate";
-// import DynamicForm from "../DynamicForm";
-const { confirm } = Modal;
 
-const { Option } = Select;
+const { confirm } = Modal;
 
 const NonProjectLeave = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -24,8 +18,6 @@ const NonProjectLeave = () => {
     const [users, setUsers] = useState([]);
     const [clients, setClients] = useState([]);
     const dateFormat = 'YYYY/MM/DD';
-    const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY', 'DD-MM-YYYY', 'DD-MM-YY'];
-    const [schema, setSchema] = useState();
     const [allocationTracking, setAllocationTracking] = useState(true);
     const [clone, setClone] = useState();
     const [leaves, setLeaves] = useState([]);
@@ -46,20 +38,6 @@ const NonProjectLeave = () => {
     const { timesheet_settings } = session?.user?.organization
 
     const [form] = Form.useForm();
-
-
-    // const getForms = async () => {
-    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "x_project_form_array").single()
-    //     console.log("A", data)
-    //     if (data) {
-    //         console.log(data)
-    //         setSchema(data)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     getForms()
-    // }, []);
 
     const fetchUsers = async () => {
         const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id);
@@ -168,9 +146,7 @@ const NonProjectLeave = () => {
                             project_id: projectId,
                             user_name,
                             details: {
-                                rate,
-                                end_date,
-                                start_date,
+                                rate, end_date, start_date,
                                 project_id: projectId,
                                 expensed_hours: parseFloat(expensed_hours), // Ensure numeric value
                                 allocated_hours: parseFloat(allocated_hours) // Ensure numeric value
@@ -206,56 +182,6 @@ const NonProjectLeave = () => {
         setClone(null);
     };
 
-
-    // const handleAddOrEdit = async (values) => {
-    //     setIsInvalid(false)
-    //     console.log("PU", values, projectUsers)
-    //     const validData = allocationTracking && validateData(projectUsers)
-    //     if (allocationTracking && !validData) {
-    //         setIsInvalid(true)
-    //         return
-    //     }
-
-    //     const updatedDetails = {
-    //         ...values,
-    //         start_date: values?.start_date?.format(dateFormat),
-    //         end_date: values?.end_date?.format(dateFormat),
-    //         project_users: allocationTracking ? projectUsers : []
-    //     };
-
-    //     !allocationTracking && delete updatedDetails?.projectUsers
-
-    //     console.log(updatedDetails);
-    //     if (editItem) {
-    //         const { data, error } = await supabase
-    //             .from('projects')
-    //             .update({ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id })
-    //             .eq('id', editItem?.id);
-
-    //         if (data) {
-    //             notification.success({ message: "Project updated successfully" });
-    //             setEditItem(null);
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to update project" });
-    //         }
-    //     } else {
-    //         const { data, error } = await supabase
-    //             .from('projects')
-    //             .insert([{ details: updatedDetails, status: 'in progress', allocation_tracking: allocationTracking, is_non_project: true, status: values?.status, project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null, project_name: values?.project_name, client_id: clients[0]?.id, hrpartner_id: session?.user?.id, manager_id: session?.user?.id }]);
-
-    //         if (data) {
-    //             notification.success({ message: "Project added successfully" });
-    //         } else if (error) {
-    //             notification.error({ message: "Failed to add project" });
-    //         }
-    //     }
-    //     fetchProjects();
-    //     setIsDrawerOpen(false);
-    //     form.resetFields();
-    //     setProjectUsers()
-    //     setEditItem(null);
-    // };
-
     const showUserDeleteConfirm = async (index, record) => {
         console.log("UU", projectUsers, record)
         confirm({
@@ -289,8 +215,8 @@ const NonProjectLeave = () => {
     const handleEdit = async (record, copy) => {
         let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: record?.id });
 
-        console.log("rec", record)
-        console.log("RPC data", data)
+        // console.log("rec", record)
+        // console.log("RPC data", data)
         if (data) {
             const item = {
                 id: record?.id,
@@ -431,7 +357,7 @@ const NonProjectLeave = () => {
     };
 
     const handleAllocate = async (record) => {
-        console.log("r", record)
+        // console.log("r", record)
         let leaveDays = 0;
         let location_id = null
         const matchingLeaves = leaves?.filter(i => i.leave_type === record?.project_name);
@@ -534,23 +460,14 @@ const NonProjectLeave = () => {
             render: (_, record) => (
                 <div className="d-flex">
                     <Tooltip title="Auto Allocate">
-                        <Button
-                            // icon={<EditFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleAllocateWithConfirm(record)} // Use the modal confirm
-                        >
+                        <Button size="small" className="mr-2"
+                            onClick={() => handleAllocateWithConfirm(record)}  >
                             Auto Allocate
                         </Button>
                     </Tooltip>
                     <Tooltip title="Edit">
-                        <Button
-                            type="primary"
-                            icon={<EditFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record)}
-                        />
+                        <Button type="primary" icon={<EditFilled />} size="small"
+                            className="mr-2" onClick={() => handleEdit(record)} />
                     </Tooltip>
                 </div>
             ),
@@ -562,16 +479,7 @@ const NonProjectLeave = () => {
             title: 'User Name',
             dataIndex: 'user_id',
             render: (text, record, index) => (
-                // <Input
-                //     value={text}
-                //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
-                // />
                 <Select placeholder="Select users" style={{ minWidth: '120px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
-                    {/* {users?.map((user) => (
-                        <Select.Option key={user?.id} value={user?.id}>
-                            {user?.user_name}
-                        </Select.Option>
-                    ))} */}
                     {users?.map((user) => {
                         const isDisabled = projectUsers?.some((projectUser) => projectUser.user_id === user.id);
                         return (
@@ -588,10 +496,8 @@ const NonProjectLeave = () => {
             dataIndex: 'expensed_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input
-                    value={text} disabled
-                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)}
-                />
+                <Input value={text} disabled
+                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)} />
             ),
         },
         {
@@ -599,10 +505,8 @@ const NonProjectLeave = () => {
             dataIndex: 'allocated_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input
-                    value={text}
-                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)}
-                />
+                <Input value={text}
+                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)} />
             ),
         },
         {
@@ -610,9 +514,7 @@ const NonProjectLeave = () => {
             dataIndex: 'start_date',
             width: 150,
             render: (text, record, index) => (
-                <DatePicker
-                    value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }} allowClear={false}
+                <DatePicker value={dayjs(text?.replace('/', '-'), dateFormat)} style={{ width: '100%' }} allowClear={false}
                     format={dateFormat} maxDate={dayjs(projectUsers[index].end_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'start_date', e?.format(dateFormat))} />
             ),
@@ -622,9 +524,7 @@ const NonProjectLeave = () => {
             dataIndex: 'end_date',
             width: 150,
             render: (text, record, index) => (
-                <DatePicker
-                    value={dayjs(text?.replace('/', '-'), dateFormat)}
-                    style={{ width: '100%' }} allowClear={false}
+                <DatePicker value={dayjs(text?.replace('/', '-'), dateFormat)} style={{ width: '100%' }} allowClear={false}
                     // format="DD/MM/YYYY"
                     format={dateFormat} minDate={dayjs(projectUsers[index].start_date, dateFormat) || null}
                     onChange={(e) => handleUserChange(index, 'end_date', e?.format(dateFormat))} />
@@ -653,16 +553,6 @@ const NonProjectLeave = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            {/* <div className="d-flex p-2 justify-content-between align-items-center"> */}
-            {/* <h2 style={{ margin: 0 }}> </h2> */}
-            {/* <Button
-                type="primary"
-                // icon={<PlusOutlined />}
-                onClick={() => setIsDrawerOpen(true)}
-            >
-                Add Non Project
-            </Button> */}
-            {/* </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
                     columns={columns}
@@ -672,9 +562,7 @@ const NonProjectLeave = () => {
                     pagination={true}
                 />
             </div>
-            <Drawer //size="large"
-                footer={null}
-                width={1000}
+            <Drawer footer={null} width={1000}
                 title={(editItem && !clone) ? "Edit Non Project" : "Add Non Project"}
                 open={isDrawerOpen} maskClosable={false}
                 onClose={() => {
@@ -682,9 +570,7 @@ const NonProjectLeave = () => {
                     // setAllocationTracking(false);
                     setIsDrawerOpen(false); setProjectUsers(); setClone(false)
                 }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
+                onOk={() => form.submit()} okText="Save" >
                 <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
                     <Row gutter={16}>
                         <Col span={24}>
@@ -722,10 +608,6 @@ const NonProjectLeave = () => {
                             </Form.Item>
                         </Col>
                     </Row>
-
-
-
-
                     {/* <Form.Item name="allocation_tracking" label="Allocation Tracking" valuePropName="checked">
                         <Checkbox onChange={(e) => handleAllocationChange(e.target.checked)} />
                     </Form.Item> */}
@@ -755,18 +637,6 @@ const NonProjectLeave = () => {
                     </Form.Item>
                 </Form>
             </Drawer>
-            {/* <DatePicker /> */}
-
-            {/* <App /> */}
-
-
-            {/* {schema && <ProjectForm schema={schema?.data_schema} />} */}
-
-
-            {/* {schema && <DynamicTable schema={schema?.dataSchema} />} */}
-            {/* {schema && <DynamicForm schemas={schema}
-                onFinish={handleAddOrEdit}
-                formData={editItem && editItem?.details} />} */}
         </Card>
     );
 };

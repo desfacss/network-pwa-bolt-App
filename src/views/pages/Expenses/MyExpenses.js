@@ -1,10 +1,9 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Modal } from "antd";
+import { Button, Card, notification, Table, Drawer, Modal } from "antd";
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import Expensesheet from "./Expensesheet";
-// import ExpenseDetails from "./ExpenseDetails";
 const { confirm } = Modal;
 
 const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
@@ -33,7 +32,7 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
         let { data, error } = await supabase.from('expensesheet').select('*,project:project_id(*)').eq('user_id', session?.user?.id).eq('organization_id', session?.user?.organization_id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('created_at', { ascending: false });
         if (data) {
-            console.log("expenses", data);
+            // console.log("expenses", data);
             setExpenses(data);
         }
         if (error) {
@@ -125,11 +124,6 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            {/* <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-                <Button type="primary" onClick={() => setIsDrawerOpen(true)} >
-                    Add Expense
-                </Button>
-            </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'} columns={columns} dataSource={expenses}
                     rowKey={(record) => record.id} loading={!expenses} pagination={false} />

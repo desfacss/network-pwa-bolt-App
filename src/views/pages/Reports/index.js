@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Select, DatePicker, Button, Typography, Divider, Card, Row, Col, Table, Spin, Empty } from 'antd';
+import { Select, DatePicker, Button, Typography, Divider, Card, Table, Spin, Empty, message } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
-// import DownloadMenu from 'components/common/DownloadMenu';
-// import dayjs from 'dayjs';
-// import { supabase } from './supabaseClient'; // Adjust the import based on your Supabase setup
-// import dayjs from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import { useSelector } from 'react-redux';
 import { FilePdfFilled } from '@ant-design/icons';
@@ -57,7 +53,7 @@ const ReportComponent = () => {
 
     const fetchReportData = async () => {
         if (dateRange.length !== 2) {
-            return alert("Please select a date range.");
+            return message.error("Please select a date range.");
         }
 
         const [startDate, endDate] = dateRange;
@@ -72,7 +68,7 @@ const ReportComponent = () => {
         if (error) {
             console.error("Error fetching report data:", error);
         } else {
-            console.log("Report Data", data.map(e => e.hours))
+            // console.log("Report Data", data.map(e => e.hours))
             setReportData(data);
             if (!data || data.length === 0) {
                 setEmptytData(true)
@@ -124,91 +120,6 @@ const ReportComponent = () => {
     ];
 
     return (
-        // <Card bodyStyle={{ padding: "0px" }}>
-        //     <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-        //         <h2 style={{ margin: 0 }}>Reports</h2>
-        //     </div>
-        // {/* <Card style={{ padding: '24px' }}>
-        //     <Title level={2} style={{ marginBottom: '24px' }}>Generate Report</Title> */}
-        //     <div style={{ marginBottom: '16px' }}>
-        //         <Select
-        //             placeholder="Select User"
-        //             onChange={setUserId}
-        //             style={{ width: 200, marginRight: 16 }}
-        //         >
-        //             {users.map((user) => (
-        //                 <Option key={user.id} value={user.id}>{user.user_name}</Option>
-        //             ))}
-        //         </Select>
-        //         <Select
-        //             placeholder="Select Project"
-        //             onChange={setProjectName}
-        //             style={{ width: 200, marginRight: 16 }}
-        //         >
-        //             {projects.map((project) => (
-        //                 <Option key={project.id} value={project.id}>{project.project_name}</Option>
-        //             ))}
-        //         </Select>
-        //         <RangePicker onChange={(dates) => setDateRange(dates)} />
-        //     </div>
-        //     <Row justify="space-between" align="middle" style={{ width: '100%' }}>
-        //         <Col>
-        //             <Button type="primary" onClick={fetchReportData}>Get Report</Button>
-        //         </Col>
-        //         <Col>
-        //             {summary && <Button onClick={handlePrint}>Download</Button>}
-        //         </Col>
-        //     </Row>
-        //     {loading ? (
-        //         <div style={{ marginTop: '24px', textAlign: 'center' }}>
-        //             <Spin size="large" />
-        //         </div>
-        //     ) : (
-        //         <>
-        //             {summary && (
-        //                 <div style={{ marginTop: '24px' }} ref={reportDataRef}>
-        //                     <Divider />
-        //                     <Title level={4} style={{ color: '#1890ff' }}>Report Summary</Title>
-        //                     <Divider />
-        //                     <Text strong>USER: </Text>
-        //                     <Text>{users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
-        //                     <br />
-        //                     <Text strong>PROJECT: </Text>
-        //                     <Text>{projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
-        //                     <br />
-        //                     <Text strong>DATE RANGE: </Text>
-        //                     <Text>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
-        //                     <Divider />
-        //                     <Table size={'small'} pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
-        //                     <Divider />
-        //                     <Title level={5} style={{ marginTop: '24px' }}>Summary Details</Title>
-        //                     <Text strong>TOTAL HOURS: </Text>
-        //                     <Text>{summary.totalHours} HOURS</Text>
-        //                     <br />
-        //                     <Text strong>TOTAL HOURS ALLOCATED: </Text>
-        //                     <Text>{summary.allocatedHours} HOURS</Text>
-        //                     <br />
-        //                     <Text strong>TOTAL EXPENSED HOURS: </Text>
-        //                     <Text>{summary.expensedHours} HOURS</Text>
-        //                     <br />
-        //                     <Text strong>BALANCE HOURS: </Text>
-        //                     <Text>{summary.balanceHours} HOURS</Text>
-        //                     <Divider />
-        //                     <Text strong>COST/HR: </Text>
-        //                     <Text>{summary.costPerHour}</Text>
-        //                     <br />
-        //                     <Text strong>TOTAL COST: </Text>
-        //                     <Text>{summary.totalCost}</Text>
-        //                 </div>
-        //             )}
-        //             {emptyData &&
-        //                 <Empty description='No Data' />
-
-        //             }
-        //         </>
-        //     )}
-        // </Card>
-
         <Card bodyStyle={{ padding: "0px" }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Reports</h2>
@@ -245,35 +156,6 @@ const ReportComponent = () => {
                 </div>
             </div>
 
-            {/* <div style={{ marginBottom: '16px' }}>
-        <Select
-            placeholder="Select User"
-            onChange={setUserId}
-            style={{ width: 200, marginRight: 16 }}
-        >
-            {users.map((user) => (
-                <Option key={user.id} value={user.id}>{user.user_name}</Option>
-            ))}
-        </Select>
-        <Select
-            placeholder="Select Project"
-            onChange={setProjectName}
-            style={{ width: 200, marginRight: 16 }}
-        >
-            {projects.map((project) => (
-                <Option key={project.id} value={project.id}>{project.project_name}</Option>
-            ))}
-        </Select>
-        <RangePicker onChange={(dates) => setDateRange(dates)} />
-    </div>
-    <Row justify="space-between" align="middle" style={{ width: '100%' }}>
-        <Col>
-            <Button type="primary" onClick={fetchReportData}>Get Report</Button>
-        </Col>
-        <Col>
-            {summary && <Button onClick={handlePrint}>Download</Button>}
-        </Col>
-    </Row> */}
             {loading ? (
                 <div style={{ marginTop: '24px', textAlign: 'center' }}>
                     <Spin size="large" />
@@ -327,8 +209,6 @@ const ReportComponent = () => {
                 </>
             )}
         </Card>
-
-
     );
 };
 

@@ -103,20 +103,10 @@ const Locations = () => {
             key: "actions",
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button
-                        type="primary"
-                        icon={<EditFilled />}
-                        size="small"
-                        className="mr-2"
-                        onClick={() => handleEdit(record)}
-                    />
-                    <Button
-                        type="primary"
-                        ghost
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => handleDelete(record.id)}
-                    />
+                    <Button type="primary" icon={<EditFilled />} size="small" className="mr-2"
+                        onClick={() => handleEdit(record)} />
+                    <Button type="primary" ghost icon={<DeleteOutlined />}
+                        size="small" onClick={() => handleDelete(record.id)} />
                 </div>
             ),
         },
@@ -128,10 +118,7 @@ const Locations = () => {
             dataIndex: "name",
             key: "name",
             render: (_, record, index) => (
-                <Input
-                    value={record.name}
-                    onChange={(e) => handleHolidayChange(index, "name", e.target.value)}
-                />
+                <Input value={record.name} onChange={(e) => handleHolidayChange(index, "name", e.target.value)} />
             ),
         },
         {
@@ -159,20 +146,14 @@ const Locations = () => {
             dataIndex: "optional",
             key: "optional",
             render: (_, record, index) => (
-                <Input
-                    type="checkbox"
-                    checked={record.optional}
-                    onChange={(e) => handleHolidayChange(index, "optional", e.target.checked)}
-                />
+                <Input type="checkbox" checked={record.optional}
+                    onChange={(e) => handleHolidayChange(index, "optional", e.target.checked)} />
             ),
         },
         {
             title: "Actions",
             render: (_, __, index) => (
-                <Button
-                    danger
-                    onClick={() => handleHolidayDelete(index)}
-                >
+                <Button danger onClick={() => handleHolidayDelete(index)} >
                     Delete
                 </Button>
             ),
@@ -218,24 +199,16 @@ const Locations = () => {
 
     return (
         <Card bodyStyle={{ padding: "0px" }}>
-            <div
-                className="d-flex p-2 justify-content-between align-items-center"
-                style={{ marginBottom: "16px" }}
-            >
+            <div className="d-flex p-2 justify-content-between align-items-center"
+                style={{ marginBottom: "16px" }} >
                 <h2 style={{ margin: 0 }}>Locations</h2>
                 <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)}>
                     Add Location
                 </Button>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table
-                    size={"small"}
-                    columns={columns}
-                    dataSource={locations}
-                    rowKey={(record) => record.id}
-                    loading={!locations}
-                    pagination={false}
-                />
+                <Table size={"small"} columns={columns} dataSource={locations}
+                    rowKey={(record) => record.id} loading={!locations} pagination={false} />
             </div>
             <Drawer
                 footer={null}
@@ -261,12 +234,7 @@ const Locations = () => {
                         <Input />
                     </Form.Item>
                     <h4>Holidays</h4>
-                    <Table
-                        dataSource={holidays}
-                        columns={holidayColumns}
-                        rowKey={(record, index) => index}
-                        pagination={false}
-                    />
+                    <Table dataSource={holidays} columns={holidayColumns} rowKey={(record, index) => index} pagination={false} />
                     <Button onClick={addHoliday} type="dashed" style={{ marginTop: "16px" }}>
                         Add Holiday
                     </Button>

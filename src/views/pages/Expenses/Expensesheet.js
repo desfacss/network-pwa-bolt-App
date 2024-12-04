@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Button, Space, Typography, Select, message, Tree, Row, Col, InputNumber, DatePicker } from 'antd';
+import { Table, Input, Button, Typography, Select, message, Row, Col, InputNumber, DatePicker } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import './timesheet.css';
@@ -46,7 +46,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
         } else {
             setProjects(data); // Set the fetched project data
             setSelectedProject(data[0]?.id); // Set the fetched project data
-            console.log('Project data:', data);
+            // console.log('Project data:', data);
         }
     };
 
@@ -58,7 +58,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     const getTypes = async () => {
         const { data, error } = await supabase.from('expense_type').select('*').eq('organization_id', session?.user?.organization_id)
         if (data) {
-            console.log("d", data)
+            // console.log("d", data)
             setTypes(data)
         }
     }
@@ -206,7 +206,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
         if (!session?.user?.id) {
             message.error('User is not authenticated.');
             return;
-        } 
+        }
         setLoading(true)
         const today = new Date();
         const lastDate = new Date(today.setDate(today.getDate() + (timesheet_settings?.approvalWorkflow?.timeLimitForApproval || 0)));
@@ -232,13 +232,13 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
         })]
 
-        console.log("Payload", emailPayload)
+        // console.log("Payload", emailPayload)
         let result;
         if (editItem) {  // Update the existing timesheet
-            console.log("update", editItem);
+            // console.log("update", editItem);
             result = await supabase.from('expensesheet').update(timesheetData).eq('id', editItem?.id).select('*');
         } else {         // Insert a new timesheet
-            console.log("create");
+            // console.log("create");
             result = await supabase.from('expensesheet').insert([timesheetData]).select('*');
         }
         const { data: data2, error } = result;

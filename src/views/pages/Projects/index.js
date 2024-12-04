@@ -1,6 +1,5 @@
 import { Button, Card, Tabs } from 'antd';
 import React, { useState } from 'react';
-// import { useSelector } from 'react-redux';
 import NonProject from './NonProject';
 import NonProjectLeave from './NonProjectLeave';
 import Project from './Project';

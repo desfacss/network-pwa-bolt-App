@@ -5,7 +5,6 @@ import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import Expensesheet from "./Expensesheet";
 import { generateEmailData, sendEmail } from "components/common/SendEmail";
-// import ExpenseDetails from "./ExpenseDetails";
 
 const TeamExpenses = ({ startDate, endDate }) => {
     const componentRef = useRef(null);
@@ -13,9 +12,6 @@ const TeamExpenses = ({ startDate, endDate }) => {
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [viewMode, setViewMode] = useState(true);
-    // const [schema, setSchema] = useState();
-    // const [applicationSchema, setApplicationSchema] = useState();
-    // const [leaves, setLeaves] = useState([]);
     const [isApproveModal, setIsApproveModal] = useState(false);
     const [isRejectModal, setIsRejectModal] = useState(false);
     const [rejectComment, setRejectComment] = useState('');
@@ -53,45 +49,6 @@ const TeamExpenses = ({ startDate, endDate }) => {
         fetchUsers();
         fetchProjects()
     }, []);
-
-    // const fetchLeaves = async () => {
-    //     let { data, error } = await supabase.from('projects_leaves').eq('organization_id', session?.user?.organization_id).select('*');
-    //     if (data) {
-    //         setLeaves(data);
-    //     }
-    //     if (error) {
-    //         notification.error({ message: error?.message || "Failed to fetch Leaves" });
-    //     }
-    // };
-
-    // const getApprovalForm = async () => {
-    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "leave_approval_form").single()
-    //     if (data) {
-    //         setSchema(data)
-    //     }
-    // }
-    // const getApplicationForm = async () => {
-    //     const { data, error } = await supabase.from('forms').select('*').eq('name', "expense_app_add_edit_form").single()
-    //     if (data) {
-    //         const updatedSchema = {
-    //             ...data,
-    //             ui_schema: {
-    //                 ...data?.ui_schema,
-    //                 "ui:readonly": true,
-    //                 "ui:submitButtonOptions": {
-    //                     "norender": true
-    //                 }
-    //             }
-    //         }
-    //         setApplicationSchema(updatedSchema)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     getApprovalForm()
-    //     getApplicationForm()
-    //     fetchLeaves();
-    // }, []);
 
     useEffect(() => {
         if (startDate && endDate) {

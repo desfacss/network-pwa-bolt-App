@@ -39,10 +39,7 @@ const Expenses = () => {
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddExpensesheet} >
                             Add ExpenseSheet
                         </Button>}
-                        <RangePicker
-                            onChange={onDateRangeChange}
-                            format="YYYY-MM-DD"
-                        />
+                        <RangePicker onChange={onDateRangeChange} format="YYYY-MM-DD" />
                     </>
                 }
             >

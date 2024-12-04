@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, message, Popconfirm, Select } from "antd";
+import { Table, Button, Modal, Form, Input, message, Select } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import { EditFilled } from "@ant-design/icons";
@@ -160,26 +160,12 @@ const LeaveTypes = () => {
                 <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16, marginTop: 10 }}>
                     Add {formatTitle(selectedType)}
                 </Button>
-                <Table
-                    dataSource={leaveTypes}
-                    columns={columns}
-                    rowKey="id"
-                    loading={loading}
-                />
+                <Table dataSource={leaveTypes} columns={columns} rowKey="id" loading={loading} />
                 <Modal
                     title={editingRow ? `Edit ${formatTitle(selectedType)}` : `Add ${formatTitle(selectedType)}`}
-                    visible={isModalOpen}
-                    onCancel={() => setIsModalOpen(false)}
-                    onOk={() => form.submit()}
-                >
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={handleSave}
-                    >
-                        <Form.Item
-                            name="name"
-                            label={`${formatTitle(selectedType)} Name`}
+                    visible={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => form.submit()} >
+                    <Form form={form} layout="vertical" onFinish={handleSave} >
+                        <Form.Item name="name" label={`${formatTitle(selectedType)} Name`}
                             rules={[{ required: true, message: `Please enter the ${formatTitle(selectedType)} name.` }]}
                         >
                             <Input />
