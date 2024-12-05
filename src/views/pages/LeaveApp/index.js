@@ -6,7 +6,6 @@ import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
-const { TabPane } = Tabs;
 
 const LeaveApp = () => {
     const defaultStartDate = dayjs().subtract(30, 'days');
@@ -31,28 +30,37 @@ const LeaveApp = () => {
         }
     };
 
+    const tabItems = [
+        {
+            label: 'My Leaves',
+            key: '1',
+            children: (
+                activeKey === '1' && <MyLeaves ref={leaveApplicationRef} key={activeKey}
+                    startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />
+            ),
+        },
+        session?.user?.features?.feature?.viewTeamLeaves && {
+            label: 'Team Leaves',
+            key: '2',
+            children: (
+                activeKey === '2' && <TeamLeaves key={activeKey}
+                    startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />
+            ),
+        },
+    ].filter(Boolean);
+
     return (
         <Card>
-            <Tabs defaultActiveKey="1" activeKey={activeKey} onChange={(key) => setActiveKey(key)}
+            <Tabs defaultActiveKey="1" activeKey={activeKey} onChange={(key) => setActiveKey(key)} items={tabItems}
                 tabBarExtraContent={
                     <>
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddLeaveApplication} >
                             Add Leave Application
                         </Button>}
-                        <RangePicker value={dateRange} allowClear={false}
-                            onChange={onDateRangeChange}
-                            format="YYYY-MM-DD"
-                        />
+                        <RangePicker value={dateRange} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
                     </>
                 }
-            >
-                <TabPane tab="My Leaves" key="1">
-                    {activeKey === '1' && <MyLeaves ref={leaveApplicationRef} key={activeKey} startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />}
-                </TabPane>
-                {session?.user?.features?.feature?.viewTeamLeaves && <TabPane tab="Team Leaves" key="2">
-                    {activeKey === '2' && <TeamLeaves key={activeKey} startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />}
-                </TabPane>}
-            </Tabs>
+            />
         </Card>
     );
 };

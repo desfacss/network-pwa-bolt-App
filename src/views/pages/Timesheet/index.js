@@ -8,8 +8,6 @@ import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;
 
-const { TabPane } = Tabs;
-
 const Index = () => {
 
     const defaultStartDate = dayjs().subtract(30, 'days');
@@ -33,6 +31,27 @@ const Index = () => {
         }
     };
 
+    const tabItems = [
+        {
+            label: 'My Timesheets',
+            key: '1',
+            children: (
+                activeKey === '1' && (<Timesheet ref={timesheetRef} key={activeKey}
+                    startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />
+                )
+            ),
+        },
+        session?.user?.features?.feature?.viewTeamTimesheet && {
+            label: 'Team Timesheets',
+            key: '2',
+            children: (
+                activeKey === '2' && (<TeamTimesheetTable key={activeKey}
+                    startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />
+                )
+            ),
+        },
+    ].filter(Boolean);
+
     return (
         <Card>
             <Tabs defaultActiveKey="1" activeKey={activeKey} onChange={(key) => setActiveKey(key)}
@@ -41,22 +60,9 @@ const Index = () => {
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddTimesheet} >
                             Add Timesheet
                         </Button>}
-                        <RangePicker value={dateRange} allowClear={false}
-                            onChange={onDateRangeChange}
-                            format="YYYY-MM-DD"
-                        />
+                        <RangePicker value={dateRange} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
                     </>
-                }
-            >
-                <TabPane tab="My Timesheets" key="1">
-                    {activeKey === '1' && <Timesheet ref={timesheetRef} key={activeKey} startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />}
-                </TabPane>
-                {session?.user?.features?.feature?.viewTeamTimesheet && (
-                    <TabPane tab="Team Timesheets" key="2">
-                        {activeKey === '2' && <TeamTimesheetTable key={activeKey} startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />}
-                    </TabPane>
-                )}
-            </Tabs>
+                } items={tabItems} />
         </Card>
     )
 }

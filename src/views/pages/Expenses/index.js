@@ -6,7 +6,6 @@ import TeamExpenses from './TeamExpenses';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
-const { TabPane } = Tabs;
 
 const Expenses = () => {
     const defaultStartDate = dayjs().subtract(30, 'days');
@@ -31,9 +30,28 @@ const Expenses = () => {
         }
     };
 
+    const tabItems = [
+        {
+            label: 'My Expenses',
+            key: '1',
+            children: (
+                activeKey === '1' && <MyExpenses ref={expensesheetRef} key={activeKey}
+                    startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />
+            ),
+        },
+        session?.user?.features?.feature?.viewTeamExpenses && {
+            label: 'Team Expenses',
+            key: '2',
+            children: (
+                activeKey === '2' && <TeamExpenses key={activeKey}
+                    startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />
+            ),
+        },
+    ].filter(Boolean);
+
     return (
         <Card>
-            <Tabs defaultActiveKey="1" activeKey={activeKey} onChange={(key) => setActiveKey(key)}
+            <Tabs defaultActiveKey="1" activeKey={activeKey} onChange={(key) => setActiveKey(key)} items={tabItems}
                 tabBarExtraContent={
                     <>
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddExpensesheet} >
@@ -42,14 +60,7 @@ const Expenses = () => {
                         <RangePicker value={dateRange} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
                     </>
                 }
-            >
-                <TabPane tab="My Expenses" key="1">
-                    {activeKey === '1' && <MyExpenses ref={expensesheetRef} key={activeKey} startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />}
-                </TabPane>
-                {session?.user?.features?.feature?.viewTeamExpenses && <TabPane tab="Team Expenses" key="2">
-                    {activeKey === '2' && <TeamExpenses key={activeKey} startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />}
-                </TabPane>}
-            </Tabs>
+            />
         </Card>
     );
 };

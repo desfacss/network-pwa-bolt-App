@@ -8,40 +8,50 @@ import EnumEditor from './enumeditor';
 import LeaveSettings from '../LeaveSettings';
 import LeaveTypes from '../LeaveSettings/LeaveTypes';
 
-const { TabPane } = Tabs;
-
 const index = () => {
+
+    const tabItems = [
+        {
+            label: 'Organization', key: '1',
+            children: <Organization />,
+        },
+        {
+            label: 'Roles & Permission', key: '2',
+            children: <RoleFeatureEdit />,
+        },
+        {
+            label: 'Location & Holidays', key: '3',
+            children: <Locations />,
+        },
+        {
+            label: 'Workflow Settings', key: '4',
+            children: <TimesheetSettings />,
+        },
+        {
+            label: 'Types', key: '5',
+            children: <LeaveTypes />,
+        },
+        {
+            label: 'Leave Settings', key: '6',
+            children: <LeaveSettings />,
+        },
+        // {
+        //     label: 'Enum Editor', key: '7',
+        //     children: <EnumEditor />,
+        // },
+        // {
+        //     label: 'Leave Policy', key: '8',
+        //     children: <Locations />,
+        // },
+        // {
+        //     label: 'Expense Policy', key: '9',
+        //     children: <Locations />,
+        // },
+    ];
+
     return (
         <Card>
-            <Tabs defaultActiveKey="1">
-                <TabPane tab="Organization" key="1">
-                    <Organization />
-                </TabPane>
-                <TabPane tab="Roles & Permission" key="2">
-                    <RoleFeatureEdit />
-                </TabPane>
-                <TabPane tab="Location & Holidays" key="3">
-                    <Locations />
-                </TabPane>
-                <TabPane tab="Workflow Settings" key="4">
-                    <TimesheetSettings />
-                </TabPane>
-                <TabPane tab="Types" key="5">
-                    <LeaveTypes />
-                </TabPane>
-                <TabPane tab="Leave Settings" key="6">
-                    <LeaveSettings />
-                </TabPane>
-                {/* <TabPane tab="Types" key="6">
-                    <EnumEditor />
-                </TabPane> */}
-                {/* <TabPane tab="Leave Policy" key="7">
-                    <Locations />
-                </TabPane>
-                <TabPane tab="Expense Policy" key="8">
-                    <Locations />
-                </TabPane> */}
-            </Tabs>
+            <Tabs defaultActiveKey="1" items={tabItems} />
         </Card>
     )
 }

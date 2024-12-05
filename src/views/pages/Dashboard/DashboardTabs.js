@@ -7,7 +7,6 @@ import { supabase } from 'configs/SupabaseConfig';
 import { useReactToPrint } from 'react-to-print';
 import { FilePdfFilled } from '@ant-design/icons';
 
-const { TabPane } = Tabs;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -61,7 +60,6 @@ const DashboardTabs = () => {
 
             if (error) {
                 console.error('Error fetching data:', error);
-                // console.log("VW", error);
             } else {
                 setReportData(viewData)
                 // console.log("VD", viewData);
@@ -132,9 +130,6 @@ const DashboardTabs = () => {
     };
 
     const byEmployeeData = useMemo(() => {
-        // const filteredData = selectedUserId
-        //     ? data.filter((entry) => entry.user_name === selectedUserId)
-        //     : data;
 
         const filteredData = reportData && reportData
             ?.filter((entry) => selectedUserId ? entry?.user_name === selectedUserId : true)
@@ -178,9 +173,6 @@ const DashboardTabs = () => {
     }, [reportData, selectedUserId, selectedDateRange, nonProject]);
 
     const byProjectData = useMemo(() => {
-        // const filteredData = selectedProjectName
-        //     ? data.filter((entry) => entry.project_name === selectedProjectName)
-        //     : data;
 
         const filteredData = reportData && reportData
             ?.filter((entry) => selectedProjectName ? entry?.project_name === selectedProjectName : true)
@@ -237,10 +229,7 @@ const DashboardTabs = () => {
             render: (dates) => (
                 <Chart
                     options={getSparklineOptions(dates, Object.keys(dates))}
-                    series={getSparklineOptions(dates, Object.keys(dates)).series}
-                    type="bar"
-                    width="100"
-                />
+                    series={getSparklineOptions(dates, Object.keys(dates)).series} type="bar" width="100" />
             ),
         },
         {
@@ -264,10 +253,7 @@ const DashboardTabs = () => {
             render: (dates) => (
                 <Chart
                     options={getSparklineOptions(dates, Object.keys(dates))}
-                    series={getSparklineOptions(dates, Object.keys(dates)).series}
-                    type="bar"
-                    width="100"
-                />
+                    series={getSparklineOptions(dates, Object.keys(dates)).series} type="bar" width="100" />
             ),
         },
         {
@@ -277,6 +263,63 @@ const DashboardTabs = () => {
         },
     ];
 
+    const tabItems = [
+        {
+            label: 'Project Summary',
+            key: '1',
+            children: (
+                <div>
+                    <Select allowClear showSearch
+                        filterOption={(input, option) =>
+                            (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                        }
+                        value={selectedUserId} onChange={setSelectedUserId}
+                        style={{ width: 200, marginBottom: 16 }} placeholder="Select User" >
+                        {userIds?.sort((a, b) => a.localeCompare(b))?.map((userId) => (
+                            <Option key={userId} value={userId}>
+                                {userId}
+                            </Option>
+                        ))}
+                    </Select>
+
+                    <Table size={'small'} columns={employeeColumns} dataSource={byEmployeeData}
+                        rowKey="project_name" pagination={false}
+                        locale={{
+                            emptyText: <Empty description="No results. Try widening your search!" />,
+                        }}
+                    />
+                </div>
+            ),
+        },
+        {
+            label: 'Employee Summary',
+            key: '2',
+            children: (
+                <div>
+                    <Select allowClear showSearch
+                        filterOption={(input, option) =>
+                            (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                        }
+                        value={selectedProjectName} onChange={setSelectedProjectName}
+                        style={{ width: 200, marginBottom: 16 }} placeholder="Select Project" >
+                        {projectNames?.sort((a, b) => a.localeCompare(b))?.map((projectName) => (
+                            <Option key={projectName} value={projectName}>
+                                {projectName}
+                            </Option>
+                        ))}
+                    </Select>
+
+                    <Table size={'small'} columns={projectColumns} dataSource={byProjectData} rowKey="user_name"
+                        pagination={false}
+                        locale={{
+                            emptyText: <Empty description="No results. Try widening your search!" />,
+                        }} />
+                </div>
+            ),
+        },
+    ];
+
+
     return (
         <div ref={reportDataRef}>
             <Tabs defaultActiveKey="1"
@@ -285,84 +328,17 @@ const DashboardTabs = () => {
                         <RangePicker defaultValue={[defaultStartDate, defaultEndDate]} allowClear={false}
                             // format={dateFormat} 
                             onChange={(date) => {
-                                setDateRange([
-                                    date[0]?.format(dateFormat), // Format date here
-                                    date[1]?.format(dateFormat), // Format date here
-                                ]);
-                            }}
-                        // onChange={(date) => { console.log(date[0]); setDateRange([date?.startDate, date?.endDate]) }} 
-                        // style={{ marginBottom: '20px' }} 
-                        />
-                        <Checkbox className='ml-2'
-                            checked={nonProject}
-                            onChange={(e) => { setSelectedProjectName(); setNonProject(e.target.checked) }}
-                        >
+                                setDateRange([date[0]?.format(dateFormat), date[1]?.format(dateFormat)]);
+                            }} />
+                        <Checkbox className='ml-2' checked={nonProject}
+                            onChange={(e) => { setSelectedProjectName(); setNonProject(e.target.checked) }} >
                             Non-Project
                         </Checkbox>
-                        {reportData && <Tooltip title='Download Report'><Button type='primary' icon={<FilePdfFilled />} onClick={handlePrint}></Button></Tooltip>
+                        {reportData &&
+                            <Tooltip title='Download Report'><Button type='primary' icon={<FilePdfFilled />} onClick={handlePrint}></Button></Tooltip>
                         }
                     </>
-                }
-            >
-                <TabPane tab="Project Summary" key="1">
-                    <div>
-                        <Select allowClear showSearch
-                            filterOption={(input, option) =>
-                                (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
-                            }
-                            value={selectedUserId}
-                            onChange={setSelectedUserId}
-                            style={{ width: 200, marginBottom: 16 }}
-                            placeholder="Select User"
-                        >
-                            {userIds?.sort((a, b) => a.localeCompare(b))?.map((userId) => (
-                                <Option key={userId} value={userId}>
-                                    {userId}
-                                </Option>
-                            ))}
-                        </Select>
-
-                        <Table size={'small'}
-                            columns={employeeColumns}
-                            dataSource={byEmployeeData}
-                            rowKey="project_name"
-                            pagination={false}
-                            locale={{
-                                emptyText: <Empty description="No results. Try widening your search!" />,
-                            }}
-                        />
-                    </div>
-                </TabPane>
-                <TabPane tab="Employee Summary" key="2">
-                    <div>
-                        <Select allowClear showSearch
-                            filterOption={(input, option) =>
-                                (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
-                            }
-                            value={selectedProjectName}
-                            onChange={setSelectedProjectName}
-                            style={{ width: 200, marginBottom: 16 }}
-                            placeholder="Select Project"
-                        >
-                            {projectNames?.sort((a, b) => a.localeCompare(b))?.map((projectName) => (
-                                <Option key={projectName} value={projectName}>
-                                    {projectName}
-                                </Option>
-                            ))}
-                        </Select>
-
-                        <Table size={'small'}
-                            columns={projectColumns}
-                            dataSource={byProjectData}
-                            rowKey="user_name"
-                            pagination={false}
-                            locale={{
-                                emptyText: <Empty description="No results. Try widening your search!" />,
-                            }}
-                        />
-                    </div>
-                </TabPane>
-            </Tabs>
+                } items={tabItems} />
         </div>
     );
 };

@@ -4,8 +4,6 @@ import NonProject from './NonProject';
 import NonProjectLeave from './NonProjectLeave';
 import Project from './Project';
 
-const { TabPane } = Tabs;
-
 const Index = () => {
     const [activeKey, setActiveKey] = useState('1');
     const [isProjectDrawerOpen, setIsProjectDrawerOpen] = useState(false);
@@ -20,30 +18,33 @@ const Index = () => {
         }
     };
 
+    const tabItems = [
+        {
+            label: 'Projects',
+            key: '1',
+            children: (<Project isDrawerOpen={isProjectDrawerOpen} setIsDrawerOpen={setIsProjectDrawerOpen} />),
+        },
+        {
+            label: 'Non Projects',
+            key: '2',
+            children: (<NonProject isDrawerOpen={isNonProjectDrawerOpen} setIsDrawerOpen={setIsNonProjectDrawerOpen} />),
+        },
+        {
+            label: 'Leaves',
+            key: '3',
+            children: <NonProjectLeave />,
+        },
+    ];
+
     return (
         <Card>
-            <Tabs
-                defaultActiveKey="1"
+            <Tabs defaultActiveKey="1" items={tabItems}
                 tabBarExtraContent={
                     activeKey !== '3' && <Button type='primary' onClick={handleAddButtonClick}>
                         {`Add ${activeKey === '1' ? "Project" : "Non Project"}`}
                     </Button>
                 }
-                activeKey={activeKey}
-                onChange={(key) => setActiveKey(key)}
-            >
-                <TabPane tab="Projects" key="1">
-                    <Project isDrawerOpen={isProjectDrawerOpen} setIsDrawerOpen={setIsProjectDrawerOpen} />
-                </TabPane>
-                {/* {session?.user?.features?.feature?.viewTeamTimesheet && */}
-                <TabPane tab="Non Projects" key="2">
-                    <NonProject isDrawerOpen={isNonProjectDrawerOpen} setIsDrawerOpen={setIsNonProjectDrawerOpen} />
-                </TabPane>
-                <TabPane tab="Leaves" key="3">
-                    <NonProjectLeave />
-                </TabPane>
-                {/* } */}
-            </Tabs>
+                activeKey={activeKey} onChange={(key) => setActiveKey(key)} />
         </Card>
     );
 };
