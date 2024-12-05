@@ -303,7 +303,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
     })]
 
-    console.log("Payload", emailPayload)
+    // console.log("Payload", emailPayload)
     try {
       if (existingTimesheetId) {
         // Update existing timesheet

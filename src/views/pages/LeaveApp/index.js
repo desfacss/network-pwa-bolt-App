@@ -39,7 +39,7 @@ const LeaveApp = () => {
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddLeaveApplication} >
                             Add Leave Application
                         </Button>}
-                        <RangePicker
+                        <RangePicker value={dateRange} allowClear={false}
                             onChange={onDateRangeChange}
                             format="YYYY-MM-DD"
                         />

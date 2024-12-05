@@ -47,6 +47,7 @@ const ChangePassword = () => {
             message.error(error.message || 'Something went wrong.');
         } finally {
             setLoading(false);
+            window.location.reload();
         }
     };
 

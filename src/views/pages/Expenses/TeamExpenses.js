@@ -176,11 +176,6 @@ const TeamExpenses = ({ startDate, endDate }) => {
             key: 'grand_total',
         },
         {
-            title: 'status',
-            dataIndex: 'status',
-            key: 'status',
-        },
-        {
             title: 'Review Date',
             key: 'approved_time',
             render: (record) => (
@@ -190,13 +185,23 @@ const TeamExpenses = ({ startDate, endDate }) => {
             )
         },
         {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            filters: [{ text: 'Submitted', value: 'Submitted' }, ...Array.from(
+                new Set(expenses?.map((record) => record?.status))
+            )?.filter((status) => status !== 'Submitted')?.map((status) => ({ text: status, value: status }))], // Create unique filters from status
+            defaultFilteredValue: ['Submitted'],
+            onFilter: (value, record) => record?.status === value,
+        },
+        {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button type="primary" size="small" className="mr-2" onClick={() => handleEdit(record)}
+                    {record?.status === 'Submitted' && <Button type="primary" size="small" className="mr-2" onClick={() => handleEdit(record)}
                         disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
-                    >Approve / Reject</Button>
+                    >Approve / Reject</Button>}
                     {/* <Button type="primary" ghost icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(record.id)}
                     /> */}
                 </div>
@@ -221,8 +226,8 @@ const TeamExpenses = ({ startDate, endDate }) => {
                         onChange={(e) => setRejectComment(e.target.value)} placeholder="Please provide a reason for rejection" />}
                 </Modal>
             }
-            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-            </div>
+            {/* <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+            </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'} columns={columns} dataSource={expenses}
                     rowKey={(record) => record.id} loading={!expenses} pagination={false} />
@@ -232,8 +237,8 @@ const TeamExpenses = ({ startDate, endDate }) => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                         <span>{editItem ? "Expense Approval for " + editItem?.user?.user_name : "Add Expense Approval"}</span>
                         <div>
-                            <Button className="mr-2" icon={<EditOutlined />} onClick={() => setViewMode(prev => !prev)}>
-                            </Button>
+                            {/* <Button className="mr-2" icon={<EditOutlined />} onClick={() => setViewMode(prev => !prev)}>
+                            </Button> */}
                             <Button type="primary" className="mr-2" onClick={() => setIsApproveModal(true)}>
                                 Approve
                             </Button>

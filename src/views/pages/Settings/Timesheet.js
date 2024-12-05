@@ -28,7 +28,7 @@ const TimesheetSettings = ({ locationId }) => {
         if (error) {
             message.error("Failed to fetch settings");
         } else {
-            console.log("data", data)
+            // console.log("data", data)
             form.setFieldsValue(data?.timesheet_settings);
         }
         setLoading(false);

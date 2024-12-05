@@ -129,16 +129,6 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                 </div>
             )
         },
-        // {
-        //     title: 'Review Comment',
-        //     // dataIndex: 'details',
-        //     key: 'approver_id',
-        //     render: (record) => (
-        //         <div>
-        //             {record?.approver_details?.comment}
-        //         </div>
-        //     )
-        // },
         {
             title: 'Review Comment',
             key: 'approver_id',
@@ -164,29 +154,12 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            filters: Array.from(
+            filters: [{ text: 'Submitted', value: 'Submitted' }, ...Array.from(
                 new Set(data?.map((record) => record?.status))
-            )?.map((status) => ({ text: status, value: status })), // Create unique filters from status
+            )?.filter((status) => status !== 'Submitted')?.map((status) => ({ text: status, value: status }))], // Create unique filters from status
+            defaultFilteredValue: ['Submitted'],
             onFilter: (value, record) => record?.status === value,
         },
-        // {
-        //     title: 'Last Updated',
-        //     dataIndex: 'updated_at',
-        //     key: 'updated_at',
-        //     render: (date) => new Date(date).toLocaleString(), // Format date and time
-        // },
-        // {
-        //     title: 'Last Updated',
-        //     dataIndex: 'updated_at',
-        //     key: 'updated_at',
-        //     render: (date) => new Date(date).toLocaleString(), // Format date and time
-        // },
-        // {
-        //     title: 'Last Updated',
-        //     dataIndex: 'updated_at',
-        //     key: 'updated_at',
-        //     render: (date) => new Date(date).toLocaleString(), // Format date and time
-        // },
         {
             title: 'Actions',
             key: 'actions',

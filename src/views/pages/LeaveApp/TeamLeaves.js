@@ -141,12 +141,12 @@ const LeaveApplications = ({ startDate, endDate }) => {
                 // }
                 notification.success({ message: `Leave Application ${isApproveModal ? "Approved" : "Rejected"}` });
                 setEditItem(null);
-                if (emailPayload[0] !== null) {
-                    await sendEmail(emailPayload)
-                }
             } else if (error) {
                 notification.error({ message: error?.message || `Failed to ${isApproveModal ? "Approve" : "Rejecte"} Leave Application` });
             }
+        }
+        if (emailPayload[0] !== null) {
+            await sendEmail(emailPayload)
         }
         if (isApproveModal) {
             setIsApproveModal(false);
@@ -190,7 +190,6 @@ const LeaveApplications = ({ startDate, endDate }) => {
         },
         {
             title: 'Leave Days',
-            // dataIndex: ['submitted_time'],
             key: 'submitted_time',
             width: 200,
             render: (record) => (
@@ -226,11 +225,6 @@ const LeaveApplications = ({ startDate, endDate }) => {
         //     }
         // },
         {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-        },
-        {
             title: 'Review Comment',
             key: 'approver_id',
             render: (record) => {
@@ -247,13 +241,23 @@ const LeaveApplications = ({ startDate, endDate }) => {
             }
         },
         {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            filters: [{ text: 'Submitted', value: 'Submitted' }, ...Array.from(
+                new Set(leaveApplications?.map((record) => record?.status))
+            )?.filter((status) => status !== 'Submitted')?.map((status) => ({ text: status, value: status }))], // Create unique filters from status
+            defaultFilteredValue: ['Submitted'],
+            onFilter: (value, record) => record?.status === value,
+        },
+        {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
-                    <Button type="primary" size="small" className="mr-2" onClick={() => handleEdit(record)}
+                    {record?.status === 'Submitted' && <Button type="primary" size="small" className="mr-2" onClick={() => handleEdit(record)}
                         disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
-                    >Approve / Reject</Button>
+                    >Approve / Reject</Button>}
                     {/* <Button type="primary" ghost icon={<DeleteOutlined />} size="small" onClick={() => handleDelete(record.id)}
                     /> */}
                 </div>
@@ -275,8 +279,8 @@ const LeaveApplications = ({ startDate, endDate }) => {
                         onChange={(e) => setRejectComment(e.target.value)} placeholder="Please provide a reason for rejection" />}
                 </Modal>
             }
-            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-            </div>
+            {/* <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+            </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'} columns={columns} dataSource={leaveApplications}
                     rowKey={(record) => record.id} loading={!leaveApplications} pagination={false} />

@@ -41,7 +41,7 @@ const Index = () => {
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddTimesheet} >
                             Add Timesheet
                         </Button>}
-                        <RangePicker
+                        <RangePicker value={dateRange} allowClear={false}
                             onChange={onDateRangeChange}
                             format="YYYY-MM-DD"
                         />
