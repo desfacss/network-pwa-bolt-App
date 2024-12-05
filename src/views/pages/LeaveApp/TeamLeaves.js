@@ -270,7 +270,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
             {(isApproveModal || isRejectModal) &&
                 <Modal
                     title={"Confirm " + (isApproveModal ? "Approval" : "Rejection")}
-                    visible={isApproveModal || isRejectModal}
+                    open={isApproveModal || isRejectModal}
                     onOk={() => handleSubmit(isApproveModal ? "Approved" : "Rejected")}
                     onCancel={handleCancel}
                 >

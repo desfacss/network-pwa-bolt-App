@@ -613,7 +613,7 @@ const Review = ({ date, employee, fetchData }) => {
       {(isApproveModal || isRejectModal) &&
         <Modal
           title={"Confirm " + (isApproveModal ? "Approval" : "Rejection")}
-          visible={isApproveModal || isRejectModal}
+          open={isApproveModal || isRejectModal}
           onOk={handleSubmit}
           onCancel={handleCancel}
         >

@@ -29,13 +29,13 @@ const ReportComponent = () => {
     })
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('id, user_name').eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('users').select('id, user_name').eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true });
         if (error) console.error(error);
         else setUsers(data);
     };
 
     const fetchProjects = async () => {
-        const { data, error } = await supabase.from('projects').select('id, project_name').eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('projects').select('id, project_name').eq('organization_id', session?.user?.organization_id).order('project_name', { ascending: true });
         // const { data, error } = await supabase.rpc('get_projects_with_allocation_v3', {
         //     userid: null,
         //     include_leaves: false,

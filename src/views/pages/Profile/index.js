@@ -73,7 +73,7 @@ const Profile = () => {
         <Card>
             {(edit && schema) && <Modal footer={null}
                 title={schema?.data_schema?.title || ""}
-                visible={edit} onOk={handleOk} onCancel={handleCancel} >
+                open={edit} onOk={handleOk} onCancel={handleCancel} >
                 {/* <DynamicForm schema={schema?.data} initialValues={[{ ...formData }]} /> */}
                 <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
             </Modal>}

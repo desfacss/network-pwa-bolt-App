@@ -1,10 +1,13 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, DatePicker, Grid, message } from "antd";
+import { Button, Card, notification, Table, Drawer, Form, Input, DatePicker, Grid, message, Modal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import Utils from 'utils';
+import { serverErrorParsing } from "components/util-components/serverErrorParsing";
+
+const { confirm } = Modal;
 
 const Locations = () => {
     const componentRef = useRef(null);
@@ -82,6 +85,29 @@ const Locations = () => {
         setHolidays(updatedHolidays);
     };
 
+    const showDeleteConfirm = async (record) => {
+        confirm({
+            title: `Confirm deletion of ${record.name} ?`,
+            icon: <ExclamationCircleFilled />,
+            //   content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: async () => {
+                const { error } = await supabase.from('locations').delete().eq('id', record?.id);
+                if (!error) {
+                    notification.success({ message: "Location deleted" });
+                    fetchLocations();
+                } else {
+                    notification.error({ message: serverErrorParsing(error?.message) || "Failed to delete Location" });
+                }
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
     const columns = [
         {
             title: "Name",
@@ -106,7 +132,7 @@ const Locations = () => {
                     <Button type="primary" icon={<EditFilled />} size="small" className="mr-2"
                         onClick={() => handleEdit(record)} />
                     <Button type="primary" ghost icon={<DeleteOutlined />}
-                        size="small" onClick={() => handleDelete(record.id)} />
+                        size="small" onClick={() => showDeleteConfirm(record)} />
                 </div>
             ),
         },

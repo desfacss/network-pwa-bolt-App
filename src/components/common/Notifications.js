@@ -52,7 +52,7 @@ const Notifications = () => {
             </Badge>
             <Modal
                 title="Notifications"
-                visible={isModalOpen}
+                open={isModalOpen}
                 onCancel={closeModal}
                 footer={null}
             >

@@ -315,7 +315,7 @@ const DashboardTabs = () => {
                             style={{ width: 200, marginBottom: 16 }}
                             placeholder="Select User"
                         >
-                            {userIds.map((userId) => (
+                            {userIds?.sort((a, b) => a.localeCompare(b))?.map((userId) => (
                                 <Option key={userId} value={userId}>
                                     {userId}
                                 </Option>
@@ -344,7 +344,7 @@ const DashboardTabs = () => {
                             style={{ width: 200, marginBottom: 16 }}
                             placeholder="Select Project"
                         >
-                            {projectNames.map((projectName) => (
+                            {projectNames?.sort((a, b) => a.localeCompare(b))?.map((projectName) => (
                                 <Option key={projectName} value={projectName}>
                                     {projectName}
                                 </Option>

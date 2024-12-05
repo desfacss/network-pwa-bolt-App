@@ -163,7 +163,7 @@ const LeaveTypes = () => {
                 <Table dataSource={leaveTypes} columns={columns} rowKey="id" loading={loading} />
                 <Modal
                     title={editingRow ? `Edit ${formatTitle(selectedType)}` : `Add ${formatTitle(selectedType)}`}
-                    visible={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => form.submit()} >
+                    open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => form.submit()} >
                     <Form form={form} layout="vertical" onFinish={handleSave} >
                         <Form.Item name="name" label={`${formatTitle(selectedType)} Name`}
                             rules={[{ required: true, message: `Please enter the ${formatTitle(selectedType)} name.` }]}

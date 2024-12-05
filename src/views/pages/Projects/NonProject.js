@@ -4,8 +4,9 @@ import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, Copy
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
-const { confirm } = Modal;
+import { serverErrorParsing } from "components/util-components/serverErrorParsing";
 
+const { confirm } = Modal;
 
 const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const componentRef = useRef(null);
@@ -36,7 +37,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const [form] = Form.useForm();
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true });
         if (error) {
             console.error('Error fetching users:', error);
         } else {
@@ -45,11 +46,11 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         }
     };
     const fetchClients = async () => {
-        const { data, error } = await supabase.from('clients').select('id, name').eq('organization_id', session?.user?.organization_id).eq('default', true);
+        const { data, error } = await supabase.from('clients').select('id, name').eq('organization_id', session?.user?.organization_id).eq('default', true).order('name', { ascending: true });
         if (error) {
             console.error('Error fetching users:', error);
         } else {
-            console.log("US", data)
+            // console.log("C", data)
             setClients(data || []);
         }
     };
@@ -58,7 +59,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         let { data, error } = await supabase.from('leaves').select('*').eq('organization_id', session?.user?.organization_id);
         if (data) {
             setLeaves(data);
-            console.log("B", data)
+            // console.log("L", data)
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch leaves" });
@@ -196,7 +197,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     };
 
     const showUserDeleteConfirm = async (index, record) => {
-        console.log("UU", projectUsers, record)
+        // console.log("UU", projectUsers, record)
         confirm({
             title: `Are you sure you want to remove the allocation ?`,
             icon: <ExclamationCircleFilled />,
@@ -359,7 +360,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     notification.success({ message: "Project deleted successfully" });
                     fetchProjects();
                 } else {
-                    notification.error({ message: error?.message || "Failed to delete Project" });
+                    notification.error({ message: serverErrorParsing(error?.message) || "Failed to delete Project" });
                 }
             },
             onCancel() {

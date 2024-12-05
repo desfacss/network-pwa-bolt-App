@@ -187,7 +187,7 @@ const Clients = () => {
                 onOk={() => form.submit()} okText="Save" >
                 <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem?.details} />
             </Drawer>
-            <Modal title="Confirm Delete" visible={deleteModalVisible} onOk={handleDelete}
+            <Modal title="Confirm Delete" open={deleteModalVisible} onOk={handleDelete}
                 onCancel={() => setDeleteModalVisible(false)} okText="Delete" okButtonProps={{ danger: true }} >
                 <p>Are you sure you want to delete this client?</p>
             </Modal>

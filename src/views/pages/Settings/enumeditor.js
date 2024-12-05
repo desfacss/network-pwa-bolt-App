@@ -204,7 +204,7 @@ const EnumEditor = () => {
 
         <Modal
           title="Create New Enum"
-          visible={isModalVisible}
+          open={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
           onOk={handleCreateEnum}
         >

@@ -64,7 +64,7 @@ const ChangePassword = () => {
             {/* Modal */}
             <Modal
                 title="Change Password"
-                visible={visible}
+                open={visible}
                 onCancel={handleClose}
                 footer={null}
             >

@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, Card, Row, Col, Descriptions, Button } from 'antd';
+import { Card, Descriptions } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useParams } from 'react-router-dom';
 
-const { TabPane } = Tabs;
-
 const BusinessInfo = () => {
     const { business_id: businessId } = useParams();
-    console.log("id", businessId)
+    // console.log("id", businessId)
 
     const [business, setBusiness] = useState();
 
@@ -23,7 +21,7 @@ const BusinessInfo = () => {
     // };
     const getBusiness = async () => {
         const { data, error } = await supabase.from('businesses').select("*").eq('id', businessId);
-        console.log("Business", data);
+        // console.log("Business", data);
         if (error) {
             return console.log("Error", error.message);
         }

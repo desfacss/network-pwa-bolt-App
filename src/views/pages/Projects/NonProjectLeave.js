@@ -4,6 +4,7 @@ import { PlusOutlined, EditFilled, ExclamationCircleFilled, ExclamationCircleOut
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
+import { serverErrorParsing } from "components/util-components/serverErrorParsing";
 
 const { confirm } = Modal;
 
@@ -40,20 +41,18 @@ const NonProjectLeave = () => {
     const [form] = Form.useForm();
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true });
         if (error) {
             console.error('Error fetching users:', error);
         } else {
-            console.log("Users", data)
             setUsers(data || []);
         }
     };
     const fetchClients = async () => {
-        const { data, error } = await supabase.from('clients').select('id, name').eq('default', true).eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('clients').select('id, name').eq('default', true).eq('organization_id', session?.user?.organization_id).order('name', { ascending: true });
         if (error) {
             console.error('Error fetching users:', error);
         } else {
-            console.log("US", data)
             setClients(data || []);
         }
     };
@@ -62,7 +61,6 @@ const NonProjectLeave = () => {
         let { data, error } = await supabase.from('leaves').select('*').eq('organization_id', session?.user?.organization_id);
         if (data) {
             setLeaves(data);
-            console.log("B", data)
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch leaves" });
@@ -183,7 +181,7 @@ const NonProjectLeave = () => {
     };
 
     const showUserDeleteConfirm = async (index, record) => {
-        console.log("UU", projectUsers, record)
+        // console.log("UU", projectUsers, record)
         confirm({
             title: `Are you sure you want to remove the allocation ?`,
             icon: <ExclamationCircleFilled />,
@@ -347,7 +345,7 @@ const NonProjectLeave = () => {
                     notification.success({ message: "Project deleted successfully" });
                     fetchProjects();
                 } else {
-                    notification.error({ message: error?.message || "Failed to delete Project" });
+                    notification.error({ message: serverErrorParsing(error?.message) || "Failed to delete Project" });
                 }
             },
             onCancel() {
