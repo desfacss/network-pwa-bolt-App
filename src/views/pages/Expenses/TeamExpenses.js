@@ -58,7 +58,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     }, [startDate, endDate]);
 
     const fetchExpenses = async () => {
-        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*),project:project_id(*)').neq('status', 'Approved')
+        let { data, error } = await supabase.from('expensesheet').select('*,user:user_id(*),project:project_id(*)')//.neq('status', 'Approved')
             .eq('organization_id', session?.user?.organization_id)//.neq('user_id', session?.user?.id)
             .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
         if (data) {

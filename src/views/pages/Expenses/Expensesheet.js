@@ -57,7 +57,8 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
     }, []);
 
     const getTypes = async () => {
-        const { data, error } = await supabase.from('expense_type').select('*').eq('organization_id', session?.user?.organization_id)
+        const { data, error } = await supabase.from('expense_type').select('*')
+            .eq('organization_id', session?.user?.organization_id).order('ui_order', { ascending: true })
         if (data) {
             // console.log("d", data)
             setTypes(data)
@@ -155,7 +156,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
 
         const totalColumn = [
             {
-                title: 'Total',
+                title: 'Total (GBP)',
                 dataIndex: 'total',
                 // width: 100,
                 fixed: "right",
@@ -270,7 +271,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
 
         return (
             <Table.Summary.Row className="table-summary-row">
-                <Table.Summary.Cell className="sticky-left">Total</Table.Summary.Cell>
+                <Table.Summary.Cell className="sticky-left">Total (GBP)</Table.Summary.Cell>
                 <Table.Summary.Cell></Table.Summary.Cell>
                 {types?.map((type) => {
                     const key = type?.name?.toLowerCase().replace(/\s+/g, '');

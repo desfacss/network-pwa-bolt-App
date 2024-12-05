@@ -273,7 +273,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
         //     }
         // },
         {
-            title: 'status',
+            title: 'Status',
             dataIndex: 'status',
             key: 'status',
             // render: (status) => (status === 'Approved' ? 'Yes' : 'No'),

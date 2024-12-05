@@ -95,7 +95,7 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
             key: 'grand_total',
         },
         {
-            title: 'status',
+            title: 'Status',
             dataIndex: 'status',
             key: 'status',
         },
