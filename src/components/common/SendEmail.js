@@ -85,7 +85,8 @@ export const generateEmailData = (type, action, details) => {
 
     // Return the email data object
     return {
-        from: 'team@optionsify.com',
+        // from: process.env.REACT_APP_RESEND_FROM_EMAIL,
+        from: `Team TrackMate <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
         to: recipients,
         subject: subject,
         html: `<p>${body}</p><p>If you are not the intended reciepient, You can safely ignore this message or contact HR for assistance.
