@@ -1,7 +1,9 @@
 import { Resend } from 'resend';
 import { store } from 'store';
 
-const resend = new Resend('re_VTPe8tkE_GRAog5gbk5kxjhUKUVpSsRF2'); // Replace 'YOUR_API_KEY' with your Resend API key
+// const resend = new Resend('re_VTPe8tkE_GRsdfSsRF2'); // Replace 'YOUR_API_KEY' with your Resend API key
+const resend = new Resend(process.env.REACT_APP_RESEND_API_KEY); // Replace 'YOUR_API_KEY' with your Resend API key
+
 
 export const sendEmail = async (emails) => {
     try {
