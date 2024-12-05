@@ -376,7 +376,7 @@ const Users = () => {
     );
 
     return (
-        <Card bodyStyle={{ padding: "0px" }}>
+        <Card styles={{ body: { padding: "0px" } }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Manage Team</h2>
                 <div>
@@ -412,8 +412,8 @@ const Users = () => {
                                             <div className="service-card-title">
                                                 <Avatar size={80}
                                                     src={user?.details?.profileImage}
-                                                    alt={user && user?.details?.firstName[0] || ""}
-                                                >{user && user?.details?.firstName[0] || ""}</Avatar>
+                                                    alt={user && user?.user_name && user?.user_name[0] || ""}
+                                                >{user && user?.user_name && user?.user_name[0] || ""}</Avatar>
                                                 {/* {user.details?.firstName} */}
                                             </div>
                                         }

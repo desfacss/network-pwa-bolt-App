@@ -56,7 +56,7 @@ const Users = () => {
                         }
                         onClick={() => navigate(`/auth/users/${user.user_id}`)} // Navigate on click
                         hoverable // Enable hover effect
-                        bodyStyle={{ padding: '10px 20px' }} // Adjust padding for a cleaner look
+                        styles={{ body:{padding: '10px 20px' }}} // Adjust padding for a cleaner look
                         onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0px 4px 12px rgba(0, 0, 0, 0.2)'} // Highlight on hover
                         onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'} // Reset on hover out
                     >

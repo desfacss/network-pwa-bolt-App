@@ -325,10 +325,10 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
     ];
 
     return (
-        <Card bodyStyle={{ padding: "0px" }}>
+        <Card styles={{ body: { padding: "0px" } }}>
             <LeaveDetails userId={session?.user?.id} />
-            <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
-            </div>
+            {/* <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
+            </div> */}
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'} columns={columns} dataSource={leaveApplications} rowKey={(record) => record.id}
                     loading={!leaveApplications} pagination={false} />

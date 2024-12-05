@@ -168,7 +168,7 @@ const Services = () => {
     // ... rest of your component
 
     return (
-        <Card bodyStyle={{ padding: "0px" }}>
+        <Card styles={{ body: { padding: "0px" } }}>
             {/* Rest of the component code */}
             <Drawer
                 width={600}

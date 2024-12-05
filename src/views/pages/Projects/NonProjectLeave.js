@@ -550,7 +550,7 @@ const NonProjectLeave = () => {
     ];
 
     return (
-        <Card bodyStyle={{ padding: "0px" }}>
+        <Card styles={{ body: { padding: "0px" } }}>
             <div className="table-responsive" ref={componentRef}>
                 <Table size={'small'}
                     columns={columns}

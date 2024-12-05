@@ -213,7 +213,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     }
 
     return (
-        <Card bodyStyle={{ padding: "0px" }}>
+        <Card styles={{ body: { padding: "0px" } }}>
             {(isApproveModal || isRejectModal) &&
                 <Modal
                     title={"Confirm " + (isApproveModal ? "Approval" : "Rejection")}
