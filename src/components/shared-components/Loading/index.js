@@ -12,7 +12,7 @@ const LoadingWrapper = styled('div')`
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
-	` : '' }
+	` : ''}
 
 	${props => props.cover === 'page' ? `
 		position: fixed;
@@ -21,11 +21,11 @@ const LoadingWrapper = styled('div')`
 		display: flex;
 		align-items: center;
 		justify-content: center;
-	` : '' }
+	` : ''}
 `
 
-const Loading = (props) => {
-	const { align, cover = 'content' } = props
+const Loading = ({ align = 'center', cover = 'inline' }) => {
+	// const { align, cover = 'content' } = props
 	return (
 		<LoadingWrapper className={`${align ? `text-${align}` : ''}`} cover={cover}>
 			<Spin indicator={Icon} />
@@ -38,9 +38,9 @@ Loading.propTypes = {
 	cover: PropTypes.string
 }
 
-Loading.defaultProps = {
-	align: 'center',
-	cover: 'inline'
-};
+// Loading.defaultProps = {
+// 	align: 'center',
+// 	cover: 'inline'
+// };
 
 export default Loading

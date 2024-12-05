@@ -257,10 +257,10 @@ LoginForm.propTypes = {
   extra: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
 };
 
-LoginForm.defaultProps = {
-  otherSignIn: true,
-  showForgetPassword: false,
-};
+// LoginForm.defaultProps = {
+//   otherSignIn: true,
+//   showForgetPassword: false,
+// };
 
 const mapStateToProps = ({ auth }) => {
   const { loading, message, showMessage, token, redirect } = auth;

@@ -35,7 +35,7 @@ const getChartTypeDefaultOption = type => {
 	}
 }
 
-const ChartWidget = ({ title, series, width, height, xAxis, customOptions, card, type, extra, direction, bodyClass }) => {
+const ChartWidget = ({ title, series = [], width = '100%', height = 300, xAxis, customOptions, card = true, type = 'line', extra, direction, bodyClass }) => {
 	const extraRef = useRef(null);
 	const chartRef = useRef();
 	let options = JSON.parse(JSON.stringify(getChartTypeDefaultOption(type)))
@@ -157,12 +157,12 @@ ChartWidget.propTypes = {
 	bodyClass: PropTypes.string
 }
 
-ChartWidget.defaultProps = {
-	series: [],
-	height: 300,
-	width: '100%',
-	card: true,
-	type: 'line'
-};
+// ChartWidget.defaultProps = {
+// 	series: [],
+// 	height: 300,
+// 	width: '100%',
+// 	card: true,
+// 	type: 'line'
+// };
 
 export default ChartWidget
