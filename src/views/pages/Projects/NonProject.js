@@ -90,9 +90,12 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     };
 
     const handleAddOrEdit = async (values) => {
+        // const allocation=allocationTracking
+        const allocation = projectUsers?.length > 0
+
         setIsInvalid(false);
 
-        if (allocationTracking && !validateData(projectUsers)) {
+        if (allocation && !validateData(projectUsers)) {
             setIsInvalid(true);
             return;
         }
@@ -101,20 +104,21 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             ...values,
             start_date: values?.start_date?.format(dateFormat),
             end_date: values?.end_date?.format(dateFormat),
-            // project_users: allocationTracking ? projectUsers : []
+            allocation_tracking: allocation,
+            // project_users: allocation ? projectUsers : []
         };
 
-        if (!allocationTracking) {
+        if (!allocation) {
             delete updatedDetails.projectUsers;
         }
 
         const commonPayload = {
             details: updatedDetails,
             status: 'in progress',
-            allocation_tracking: allocationTracking,
+            allocation_tracking: allocation,
             is_non_project: true,
             status: values?.status,
-            // project_users: allocationTracking ? projectUsers?.map(item => item?.user_id) : null,
+            // project_users: allocation ? projectUsers?.map(item => item?.user_id) : null,
             project_name: values?.project_name,
             client_id: clients[0]?.id,
             hrpartner_id: session?.user?.id,
@@ -131,38 +135,47 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
             if (data) {
                 try {
-                    // const details = projectUsers
-                    const projectId = data[0]?.id
-                    const payload = projectUsers.map((user) => {
-                        const { rate, user_id, end_date, start_date, expensed_hours, allocated_hours } = user;
+                    if (allocation) {
 
-                        // Find user_name if provided in userNames object
-                        const user_name = users?.find(user => user?.id === user_id)?.user_name || null;
+                        // const details = projectUsers
+                        const projectId = data[0]?.id
+                        const payload = projectUsers.map((user) => {
+                            const { rate, user_id, end_date, start_date, expensed_hours, allocated_hours } = user;
 
-                        return {
-                            user_id,
-                            project_id: projectId,
-                            user_name,
-                            details: {
-                                rate,
-                                end_date,
-                                start_date,
+                            // Find user_name if provided in userNames object
+                            const user_name = users?.find(user => user?.id === user_id)?.user_name || null;
+
+                            return {
+                                user_id,
                                 project_id: projectId,
-                                expensed_hours: parseFloat(expensed_hours), // Ensure numeric value
-                                allocated_hours: parseFloat(allocated_hours) // Ensure numeric value
-                            }
-                        };
-                    });
+                                user_name,
+                                details: {
+                                    rate,
+                                    end_date,
+                                    start_date,
+                                    project_id: projectId,
+                                    expensed_hours: parseFloat(expensed_hours), // Ensure numeric value
+                                    allocated_hours: parseFloat(allocated_hours) // Ensure numeric value
+                                }
+                            };
+                        });
 
-                    const { error } = await supabase
-                        .from('allocations')
-                        .upsert(payload, { onConflict: ['project_id', 'user_id'] });
+                        const { error } = await supabase
+                            .from('allocations')
+                            .upsert(payload, { onConflict: ['project_id', 'user_id'] });
 
-                    if (error) {
-                        console.error('Error upserting allocation:', error.message);
+                        if (error) {
+                            console.error('Error upserting allocation:', error.message);
+                        } else {
+                            notification.success({ message: (editItem && !clone) ? "Project updated" : "Project added" });
+                            setEditItem(null);
+                        }
+
                     } else {
-                        notification.success({ message: (editItem && !clone) ? "Project updated successfully" : "Project added successfully" });
+
+                        notification.success({ message: (editItem && !clone) ? "Project updated" : "Project added" });
                         setEditItem(null);
+
                     }
                 } catch (err) {
                     console.error('Unexpected error:', err);
@@ -570,7 +583,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     <Row gutter={16}>
                         <Col xs={24} md={12}>
                             <Form.Item name="allocation_tracking" label="Allocation Tracking" valuePropName="checked">
-                                <Checkbox onChange={(e) => handleAllocationChange(e.target.checked)} />
+                                <Checkbox onChange={(e) => handleAllocationChange(e.target.checked)} disabled={projectUsers?.length > 0} />
                             </Form.Item>
                         </Col>
                         {/* <Col xs={24} md={12}>
