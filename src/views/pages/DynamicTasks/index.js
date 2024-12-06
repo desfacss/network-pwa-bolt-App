@@ -1,54 +1,11 @@
 import { Card, notification, Tabs } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useState } from 'react';
+import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
 import TableView from '../DynamicViews/TableView';
 
 const db_table_name = 'y_tasks'
-
-// const TableviewConfig = {
-//     viewName: "TableView",
-//     fields: [
-//         { fieldName: "name", order: 1 },
-//         { fieldName: "priority", order: 2 },
-//         { fieldName: "due_date", order: 3 },
-//         { fieldName: "status", order: 4 },
-//         { fieldName: "assignee", order: 5 }
-//     ],
-//     groupBy: ["status"],
-//     actions: {
-//         row: ["edit", "delete"],
-//         bulk: ["assign", "mark_complete"]
-//     }
-// };
-
-
-// const data = [
-//     {
-//         id: 1,
-//         name: "Design wireframes",
-//         priority: "High",
-//         due_date: "2024-12-05",
-//         status: "In Progress",
-//         assignee: "John Doe"
-//     },
-//     {
-//         id: 2,
-//         name: "Develop API",
-//         priority: "Critical",
-//         due_date: "2024-12-06",
-//         status: "Todo",
-//         assignee: "Jane Smith"
-//     },
-//     {
-//         id: 3,
-//         name: "Test deployment",
-//         priority: "Medium",
-//         due_date: "2024-12-07",
-//         status: "Todo",
-//         assignee: "Alice Brown"
-//     }
-// ];
 
 const Index = () => {
     const [viewConfig, setViewConfig] = useState()
@@ -57,7 +14,7 @@ const Index = () => {
     const fetchData = async () => {
         let { data, error } = await supabase.from(db_table_name).select('*').order('details->>name', { ascending: true });
         if (data) {
-            // console.log("Data", data.map(item => ({ ...item, ...item.details, details: undefined })))
+            console.log("Data", data)//.map(item => ({ ...item, ...item.details, details: undefined })))
             setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
         }
         if (error) {
@@ -68,7 +25,7 @@ const Index = () => {
     const fetchViewConfigs = async () => {
         let { data, error } = await supabase.from('y_view_config').select('*').eq('db_table_name', db_table_name);
         if (data) {
-            // console.log("viewConfig", data[0])
+            console.log("viewConfig", data[0]?.tableview)
             setViewConfig(data && data[0]);
         }
         if (error) {
@@ -81,16 +38,64 @@ const Index = () => {
         fetchData();
     }, []);
 
+
+    const updateData = async (updatedRow) => {
+        const { id, created_at, details, organization_id, ...updates } = updatedRow
+        console.log("UR", updates)
+        const { data, error } = await supabase.from(db_table_name).update({ details: updatedRow }).eq('id', updatedRow.id).select('*');
+
+        if (error) {
+            notification.error({ message: error.message });
+        } else {
+            notification.success({ message: "Updated Successfully" })
+            fetchData(); // Refresh data after updating
+        }
+    };
+
+    const deleteData = async (deleteRow) => {
+        console.log("Del", deleteRow?.id)
+        const { data, error } = await supabase.from(db_table_name).delete().eq('id', deleteRow?.id);
+        if (error) {
+            notification.error({ message: error.message });
+        } else {
+            fetchData(); // Refresh data after deleting
+        }
+    };
+
+    const handleAddOrEdit = async (formData, editItem) => {
+        if (editItem) {
+            // Update logic
+            const { error } = await supabase.from(db_table_name).update({ ...editItem, details: formData }).eq('id', editItem.id);
+            if (error) {
+                notification.error({ message: 'Failed to update task' });
+            } else {
+                fetchData();
+                notification.success({ message: 'Task updated successfully' });
+            }
+        } else {
+            // Add logic
+            const { error } = await supabase.from(db_table_name).insert([{ details: formData }]);
+            if (error) {
+                notification.error({ message: 'Failed to add task' });
+            } else {
+                fetchData();
+                notification.success({ message: 'Task added successfully' });
+            }
+        }
+    };
+
+
+
     const tabItems = [
         {
             label: 'Table',
             key: '1',
-            children: <TableView data={data} viewConfig={viewConfig?.tableview} />,
+            children: <TableView data={data} viewConfig={viewConfig?.tableview} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
         },
         {
             label: 'Grid',
             key: '2',
-            children: <GridView data={data} viewConfig={viewConfig?.gridview} />
+            children: <GridView data={data} viewConfig={viewConfig?.gridview} updateData={updateData} deleteData={deleteData} />
         },
         // {
         //     label: 'Gantt',
@@ -106,16 +111,9 @@ const Index = () => {
         // },
     ];
 
-    const onDelete = () => {
-        console.log("")
-    }
-
-    const onEdit = () => {
-        console.log("")
-    }
-
     return (
         <Card>
+            {/* <DynamicForm schemas={viewConfig} /> */}
             {(data && viewConfig) && <Tabs defaultActiveKey="1" items={tabItems} />}
         </Card>
     );
