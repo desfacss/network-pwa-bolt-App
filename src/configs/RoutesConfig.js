@@ -110,9 +110,14 @@ export const protectedRoutes = (feature) => {
             component: React.lazy(() => import('views/pages/Profile/index')),
         },
         feature?.dynamicViews && {
-            key: 'dynamicviews',
-            path: `${APP_PREFIX_PATH}/dynamicviews`,
+            key: 'ytasks',
+            path: `${APP_PREFIX_PATH}/ytasks`,
             component: React.lazy(() => import('views/pages/DynamicTasks')),
+        },
+        feature?.dynamicViews && {
+            key: 'yclients',
+            path: `${APP_PREFIX_PATH}/yclients`,
+            component: React.lazy(() => import('views/pages/DynamicClients')),
         },
         // {
         //     key: 'users',

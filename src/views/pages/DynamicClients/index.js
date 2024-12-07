@@ -5,7 +5,7 @@ import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
 import TableView from '../DynamicViews/TableView';
 
-const db_table_name = 'y_tasks'
+const db_table_name = 'clients'
 
 const Index = () => {
     const [viewConfig, setViewConfig] = useState()
