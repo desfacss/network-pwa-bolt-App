@@ -9,6 +9,7 @@ const { confirm } = Modal;
 const LeaveSettings = () => {
     const componentRef = useRef(null);
     const [leaves, setLeaves] = useState([]);
+    const [projectLeaves, setProjectLeaves] = useState([]);
     const [editItem, setEditItem] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [schema, setSchema] = useState();
@@ -28,7 +29,18 @@ const LeaveSettings = () => {
     useEffect(() => {
         getForms()
         fetchLeaves();
+        fetchProjectLeaves()
     }, []);
+
+    const fetchProjectLeaves = async () => {
+        let { data, error } = await supabase.from('projects_leaves').select('*').eq('organization_id', session?.user?.organization_id);
+        if (data) {
+            setProjectLeaves(data);
+        }
+        if (error) {
+            notification.error({ message: error?.message || "Failed to fetch leaves" });
+        }
+    };
 
     const fetchLeaves = async () => {
         let { data, error } = await supabase.from('leaves').select('*,location:location_id (*)').eq('organization_id', session?.user?.organization_id);
@@ -97,26 +109,32 @@ const LeaveSettings = () => {
     };
 
     const showDeleteConfirm = async (record) => {
-        confirm({
-            title: `Confirm deletion of ${record.leave_type} ?`,
-            icon: <ExclamationCircleFilled />,
-            //   content: 'Some descriptions',
-            okText: 'Yes',
-            okType: 'danger',
-            cancelText: 'No',
-            onOk: async () => {
-                const { error } = await supabase.from('leaves').delete().eq('id', record?.id);
-                if (!error) {
-                    notification.success({ message: "Leave deleted successfully" });
-                    fetchLeaves();
-                } else {
-                    notification.error({ message: error?.message || "Failed to delete Leave" });
-                }
-            },
-            onCancel() {
-                console.log('Cancel');
-            },
-        });
+        const project_id = projectLeaves?.find(projectLeave => projectLeave?.project_name === record?.leave_type)?.id
+        let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: project_id });
+        if (data?.project_name, data?.details?.project_users?.length > 0) {
+            notification.error({ message: `Failed to delete, since ${data?.project_name} has allocated users` });
+        } else {
+            confirm({
+                title: `Confirm deletion of ${record.leave_type} ?`,
+                icon: <ExclamationCircleFilled />,
+                //   content: 'Some descriptions',
+                okText: 'Yes',
+                okType: 'danger',
+                cancelText: 'No',
+                onOk: async () => {
+                    const { error } = await supabase.from('leaves').delete().eq('id', record?.id);
+                    if (!error) {
+                        notification.success({ message: "Leave deleted successfully" });
+                        fetchLeaves();
+                    } else {
+                        notification.error({ message: error?.message || "Failed to delete Leave" });
+                    }
+                },
+                onCancel() {
+                    console.log('Cancel');
+                },
+            });
+        }
     };
 
     const columns = [

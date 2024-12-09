@@ -74,7 +74,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('projects').select('*').eq('organization_id', session?.user?.organization_id).eq('is_non_project', true).order('project_name', { ascending: true });
+        let { data, error } = await supabase.from('projects').select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true).eq('is_non_project', true).order('project_name', { ascending: true });
         if (data) {
             setProjects(data);
         }
@@ -347,26 +347,33 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     }
 
     const showDeleteConfirm = async (record) => {
-        confirm({
-            title: `Confirm deletion of ${record.project_name} ?`,
-            icon: <ExclamationCircleFilled />,
-            //   content: 'Some descriptions',
-            okText: 'Yes',
-            okType: 'danger',
-            cancelText: 'No',
-            onOk: async () => {
-                const { error } = await supabase.from('projects').delete().eq('id', record?.id);
-                if (!error) {
-                    notification.success({ message: "Project deleted successfully" });
-                    fetchProjects();
-                } else {
-                    notification.error({ message: serverErrorParsing(error?.message) || "Failed to delete Project" });
-                }
-            },
-            onCancel() {
-                console.log('Cancel');
-            },
-        });
+        let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: record?.id });
+        if (data?.project_name, data?.details?.project_users?.length > 0) {
+            notification.error({ message: `Failed to delete, since ${data?.project_name} has allocated users` });
+        } else {
+            confirm({
+                title: `Confirm deletion of ${record.project_name} ?`,
+                icon: <ExclamationCircleFilled />,
+                //   content: 'Some descriptions',
+                okText: 'Yes',
+                okType: 'danger',
+                cancelText: 'No',
+                onOk: async () => {
+                    // Deletes the record permanently
+                    // const { error } = await supabase.from('projects').delete().eq('id', record?.id);
+                    const { error } = await supabase.from('projects').update({ is_active: false }).eq('id', record?.id);
+                    if (!error) {
+                        notification.success({ message: `${data?.project_name} deleted successfully` });
+                        fetchProjects();
+                    } else {
+                        notification.error({ message: serverErrorParsing(error?.message) || `Failed to delete ${data?.project_name}` });
+                    }
+                },
+                onCancel() {
+                    console.log('Cancel');
+                },
+            });
+        }
     };
 
     const columns = [

@@ -1,5 +1,5 @@
 import { Card, Tabs } from 'antd'
-import React from 'react'
+import React, { useState } from 'react'
 import Locations from '../Locations';
 import Organization from './Organization'
 import RoleFeatureEdit from './Roles'
@@ -8,52 +8,58 @@ import EnumEditor from './enumeditor';
 import LeaveSettings from '../LeaveSettings';
 import LeaveTypes from '../LeaveSettings/LeaveTypes';
 
-const index = () => {
+const Index = () => {
+
+    const [activeKey, setActiveKey] = useState('1');
+
+    const handleTabChange = (key) => {
+        setActiveKey(key);
+    };
 
     const tabItems = [
         {
             label: 'Organization', key: '1',
-            children: <Organization />,
+            children: activeKey === '1' && <Organization />,
         },
         {
             label: 'Roles & Permission', key: '2',
-            children: <RoleFeatureEdit />,
+            children: activeKey === '2' && <RoleFeatureEdit />,
         },
         {
             label: 'Location & Holidays', key: '3',
-            children: <Locations />,
+            children: activeKey === '3' && <Locations />,
         },
         {
             label: 'Workflow Settings', key: '4',
-            children: <TimesheetSettings />,
+            children: activeKey === '4' && <TimesheetSettings />,
         },
         {
             label: 'Types', key: '5',
-            children: <LeaveTypes />,
+            children: activeKey === '5' && <LeaveTypes />,
         },
         {
             label: 'Leave Settings', key: '6',
-            children: <LeaveSettings />,
+            children: activeKey === '6' && <LeaveSettings />,
         },
         // {
         //     label: 'Enum Editor', key: '7',
-        //     children: <EnumEditor />,
+        //     children: activeKey === '7' && <EnumEditor />,
         // },
         // {
         //     label: 'Leave Policy', key: '8',
-        //     children: <Locations />,
+        //     children: activeKey === '8' && <Locations />,
         // },
         // {
         //     label: 'Expense Policy', key: '9',
-        //     children: <Locations />,
+        //     children: activeKey === '9' && <Locations />,
         // },
     ];
 
     return (
         <Card>
-            <Tabs defaultActiveKey="1" items={tabItems} />
+            <Tabs activeKey={activeKey} onChange={handleTabChange} items={tabItems} />
         </Card>
     )
 }
 
-export default index
+export default Index

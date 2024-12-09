@@ -1,6 +1,6 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker, InputNumber, Modal, Tooltip, Row, Col } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, ExclamationCircleFilled, ExclamationCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditFilled, ExclamationCircleFilled, ExclamationCircleOutlined, DeleteOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
@@ -75,7 +75,7 @@ const NonProjectLeave = () => {
     }, []);
 
     const fetchProjects = async () => {
-        let { data, error } = await supabase.from('projects_leaves').select('*').eq('is_non_project', true).eq('organization_id', session?.user?.organization_id).order('project_name', { ascending: true });
+        let { data, error } = await supabase.from('projects_leaves').select('*').eq('is_active', true).eq('is_non_project', true).eq('organization_id', session?.user?.organization_id).order('project_name', { ascending: true });
         if (data) {
             setProjects(data);
         }
@@ -155,7 +155,7 @@ const NonProjectLeave = () => {
                     const { allocationsData, error } = await supabase
                         .from('allocations')
                         .upsert(payload, { onConflict: ['project_id', 'user_id'] }).select('*');
-                    console.log("ap", allocationsData, payload)
+                    // console.log("ap", allocationsData, payload)
                     if (error) {
                         console.error('Error upserting allocation:', error.message);
                     } else {
@@ -332,26 +332,32 @@ const NonProjectLeave = () => {
     }
 
     const showDeleteConfirm = async (record) => {
-        confirm({
-            title: `Confirm deletion of ${record.project_name} ?`,
-            icon: <ExclamationCircleFilled />,
-            //   content: 'Some descriptions',
-            okText: 'Yes',
-            okType: 'danger',
-            cancelText: 'No',
-            onOk: async () => {
-                const { error } = await supabase.from('projects_leaves').delete().eq('id', record?.id);
-                if (!error) {
-                    notification.success({ message: "Project deleted successfully" });
-                    fetchProjects();
-                } else {
-                    notification.error({ message: serverErrorParsing(error?.message) || "Failed to delete Project" });
-                }
-            },
-            onCancel() {
-                console.log('Cancel');
-            },
-        });
+        let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: record?.id });
+        if (data?.project_name, data?.details?.project_users?.length > 0) {
+            notification.error({ message: `Failed to delete, since ${data?.project_name} has allocated users` });
+        } else {
+            confirm({
+                title: `Confirm deletion of ${record.project_name} ?`,
+                icon: <ExclamationCircleFilled />,
+                //   content: 'Some descriptions',
+                okText: 'Yes',
+                okType: 'danger',
+                cancelText: 'No',
+                onOk: async () => {
+                    // const { error } = await supabase.from('projects_leaves').delete().eq('id', record?.id);
+                    const { error } = await supabase.from('projects_leaves').update({ is_active: false }).eq('id', record?.id);
+                    if (!error) {
+                        notification.success({ message: `${data?.project_name} deleted successfully` });
+                        fetchProjects();
+                    } else {
+                        notification.error({ message: serverErrorParsing(error?.message) || `Failed to delete ${data?.project_name}` });
+                    }
+                },
+                onCancel() {
+                    console.log('Cancel');
+                },
+            });
+        }
     };
 
     const handleAllocate = async (record) => {
@@ -466,6 +472,10 @@ const NonProjectLeave = () => {
                     <Tooltip title="Edit">
                         <Button type="primary" icon={<EditFilled />} size="small"
                             className="mr-2" onClick={() => handleEdit(record)} />
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <Button type="primary" ghost icon={<DeleteOutlined />} size="small"
+                            onClick={() => showDeleteConfirm(record)} />
                     </Tooltip>
                 </div>
             ),
