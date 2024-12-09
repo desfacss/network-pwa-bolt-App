@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Checkbox, Button, message } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
+import { camelCaseToTitleCase } from 'components/util-components/utils';
 
 const RoleFeatureEdit = () => {
     const [roles, setRoles] = useState([]);
@@ -12,10 +13,8 @@ const RoleFeatureEdit = () => {
 
     // Fetch roles from Supabase
     const fetchRoles = async () => {
-        const { data, error } = await supabase
-            .from('roles')
-            .select('id, role_name, feature')
-            .neq('is_superadmin', true).eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('roles').select('id, role_name, feature')
+            .neq('is_superadmin', true).eq('organization_id', session?.user?.organization_id).order('ui_order', { ascending: true });
 
         if (error) {
             console.error('Error fetching roles:', error);
@@ -26,11 +25,9 @@ const RoleFeatureEdit = () => {
 
     // Fetch features from enums table where name === 'features'
     const fetchFeatures = async () => {
-        const { data, error } = await supabase
-            .from('enums')
-            .select('options')
+        const { data, error } = await supabase.from('enums').select('options')
             .eq('name', 'features').eq('organization_id', session?.user?.organization_id)
-            .single(); // Get the single row
+            .single();
 
         if (error) {
             console.error('Error fetching features:', error);
@@ -84,33 +81,24 @@ const RoleFeatureEdit = () => {
 
     return (
         <div>
-            <Table size={'small'}
-                dataSource={features.map(feature => ({ feature }))}
-                loading={loading}
-                pagination={false}
-                rowKey="feature"
-            >
-                <Table.Column title="Feature" dataIndex="feature" key="feature" />
-
-                {roles.map(role => (
+            <Table size={'small'} dataSource={features.map(feature => ({ feature }))}
+                loading={loading} pagination={false} rowKey="feature" >
+                {/* <Table.Column title="Feature" dataIndex="feature" key="feature" /> */}
+                <Table.Column title="Feature" dataIndex="feature" key="feature" render={(text) => camelCaseToTitleCase(text)} />
+                {roles?.map(role => (
                     <Table.Column
-                        key={role.id}
-                        title={role.role_name}
+                        key={role?.id}
+                        title={camelCaseToTitleCase(role?.role_name)}
                         render={(text, record) => (
-                            <Checkbox
-                                checked={role.feature[record.feature] || false} // Default to false if undefined
-                                onChange={(e) => handleFeatureChange(record.feature, role.id, e.target.checked)}
+                            <Checkbox checked={role?.feature[record?.feature] || false}
+                                onChange={(e) => handleFeatureChange(record?.feature, role?.id, e.target.checked)}
                             />
                         )}
                     />
                 ))}
             </Table>
 
-            <Button
-                type="primary"
-                onClick={handleSaveChanges}
-                style={{ marginTop: 16 }}
-            >
+            <Button type="primary" onClick={handleSaveChanges} style={{ marginTop: 16 }} >
                 Save Changes
             </Button>
         </div>

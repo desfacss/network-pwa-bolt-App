@@ -27,7 +27,7 @@ const navigationConfig = [
     // icon: DashboardOutlined,
     breadcrumb: false,
     submenu: [
-      feature?.dashboard && {
+      {
         key: 'dashboard',
         path: `${APP_PREFIX_PATH}/dashboard`,
         title: 'Dashboard',
@@ -60,7 +60,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.viewReports && {
+      feature?.reports && {
         key: 'reports',
         path: `${APP_PREFIX_PATH}/reports`,
         title: 'Reports',
@@ -83,7 +83,7 @@ const navigationConfig = [
       //   breadcrumb: false,
       //   isGroupTitle: true,
       //   submenu: [
-      feature?.Clients && {
+      feature?.clients && {
         key: 'clients',
         path: `${APP_PREFIX_PATH}/clients`,
         title: 'Clients',
@@ -91,7 +91,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.Projects && {
+      feature?.projects && {
         key: 'projects',
         path: `${APP_PREFIX_PATH}/projects`,
         title: 'Projects',
@@ -99,7 +99,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.Team && {
+      feature?.team && {
         key: 'team',
         path: `${APP_PREFIX_PATH}/team`,
         title: 'Team',

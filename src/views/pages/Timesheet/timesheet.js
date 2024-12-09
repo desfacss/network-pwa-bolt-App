@@ -901,7 +901,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
               <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
             </Col>
             {approvedTimeSheet ? "Approved" : <Col>
-              <Button onClick={() => handleSubmit('Draft')} loading={loading}>Save</Button>
+              <Button onClick={() => handleSubmit('Draft')} loading={loading}>Save Draft</Button>
               <Button onClick={() => handleSubmit('Submitted')} loading={loading} disabled={submitDisabled} className='ml-2 mr-2'>Submit</Button>
               <TimesheetInstructions />
             </Col>}

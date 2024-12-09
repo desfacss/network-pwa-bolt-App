@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import './Services.css'; // Add a CSS file to style the cards grid
 import axios from "axios";
 import { serverErrorParsing } from "components/util-components/serverErrorParsing";
+import { camelCaseToTitleCase } from "components/util-components/utils";
 const { confirm } = Modal;
 
 const Users = () => {
@@ -35,7 +36,7 @@ const Users = () => {
         const { data, error } = await supabase.from('locations').select('*').eq('organization_id', session?.user?.organization_id).order('name', { ascending: true })
         if (data) {
             setLocations(data)
-            console.log("Locations", data)
+            // console.log("Locations", data)
         }
     }
 
@@ -45,7 +46,7 @@ const Users = () => {
         if (error) {
             console.error('Error fetching roles:', error);
         } else {
-            console.log("roles", data)
+            // console.log("roles", data)
             setRoles(data);
         }
     };
@@ -64,7 +65,7 @@ const Users = () => {
             .eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true });
         if (data) {
             setUsers(data);
-            console.log("users1", data);
+            // console.log("users1", data);
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch users" });
@@ -175,7 +176,7 @@ const Users = () => {
         copy && (delete item?.firstName)
         copy && (delete item?.lastName)
         copy && (delete item?.mobile)
-        console.log("Up", item, record);
+        // console.log("Up", item, record);
         setEditItem(item);
         form.setFieldsValue(item);
         setIsModalOpen(true);
@@ -248,81 +249,36 @@ const Users = () => {
     };
 
     const columns = [
+        { title: 'Name', dataIndex: 'user_name', key: 'user_name' },
+        { title: 'Email', dataIndex: ['details', 'email'], key: 'email' },
+        { title: 'Mobile', dataIndex: ['details', 'mobile'], key: 'mobile' },
+        { title: 'Cost/Hr', dataIndex: ['details', 'rate'], key: 'rate' },
         {
-            title: 'Name',
-            dataIndex: 'user_name',
-            key: 'user_name',
+            title: 'Role', dataIndex: ['details', 'role_type'], key: 'role',
+            render: (text) => camelCaseToTitleCase(text)
         },
-        {
-            title: 'Email',
-            dataIndex: ['details', 'email'],
-            key: 'email',
-        },
-        {
-            title: 'Mobile',
-            dataIndex: ['details', 'mobile'],
-            key: 'mobile',
-        },
-        {
-            title: 'Cost/Hr',
-            dataIndex: ['details', 'rate'],
-            key: 'rate',
-        },
-        {
-            title: 'Role',
-            dataIndex: ['details', 'role_type'],
-            key: 'role',
-        },
-        {
-            title: 'Manager',
-            dataIndex: ['manager', 'user_name'],
-            key: 'manager',
-        },
-        {
-            title: 'Location',
-            dataIndex: ['location', 'name'],
-            key: 'location',
-        },
+        { title: 'Manager', dataIndex: ['manager', 'user_name'], key: 'manager' },
+        { title: 'Location', dataIndex: ['location', 'name'], key: 'location' },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
                 <div className="d-flex">
                     <Tooltip title="Edit">
-                        <Button
-                            type="primary"
-                            icon={<EditFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record)}
-                        />
+                        <Button type="primary" icon={<EditFilled />} size="small" className="mr-2"
+                            onClick={() => handleEdit(record)} />
                     </Tooltip>
                     <Tooltip title="Copy">
-                        <Button
-                            type="primary"
-                            icon={<CopyFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record, true)}
-                        />
+                        <Button type="primary" icon={<CopyFilled />} size="small" className="mr-2"
+                            onClick={() => handleEdit(record, true)} />
                     </Tooltip>
                     <Tooltip title="Resend Login Link">
-                        <Button //disabled={true}
-                            type="primary"
-                            icon={<SendOutlined />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => showResendLoginLinkConfirm(record)}
-                        />
+                        <Button type="primary" icon={<SendOutlined />} size="small" className="mr-2"
+                            onClick={() => showResendLoginLinkConfirm(record)} />
                     </Tooltip>
                     <Tooltip title="Delete">
-                        <Button
-                            type="primary" ghost
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            // onClick={() => handleDelete(record.id)}
-                            onClick={() => showDeleteConfirm(record)}
-                        />
+                        <Button type="primary" ghost icon={<DeleteOutlined />} size="small"
+                            onClick={() => showDeleteConfirm(record)} />
                     </Tooltip>
                 </div>
             ),
@@ -332,45 +288,16 @@ const Users = () => {
     const actionsMenu = (user) => (
         <Menu>
             <Menu.Item key="edit" onClick={() => handleEdit(user)}>
-                {/* <Tooltip title="Edit"> */}
-                <Button
-                    type="link"
-                    // icon={<EditFilled />}
-                    size="small"
-                    onClick={() => handleEdit(user)}
-                >Edit</Button>
-                {/* </Tooltip> */}
+                <Button type="link" size="small" onClick={() => handleEdit(user)} >Edit</Button>
             </Menu.Item>
             <Menu.Item key="copy" onClick={() => handleEdit(user, true)}>
-                {/* <Tooltip title="Copy"> */}
-                <Button
-                    type="link"
-                    // icon={<CopyFilled />}
-                    size="small"
-                // onClick={() => handleEdit(user, true)}
-                >Copy</Button>
-                {/* </Tooltip> */}
+                <Button type="link" size="small" >Copy</Button>
             </Menu.Item>
             <Menu.Item key="resend" onClick={() => showResendLoginLinkConfirm(user)}>
-                {/* <Tooltip title="Resend Login Link"> */}
-                <Button
-                    type="link"
-                    // icon={<SendOutlined />}
-                    size="small"
-                // onClick={() => showResendLoginLinkConfirm(user)}
-                >Resend Link</Button>
-                {/* </Tooltip> */}
+                <Button type="link" size="small" >Resend Link</Button>
             </Menu.Item>
             <Menu.Item key="delete" onClick={() => showDeleteConfirm(user)}>
-                {/* <Tooltip title="Delete"> */}
-                <Button
-                    type="link"
-                    ghost
-                    // icon={<DeleteOutlined />}
-                    size="small"
-                // onClick={() => showDeleteConfirm(user)}
-                >Delete</Button>
-                {/* </Tooltip> */}
+                <Button type="link" ghost size="small" >Delete</Button>
             </Menu.Item>
         </Menu>
     );
@@ -380,16 +307,9 @@ const Users = () => {
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Manage Team</h2>
                 <div>
-                    <Button
-                        icon={viewMode === 'card' ? <UnorderedListOutlined /> : <AppstoreOutlined />}
-                        style={{ marginRight: "10px" }}
-                        onClick={() => setViewMode(viewMode === 'card' ? 'list' : 'card')}
-                    />
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => { setEditItem(); setIsModalOpen(true) }}
-                    >
+                    <Button icon={viewMode === 'card' ? <UnorderedListOutlined /> : <AppstoreOutlined />}
+                        style={{ marginRight: "10px" }} onClick={() => setViewMode(viewMode === 'card' ? 'list' : 'card')} />
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditItem(); setIsModalOpen(true) }} >
                         Invite User
                     </Button>
                 </div>
@@ -400,30 +320,23 @@ const Users = () => {
                         <Row gutter={[16, 16]}>
                             {users?.map((user) => (
                                 <Col key={user?.id} xs={24} sm={12} lg={6}>
-                                    <Card
-                                        key={user?.id}
+                                    <Card key={user?.id}
                                         extra={
                                             <Dropdown overlay={actionsMenu(user)} trigger={['click']}>
                                                 <Button icon={<MoreOutlined />} shape="circle" />
                                             </Dropdown>
                                         }
-
                                         title={
                                             <div className="service-card-title">
-                                                <Avatar size={80}
-                                                    src={user?.details?.profileImage}
+                                                <Avatar size={80} src={user?.details?.profileImage}
                                                     alt={user && user?.user_name && user?.user_name[0] || ""}
                                                 >{user && user?.user_name && user?.user_name[0] || ""}</Avatar>
-                                                {/* {user.details?.firstName} */}
-                                            </div>
-                                        }
-                                        // title={user.details?.user_name}
-                                        className="service-card"
-                                    >
+                                            </div>}
+                                        className="service-card" >
                                         <p><b>Name:</b> {user.user_name}</p>
                                         <p><b>Email:</b> {user.details?.email}</p>
                                         <p><b>Mobile:</b> {user.details?.mobile}</p>
-                                        <p><b>Role:</b> {user.details?.role_type}</p>
+                                        <p><b>Role:</b> {camelCaseToTitleCase(user.details?.role_type)}</p>
                                     </Card>
                                 </Col>
                             ))}
@@ -431,27 +344,14 @@ const Users = () => {
                     </div>
                 ) : (
                     <div className="pl-3 pr-3">
-                        <Table size={'small'}
-                            columns={columns}
-                            dataSource={users}
-                            rowKey={(record) => record.id}
-                            loading={!users}
-                            pagination={true}
-                        />
+                        <Table size={'small'} columns={columns} dataSource={users} rowKey={(record) => record.id}
+                            loading={!users} pagination={true} />
                     </div>
                 )}
             </div>
-            <Drawer
-                width={600}
-                footer={null}
-                title={(editItem && !clone) ? "Edit User Details" : "Invite User"}
-                open={isModalOpen}
-                closable={!loading}
-                maskClosable={!loading}
-                onClose={() => { setIsModalOpen(false); setEditItem(); setClone(false) }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
+            <Drawer width={600} footer={null} title={(editItem && !clone) ? "Edit User Details" : "Invite User"}
+                open={isModalOpen} closable={!loading} maskClosable={!loading} onOk={() => form.submit()} okText="Save"
+                onClose={() => { setIsModalOpen(false); setEditItem(); setClone(false) }} >
                 <Spin spinning={loading}>
                     <DynamicForm schemas={schema} onFinish={handleAddOrEdit} formData={editItem && editItem} />
                 </Spin>

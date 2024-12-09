@@ -41,7 +41,7 @@ const Index = () => {
                 )
             ),
         },
-        session?.user?.features?.feature?.viewTeamTimesheet && {
+        session?.user?.features?.feature?.teamTimesheets && {
             label: 'Team Timesheets',
             key: '2',
             children: (

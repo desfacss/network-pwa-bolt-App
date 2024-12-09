@@ -39,7 +39,7 @@ const LeaveApp = () => {
                     startDate={dateRange[0]?.format('YYYY-MM-DD')} endDate={dateRange[1]?.format('YYYY-MM-DD')} />
             ),
         },
-        session?.user?.features?.feature?.viewTeamLeaves && {
+        session?.user?.features?.feature?.teamLeaves && {
             label: 'Team Leaves',
             key: '2',
             children: (

@@ -172,35 +172,35 @@ const ReportComponent = () => {
                                 </Title>
                             </div>
                             <Divider />
-                            <Text strong>USER: </Text>
-                            <Text>{users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
+                            <Text>Employee: </Text>
+                            <Text strong>{users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
                             <br />
-                            <Text strong>PROJECT: </Text>
-                            <Text>{projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
+                            <Text>PROJECT: </Text>
+                            <Text strong>{projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
                             <br />
-                            <Text strong>DATE RANGE: </Text>
-                            <Text>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
+                            <Text>DATE RANGE: </Text>
+                            <Text strong>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
                             <Divider />
                             <Table size={'small'} pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
                             <Divider />
                             <Title level={5} style={{ marginTop: '24px' }}>Summary Details</Title>
-                            <Text strong>TOTAL HOURS: </Text>
-                            <Text>{summary.totalHours} HOURS</Text>
+                            <Text>TOTAL HOURS: </Text>
+                            <Text strong>{summary.totalHours} HOURS</Text>
                             <br />
-                            <Text strong>TOTAL HOURS ALLOCATED: </Text>
-                            <Text>{summary.allocatedHours} HOURS</Text>
+                            <Text>TOTAL HOURS ALLOCATED: </Text>
+                            <Text strong>{summary.allocatedHours} HOURS</Text>
                             <br />
-                            <Text strong>TOTAL EXPENSED HOURS: </Text>
-                            <Text>{summary.expensedHours} HOURS</Text>
+                            <Text>TOTAL EXPENSED HOURS: </Text>
+                            <Text strong>{summary.expensedHours} HOURS</Text>
                             <br />
-                            <Text strong>BALANCE HOURS: </Text>
-                            <Text>{summary.balanceHours} HOURS</Text>
+                            <Text>BALANCE HOURS: </Text>
+                            <Text strong>{summary.balanceHours} HOURS</Text>
                             <Divider />
-                            <Text strong>COST/HR: </Text>
-                            <Text>{summary.costPerHour}</Text>
+                            <Text>COST/HR: </Text>
+                            <Text strong>{summary.costPerHour} GBP</Text>
                             <br />
-                            <Text strong>TOTAL COST: </Text>
-                            <Text>{summary.totalCost}</Text>
+                            <Text>TOTAL COST: </Text>
+                            <Text strong>{summary.totalCost} GBP</Text>
                         </div>
                     )}
                     {emptyData &&
