@@ -41,7 +41,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         if (error) {
             console.error('Error fetching users:', error);
         } else {
-            console.log("Users", data)
+            // console.log("Users", data)
             setUsers(data || []);
         }
     };
@@ -50,7 +50,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         if (error) {
             console.error('Error fetching users:', error);
         } else {
-            // console.log("C", data)
             setClients(data || []);
         }
     };
@@ -59,7 +58,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         let { data, error } = await supabase.from('leaves').select('*').eq('organization_id', session?.user?.organization_id);
         if (data) {
             setLeaves(data);
-            // console.log("L", data)
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch leaves" });
@@ -105,7 +103,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             ...values,
             start_date: values?.start_date?.format(dateFormat),
             end_date: values?.end_date?.format(dateFormat),
-            allocation_tracking: allocation,
+            allocation_tracking: allocationTracking,
             // project_users: allocation ? projectUsers : []
         };
 
@@ -116,7 +114,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
         const commonPayload = {
             details: updatedDetails,
             status: 'in progress',
-            allocation_tracking: allocation,
+            allocation_tracking: allocationTracking,
             is_non_project: true,
             status: values?.status,
             // project_users: allocation ? projectUsers?.map(item => item?.user_id) : null,
@@ -137,7 +135,6 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             if (data) {
                 try {
                     if (allocation) {
-
                         // const details = projectUsers
                         const projectId = data[0]?.id
                         const payload = projectUsers.map((user) => {
@@ -228,8 +225,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
 
     const handleEdit = async (record, copy) => {
         let { data, error } = await supabase.rpc('get_project_details_with_project_users_v2', { projectid: record?.id });
-
-        console.log("RPC data", data)
+        // console.log("RPC data", data)
         if (data) {
             const item = {
                 id: record?.id,
@@ -377,27 +373,10 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     };
 
     const columns = [
-        {
-            title: 'Name',
-            // dataIndex: ['details', 'project_name'],
-            dataIndex: 'project_name',
-            key: 'project_name',
-        },
-        {
-            title: 'Description',
-            dataIndex: ['details', 'description'],
-            key: 'description',
-        },
-        {
-            title: 'Start Date',
-            dataIndex: ['details', 'start_date'],
-            key: 'start_date',
-        },
-        {
-            title: 'End Date',
-            dataIndex: ['details', 'end_date'],
-            key: 'end_date',
-        },
+        { title: 'Name', dataIndex: 'project_name', key: 'project_name' },
+        { title: 'Description', dataIndex: ['details', 'description'], key: 'description' },
+        { title: 'Start Date', dataIndex: ['details', 'start_date'], key: 'start_date' },
+        { title: 'End Date', dataIndex: ['details', 'end_date'], key: 'end_date' },
         {
             title: 'Allocation Tracking',
             dataIndex: 'allocation_tracking',
@@ -414,31 +393,13 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             render: (_, record) => (
                 <div className="d-flex">
                     <Tooltip title="Edit">
-                        <Button
-                            type="primary"
-                            icon={<EditFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record)}
-                        />
+                        <Button type="primary" icon={<EditFilled />} size="small" className="mr-2" onClick={() => handleEdit(record)} />
                     </Tooltip>
                     <Tooltip title="Copy">
-                        <Button
-                            type="primary"
-                            icon={<CopyFilled />}
-                            size="small"
-                            className="mr-2"
-                            onClick={() => handleEdit(record, true)}
-                        />
+                        <Button type="primary" icon={<CopyFilled />} size="small" className="mr-2" onClick={() => handleEdit(record, true)} />
                     </Tooltip>
                     <Tooltip title="Delete">
-                        <Button
-                            type="primary" ghost
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            // onClick={() => handleDelete(record.id)}
-                            onClick={() => showDeleteConfirm(record)}
-                        />
+                        <Button type="primary" ghost icon={<DeleteOutlined />} size="small" onClick={() => showDeleteConfirm(record)} />
                     </Tooltip>
                 </div>
             ),
@@ -450,16 +411,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             title: 'User Name',
             dataIndex: 'user_id',
             render: (text, record, index) => (
-                // <Input
-                //     value={text}
-                //     onChange={(e) => handleUserChange(index, 'user_id', e.target.value)}
-                // />
                 <Select placeholder="Select users" style={{ minWidth: '120px', width: "100%" }} value={text} onChange={(e) => handleUserChange(index, 'user_id', e)}>
-                    {/* {users?.map((user) => (
-                        <Select.Option key={user?.id} value={user?.id}>
-                            {user?.user_name}
-                        </Select.Option>
-                    ))} */}
                     {users?.map((user) => {
                         const isDisabled = projectUsers?.some((projectUser) => projectUser.user_id === user.id);
                         return (
@@ -476,8 +428,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'expensed_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input value={text} disabled
-                    onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)} />
+                <Input value={text} disabled onChange={(e) => handleUserChange(index, 'expensed_hours', e.target.value)} />
             ),
         },
         {
@@ -485,8 +436,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
             dataIndex: 'allocated_hours',
             width: 120,
             render: (text, record, index) => (
-                <Input value={text}
-                    onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)} />
+                <Input value={text} onChange={(e) => handleUserChange(index, 'allocated_hours', e.target.value)} />
             ),
         },
         {
@@ -534,23 +484,12 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     return (
         <Card styles={{ body: { padding: "0px" } }}>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    columns={columns}
-                    dataSource={projects}
-                    rowKey={(record) => record.id}
-                    loading={!projects}
-                    pagination={true}
-                />
+                <Table size={'small'} columns={columns} dataSource={projects}
+                    rowKey={(record) => record.id} loading={!projects} pagination={true} />
             </div>
-            <Drawer //size="large"
-                footer={null}
-                width={1000}
-                title={(editItem && !clone) ? "Edit Non Project" : "Add Non Project"}
-                open={isDrawerOpen} maskClosable={false}
+            <Drawer footer={null} width={1000} open={isDrawerOpen} maskClosable={false} onOk={() => form.submit()}
                 onClose={() => { setEditItem(null); form.resetFields(); setAllocationTracking(false); setIsDrawerOpen(false); setProjectUsers(); setClone(false) }}
-                onOk={() => form.submit()}
-                okText="Save"
-            >
+                title={(editItem && !clone) ? "Edit Non Project" : "Add Non Project"} okText="Save" >
                 <Form form={form} layout="vertical" onFinish={handleAddOrEdit}>
                     <Row gutter={16}>
                         <Col span={24}>
@@ -602,12 +541,8 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     </Row>
                     {allocationTracking && (<>
                         <h3>Project Users</h3>
-                        <Table size={'small'}
-                            columns={userColumns}
-                            dataSource={projectUsers}
-                            pagination={false}
-                            rowKey={(record, index) => index}
-                        />
+                        <Table size={'small'} columns={userColumns} dataSource={projectUsers} pagination={false}
+                            rowKey={(record, index) => index} />
                         <Button type="dashed" onClick={addUser} style={{ width: '100%', marginTop: 16 }}>
                             <PlusOutlined /> Add User
                         </Button>
