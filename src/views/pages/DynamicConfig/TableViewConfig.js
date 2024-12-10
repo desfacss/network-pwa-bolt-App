@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Select, Table, Space, Checkbox, Row, Col } from 'antd';
 import { PlusOutlined, UpOutlined, DownOutlined, DeleteOutlined } from '@ant-design/icons';
 
@@ -12,8 +12,19 @@ const TableViewConfig = ({ configData, onSave, availableColumns }) => {
     const [showFeatures, setShowFeatures] = useState(configData.showFeatures || []);
     const [bulkActions, setBulkActions] = useState(configData.bulkActions || []);
 
+    useEffect(() => {
+        if (configData) {
+            setFields(configData.fields || []);
+            setActions(configData.actions || {});
+            setGroupBy(configData.groupBy || []);
+            setExportOptions(configData.exportOptions || []);
+            setShowFeatures(configData.showFeatures || []);
+            setBulkActions(configData.bulkActions || []);
+        }
+    }, [configData]);
+
     // Transform availableColumns to an array of column names (strings)
-    const transformedColumns = availableColumns.map(col => col.columnname); 
+    const transformedColumns = availableColumns.map(col => col.columnname);
 
     const handleAddField = () => {
         setFields([...fields, { order: fields.length + 1, fieldName: '' }]);
