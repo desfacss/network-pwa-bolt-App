@@ -608,6 +608,19 @@ const Review = ({ date, employee, fetchData }) => {
     );
   };
 
+  const getSunday = (day) => {
+    const monday = new Date(day);
+
+    // Add 6 days to get to the upcoming Sunday
+    const upcomingSunday = new Date(monday);
+    upcomingSunday?.setDate(monday?.getDate() + 6);
+
+    // Format the date to the desired string format
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    // return upcomingSunday.toLocaleDateString('en-US', options);
+    return upcomingSunday?.toDateString()?.slice(4, 10);
+  }
+
   return (
     <div>
       {(isApproveModal || isRejectModal) &&
@@ -652,7 +665,8 @@ const Review = ({ date, employee, fetchData }) => {
         {/* Center-aligned section */}
         <Col>
           <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
-          <label className="ml-2 mr-2">{formatDate(currentDate)}</label>
+          {/* <label className="ml-2 mr-2">{formatDate(currentDate)}</label> */}
+          <label className="ml-2 mr-2">Week Ending - {getSunday(currentDate)}</label>
           {!hideNext && (
             <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))}>Next</Button>
           )}

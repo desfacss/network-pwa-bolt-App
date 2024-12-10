@@ -83,7 +83,7 @@ const ReportComponent = () => {
 
         const totalHours = data.reduce((sum, entry) => sum + entry?.hours, 0);
         const allocatedHours = data[0].allocated_hours || 0;
-        const expensedHours = (data[0].expensed_hours + totalHours) || 0;
+        const expensedHours = (data[0].expensed_hours) || 0;
         const balanceHours = allocatedHours - expensedHours;
         const costPerHour = data[0].rate || 0;
         const totalCost = totalHours * costPerHour;
