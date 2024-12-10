@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox } from 'antd';
+import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox, Tooltip } from 'antd';
 // import { DownOutlined, PlusOutlined, SearchOutlined,FilterOutlined, GroupOutlined } from '@ant-design/icons';
 import { DownOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutlined, FilterOutlined, GroupOutlined, ExportOutlined } from '@ant-design/icons';
 import DynamicForm from '../DynamicForm';
+import { snakeCaseToTitleCase } from 'components/util-components/utils';
 
 const actionIcons = {
     edit: <EditOutlined />,
@@ -17,10 +18,11 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
     const [searchText, setSearchText] = useState('');
-    const [visibleColumns, setVisibleColumns] = useState(viewConfig?.tableview?.fields?.map(field => field.fieldName));
+    const [visibleColumns, setVisibleColumns] = useState(viewConfig?.tableview?.fields?.map(field => field?.fieldName));
     const [selectedGroupBy, setSelectedGroupBy] = useState(null); // Default to no group by
 
     const { showFeatures, exportOptions, globalSearch, groupBy } = viewConfig?.tableview;
+
 
     const openModal = (item = null) => {
         setEditItem(item);
@@ -104,20 +106,30 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
 
     const columns = useMemo(() => {
         return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
-            title: fieldConfig.fieldName,
-            dataIndex: fieldConfig.fieldName,
-            key: fieldConfig.fieldName,
+            title: snakeCaseToTitleCase(fieldConfig?.fieldName),
+            dataIndex: fieldConfig?.fieldName,
+            key: fieldConfig?.fieldName,
             sorter: (a, b) =>
-                typeof a[fieldConfig.fieldName] === 'string'
-                    ? a[fieldConfig.fieldName].localeCompare(b[fieldConfig.fieldName])
-                    : a[fieldConfig.fieldName] - b[fieldConfig.fieldName],
+                typeof a[fieldConfig?.fieldName] === 'string'
+                    ? a[fieldConfig?.fieldName].localeCompare(b[fieldConfig?.fieldName])
+                    : a[fieldConfig?.fieldName] - b[fieldConfig?.fieldName],
             render: (text, record) => {
-                if (!visibleColumns.includes(fieldConfig.fieldName)) {
+                if (!visibleColumns?.includes(fieldConfig?.fieldName)) {
                     return null; // If column is not visible, return null
                 }
-                return text;
+                return text
+                // const truncatedText = text?.length > 20 ? `${text?.substring(0, 20)}...` : text;
+                // console.log(truncatedText, text)
+                // return (
+                //     <Tooltip title={(truncatedText !== text) ? text : ''}>
+                //         <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>
+                //             {truncatedText}
+                //         </div>
+                //     </Tooltip>
+                // );
             },
-        })).filter((column) => visibleColumns.includes(column.key)); // Filter out invisible columns
+            ellipsis: true,
+        })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns
     }, [viewConfig, visibleColumns]);
 
     const actionMenu = (record) => (
@@ -144,7 +156,13 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
                     dataSource={groupedData[group]}
                     columns={columns}
                     rowKey="id"
-                    pagination={false}
+                    // pagination={false}
+                    pagination={{
+                        pageSizeOptions: ['5', '10', '20', '50'], // Options for page sizes
+                        defaultPageSize: 5, // Initial page size
+                        showSizeChanger: true, // Enables the page size changer dropdown
+                        showQuickJumper: true, // Enables quick jump to a page
+                    }}
                     renderRow={(record) => (
                         <Dropdown overlay={actionMenu(record)} trigger={['click']}>
                             <Button>Actions</Button>
@@ -168,12 +186,12 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
     const columnVisibilityMenu = (
         <Menu>
             {viewConfig?.tableview?.fields?.map((fieldConfig) => (
-                <Menu.Item key={fieldConfig.fieldName}>
+                <Menu.Item key={fieldConfig?.fieldName}>
                     <Checkbox
-                        checked={visibleColumns.includes(fieldConfig.fieldName)}
-                        onChange={() => toggleColumnVisibility(fieldConfig.fieldName)}
+                        checked={visibleColumns?.includes(fieldConfig?.fieldName)}
+                        onChange={() => toggleColumnVisibility(fieldConfig?.fieldName)}
                     >
-                        {fieldConfig.fieldName}
+                        {fieldConfig?.fieldName}
                     </Checkbox>
                 </Menu.Item>
             ))}
@@ -181,7 +199,7 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
     );
 
     const dynamicBulkActions = viewConfig?.tableview?.actions?.bulk?.filter(action =>
-        action.includes("add_new_")
+        action?.includes("add_new_")
     );
 
     // Always include action column, regardless of column visibility
@@ -201,95 +219,95 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
     }, [columns]);
 
     return (
-       <div>
+        <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
-    {/* Left Section */}
-    <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-        {/* Column Visibility Button */}
-        {showFeatures.includes('columnVisibility') && <Dropdown overlay={columnVisibilityMenu} trigger={['click']}>
-            <Button icon={<FilterOutlined />} style={{ marginRight: 8 }} />
-        </Dropdown>}
+                {/* Left Section */}
+                <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                    {/* Column Visibility Button */}
+                    {showFeatures.includes('columnVisibility') && <Dropdown overlay={columnVisibilityMenu} trigger={['click']}>
+                        <Button icon={<FilterOutlined />} style={{ marginRight: 8 }} />
+                    </Dropdown>}
 
-        {/* Group By Button */}
-        { groupBy?.length > 0 && (
-    <Dropdown
-        overlay={
-            <Menu>
-                <Menu.Item key="none" onClick={() => handleGroupByChange(null)}>
-                    None
-                </Menu.Item>
-                {viewConfig?.tableview?.groupBy?.map((field) => (
-                    <Menu.Item key={field} onClick={() => handleGroupByChange(field)}>
-                        {`Group by ${field}`}
-                    </Menu.Item>
-                ))}
-            </Menu>
-        }
-        trigger={['click']}
-    >
-        <Button icon={<GroupOutlined />} style={{ marginLeft: 8 }} />
-    </Dropdown>
-)}
+                    {/* Group By Button */}
+                    {groupBy?.length > 0 && (
+                        <Dropdown
+                            overlay={
+                                <Menu>
+                                    <Menu.Item key="none" onClick={() => handleGroupByChange(null)}>
+                                        None
+                                    </Menu.Item>
+                                    {viewConfig?.tableview?.groupBy?.map((field) => (
+                                        <Menu.Item key={field} onClick={() => handleGroupByChange(field)}>
+                                            {`Group by ${field}`}
+                                        </Menu.Item>
+                                    ))}
+                                </Menu>
+                            }
+                            trigger={['click']}
+                        >
+                            <Button icon={<GroupOutlined />} style={{ marginLeft: 8 }} />
+                        </Dropdown>
+                    )}
 
-        {/* Search Bar */}
-        {showFeatures.includes('basicSearch') && <Space style={{ marginLeft: 16 }}>
-            <Input
-                placeholder="Search"
-                value={searchText}
-                onChange={handleSearchChange}
-                prefix={<SearchOutlined />}
-                style={{ width: 200 }}
-            />
-        </Space>}
-    </div>
+                    {/* Search Bar */}
+                    {showFeatures.includes('basicSearch') && <Space style={{ marginLeft: 16 }}>
+                        <Input
+                            placeholder="Search"
+                            value={searchText}
+                            onChange={handleSearchChange}
+                            prefix={<SearchOutlined />}
+                            style={{ width: 200 }}
+                        />
+                    </Space>}
+                </div>
 
-    {/* Right Section */}
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-        {/* Bulk Actions */}
-        {[
-            ...(dynamicBulkActions || []),
-            ...viewConfig?.tableview?.actions?.bulk?.filter(action => !action.includes("add_new_"))
-        ].map((action) => (
-            <Button
-                key={action}
-                type="primary"
-                style={{ marginRight: 8 }}
-                onClick={() => handleBulkAction(action)}
-            >
-                {action
-                    .split('_')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ')}
-            </Button>
-        ))}
+                {/* Right Section */}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {/* Bulk Actions */}
+                    {[
+                        ...(dynamicBulkActions || []),
+                        ...viewConfig?.tableview?.bulkActions?.filter(action => !action.includes("add_new_"))
+                    ].map((action) => (
+                        <Button
+                            key={action}
+                            type="primary"
+                            style={{ marginRight: 8 }}
+                            onClick={() => handleBulkAction(action)}
+                        >
+                            {action
+                                .split('_')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ')}
+                        </Button>
+                    ))}
 
-        {/* Export Dropdown with Icon */}
-        {exportOptions?.length > 0 && (
-    <Dropdown
-        overlay={
-            <Menu>
-                {exportOptions.includes('csv') && (
-                    <Menu.Item key="csv" onClick={() => handleExport('CSV')}>
-                        Export to CSV
-                    </Menu.Item>
-                )}
-                {exportOptions.includes('pdf') && (
-                    <Menu.Item key="pdf" onClick={() => handleExport('PDF')}>
-                        Export to PDF
-                    </Menu.Item>
-                )}
-            </Menu>
-        }
-        trigger={['click']}
-    >
-        <Button icon={<ExportOutlined />} style={{ marginLeft: 8 }} />
-    </Dropdown>
-)}
+                    {/* Export Dropdown with Icon */}
+                    {exportOptions?.length > 0 && (
+                        <Dropdown
+                            overlay={
+                                <Menu>
+                                    {exportOptions.includes('csv') && (
+                                        <Menu.Item key="csv" onClick={() => handleExport('CSV')}>
+                                            Export to CSV
+                                        </Menu.Item>
+                                    )}
+                                    {exportOptions.includes('pdf') && (
+                                        <Menu.Item key="pdf" onClick={() => handleExport('PDF')}>
+                                            Export to PDF
+                                        </Menu.Item>
+                                    )}
+                                </Menu>
+                            }
+                            trigger={['click']}
+                        >
+                            <Button icon={<ExportOutlined />} style={{ marginLeft: 8 }} />
+                        </Dropdown>
+                    )}
 
-    </div>
-</div>
+                </div>
+            </div>
 
-            
+
 
             {/* Table with Action Icons */}
             {selectedGroupBy ? renderGroupedTable() : (

@@ -1,13 +1,36 @@
-import { Card, notification, Tabs } from 'antd';
+import { Card, DatePicker, notification, Select, Tabs } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useState } from 'react';
 import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
-import TableView from '../DynamicViews/TableView';
+import TableView from '../DynamicViews/TableView-R';
+import dayjs from 'dayjs';
+
+const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const db_table_name = 'y_tasks'
 
 const Index = () => {
+
+    const defaultStartDate = dayjs().subtract(30, 'days');
+    // const defaultStartDate = dayjs().subtract(30, 'days');
+    const defaultEndDate = dayjs();
+    const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
+
+    const handleChange = (value) => {
+        console.log("Selected Status:", value);
+    };
+
+    const onDateRangeChange = (dates) => {
+        if (dates) {
+            const [start, end] = dates;
+            setDateRange([start, end]);
+        } else {
+            setDateRange([]);;
+        }
+    };
+
     const [viewConfig, setViewConfig] = useState()
     const [data, setData] = useState()
 
@@ -117,7 +140,26 @@ const Index = () => {
     return (
         <Card>
             {/* <DynamicForm schemas={viewConfig} /> */}
-            {(data && viewConfig) && <Tabs defaultActiveKey="1" items={tabItems} />}
+            {(data && viewConfig) && <Tabs
+                tabBarExtraContent={ //Global filters
+                    <>
+                        Created Date: {' '}<RangePicker value={[dayjs().subtract(7, 'days'), dayjs()]} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
+                        Due Date: {' '}<RangePicker value={[dayjs(), dayjs().add(7, 'days')]} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
+                        Status: <Select
+                            placeholder="Select Status"
+                            style={{ width: 200 }}
+                            onChange={handleChange}
+                            allowClear
+                        >
+                            {[...new Set(data.map((item) => item.status))].map((status) => (
+                                <Option key={status} value={status}>
+                                    {status}
+                                </Option>
+                            ))}
+                        </Select>
+                    </>
+                }
+                defaultActiveKey="1" items={tabItems} />}
         </Card>
     );
 }

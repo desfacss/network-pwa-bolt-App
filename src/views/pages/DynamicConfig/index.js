@@ -25,6 +25,7 @@ const YViewConfigManager = () => {
       if (error) {
         message.error('Failed to fetch configurations');
       } else {
+        console.log("YC", data)
         setConfigs(data);
       }
     };
@@ -185,17 +186,17 @@ const YViewConfigManager = () => {
 
                 console.log("Calling RPC to fetch table columns for:", selectedConfig.db_table_name);
 
-const { data, error } = await supabase.rpc('get_table_columns', {
-  tablename: selectedConfig.db_table_name
-});
+                const { data, error } = await supabase.rpc('get_table_columns', {
+                  tablename: selectedConfig.db_table_name
+                });
 
-console.log("RPC call completed. Data received:", data);
-if (error) {
-  console.error("Error fetching table columns:", error);
-} else {
-  console.log("Successfully fetched table columns:", data);
-}
-                  
+                console.log("RPC call completed. Data received:", data);
+                if (error) {
+                  console.error("Error fetching table columns:", error);
+                } else {
+                  console.log("Successfully fetched table columns:", data);
+                }
+
 
                 // Log the results of the RPC call
                 if (error) {

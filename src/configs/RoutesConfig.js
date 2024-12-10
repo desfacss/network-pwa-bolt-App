@@ -115,15 +115,22 @@ export const protectedRoutes = (feature) => {
 
 
         // feature?.dynamicViews && {
-        //     key: 'ytasks',
-        //     path: `${APP_PREFIX_PATH}/ytasks`,
-        //     component: React.lazy(() => import('views/pages/DynamicTasks')),
-        // },
+        {
+            key: 'ytasks',
+            path: `${APP_PREFIX_PATH}/ytasks`,
+            component: React.lazy(() => import('views/pages/DynamicTasks')),
+        },
         // feature?.dynamicViews && {
-        //     key: 'yclients',
-        //     path: `${APP_PREFIX_PATH}/yclients`,
-        //     component: React.lazy(() => import('views/pages/DynamicClients')),
-        // },
+        {
+            key: 'yclients',
+            path: `${APP_PREFIX_PATH}/yclients`,
+            component: React.lazy(() => import('views/pages/DynamicClients')),
+        },
+        {
+            key: 'yconfig',
+            path: `${APP_PREFIX_PATH}/yconfig`,
+            component: React.lazy(() => import('views/pages/DynamicConfig')),
+        },
 
 
         // {
