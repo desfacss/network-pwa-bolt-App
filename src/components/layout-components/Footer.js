@@ -25,9 +25,19 @@ export default function Footer() {
 		`}>
 			{/* <span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">claritiz.com
 			</span> */}
-			<span>Developed by <span className="font-weight-semibold">claritiz.com
+			{/* <span>Developed by <span className="font-weight-semibold">claritiz.com
 			</span>
-				{/* All rights reserved. */}
+			</span> */}
+			<span>
+				Copyright © UK Power Engineers Ltd 2024. All rights reserved. - Developed by{' '}
+				<a
+					href="https://www.claritiz.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="font-weight-semibold"
+				>
+					www.claritiz.com
+				</a>
 			</span>
 			{/* <div>
 				<a className="text-gray" href="/#" onClick={e => e.preventDefault()}>Developed by Claritiz Innovations Pvt Ltd</a>

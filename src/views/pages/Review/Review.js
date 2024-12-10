@@ -431,6 +431,24 @@ const Review = ({ date, employee, fetchData }) => {
   //   (employees && !selectedEmployeesId) && setSelectedEmployeeId(employees[employees?.length - 1]?.id)
   // }, [employees])
 
+  const getNextSunday = (mondayDate) => {
+    // Parse the input Monday date
+    const monday = new Date(mondayDate);
+
+    // Calculate the difference between Sunday (0) and Monday (1) - Sunday is 6 days ahead of Monday
+    const daysToAdd = 6 - monday.getDay();
+
+    // Create a new Date object for the next Sunday
+    const nextSunday = new Date(monday);
+    nextSunday.setDate(monday.getDate() + daysToAdd); // Add the days to get Sunday
+    nextSunday.setDate(nextSunday.getDate() + 1);
+    // Format the date as "Dec 01"
+    const options = { month: 'short', day: '2-digit' };
+    const formattedDate = nextSunday.toLocaleDateString('en-US', options);
+
+    return formattedDate;
+  };
+
   const handleSubmit = async () => {
     try {
       // Define the values to update based on approval or rejection
@@ -441,15 +459,15 @@ const Review = ({ date, employee, fetchData }) => {
         status,
         approver_details: { approved_time: new Date(), comment },
       }
-      const emailPayload = [generateEmailData("Timesheet", status, {
+      const emailPayload = [generateEmailData("timesheet", status, {
         approverUsername: session?.user?.user_name,
         comment,
         userEmail: users?.find(user => user?.id === existingTimesheet?.user_id)?.details?.email,
-        applicationDate: existingTimesheet?.timesheet_date,
+        applicationDate: `for the Week Ending ${getNextSunday(existingTimesheet?.timesheet_date)}`,
         reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
       })]
 
-      // console.log("Payload", emailPayload)
+
       // Perform the update query
       const { data, error } = await supabase.from("timesheet").update(updatedValues).eq("id", existingTimesheet?.id);
 

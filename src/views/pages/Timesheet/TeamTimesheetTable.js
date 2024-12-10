@@ -174,6 +174,15 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                         // onClick={() => handleEdit(record)}
                         onClick={() => handleOpenDrawer(record)}
                     >Approve / Reject</Button>}
+                    {record?.status === 'Approved' && <Button
+                        type="primary"
+                        // icon={<EditFilled />}
+                        size="small"
+                        className="mr-2"
+                        // disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
+                        // onClick={() => handleEdit(record)}
+                        onClick={() => handleOpenDrawer(record)}
+                    >View</Button>}
                 </div>
             ),
         },

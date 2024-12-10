@@ -103,13 +103,15 @@ const ReportComponent = () => {
             title: "Date",
             dataIndex: "timesheet_date",
             key: "timesheet_date",
-            render: (text) => <span>{text}</span>,
+            render: (text) => <span style={{ minWidth: '100px', maxWidth: '200px', overflow: 'hidden' }}>{text}</span>,
+            // width: 150
         },
         {
             title: "Hours",
             dataIndex: "hours",
             key: "hours",
-            render: (text) => <span>{text}</span>,
+            render: (text) => <span style={{ minWidth: '100px', maxWidth: '200px', overflow: 'hidden' }}>{text !== 0 ? text : "-"}</span>,
+            // width: 150
         },
         {
             title: "Description",
@@ -175,11 +177,14 @@ const ReportComponent = () => {
                             <Text>Employee: </Text>
                             <Text strong>{users.find((user) => user.id === userId)?.user_name || "N/A"}</Text>
                             <br />
-                            <Text>PROJECT: </Text>
+                            <Text>Project: </Text>
                             <Text strong>{projects.find((project) => project.id === projectName)?.project_name || "N/A"}</Text>
                             <br />
-                            <Text>DATE RANGE: </Text>
-                            <Text strong>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')} to ${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
+                            <Text>From Date: </Text>
+                            <Text strong>{dateRange.length === 2 ? `${dateRange[0].format('YYYY-MM-DD')}` : "N/A"}</Text>
+                            <br />
+                            <Text>To Date: </Text>
+                            <Text strong>{dateRange.length === 2 ? `${dateRange[1].format('YYYY-MM-DD')}` : "N/A"}</Text>
                             <Divider />
                             <Table size={'small'} pagination={false} columns={columns} dataSource={reportData} rowKey={(record) => record.timesheet_date + record.user_id} />
                             <Divider />

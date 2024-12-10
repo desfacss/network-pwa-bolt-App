@@ -294,16 +294,15 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       organization_id: session?.user?.organization_id,
     };
 
-    const emailPayload = [generateEmailData("Timesheet", "Submitted", {
+    const emailPayload = [generateEmailData("timesheet", "Submitted", {
       username: session?.user?.user_name,
       approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
       hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
       // applicationDate: `for the week staring ${currentDate?.toISOString()?.slice(0, 10)?.replace("T", " ")}`,
-      applicationDate: `for the week Ending ${getSunday(currentDate)}`,
+      applicationDate: `for the Week Ending ${getSunday(currentDate)}`,
       submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
     })]
 
-    // console.log("Payload", emailPayload)
     try {
       if (existingTimesheetId) {
         // Update existing timesheet

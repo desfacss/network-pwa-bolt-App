@@ -226,7 +226,7 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
             organization_id: session?.user?.organization_id,
         };
         const projectName = projects?.find(project => project?.id === selectedProject)?.project_name
-        const emailPayload = [generateEmailData("Expense Sheet", "Submitted", {
+        const emailPayload = [generateEmailData("expenses claim", "Submitted", {
             username: session?.user?.user_name,
             approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
             hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
