@@ -44,7 +44,7 @@ const DashboardTabs = () => {
             const startDate = dateRange[0];
             const endDate = dateRange[1];
             const projectName = null; // Use null if you want to query all projects
-            const userId = !['hr', 'manager', 'admin'].includes(session?.user?.role_type) ? session?.user?.id : null;
+            const userId = !['hr', 'manager', 'admin', 'superadmin'].includes(session?.user?.role_type) ? session?.user?.id : null;
 
 
             // Make the RPC call to the generate_timesheet_view function
@@ -62,7 +62,7 @@ const DashboardTabs = () => {
                 console.error('Error fetching data:', error);
             } else {
                 setReportData(viewData)
-                // console.log("VD", viewData);
+                console.log("VD", viewData);
                 // console.log("VD", JSON.stringify(viewData, null, 2));
             }
             setLoading(false);

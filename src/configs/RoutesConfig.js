@@ -84,49 +84,54 @@ export const protectedRoutes = (feature) => {
             path: `${APP_PREFIX_PATH}/settings`,
             component: React.lazy(() => import('views/pages/Settings')),
         },
+        {
+            key: 'profile',
+            path: `${APP_PREFIX_PATH}/profile`,
+            component: React.lazy(() => import('views/pages/Profile/index')),
+        },
 
 
-        // feature?.schedule && {
+
+        // RND
+
+        // feature?.rnd && {
+        // {
         //     key: 'schedule',
         //     path: `${APP_PREFIX_PATH}/schedule`,
         //     component: React.lazy(() => import('views/pages/Schedule')),
         // },
-        // feature?.services && {
+        // feature?.rnd && {
         //     key: 'services',
         //     path: `${APP_PREFIX_PATH}/services`,
         //     component: React.lazy(() => import('views/pages/Services')),
         // },
-        // feature?.tasks && {
+        // feature?.rnd && {
         //     key: 'tasks',
         //     path: `${APP_PREFIX_PATH}/tasks`,
         //     component: React.lazy(() => import('views/pages/Tasks')),
         // },
-        // feature?.jobs && {
+        // feature?.rnd && {
         //     key: 'jobs',
         //     path: `${APP_PREFIX_PATH}/jobs`,
         //     component: React.lazy(() => import('views/pages/Jobs')),
         // },
-        // {
-        //     key: 'profile',
-        //     path: `${APP_PREFIX_PATH}/profile`,
-        //     component: React.lazy(() => import('views/pages/Profile/index')),
-        // },
+
 
 
 
         // feature?.dynamicViews && {
-        {
+        feature?.rnd && {
             key: 'ytasks',
             path: `${APP_PREFIX_PATH}/ytasks`,
             component: React.lazy(() => import('views/pages/DynamicTasks')),
         },
         // feature?.dynamicViews && {
-        {
+        feature?.rnd && {
             key: 'yclients',
             path: `${APP_PREFIX_PATH}/yclients`,
             component: React.lazy(() => import('views/pages/DynamicClients')),
         },
-        {
+        feature?.rnd && {
             key: 'yconfig',
             path: `${APP_PREFIX_PATH}/yconfig`,
             component: React.lazy(() => import('views/pages/DynamicConfig')),
@@ -151,5 +156,8 @@ export const protectedRoutes = (feature) => {
         //         blankLayout: true
         //     }
         // },
+
+        //RND END
+
     ].filter(Boolean)
 }
