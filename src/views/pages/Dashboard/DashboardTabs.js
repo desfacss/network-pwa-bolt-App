@@ -221,6 +221,7 @@ const DashboardTabs = () => {
             title: 'Project Name',
             dataIndex: 'project_name',
             key: 'project_name',
+            sorter: (a, b) => a?.project_name?.localeCompare(b?.project_name)
         },
         {
             title: 'Hours',
@@ -236,6 +237,7 @@ const DashboardTabs = () => {
             title: 'Total',
             dataIndex: 'total',
             key: 'total',
+            sorter: (a, b) => (a?.total || 0) - (b?.total || 0)
         },
     ];
 
@@ -245,6 +247,7 @@ const DashboardTabs = () => {
             title: 'User Name',
             dataIndex: 'user_name',
             key: 'user_name',
+            sorter: (a, b) => a?.user_name?.localeCompare(b?.user_name)
         },
         {
             title: 'Hours',
@@ -260,6 +263,7 @@ const DashboardTabs = () => {
             title: 'Total',
             dataIndex: 'total',
             key: 'total',
+            sorter: (a, b) => (a?.total || 0) - (b?.total || 0)
         },
     ];
 

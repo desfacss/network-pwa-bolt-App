@@ -177,7 +177,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
             title: 'Amount (GBP)',
             dataIndex: ['grand_total'],
             key: 'grand_total',
-            sorter: (a, b) => String(a?.grand_total)?.localeCompare(String(b?.grand_total)),
+            sorter: (a, b) => (a?.grand_total || 0) - (b?.grand_total || 0),
         },
         {
             title: 'Review Date',

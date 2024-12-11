@@ -273,7 +273,7 @@ const Users = () => {
         { title: 'Name', dataIndex: 'user_name', key: 'user_name', sorter: (a, b) => a?.user_name?.localeCompare(b?.user_name) },
         { title: 'Email', dataIndex: ['details', 'email'], key: 'email', sorter: (a, b) => a?.details?.email?.localeCompare(b?.details?.email) },
         { title: 'Mobile', dataIndex: ['details', 'mobile'], key: 'mobile' },
-        { title: 'Cost/Hr', dataIndex: ['details', 'rate'], key: 'rate', sorter: (a, b) => String(a?.details?.rate)?.localeCompare(String(b?.details?.rate)) },
+        { title: 'Cost/Hr', dataIndex: ['details', 'rate'], key: 'rate', sorter: (a, b) => (a?.details?.rate || 0) - (b?.details?.rate || 0) },
         {
             title: 'Role', dataIndex: ['details', 'role_type'], key: 'role', sorter: (a, b) => a?.details?.role_type?.localeCompare(b?.details?.role_type),
             render: (text) => camelCaseToTitleCase(text)
