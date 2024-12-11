@@ -132,7 +132,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             organization_id: session?.user?.organization_id,
         }
 
-        const emailPayload = [generateEmailData("Leave Application", "Submitted", {
+        const emailPayload = [generateEmailData("leave application", "Submitted", {
             username: session?.user?.user_name,
             approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
             hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),

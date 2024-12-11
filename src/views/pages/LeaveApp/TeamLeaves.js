@@ -100,7 +100,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
         // const { service_name, cost, duration, description } = values;
         const comment = isApproveModal ? "" : rejectComment;
         const { toDate, fromDate, leaveType } = editItem?.details
-        const emailPayload = [generateEmailData("Leave Application", status, {
+        const emailPayload = [generateEmailData("leave application", status, {
             approverUsername: session?.user?.user_name,
             comment,
             userEmail: users?.find(user => user?.id === editItem?.user_id)?.details?.email,

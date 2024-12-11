@@ -4,6 +4,7 @@ import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } fro
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
+import { camelCaseToTitleCase } from "components/util-components/utils";
 const { confirm } = Modal;
 
 const Notifications = () => {
@@ -73,13 +74,27 @@ const Notifications = () => {
 
     const handleAddOrEdit = async (values) => {
         const { type, start, expiry, ...rest } = values;
+        // Set time to 00:00:00 for the first timestamp
+        let startDay = new Date(start);
+        startDay?.setUTCHours(0, 0, 0, 0); // Sets time to 00:00:00.000
+        startDay.setDate(startDay.getDate() + 1);
+        // Set time to 23:59:59 for the second timestamp
+        let expiryDay = new Date(expiry);
+        expiryDay?.setUTCHours(23, 59, 59, 999); // Sets time to 23:59:59.999
+        expiryDay.setDate(expiryDay.getDate() + 1);
+        // // Convert back to ISO strings if needed
+        let startTime = startDay?.toISOString();
+        let expiryTime = expiryDay?.toISOString();
+        console.log(startTime, expiryTime)
+        // let startTime = `${String(start).slice(0, 10)}T00:00:00.000Z`; // Crop date and add 00:00:00
+        // let expiryTime = `${String(expiry).slice(0, 10)}T23:59:59.999Z`;
 
         // Construct payload based on type
         const payload = {
             ...rest,
             type,
-            start: start,
-            expiry: expiry,
+            start: startTime,
+            expiry: expiryTime,
             // start: start?.format(dateFormat) || '',
             // expiry: expiry?.format(dateFormat),
             users: type === 'users' ? values?.users : null,
@@ -175,6 +190,7 @@ const Notifications = () => {
             title: 'Type',
             dataIndex: 'type',
             key: 'type',
+            render: (text) => camelCaseToTitleCase(text)
         },
         {
             title: 'Actions',

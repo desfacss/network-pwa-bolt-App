@@ -54,23 +54,27 @@ const SurveyLayout = ({ children }) => {
 								{/* <h1 className="text-white">TimeTrack</h1><br /><br /><br /> */}
 
 								<h3 className="text-white">
-    {/* &ldquo;Effective planning turns intentions into actions. Schedule your way to success one step at a time&rdquo; */}
-	{/* &rdquo; Track every minute, optimize your day. Time well-managed is progress well-earned &rdquo; */}
-	ENGINEERED TODAY FOR TOMORROW AND BEYOND
-</h3>
-<br></br>
-<p>&rdquo;A leading consultant focused in supporting clients to deliver cost effective and smart design solutions for their investments on energy networks of the future.&rdquo;</p>
+									{/* &ldquo;Effective planning turns intentions into actions. Schedule your way to success one step at a time&rdquo; */}
+									{/* &rdquo; Track every minute, optimize your day. Time well-managed is progress well-earned &rdquo; */}
+									ENGINEERED TODAY FOR TOMORROW AND BEYOND
+								</h3>
+								<br></br>
+								<p>&rdquo;A leading consultant focused in supporting clients to deliver cost effective and smart design solutions for their investments on energy networks of the future.&rdquo;</p>
 							</Col>
 						</Row>
 						<div className="d-flex justify-content-end pb-4">
 							<div>
-								{/* <a
-                  className="text-white"
-                  href="https://www.ibcn.com/disclaimer"
-                // onClick={(e) => e.preventDefault()}
-                >
-                  Developed by Claritiz Innovations Pvt Ltd
-                </a> */}
+								<span>
+									Copyright © UK Power Engineers Ltd 2024. All rights reserved. - Developed by{' '}
+									<a
+										href="https://www.claritiz.com"
+										target="_blank"
+										rel="noopener noreferrer"
+										className="font-weight-semibold"
+									>
+										www.claritiz.com
+									</a>
+								</span>
 							</div>
 						</div>
 					</div>

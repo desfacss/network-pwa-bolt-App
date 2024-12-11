@@ -72,7 +72,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
     const handleSubmit = async (status) => {
         // const { service_name, cost, duration, description } = values;
         const comment = isApproveModal ? "" : rejectComment;
-        const emailPayload = [generateEmailData("Expense Sheet", status, {
+        const emailPayload = [generateEmailData("expenses claim", status, {
             approverUsername: session?.user?.user_name,
             comment,
             userEmail: users?.find(user => user?.id === editItem?.user_id)?.details?.email,
