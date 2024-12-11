@@ -56,3 +56,20 @@ export const isHideNext = (currentDate) => {
     // Use the modified date for comparison
     return currentDateWithoutTime.getTime() === currentMondayWithoutTime.getTime() || currentDateWithoutTime.getTime() === firstDayOfCurrentMonthWithoutTime.getTime();
 };
+
+export const getAllValues = (obj) => {
+    let values = [];
+    for (let key in obj) {
+        if (key.toLowerCase().includes("id")) {
+            // Skip properties containing 'id'
+            continue;
+        }
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+            // Recursively get values from nested objects
+            values = values.concat(getAllValues(obj[key]));
+        } else {
+            values.push(obj[key]);
+        }
+    }
+    return values;
+};

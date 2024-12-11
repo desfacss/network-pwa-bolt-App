@@ -723,12 +723,14 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       title: 'Timesheet Date',
       // dataIndex: 'timesheet_date',
       key: 'timesheet_date',
+      sorter: (a, b) => a?.timesheet_date?.localeCompare(b?.timesheet_date),
       render: (record) => getSundayDate(record?.timesheet_date), // Format date as needed
     },
     {
       title: 'Submitted Time',
       // dataIndex: 'details',
       key: 'submitted_time',
+      sorter: (a, b) => a?.submitted_time?.localeCompare(b?.submitted_time),
       render: (record) => (
         <div>
           {record?.submitted_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")}
@@ -739,6 +741,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       title: 'Review Time',
       // dataIndex: 'details',
       key: 'approver_details',
+      sorter: (a, b) => a?.approver_details?.approved_time?.localeCompare(b?.approver_details?.approved_time),
       render: (record) => (
         <div>
           {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
@@ -758,6 +761,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     {
       title: 'Review Comment',
       key: 'approver_id',
+      sorter: (a, b) => a?.approver_details?.comment?.localeCompare(b?.approver_details?.comment),
       render: (record) => {
         const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
         const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
@@ -784,6 +788,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
         new Set(timesheets?.map((record) => record?.status))
       )?.map((status) => ({ text: status, value: status })), // Create unique filters from status
       onFilter: (value, record) => record?.status === value,
+      sorter: (a, b) => a?.status?.localeCompare(b?.status)
     },
     // {
     //   title: 'Last Updated',

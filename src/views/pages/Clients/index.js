@@ -1,10 +1,11 @@
-import { Button, Card, notification, Table, Drawer, Form, Modal, Tooltip } from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
+import { Button, Card, notification, Table, Drawer, Form, Modal, Tooltip, Input } from "antd";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { PlusOutlined, EditFilled, ExclamationCircleFilled, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
 import { serverErrorParsing } from "components/util-components/serverErrorParsing";
+import { getAllValues } from "components/common/utils";
 const { confirm } = Modal;
 
 const Clients = () => {
@@ -15,10 +16,21 @@ const Clients = () => {
     const [schema, setSchema] = useState();
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [clientToDelete, setClientToDelete] = useState(null);
+    const [searchText, setSearchText] = useState('');
 
     const { session } = useSelector((state) => state.auth);
 
     const [form] = Form.useForm();
+
+    const filteredClients = useMemo(() => {
+        if (!searchText) return clients;
+        return clients?.filter((item) => {
+            // Use getAllValues to retrieve all values from the object
+            return getAllValues(item).some((value) =>
+                String(value).toLowerCase().includes(searchText?.toLowerCase())
+            );
+        });
+    }, [clients, searchText]);
 
     const getForms = async () => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', "client_add_edit_form").single()
@@ -133,11 +145,13 @@ const Clients = () => {
             title: 'Name',
             dataIndex: ['details', 'name'],
             key: 'name',
+            sorter: (a, b) => a?.details?.name?.localeCompare(b?.details?.name)
         },
         {
             title: 'Contact Person',
             dataIndex: ['details', 'primary_contact_name'],
             key: 'primary_contact_name',
+            sorter: (a, b) => a?.details?.primary_contact_name?.localeCompare(b?.details?.primary_contact_name)
         },
         {
             title: 'Phone',
@@ -148,11 +162,13 @@ const Clients = () => {
             title: 'Email',
             dataIndex: ['details', 'email'],
             key: 'email',
+            sorter: (a, b) => a?.details?.email?.localeCompare(b?.details?.email)
         },
         {
             title: 'Zip',
             dataIndex: ['details', 'zip'],
             key: 'zip',
+            sorter: (a, b) => String(a?.details?.zip)?.localeCompare(String(b?.details?.zip))
         },
         {
             title: 'Actions',
@@ -174,13 +190,16 @@ const Clients = () => {
         <Card styles={{ body: { padding: "0px" } }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Clients</h2>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)} >
-                    Add Client
-                </Button>
+                <div>
+                    <Input className="mr-2" placeholder="Search" value={searchText} onChange={(e) => setSearchText(e.target.value)} prefix={<SearchOutlined />} style={{ width: 200 }} />
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)} >
+                        Add Client
+                    </Button>
+                </div>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'} columns={columns} dataSource={clients}
-                    rowKey={(record) => record.id} loading={!clients} pagination={true} />
+                <Table size={'small'} columns={columns} dataSource={filteredClients}
+                    rowKey={(record) => record.id} loading={!filteredClients} pagination={true} />
             </div>
             <Drawer footer={null} width={500} title={editItem ? "Edit Client" : "Add Client"}
                 open={isDrawerOpen} maskClosable={false} onClose={() => { setIsDrawerOpen(false); setEditItem() }}

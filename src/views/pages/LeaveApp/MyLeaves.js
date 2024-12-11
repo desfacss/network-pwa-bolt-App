@@ -218,6 +218,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             title: 'Leave Type',
             dataIndex: ['details', 'leaveType'],
             key: 'leaveType',
+            sorter: (a, b) => a?.details?.leaveType?.localeCompare(b?.details?.leaveType),
         },
         // {
         //     title: 'Application',
@@ -230,7 +231,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
         //     )
         // },
         {
-            title: 'Leave Days',
+            title: 'Leave Period',
             // dataIndex: ['submitted_time'],
             key: 'submitted_time',
             width: 200,
@@ -244,11 +245,13 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             title: 'Days',
             dataIndex: ['details', 'daysTaken'],
             key: 'daysTaken',
+            sorter: (a, b) => String(a?.details?.daysTaken)?.localeCompare(String(b?.details?.daysTaken)),
         },
         {
             title: 'Days Away',
             dataIndex: ['details', 'daysAway'],
             key: 'daysAway',
+            sorter: (a, b) => String(a?.details?.daysAway)?.localeCompare(String(b?.details?.daysAway)),
         },
         // {
         //     title: 'Reason',
@@ -276,12 +279,14 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            sorter: (a, b) => a?.status?.localeCompare(b?.status),
             // render: (status) => (status === 'Approved' ? 'Yes' : 'No'),
         },
         {
             title: 'Review Date',
             // dataIndex: ['approver_details', 'approved_time'],
             key: 'approved_time',
+            sorter: (a, b) => a?.approver_details?.approved_time?.localeCompare(b?.approver_details?.approved_time),
             render: (record) => (
                 <div>
                     {/* {record?.approver_details?.approved_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")} */}
@@ -292,6 +297,7 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
         {
             title: 'Review Comment',
             key: 'approver_id',
+            sorter: (a, b) => a?.approver_details?.comment?.localeCompare(b?.approver_details?.comment),
             render: (record) => {
                 const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
                 const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;

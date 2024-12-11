@@ -1,15 +1,16 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker, InputNumber, Modal, Tooltip, Empty, Col, Row } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
 import { serverErrorParsing } from "components/util-components/serverErrorParsing";
+import { getAllValues } from "components/common/utils";
 
 const { confirm } = Modal;
 const { Option } = Select;
 
-const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
+const Project = ({ isDrawerOpen, setIsDrawerOpen, searchText }) => {
     const componentRef = useRef(null);
     const [projects, setProjects] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -26,6 +27,15 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
         return date.toISOString().split('T')[0];
     };
 
+    const filteredProjects = useMemo(() => {
+        if (!searchText) return projects;
+        return projects?.filter((item) => {
+            // Use getAllValues to retrieve all values from the object
+            return getAllValues(item).some((value) =>
+                String(value).toLowerCase().includes(searchText?.toLowerCase())
+            );
+        });
+    }, [projects, searchText]);
 
     const today = new Date();
     const tomorrow = new Date();
@@ -317,21 +327,25 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
             title: 'Name',
             dataIndex: ['details', 'project_name'],
             key: 'project_name',
+            sorter: (a, b) => a?.project_name?.localeCompare(b?.project_name)
         },
         {
             title: 'Description',
             dataIndex: ['details', 'description'],
             key: 'description',
+            sorter: (a, b) => a?.details?.description?.localeCompare(b?.details?.description)
         },
         {
             title: 'Start Date',
             dataIndex: ['details', 'start_date'],
             key: 'start_date',
+            sorter: (a, b) => a?.details?.start_date?.localeCompare(b?.details?.start_date)
         },
         {
             title: 'End Date',
             dataIndex: ['details', 'end_date'],
             key: 'end_date',
+            sorter: (a, b) => a?.details?.end_date?.localeCompare(b?.details?.end_date)
         },
         {
             title: 'Actions',
@@ -436,12 +450,9 @@ const Project = ({ isDrawerOpen, setIsDrawerOpen }) => {
     return (
         <Card styles={{ body: { padding: "0px" } }}>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'}
-                    locale={{
-                        emptyText: <Empty description="No Data!" />,
-                    }}
-                    columns={columns} dataSource={projects} rowKey={(record) => record.id}
-                    loading={!projects} pagination={true} />
+                <Table size={'small'} locale={{ emptyText: <Empty description="No Data!" /> }}
+                    columns={columns} dataSource={filteredProjects} rowKey={(record) => record.id}
+                    loading={!filteredProjects} pagination={true} />
             </div>
             <Drawer footer={null} width={1000}
                 title={(editItem && !clone) ? "Edit Project" : "Add Project"}

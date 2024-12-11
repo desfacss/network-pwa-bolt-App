@@ -1,6 +1,6 @@
-import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin, Tooltip, Menu, Dropdown, Col, Row } from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, SendOutlined, UnorderedListOutlined, MoreOutlined, AppstoreOutlined, CopyFilled, ExclamationCircleFilled } from "@ant-design/icons";
+import { Button, Card, notification, Table, Drawer, Modal, Form, Avatar, message, Spin, Tooltip, Menu, Dropdown, Col, Row, Input } from "antd";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { PlusOutlined, EditFilled, DeleteOutlined, SendOutlined, UnorderedListOutlined, MoreOutlined, AppstoreOutlined, SearchOutlined, CopyFilled, ExclamationCircleFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import DynamicForm from "../DynamicForm";
 import { useSelector } from "react-redux";
@@ -8,6 +8,7 @@ import './Services.css'; // Add a CSS file to style the cards grid
 import axios from "axios";
 import { serverErrorParsing } from "components/util-components/serverErrorParsing";
 import { camelCaseToTitleCase } from "components/util-components/utils";
+import { getAllValues } from "components/common/utils";
 const { confirm } = Modal;
 
 const Users = () => {
@@ -21,6 +22,26 @@ const Users = () => {
     const [viewMode, setViewMode] = useState('card'); // Toggle between 'card' and 'list' view
     const [loading, setLoading] = useState(false);
     const [roles, setRoles] = useState([])
+    const [searchText, setSearchText] = useState('');
+
+    // const filteredUsers = useMemo(() => {
+    //     if (!searchText) return users;
+    //     return users?.filter((item) => {
+    //         return Object.values(item).some((value) =>
+    //             String(value).toLowerCase().includes(searchText.toLowerCase())
+    //         );
+    //     });
+    // }, [users, searchText]);
+
+    const filteredUsers = useMemo(() => {
+        if (!searchText) return users;
+        return users?.filter((item) => {
+            // Use getAllValues to retrieve all values from the object
+            return getAllValues(item).some((value) =>
+                String(value).toLowerCase().includes(searchText?.toLowerCase())
+            );
+        });
+    }, [users, searchText]);
 
     const { session } = useSelector((state) => state.auth);
 
@@ -249,16 +270,16 @@ const Users = () => {
     };
 
     const columns = [
-        { title: 'Name', dataIndex: 'user_name', key: 'user_name' },
-        { title: 'Email', dataIndex: ['details', 'email'], key: 'email' },
+        { title: 'Name', dataIndex: 'user_name', key: 'user_name', sorter: (a, b) => a?.user_name?.localeCompare(b?.user_name) },
+        { title: 'Email', dataIndex: ['details', 'email'], key: 'email', sorter: (a, b) => a?.details?.email?.localeCompare(b?.details?.email) },
         { title: 'Mobile', dataIndex: ['details', 'mobile'], key: 'mobile' },
-        { title: 'Cost/Hr', dataIndex: ['details', 'rate'], key: 'rate' },
+        { title: 'Cost/Hr', dataIndex: ['details', 'rate'], key: 'rate', sorter: (a, b) => String(a?.details?.rate)?.localeCompare(String(b?.details?.rate)) },
         {
-            title: 'Role', dataIndex: ['details', 'role_type'], key: 'role',
+            title: 'Role', dataIndex: ['details', 'role_type'], key: 'role', sorter: (a, b) => a?.details?.role_type?.localeCompare(b?.details?.role_type),
             render: (text) => camelCaseToTitleCase(text)
         },
-        { title: 'Manager', dataIndex: ['manager', 'user_name'], key: 'manager' },
-        { title: 'Location', dataIndex: ['location', 'name'], key: 'location' },
+        { title: 'Manager', dataIndex: ['manager', 'user_name'], key: 'manager', sorter: (a, b) => a?.manager?.user_name?.localeCompare(b?.manager?.user_name) },
+        { title: 'Location', dataIndex: ['location', 'name'], key: 'location', sorter: (a, b) => a?.location?.name?.localeCompare(b?.location?.name) },
         {
             title: 'Actions',
             key: 'actions',
@@ -307,6 +328,7 @@ const Users = () => {
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Manage Team</h2>
                 <div>
+                    <Input className="mr-2" placeholder="Search" value={searchText} onChange={(e) => setSearchText(e.target.value)} prefix={<SearchOutlined />} style={{ width: 200 }} />
                     <Button icon={viewMode === 'card' ? <UnorderedListOutlined /> : <AppstoreOutlined />}
                         style={{ marginRight: "10px" }} onClick={() => setViewMode(viewMode === 'card' ? 'list' : 'card')} />
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditItem(); setIsModalOpen(true) }} >
@@ -318,7 +340,7 @@ const Users = () => {
                 {viewMode === 'card' ? (
                     <div >
                         <Row gutter={[16, 16]}>
-                            {users?.map((user) => (
+                            {filteredUsers?.map((user) => (
                                 <Col key={user?.id} xs={24} sm={12} lg={6}>
                                     <Card key={user?.id}
                                         extra={
@@ -344,8 +366,8 @@ const Users = () => {
                     </div>
                 ) : (
                     <div className="pl-3 pr-3">
-                        <Table size={'small'} columns={columns} dataSource={users} rowKey={(record) => record.id}
-                            loading={!users} pagination={true} />
+                        <Table size={'small'} columns={columns} dataSource={filteredUsers} rowKey={(record) => record.id}
+                            loading={!filteredUsers} pagination={true} />
                     </div>
                 )}
             </div>

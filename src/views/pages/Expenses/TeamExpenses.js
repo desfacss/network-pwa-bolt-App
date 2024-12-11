@@ -155,10 +155,12 @@ const TeamExpenses = ({ startDate, endDate }) => {
             title: 'Name',
             dataIndex: ['user', 'user_name'],
             key: 'user_name',
+            sorter: (a, b) => a?.user?.user_name?.localeCompare(b?.user?.user_name),
         },
         {
             title: 'Application',
             key: 'submitted_time',
+            sorter: (a, b) => a?.submitted_time?.localeCompare(b?.submitted_time),
             render: (record) => (
                 <div>
                     {(record?.submitted_time || record?.created_at)?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")?.slice(0, 10)}
@@ -169,15 +171,18 @@ const TeamExpenses = ({ startDate, endDate }) => {
             title: 'Project',
             dataIndex: ['project', 'project_name'],
             key: 'project_name',
+            sorter: (a, b) => a?.project?.project_name?.localeCompare(b?.project?.project_name),
         },
         {
             title: 'Amount (GBP)',
             dataIndex: ['grand_total'],
             key: 'grand_total',
+            sorter: (a, b) => String(a?.grand_total)?.localeCompare(String(b?.grand_total)),
         },
         {
             title: 'Review Date',
             key: 'approved_time',
+            sorter: (a, b) => a?.approver_details?.approved_time?.localeCompare(b?.approver_details?.approved_time),
             render: (record) => (
                 <div>
                     {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
@@ -188,6 +193,7 @@ const TeamExpenses = ({ startDate, endDate }) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            sorter: (a, b) => a?.status?.localeCompare(b?.status),
             filters: [{ text: 'Submitted', value: 'Submitted' }, ...Array.from(
                 new Set(expenses?.map((record) => record?.status))
             )?.filter((status) => status !== 'Submitted')?.map((status) => ({ text: status, value: status }))], // Create unique filters from status

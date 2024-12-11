@@ -1,10 +1,11 @@
 import { Button, Card, notification, Table, Drawer, Form, Input, Select, DatePicker, Modal, Tooltip } from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, SearchOutlined } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
 import { camelCaseToTitleCase } from "components/util-components/utils";
+import { getAllValues } from "components/common/utils";
 const { confirm } = Modal;
 
 const Notifications = () => {
@@ -16,7 +17,19 @@ const Notifications = () => {
     const [type, setType] = useState(null);
     const [users, setUsers] = useState([]);
     const [locations, setLocations] = useState([]);
+    const [searchText, setSearchText] = useState('');
+
     const dateFormat = 'YYYY/MM/DD';
+
+    const filteredNotifications = useMemo(() => {
+        if (!searchText) return notifications;
+        return notifications?.filter((item) => {
+            // Use getAllValues to retrieve all values from the object
+            return getAllValues(item).some((value) =>
+                String(value).toLowerCase().includes(searchText?.toLowerCase())
+            );
+        });
+    }, [notifications, searchText]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -62,7 +75,7 @@ const Notifications = () => {
     }, []);
 
     const fetchNotifications = async () => {
-        let { data, error } = await supabase.from('notifications').select('*').eq('organization_id', session?.user?.organization_id);
+        let { data, error } = await supabase.from('notifications').select('*').eq('organization_id', session?.user?.organization_id).order('updated_at', { ascending: false });
         if (data) {
             // console.log("Notifications", data);
             setNotifications(data);
@@ -180,16 +193,19 @@ const Notifications = () => {
             title: 'Title',
             dataIndex: 'title',
             key: 'title',
+            sorter: (a, b) => a?.title?.localeCompare(b?.title)
         },
         {
             title: 'Message',
             dataIndex: 'message',
             key: 'message',
+            sorter: (a, b) => a?.message?.localeCompare(b?.message)
         },
         {
             title: 'Type',
             dataIndex: 'type',
             key: 'type',
+            sorter: (a, b) => a?.type?.localeCompare(b?.type),
             render: (text) => camelCaseToTitleCase(text)
         },
         {
@@ -227,13 +243,16 @@ const Notifications = () => {
         <Card styles={{ body: { padding: "0px" } }}>
             <div className="d-flex p-2 justify-content-between align-items-center" style={{ marginBottom: "16px" }}>
                 <h2 style={{ margin: 0 }}>Notifications</h2>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)} >
-                    Add Notification
-                </Button>
+                <div>
+                    <Input className="mr-2" placeholder="Search" value={searchText} onChange={(e) => setSearchText(e.target.value)} prefix={<SearchOutlined />} style={{ width: 200 }} />
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDrawerOpen(true)} >
+                        Add Notification
+                    </Button>
+                </div>
             </div>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'} columns={columns} dataSource={notifications}
-                    rowKey={(record) => record.id} loading={!notifications} pagination={true} />
+                <Table size={'small'} columns={columns} dataSource={filteredNotifications}
+                    rowKey={(record) => record.id} loading={!filteredNotifications} pagination={true} />
             </div>
             <Drawer footer={null} width={500} title={editItem ? "Edit Notification" : "Add Notification"}
                 open={isDrawerOpen} maskClosable={false}

@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import NavItem from "./NavItem";
 import Flex from "components/shared-components/Flex";
-import { setSelectedOrganization, setSession } from "store/slices/authSlice";
+import { setSelectedOrganization, setSelectedUser, setSession } from "store/slices/authSlice";
 import styled from "@emotion/styled";
 import {
   FONT_WEIGHT,
@@ -67,6 +67,7 @@ const MenuItemSignOut = (props) => {
       return
     }
     store.dispatch(setSelectedOrganization())
+    store.dispatch(setSelectedUser())
     store.dispatch(setSession())
     navigate(`${APP_PREFIX_PATH}/login`)
   }

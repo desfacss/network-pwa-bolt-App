@@ -42,17 +42,20 @@ const MyTimesheetTable = () => {
             title: 'Timesheet Date',
             dataIndex: 'timesheet_date',
             key: 'timesheet_date',
+            sorter: (a, b) => a?.timesheet_date?.localeCompare(b?.timesheet_date),
             render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            sorter: (a, b) => a?.status?.localeCompare(b?.status)
         },
         {
             title: 'Last Updated',
             dataIndex: 'updated_at',
             key: 'updated_at',
+            sorter: (a, b) => a?.updated_at?.localeCompare(b?.updated_at),
             render: (date) => new Date(date).toLocaleString(), // Format date and time
         },
         {

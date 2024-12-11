@@ -97,6 +97,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
             title: 'Timesheet Date',
             // dataIndex: 'timesheet_date',
             key: 'timesheet_date',
+            sorter: (a, b) => a?.timesheet_date?.localeCompare(b?.timesheet_date),
             // render: (date) => new Date(date).toLocaleDateString(), // Format date as needed
             render: (record) => getSundayDate(record?.timesheet_date),
         },
@@ -104,6 +105,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
             title: 'Name',
             dataIndex: ['user', 'user_name'],
             key: 'user',
+            sorter: (a, b) => a?.user?.user_name?.localeCompare(b?.user?.user_name),
             filters: Array.from(
                 new Set(data?.map((record) => record?.user?.user_name))
             )?.map((name) => ({ text: name, value: name })), // Create unique filters from names
@@ -113,6 +115,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
             title: 'Submitted Time',
             // dataIndex: 'details',
             key: 'submitted_time',
+            sorter: (a, b) => a?.submitted_time?.localeCompare(b?.submitted_time),
             render: (record) => (
                 <div>
                     {record?.submitted_time?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")}
@@ -123,6 +126,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
             title: 'Review Time',
             // dataIndex: 'details',
             key: 'approver_details',
+            sorter: (a, b) => a?.approver_details?.approved_time?.localeCompare(b?.approver_details?.approved_time),
             render: (record) => (
                 <div>
                     {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
@@ -132,6 +136,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
         {
             title: 'Review Comment',
             key: 'approver_id',
+            sorter: (a, b) => a?.approver_details?.comment?.localeCompare(b?.approver_details?.comment),
             render: (record) => {
                 const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
                 const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
@@ -154,6 +159,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            sorter: (a, b) => a?.status?.localeCompare(b?.status),
             filters: [{ text: 'Submitted', value: 'Submitted' }, ...Array.from(
                 new Set(data?.map((record) => record?.status))
             )?.filter((status) => status !== 'Submitted')?.map((status) => ({ text: status, value: status }))], // Create unique filters from status
@@ -174,7 +180,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                         // onClick={() => handleEdit(record)}
                         onClick={() => handleOpenDrawer(record)}
                     >Approve / Reject</Button>}
-                    {record?.status === 'Approved' && <Button
+                    {/* {record?.status === 'Approved' && <Button
                         type="primary"
                         // icon={<EditFilled />}
                         size="small"
@@ -182,7 +188,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                         // disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
                         // onClick={() => handleEdit(record)}
                         onClick={() => handleOpenDrawer(record)}
-                    >View</Button>}
+                    >View</Button>} */}
                 </div>
             ),
         },

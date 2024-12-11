@@ -1,14 +1,15 @@
-import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Row, Col } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { Button, Card, notification, Table, Drawer, Form, Input, Select, Checkbox, DatePicker, InputNumber, Modal, Tooltip, Row, Col, Empty } from "antd";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { PlusOutlined, EditFilled, DeleteOutlined, ExclamationCircleFilled, CopyFilled } from "@ant-design/icons";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import dayjs from 'dayjs';
 import { serverErrorParsing } from "components/util-components/serverErrorParsing";
+import { getAllValues } from "components/common/utils";
 
 const { confirm } = Modal;
 
-const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
+const NonProject = ({ isDrawerOpen, setIsDrawerOpen, searchText }) => {
     const componentRef = useRef(null);
     const [projects, setProjects] = useState([]);
     const [editItem, setEditItem] = useState(null);
@@ -25,6 +26,16 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     const getFormattedDate = (date) => {
         return date.toISOString().split('T')[0];
     };
+
+    const filteredProjects = useMemo(() => {
+        if (!searchText) return projects;
+        return projects?.filter((item) => {
+            // Use getAllValues to retrieve all values from the object
+            return getAllValues(item).some((value) =>
+                String(value).toLowerCase().includes(searchText?.toLowerCase())
+            );
+        });
+    }, [projects, searchText]);
 
     const today = new Date();
     const tomorrow = new Date();
@@ -373,10 +384,10 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     };
 
     const columns = [
-        { title: 'Name', dataIndex: 'project_name', key: 'project_name' },
-        { title: 'Description', dataIndex: ['details', 'description'], key: 'description' },
-        { title: 'Start Date', dataIndex: ['details', 'start_date'], key: 'start_date' },
-        { title: 'End Date', dataIndex: ['details', 'end_date'], key: 'end_date' },
+        { title: 'Name', dataIndex: 'project_name', key: 'project_name', sorter: (a, b) => a?.project_name?.localeCompare(b?.project_name) },
+        { title: 'Description', dataIndex: ['details', 'description'], key: 'description', sorter: (a, b) => a?.details?.description?.localeCompare(b?.details?.description) },
+        { title: 'Start Date', dataIndex: ['details', 'start_date'], key: 'start_date', sorter: (a, b) => a?.details?.start_date?.localeCompare(b?.details?.start_date) },
+        { title: 'End Date', dataIndex: ['details', 'end_date'], key: 'end_date', sorter: (a, b) => a?.details?.end_date?.localeCompare(b?.details?.end_date) },
         {
             title: 'Allocation Tracking',
             dataIndex: 'allocation_tracking',
@@ -386,6 +397,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
                     {record?.allocation_tracking ? 'True' : 'False'}
                 </div>
             ),
+            sorter: (a, b) => String(a?.allocation_tracking)?.localeCompare(String(b?.allocation_tracking))
         },
         {
             title: 'Actions',
@@ -484,8 +496,8 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen }) => {
     return (
         <Card styles={{ body: { padding: "0px" } }}>
             <div className="table-responsive" ref={componentRef}>
-                <Table size={'small'} columns={columns} dataSource={projects}
-                    rowKey={(record) => record.id} loading={!projects} pagination={true} />
+                <Table size={'small'} locale={{ emptyText: <Empty description="No Data!" /> }} columns={columns} dataSource={filteredProjects}
+                    rowKey={(record) => record.id} loading={!filteredProjects} pagination={true} />
             </div>
             <Drawer footer={null} width={1000} open={isDrawerOpen} maskClosable={false} onOk={() => form.submit()}
                 onClose={() => { setEditItem(null); form.resetFields(); setAllocationTracking(false); setIsDrawerOpen(false); setProjectUsers(); setClone(false) }}

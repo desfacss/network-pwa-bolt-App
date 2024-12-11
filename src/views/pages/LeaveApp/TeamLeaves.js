@@ -182,14 +182,16 @@ const LeaveApplications = ({ startDate, endDate }) => {
             title: 'Name',
             dataIndex: ['user', 'user_name'],
             key: 'user_name',
+            sorter: (a, b) => a?.user?.user_name?.localeCompare(b?.user?.user_name),
         },
         {
             title: 'Leave Type',
             dataIndex: ['details', 'leaveType'],
             key: 'leaveType',
+            sorter: (a, b) => a?.details?.leaveType?.localeCompare(b?.details?.leaveType),
         },
         {
-            title: 'Leave Days',
+            title: 'Leave Period',
             key: 'submitted_time',
             width: 200,
             render: (record) => (
@@ -202,11 +204,13 @@ const LeaveApplications = ({ startDate, endDate }) => {
             title: 'Days',
             dataIndex: ['details', 'daysTaken'],
             key: 'daysTaken',
+            sorter: (a, b) => String(a?.details?.daysTaken)?.localeCompare(String(b?.details?.daysTaken)),
         },
         {
             title: 'Days Away',
             dataIndex: ['details', 'daysAway'],
             key: 'daysAway',
+            sorter: (a, b) => String(a?.details?.daysAway)?.localeCompare(String(b?.details?.daysAway)),
         },
         // {
         //     title: 'Reason',
@@ -227,6 +231,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
         {
             title: 'Review Comment',
             key: 'approver_id',
+            sorter: (a, b) => a?.approver_details?.comment?.localeCompare(b?.approver_details?.comment),
             render: (record) => {
                 const comment = record?.approver_details?.comment || '';  // Ensure the comment is defined
                 const truncatedComment = comment.length > 150 ? `${comment.substring(0, 100)}...` : comment;
@@ -244,6 +249,7 @@ const LeaveApplications = ({ startDate, endDate }) => {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            sorter: (a, b) => a?.status?.localeCompare(b?.status),
             filters: [{ text: 'Submitted', value: 'Submitted' }, ...Array.from(
                 new Set(leaveApplications?.map((record) => record?.status))
             )?.filter((status) => status !== 'Submitted')?.map((status) => ({ text: status, value: status }))], // Create unique filters from status

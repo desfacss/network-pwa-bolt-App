@@ -24,7 +24,7 @@ const Layouts = () => {
   const location = useLocation();
   const { session } = useSelector((state) => state?.auth);
 
-  const { selectedOrganization } = useSelector((state) => state.auth);
+  const { selectedOrganization, selectedUser } = useSelector((state) => state.auth);
 
   useEffect(() => {
     // Fetch the session and user data
@@ -32,7 +32,7 @@ const Layouts = () => {
       if (!session || !session.user) return;
 
       // Fetch user data from the users table
-      const { data: userData, error: userError } = await supabase.from('users').select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', session.user.id).single();
+      const { data: userData, error: userError } = await supabase.from('users').select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', selectedUser?.id || session.user.id).single();
 
       if (userError) {
         console.error('Error fetching user data:', userError);
@@ -74,7 +74,7 @@ const Layouts = () => {
 
     // Cleanup subscription on component unmount
     return () => subscription.unsubscribe();
-  }, [supabase, selectedOrganization]);
+  }, [supabase, selectedOrganization, selectedUser]);
 
   // const { token, session } = useSelector((state) => state.auth);
   const blankLayout = useSelector((state) => state.theme.blankLayout);

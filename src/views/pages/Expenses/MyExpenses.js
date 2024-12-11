@@ -78,6 +78,7 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
         {
             title: 'Application',
             key: 'submitted_time',
+            sorter: (a, b) => a?.submitted_time?.localeCompare(b?.submitted_time),
             render: (record) => (
                 <div>
                     {(record?.submitted_time || record?.created_at)?.replace("T", " ")?.replace(/\.\d+\+\d+:\d+$/, "")?.slice(0, 10)}
@@ -88,20 +89,24 @@ const MyExpenses = forwardRef(({ startDate, endDate }, ref) => {
             title: 'Project',
             dataIndex: ['project', 'project_name'],
             key: 'project_name',
+            sorter: (a, b) => a?.project?.project_name?.localeCompare(b?.project?.project_name),
         },
         {
             title: 'Amount (GBP)',
             dataIndex: ['grand_total'],
             key: 'grand_total',
+            sorter: (a, b) => String(a?.grand_total)?.localeCompare(String(b?.grand_total)),
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            sorter: (a, b) => a?.status?.localeCompare(b?.status),
         },
         {
             title: 'Review Date',
             key: 'approved_time',
+            sorter: (a, b) => a?.approver_details?.approved_time?.localeCompare(b?.approver_details?.approved_time),
             render: (record) => (
                 <div>
                     {record?.approver_details?.approved_time?.replace("T", " ").replace(/\.\d+Z$/, "")}
