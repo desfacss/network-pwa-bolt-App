@@ -17,19 +17,17 @@ export default function Footer() {
 			align-items: center;
 			border-top: 1px solid ${currentTheme === 'dark' ? DARK_MODE.BORDER_BASE_COLOR : BORDER.BASE_COLOR};
 			justify-content: space-between;
-		
+
 			@media ${MEDIA_QUERIES.MOBILE} {
 				justify-content: center;
        			flex-direction: column;
 			}
 		`}>
-			{/* <span>Copyright  &copy;  {`${new Date().getFullYear()}`} <span className="font-weight-semibold">claritiz.com
-			</span> */}
-			{/* <span>Developed by <span className="font-weight-semibold">claritiz.com
-			</span>
-			</span> */}
 			<span>
-				Copyright © UK Power Engineers Ltd 2024. All rights reserved. - Developed by{' '}
+				Copyright © UK Power Engineers Ltd 2024. All rights reserved.
+			</span>
+			<span>
+				Developed by{' '}
 				<a
 					href="https://www.claritiz.com"
 					target="_blank"
@@ -39,12 +37,6 @@ export default function Footer() {
 					www.claritiz.com
 				</a>
 			</span>
-			{/* <div>
-				<a className="text-gray" href="/#" onClick={e => e.preventDefault()}>Developed by Claritiz Innovations Pvt Ltd</a>
-				<span className="mx-2 text-muted"> | </span>
-				<a className="text-gray" href="/#" onClick={e => e.preventDefault()}>Privacy & Policy</a>
-			</div> */}
 		</footer>
 	)
 }
-

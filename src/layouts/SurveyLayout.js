@@ -14,73 +14,94 @@ const SurveyLayout = ({ children }) => {
 
 	return (
 		<div className={`h-100 ${theme === "light" ? "bg-white" : ""}`}>
-			<Row justify="center" className="align-items-stretch h-100">
-				<Col xs={20} sm={20} md={24} lg={16}>
-					<div className="container d-flex flex-column justify-content-center h-100">
-						<Row justify="center" className="mt-5">
-							<Col xs={24} sm={24} md={20} lg={12} xl={18}>
-								{children}
-							</Col>
-						</Row>
+	<Row justify="center" className="align-items-stretch h-100">
+		<Col xs={20} sm={20} md={24} lg={16}>
+			<div className="container d-flex flex-column justify-content-center h-100">
+				<Row justify="center" className="mt-5">
+					<Col xs={24} sm={24} md={20} lg={12} xl={18}>
+						{children}
+					</Col>
+				</Row>
+			</div>
+		</Col>
+		<Col xs={0} sm={0} md={0} lg={8} xl={8}>
+			<div
+				className="d-flex flex-column h-100 px-4"
+				style={{
+					...backgroundStyle,
+					position: 'fixed',
+					top: 0,
+					right: 0,
+					height: '100vh',
+					overflowY: 'auto',
+					width: '30vw',
+				}}
+			>
+				<div className="text-right">
+					{/* <img src="/img/knba.png" alt="logo" style={{ height: '80px' }} /> */}
+				</div>
+				<Row>
+					<Col xs={0} sm={0} md={0} lg={20}>
+						<img
+							className="img-fluid mb-5"
+							src="/img/others/img-19.png"
+							alt=""
+						/>
+						<div>
+							<img src="/img/ukpe_logo.png" alt="logo" style={{ height: '30px' }} />
+						</div><br /><br /><br /><br />
+						<h3 className="text-white">
+							ENGINEERED TODAY FOR TOMORROW AND BEYOND
+						</h3>
+						<br></br>
+						<p>&rdquo;A leading consultant focused in supporting clients to deliver cost effective and smart design solutions for their investments on energy networks of the future.&rdquo;</p>
+					</Col>
+				</Row>
+				<div
+					className="d-none d-lg-flex flex-column justify-content-end pb-4"
+					style={{
+						position: 'absolute',
+						bottom: '10px',
+						width: '100%',
+					}}
+				>
+					<div>
+						<span
+							className="d-block"
+							style={{
+								color: 'white',
+								textAlign: 'left',
+							}}
+						>
+							Copyright © UK Power Engineers Ltd 2024. All rights reserved.
+						</span>
+						<span
+							className="d-block"
+							style={{
+								color: 'white',
+								textAlign: 'left',
+							}}
+						>
+							Developed by{' '}
+							<a
+								href="https://www.claritiz.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									color: 'white',
+									fontWeight: '600',
+								}}
+							>
+								www.claritiz.com
+							</a>
+						</span>
 					</div>
-				</Col>
-				<Col xs={0} sm={0} md={0} lg={8} xl={8}>
-					<div
-						className="d-flex flex-column h-100 px-4"
-						// style={backgroundStyle}
-						style={{
-							...backgroundStyle,
-							position: 'fixed', // Fix the position so it floats
-							top: 0,            // Aligns the top of the viewport
-							right: 0,          // Aligns it to the right side
-							height: '100vh',   // Full height of the viewport
-							overflowY: 'auto', // Scroll within this column if necessary
-							width: '30vw',
-						}}
-					>
-						<div className="text-right">
-							{/* <img src="/img/knba.png" alt="logo" style={{ height: '80px' }} /> */}
-						</div>
-						<Row justify="center">
-							<Col xs={0} sm={0} md={0} lg={20}>
-								<img
-									className="img-fluid mb-5"
-									src="/img/others/img-19.png"
-									alt=""
-								/>
-								<div>
-									<img src="/img/ukpe_logo.png" alt="logo" style={{ height: '30px' }} />
-								</div><br /><br /><br /><br />
-								{/* <h1 className="text-white">TimeTrack</h1><br /><br /><br /> */}
+				</div>
+			</div>
+		</Col>
+	</Row>
+</div>
 
-								<h3 className="text-white">
-									{/* &ldquo;Effective planning turns intentions into actions. Schedule your way to success one step at a time&rdquo; */}
-									{/* &rdquo; Track every minute, optimize your day. Time well-managed is progress well-earned &rdquo; */}
-									ENGINEERED TODAY FOR TOMORROW AND BEYOND
-								</h3>
-								<br></br>
-								<p>&rdquo;A leading consultant focused in supporting clients to deliver cost effective and smart design solutions for their investments on energy networks of the future.&rdquo;</p>
-							</Col>
-						</Row>
-						<div className="d-flex justify-content-end pb-4">
-							<div>
-								<span>
-									Copyright © UK Power Engineers Ltd 2024. All rights reserved. - Developed by{' '}
-									<a
-										href="https://www.claritiz.com"
-										target="_blank"
-										rel="noopener noreferrer"
-										className="font-weight-semibold"
-									>
-										www.claritiz.com
-									</a>
-								</span>
-							</div>
-						</div>
-					</div>
-				</Col>
-			</Row>
-		</div>
 	);
 };
 
