@@ -690,7 +690,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     if (balance <= ((100 - (timesheet_settings?.workingHours?.projectFinalHours || 80)) / 100) * allocatedHours) {
       color = 'gold'
     }
-    if (balance < 0) {
+    if (balance < 0 && allocatedHours) {
       color = 'red'
       setSubmitDisabled(true)
     }
