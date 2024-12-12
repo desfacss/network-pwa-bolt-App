@@ -117,7 +117,8 @@ const Users = () => {
             user_name: userName,
             is_active: true,
             location_id,
-            leave_details: locations?.find((item) => item?.id === location_id)?.leave_settings,
+            // leave_details: locations?.find((item) => item?.id === location_id)?.leave_settings,  //can we get from allocation (leaves) using rpc function
+            leave_details: {},
             manager_id: manager,
             hr_id: hr_contact,
             // password_confirmed: false,
