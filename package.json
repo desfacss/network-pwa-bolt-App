@@ -38,6 +38,7 @@
     "react-sparklines": "^1.7.0",
     "react-timelines": "^2.6.1",
     "react-to-print": "^3.0.2",
+    "react-trello": "^2.2.11",
     "redux": "^4.1.1",
     "redux-persist": "^6.0.0",
     "resend": "^4.0.0",
