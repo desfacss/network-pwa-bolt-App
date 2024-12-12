@@ -5,6 +5,9 @@ import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
 import TableView from '../DynamicViews/TableView-R';
 import dayjs from 'dayjs';
+import { renderFilters } from 'components/util-components/utils';
+import Schedule from '../DynamicViews/TimelineView';
+import KanbanView from '../DynamicViews/KanbanView';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -18,9 +21,6 @@ const Index = () => {
     const defaultEndDate = dayjs();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
 
-    const handleChange = (value) => {
-        console.log("Selected Status:", value);
-    };
 
     const onDateRangeChange = (dates) => {
         if (dates) {
@@ -37,7 +37,7 @@ const Index = () => {
     const fetchData = async () => {
         let { data, error } = await supabase.from(db_table_name).select('*').order('details->>name', { ascending: true });
         if (data) {
-            console.log("Data", data.map(task => ({ ...task.details, id: task?.id })), data.map(item => ({ ...item, ...item.details, details: undefined })))
+            console.log("Data", data.map(task => ({ ...task.details, id: task?.id })))
             // setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
             setData(data.map(task => ({ ...task.details, id: task?.id })));
         }
@@ -64,9 +64,10 @@ const Index = () => {
 
 
     const updateData = async (updatedRow) => {
-        const { id, created_at, details, organization_id, ...updates } = updatedRow
+        const { id, ...updates } = updatedRow
         console.log("UR", updates)
-        const { data, error } = await supabase.from(db_table_name).update({ details: updatedRow }).eq('id', updatedRow.id).select('*');
+        delete updatedRow?.id
+        const { data, error } = await supabase.from(db_table_name).update({ details: updatedRow }).eq('id', id).select('*');
 
         if (error) {
             notification.error({ message: error.message });
@@ -110,8 +111,6 @@ const Index = () => {
         }
     };
 
-
-
     const tabItems = [
         {
             label: 'Table',
@@ -122,6 +121,16 @@ const Index = () => {
             label: 'Grid',
             key: '2',
             children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+        },
+        {
+            label: 'Timeline',
+            key: '3',
+            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+        },
+        {
+            label: 'Kanban',
+            key: '4',
+            children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
         },
         // {
         //     label: 'Gantt',
@@ -139,25 +148,11 @@ const Index = () => {
 
     return (
         <Card>
-            {/* <DynamicForm schemas={viewConfig} /> */}
             {(data && viewConfig) && <Tabs
                 tabBarExtraContent={ //Global filters
-                    <>
-                        Created Date: {' '}<RangePicker value={[dayjs().subtract(7, 'days'), dayjs()]} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
-                        Due Date: {' '}<RangePicker value={[dayjs(), dayjs().add(7, 'days')]} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
-                        Status: <Select
-                            placeholder="Select Status"
-                            style={{ width: 200 }}
-                            onChange={handleChange}
-                            allowClear
-                        >
-                            {[...new Set(data.map((item) => item.status))].map((status) => (
-                                <Option key={status} value={status}>
-                                    {status}
-                                </Option>
-                            ))}
-                        </Select>
-                    </>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        {renderFilters(viewConfig?.global?.search, data)}
+                    </div>
                 }
                 defaultActiveKey="1" items={tabItems} />}
         </Card>

@@ -3,7 +3,9 @@ import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useState } from 'react';
 import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
-import TableView from '../DynamicViews/TableView';
+import KanbanView from '../DynamicViews/KanbanView';
+import TableView from '../DynamicViews/TableView-R';
+import Schedule from '../DynamicViews/TimelineView';
 
 const db_table_name = 'clients'
 
@@ -99,6 +101,16 @@ const Index = () => {
             label: 'Grid',
             key: '2',
             children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+        },
+        {
+            label: 'Timeline',
+            key: '3',
+            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+        },
+        {
+            label: 'Kanban',
+            key: '4',
+            children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
         },
         // {
         //     label: 'Gantt',
