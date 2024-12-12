@@ -1,5 +1,24 @@
+// Role-Based Access Rules
+// HR, Admin, or Superadmin:
+
+// These roles have the privilege to review any employee's timesheet.
+// Filters applied:
+// status excludes drafts (neq('status', 'Draft')).
+// Date range filters apply (gte('timesheet_date', startDate) and lte('timesheet_date', endDate)).
+// Other Roles (e.g., Line Manager):
+
+// These users can only review timesheets of employees they manage.
+// The approver_id must match the session?.user?.id to confirm that the user is the line manager.
+// Additional filters include:
+// status excludes drafts.
+// Date range filters apply.
+// Everyone Else:
+
+// Users who do not fall into the above categories cannot review timesheets.
+// The system should return no data for these users.
+
 import React, { useEffect, useRef, useState } from 'react';
-import { Table, message, Button, Drawer, Tooltip } from 'antd';
+import { Table, message, Button, Drawer, Tooltip, notification } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import Review1 from '../Review/Review';
@@ -21,56 +40,96 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
         contentRef: reportDataRef
     })
 
+    // // Fetch timesheet data from your backend
+    // const fetchData = async () => {
+    //     setLoading(true);
+    //     try {
+    //         // const { data, error } = await supabase
+    //         //     .from('timesheet')
+    //         //     .select('*')
+    //         //     .eq('approver_id', session?.user?.id)
+    //         //     .eq('status', 'Submitted')
+    //         // const today = new Date(); // Format today's date as needed
+    //         // const today = format(new Date(), 'yyyy-MM-dd'); // Format today's date as needed
+    //         const today = new Date().toISOString().slice(0, 10)
+    //         // let data, error;
+
+    //         // if (session?.user?.role_type === 'admin') {
+    //         //     // Query for admins
+    //         //     ({ data, error } = await supabase
+    //         //         .from('timesheet')
+    //         //         .select('*,user:user_id (*)')
+    //         //         // .lt('last_date', today)
+    //         //         .or(`last_date.lt.${today},approver_id.eq.${session?.user?.id}`)
+    //         //         // .eq('status', 'Submitted')
+    //         //     );
+    //         // }  else {
+    //         //     // Query for non-admins
+    //         //     ({ data, error } = await supabase
+    //         //         .from('timesheet')
+    //         //         .select('*')
+    //         //         .eq('approver_id', session?.user?.id)
+    //         //         // .eq('status', 'Submitted')
+    //         //     );
+    //         // }
+    //         const { data, error } = await supabase
+    //             .from('timesheet').select('*,user:user_id (user_name)')//.neq('user_id', session?.user?.id)
+    //             // .eq('approver_id', session?.user?.id)
+    //             .neq('status', 'Draft').eq('organization_id', session?.user?.organization_id)
+    //             .gte('timesheet_date', startDate).lte('timesheet_date', endDate)
+    //             .order('submitted_time', { ascending: false });
+
+    //         if (error) {
+    //             throw error;
+    //         }
+    //         // console.log("TS", data)
+    //         setData(data);
+    //     } catch (error) {
+    //         message.error('Failed to load timesheet data');
+    //         console.error(error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     // Fetch timesheet data from your backend
     const fetchData = async () => {
         setLoading(true);
-        try {
-            // const { data, error } = await supabase
-            //     .from('timesheet')
-            //     .select('*')
-            //     .eq('approver_id', session?.user?.id)
-            //     .eq('status', 'Submitted')
-            // const today = new Date(); // Format today's date as needed
-            // const today = format(new Date(), 'yyyy-MM-dd'); // Format today's date as needed
-            const today = new Date().toISOString().slice(0, 10)
-            // let data, error;
+        let query = supabase
+            .from('timesheet')
+            .select('*, user:user_id (user_name)')
+            .neq('status', 'Draft')
+            .eq('organization_id', session?.user?.organization_id);
 
-            // if (session?.user?.role_type === 'admin') {
-            //     // Query for admins
-            //     ({ data, error } = await supabase
-            //         .from('timesheet')
-            //         .select('*,user:user_id (*)')
-            //         // .lt('last_date', today)
-            //         .or(`last_date.lt.${today},approver_id.eq.${session?.user?.id}`)
-            //         // .eq('status', 'Submitted')
-            //     );
-            // }  else {
-            //     // Query for non-admins
-            //     ({ data, error } = await supabase
-            //         .from('timesheet')
-            //         .select('*')
-            //         .eq('approver_id', session?.user?.id)
-            //         // .eq('status', 'Submitted')
-            //     );
-            // }
-            const { data, error } = await supabase
-                .from('timesheet').select('*,user:user_id (user_name)')//.neq('user_id', session?.user?.id)
-                // .eq('approver_id', session?.user?.id)
-                .neq('status', 'Draft').eq('organization_id', session?.user?.organization_id)
-                .gte('timesheet_date', startDate).lte('timesheet_date', endDate)
-                .order('submitted_time', { ascending: false });
+        // Check the user's role and apply filters
+        if (['hr', 'admin', 'superadmin'].includes(session?.user?.role_type)) {
+            // If the role is HR, Admin, or Superadmin, apply only the date filter
+            query = query.gte('timesheet_date', startDate).lte('timesheet_date', endDate);
+        } else if (!['hr', 'admin', 'superadmin'].includes(session?.user?.role_type)) {
+            // If the role is not HR, Admin, or Superadmin, add the approver_id condition
+            query = query
+                .eq('approver_id', session?.user?.id)
+                .gte('timesheet_date', startDate)
+                .lte('timesheet_date', endDate);
+        } else {
+            // If none of the conditions are met, return no data
+            query = null;
+        }
+
+        if (query) {
+            const { data, error } = await query.order('submitted_time', { ascending: false });
 
             if (error) {
-                throw error;
+                console.error('Error fetching data:', error);
+                notification.error({ message: error?.message || "Failed to fetch Timesheets" });
+            } else {
+                // console.log('Fetched data:', data);
+                setData(data)
             }
-            // console.log("TS", data)
-            setData(data);
-        } catch (error) {
-            message.error('Failed to load timesheet data');
-            console.error(error);
-        } finally {
-            setLoading(false);
+        } else {
+            // console.log('No data available based on the filters');
         }
+        setLoading(false)
     };
 
     useEffect(() => {

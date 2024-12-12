@@ -1,3 +1,21 @@
+// Role-Based Access Rules
+// HR, Admin, or Superadmin:
+
+// These roles have the privilege to review any employee's timesheet.
+// Filters applied:
+// Date range filters apply (gte('timesheet_date', startDate) and lte('timesheet_date', endDate)).
+// Other Roles (e.g., Line Manager):
+
+// These users can only review timesheets of employees they manage.
+// The approver_id must match the session?.user?.id to confirm that the user is the line manager.
+// Additional filters include:
+// status excludes drafts.
+// Date range filters apply.
+// Everyone Else:
+
+// Users who do not fall into the above categories cannot review timesheets.
+// The system should return no data for these users.
+
 import { Button, Card, notification, Table, Drawer, Form, Input, Divider, Modal, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "configs/SupabaseConfig";
@@ -84,15 +102,50 @@ const LeaveApplications = ({ startDate, endDate }) => {
         }
     }, [startDate, endDate]);
 
+    // const fetchLeaveApplications = async () => {
+    //     let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)')//.neq('status', 'Approved')
+    //         .eq('organization_id', session?.user?.organization_id)//.neq('user_id', session?.user?.id)
+    //         .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
+    //     if (data) {
+    //         setLeaveApplications(data);
+    //     }
+    //     if (error) {
+    //         notification.error({ message: error?.message || "Failed to fetch leave Applications" });
+    //     }
+    // };
+
     const fetchLeaveApplications = async () => {
-        let { data, error } = await supabase.from('leave_applications').select('*,user:user_id(*)')//.neq('status', 'Approved')
-            .eq('organization_id', session?.user?.organization_id)//.neq('user_id', session?.user?.id)
-            .gte('submitted_time', startDate).lte('submitted_time', endDate).order('submitted_time', { ascending: false });
-        if (data) {
-            setLeaveApplications(data);
+        let query = supabase
+            .from('leave_applications')
+            .select('*, user:user_id (*)')
+            .eq('organization_id', session?.user?.organization_id);
+
+        // Check the user's role and apply filters
+        if (['hr', 'admin', 'superadmin'].includes(session?.user?.role_type)) {
+            // If the role is HR, Admin, or Superadmin, apply only the date filter
+            query = query.gte('submitted_time', startDate).lte('submitted_time', endDate);
+        } else if (!['hr', 'admin', 'superadmin'].includes(session?.user?.role_type)) {
+            // If the role is not HR, Admin, or Superadmin, add the approver_id condition
+            query = query
+                .eq('approver_id', session?.user?.id)
+                .gte('submitted_time', startDate)
+                .lte('submitted_time', endDate);
+        } else {
+            // If none of the conditions are met, return no data
+            query = null;
         }
-        if (error) {
-            notification.error({ message: error?.message || "Failed to fetch leave Applications" });
+
+        if (query) {
+            const { data, error } = await query.order('submitted_time', { ascending: false });
+
+            if (error) {
+                notification.error({ message: error?.message || "Failed to fetch leave Applications" });
+            } else {
+                // console.log('Fetched data:', data);
+                setLeaveApplications(data)
+            }
+        } else {
+            // console.log('No data available based on the filters');
         }
     };
 
