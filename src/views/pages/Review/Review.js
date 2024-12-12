@@ -10,7 +10,7 @@ import { generateEmailData, sendEmail } from 'components/common/SendEmail';
 // import { sendEmail } from 'components/common/SendEmail';
 const { Option } = Select;
 
-const Review = ({ date, employee, fetchData }) => {
+const Review = ({ date, employee, fetchData, reportDataRef }) => {
   const [viewMode, setViewMode] = useState('Weekly');
   const [disabled, setDisabled] = useState(false);
   // const [currentDate, setCurrentDate] = useState(getMonday(new Date()));
@@ -657,7 +657,7 @@ const Review = ({ date, employee, fetchData }) => {
           />}
         </Modal>
       }
-      <Row justify="space-between" align="middle">
+      <Row justify="space-between" align="middle" className='mb-2'>
         {/* Left-aligned section */}
         <Col>
           {/* <Select
@@ -697,15 +697,28 @@ const Review = ({ date, employee, fetchData }) => {
             <Button onClick={() => setIsRejectModal(true)} >Reject</Button>
           </Col> : <div style={{ width: 200 }}></div>}
       </Row>
-      {(timeSheetData) ? <Table
-        columns={columns} scroll={{ x: 'max-content' }}
-        summary={() => renderSummaryRow(timeSheetData)}
-        rowClassName={(_, index) => holidays?.includes(index) ? "ant-table-row-selected" : ""}
-        // dataSource={dataSource}
-        dataSource={timeSheetData}
-        pagination={false}
-        locale={{ emptyText: 'No data available , Check for different employee or date' }}
-      /> : <div className='pt-5' style={{ fontSize: 16 }}><WarningOutlined style={{ color: 'orange' }} /> No data available , Check for different employee or date</div>}
+      {(timeSheetData) ?
+        <div ref={reportDataRef} className="conditional-padding" >
+          <div className="conditional-div">
+            <h4>
+              Timesheet for Week Ending - {getSunday(currentDate)}
+            </h4>
+            <h5>
+              Employee: {employees?.find(emp => emp?.id === selectedEmployeesId)?.user_name}
+            </h5>
+            <h5>
+              Status: {existingTimesheet?.status}
+            </h5></div>
+          <Table
+            columns={columns} scroll={{ x: 'max-content' }}
+            summary={() => renderSummaryRow(timeSheetData)}
+            rowClassName={(_, index) => holidays?.includes(index) ? "ant-table-row-selected" : ""}
+            dataSource={timeSheetData}
+            pagination={false}
+            locale={{ emptyText: 'No data available , Check for different employee or date' }}
+          />
+        </div>
+        : <div className='pt-5' style={{ fontSize: 16 }}><WarningOutlined style={{ color: 'orange' }} /> No data available , Check for different employee or date</div>}
     </div>
   );
 };

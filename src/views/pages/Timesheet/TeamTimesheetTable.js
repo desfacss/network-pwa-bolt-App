@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Table, message, Button, Drawer, Tooltip } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import Review1 from '../Review/Review';
-// import { supabase } from './supabaseClient'; // Import your Supabase client or API
 import { format } from 'date-fns';
+import { FilePdfFilled } from "@ant-design/icons";
+import { useReactToPrint } from 'react-to-print';
 
 const TeamTimesheetTable = ({ startDate, endDate }) => {
     const [data, setData] = useState([]);
@@ -13,6 +14,12 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
     const [selectedRecord, setSelectedRecord] = useState(null);
 
     const { session } = useSelector((state) => state.auth);
+
+    const reportDataRef = useRef();
+
+    const handlePrint = useReactToPrint({
+        contentRef: reportDataRef
+    })
 
     // Fetch timesheet data from your backend
     const fetchData = async () => {
@@ -180,7 +187,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                         // onClick={() => handleEdit(record)}
                         onClick={() => handleOpenDrawer(record)}
                     >Approve / Reject</Button>}
-                    {/* {record?.status === 'Approved' && <Button
+                    {record?.status === 'Approved' && <Button
                         type="primary"
                         // icon={<EditFilled />}
                         size="small"
@@ -188,7 +195,7 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                         // disabled={(record?.approver_id !== session?.user?.id && new Date() < new Date(record?.last_date))}
                         // onClick={() => handleEdit(record)}
                         onClick={() => handleOpenDrawer(record)}
-                    >View</Button>} */}
+                    >View</Button>}
                 </div>
             ),
         },
@@ -217,12 +224,16 @@ const TeamTimesheetTable = ({ startDate, endDate }) => {
                 pagination={{ pageSize: 10 }}
             />
             <Drawer
-                title="Review"
-                width={'100%'}
-                onClose={closeDrawer}
-                visible={drawerVisible}
-            >
-                {selectedRecord && <Review1 fetchData={fetchData} date={selectedRecord?.timesheet_date} employee={selectedRecord?.user_id} />}
+                title={
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <span>Review</span>
+                        <div>
+                            <Button type="primary" icon={<FilePdfFilled />} onClick={handlePrint}>Download</Button>
+                        </div>
+                    </div>
+                }
+                width={'100%'} onClose={closeDrawer} visible={drawerVisible} >
+                {selectedRecord && <Review1 reportDataRef={reportDataRef} fetchData={fetchData} date={selectedRecord?.timesheet_date} employee={selectedRecord?.user_id} />}
             </Drawer>
         </>
     );

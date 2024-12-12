@@ -273,7 +273,6 @@ const NonProjectLeave = () => {
             // Determine leaveDays based on the given logic
             let leaveDays = 0;
             const matchingLeaves = leaves?.filter(i => i.leave_type === editItem?.project_name);
-
             if (matchingLeaves.length > 1) {
                 // Check for row with matching location_id
                 const locationSpecificLeave = matchingLeaves?.find(i => i.location_id === session?.user?.location?.id);
@@ -287,9 +286,12 @@ const NonProjectLeave = () => {
             }
 
             // Calculate allocated hours
-            updatedUsers[index].allocated_hours = editItem?.linked_leave
-                ? leaveDays * session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours
-                : "0";
+
+            // NEED TO CHECK THE IMPACT
+            // updatedUsers[index].allocated_hours = editItem?.linked_leave
+            //     ? String(leaveDays * session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours)
+            //     : "0";
+            updatedUsers[index].allocated_hours = String(leaveDays * session?.user?.organization?.timesheet_settings?.workingHours?.standardDailyHours)
         }
         setProjectUsers(updatedUsers);
     };

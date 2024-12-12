@@ -4,7 +4,7 @@ import {
   DIR_LTR,
 } from "constants/ThemeConstant";
 
-export const APP_NAME = "TrackMate";
+export const APP_NAME = "UKPE Timesheet";
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 export const APP_PREFIX_PATH = "/app";
 export const AUTH_PREFIX_PATH = "/auth";

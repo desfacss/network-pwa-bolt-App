@@ -47,3 +47,37 @@
     padding: 25px !important;
     /* font-weight: bold; */
 }
+
+/* Hide on screen */
+.conditional-div {
+    display: none;
+}
+
+/* Show only when printing */
+@media print {
+    .conditional-div {
+        display: block;
+    }
+
+    .conditional-padding {
+        padding: 25px !important;
+    }
+
+    /* .sticky-left,
+    .sticky-right {
+        position: relative;
+        left: auto;
+        right: auto;
+        z-index: auto;
+        background: #f7f7f7;
+        box-shadow: none;
+    }
+
+    .vertical-header {
+        writing-mode: vertical-rl;
+        transform: rotate(0);
+        text-align: center;
+        white-space: normal;
+        max-width: 50px;
+    } */
+}
