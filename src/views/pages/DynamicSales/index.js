@@ -37,12 +37,23 @@ const Index = () => {
     const [viewConfig, setViewConfig] = useState()
     const [workflowConfig, setWorkflowConfig] = useState()
     const [data, setData] = useState()
+    const [users, setUsers] = useState();
+
+    const fetchUsers = async () => {
+        const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
+        if (error) {
+            console.error('Error fetching users:', error);
+        } else {
+            setUsers(data || []);
+        }
+    };
+
 
     const fetchData = async () => {
         // let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
         const { data, error } = await supabase.from('task_entities_with_workflow')
             .select('id, organization_id, created_at, details, current_stage, general_state, workflow_metadata')
-            .eq('organization_id', session?.user?.organization?.id);
+            .eq('organization_id', session?.user?.organization?.id).order('created_at', { ascending: false });
         if (data) {
             console.log("Data", data)// data.map(task => ({ ...task.details, id: task?.id })))
             // setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
@@ -53,7 +64,7 @@ const Index = () => {
         }
     };
     const fetchWorkflowConfiguration = async () => {
-        const { data, error } = await supabase.from('workflow_configurations').select('*').eq('entity_type',)
+        const { data, error } = await supabase.from('workflow_configurations').select('*').eq('entity_type', entityType)
             .eq('organization_id', session?.user?.organization?.id);
         if (data) {
             console.log("WorkflowConfig", data)
@@ -79,6 +90,7 @@ const Index = () => {
         fetchViewConfigs();
         fetchData();
         fetchWorkflowConfiguration()
+        fetchUsers()
     }, []);
 
 
@@ -86,7 +98,7 @@ const Index = () => {
         const { id, ...updates } = updatedRow
         console.log("UR", updates)
         delete updatedRow?.id
-        const { data, error } = await supabase.from(entityType).update({ details: updatedRow }).eq('id', id).select('*');
+        const { data, error } = await supabase.from(entityType).update({ details: updatedRow, organization_id: session?.user?.organization?.id }).eq('id', id).select('*');
 
         if (error) {
             notification.error({ message: error.message });
@@ -111,7 +123,7 @@ const Index = () => {
         delete formData?.id
         if (editItem) {
             // Update logic
-            const { error } = await supabase.from(entityType).update({ details: formData }).eq('id', editItem.id);
+            const { error } = await supabase.from(entityType).update({ details: formData, organization_id: session?.user?.organization?.id }).eq('id', editItem.id);
             if (error) {
                 notification.error({ message: 'Failed to update task' });
             } else {
@@ -120,12 +132,23 @@ const Index = () => {
             }
         } else {
             // Add logic
-            const { error } = await supabase.from(entityType).insert([{ details: formData }]);
+            const { data, error } = await supabase.from(entityType).insert([{ details: formData, organization_id: session?.user?.organization?.id }]).select('*');
             if (error) {
                 notification.error({ message: 'Failed to add task' });
             } else {
-                fetchData();
-                notification.success({ message: 'Task added successfully' });
+                console.log("q", data[0]?.id, formData?.name)
+                const { data: vd, error } = await supabase
+                    .rpc('initialize_workflow_instance', {
+                        entitytype: entityType,
+                        entityid: data[0]?.id,
+                    });
+                console.log("w", error, vd)
+                if (error) {
+                    console.error('Error fetching data:', error);
+                } else {
+                    fetchData();
+                    notification.success({ message: 'Added successfully' });
+                }
             }
         }
     };
@@ -134,7 +157,7 @@ const Index = () => {
         {
             label: 'Table',
             key: '1',
-            children: <TableView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <TableView data={data} viewConfig={viewConfig} users={users} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
         },
         {
             label: 'Grid',

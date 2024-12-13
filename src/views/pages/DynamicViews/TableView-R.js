@@ -13,7 +13,7 @@ const actionIcons = {
 };
 
 
-const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
+const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }) => {
     const [groupedData, setGroupedData] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
@@ -266,7 +266,7 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
                     {/* Bulk Actions */}
                     {[
                         ...(dynamicBulkActions || []),
-                        ...viewConfig?.tableview?.bulkActions?.filter(action => !action.includes("add_new_"))
+                        ...viewConfig?.tableview?.bulkActions//?.filter(action => !action.includes("add_new_"))
                     ].map((action) => (
                         <Button
                             key={action}
