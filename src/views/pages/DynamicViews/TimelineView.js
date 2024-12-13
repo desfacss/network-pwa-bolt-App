@@ -36,33 +36,33 @@ const Schedule = ({ data1, viewConfig, updateData, deleteData, onFinish }) => {
 
     // Items for the timeline
     const items = filteredData.map((task) => ({
-        id: task.id,
-        group: task.assignee, // Grouping based on the viewType
-        title: task.name,
-        start_time: moment(task.start_date, 'YYYY-MM-DD'),
-        end_time: moment(task.due_date, 'YYYY-MM-DD'),
-        description: task.description,
+        id: task?.id,
+        group: task?.assignee, // Grouping based on the viewType
+        title: task?.name,
+        start_time: moment(task?.start_date + " 00:00:00", 'YYYY-MM-DD HH:mm:ss'),
+        end_time: moment(task?.due_date + " 00:00:00", 'YYYY-MM-DD HH:mm:ss'),
+        description: task?.description,
     }));
-
+    console.log("II", items)
     // Dynamic Filters Configuration
     const filterConfig = [
         {
             type: 'select',
             label: 'Assignee',
             field: 'assignee',
-            options: [...new Set(data.map(task => task.assignee))],
+            options: [...new Set(data?.map(task => task?.assignee))],
         },
         {
             type: 'select',
             label: 'Status',
             field: 'status',
-            options: [...new Set(data.map(task => task.status))],
+            options: [...new Set(data.map(task => task?.status))],
         },
         {
             type: 'select',
             label: 'Priority',
             field: 'priority',
-            options: [...new Set(data.map(task => task.priority))],
+            options: [...new Set(data.map(task => task?.priority))],
         },
     ];
 
@@ -128,13 +128,13 @@ const Schedule = ({ data1, viewConfig, updateData, deleteData, onFinish }) => {
                 minZoom={60 * 60 * 1000} // 1 hour
                 maxZoom={30 * 24 * 60 * 60 * 1000} // 30 days
             >
-                <TimelineHeaders>
+                {/* <TimelineHeaders>
                     <DateHeader unit="primaryHeader" labelFormat="YYYY" />
                     <DateHeader
                         unit="day"
                         labelFormat={(date) => moment(date).format(zoomLevel === 'weekly' ? 'ddd D' : 'HH:mm')}
                     />
-                </TimelineHeaders>
+                </TimelineHeaders> */}
             </Timeline>
         </Card>
     );

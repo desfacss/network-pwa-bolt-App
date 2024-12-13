@@ -8,11 +8,12 @@ import dayjs from 'dayjs';
 import { renderFilters } from 'components/util-components/utils';
 import Schedule from '../DynamicViews/TimelineView';
 import KanbanView from '../DynamicViews/KanbanView';
+import { useSelector } from 'react-redux';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-const entityType = 'y_tasks'
+const entityType = 'y_sales'
 
 const Index = () => {
 
@@ -21,6 +22,8 @@ const Index = () => {
     const defaultEndDate = dayjs();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
 
+
+    const { session } = useSelector((state) => state.auth);
 
     const onDateRangeChange = (dates) => {
         if (dates) {
@@ -32,17 +35,32 @@ const Index = () => {
     };
 
     const [viewConfig, setViewConfig] = useState()
+    const [workflowConfig, setWorkflowConfig] = useState()
     const [data, setData] = useState()
 
     const fetchData = async () => {
-        let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+        // let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+        const { data, error } = await supabase.from('task_entities_with_workflow')
+            .select('id, organization_id, created_at, details, current_stage, general_state, workflow_metadata')
+            .eq('organization_id', session?.user?.organization?.id);
         if (data) {
-            console.log("Data", data.map(task => ({ ...task.details, id: task?.id })))
+            console.log("Data", data)// data.map(task => ({ ...task.details, id: task?.id })))
             // setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
-            setData(data.map(task => ({ ...task.details, id: task?.id })));
+            setData(data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })));
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch Data" });
+        }
+    };
+    const fetchWorkflowConfiguration = async () => {
+        const { data, error } = await supabase.from('workflow_configurations').select('*').eq('entity_type',)
+            .eq('organization_id', session?.user?.organization?.id);
+        if (data) {
+            console.log("WorkflowConfig", data)
+            setWorkflowConfig(data[0]);
+        }
+        if (error) {
+            notification.error({ message: error?.message || "Failed to fetch Workflow Config" });
         }
     };
 
@@ -60,6 +78,7 @@ const Index = () => {
     useEffect(() => {
         fetchViewConfigs();
         fetchData();
+        fetchWorkflowConfiguration()
     }, []);
 
 
@@ -130,7 +149,7 @@ const Index = () => {
         {
             label: 'Kanban',
             key: '4',
-            children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+            children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
         },
         // {
         //     label: 'Gantt',

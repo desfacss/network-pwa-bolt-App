@@ -14,7 +14,7 @@ const YViewConfigManager = () => {
   const [configs, setConfigs] = useState([]); // All rows from y_view_config
   const [selectedConfig, setSelectedConfig] = useState(null); // Current row to edit or add
   const [activeTab, setActiveTab] = useState('tableview'); // Active tab
-  const [dropdownOptions, setDropdownOptions] = useState([]); // Dropdown options for db_table_name
+  const [dropdownOptions, setDropdownOptions] = useState([]); // Dropdown options for entityType
   const [selectedRow, setSelectedRow] = useState(null); // Selected row from dropdown
   const [availableColumns, setAvailableColumns] = useState([]); // Available columns for the selected table
 
@@ -83,12 +83,12 @@ const YViewConfigManager = () => {
       }
     };
 
-    // Check if the selectedConfig and db_table_name are available
-    if (selectedConfig?.db_table_name) {
-      console.log("Table name from selectedConfig:", selectedConfig.db_table_name);
-      fetchColumns(selectedConfig.db_table_name);
+    // Check if the selectedConfig and entityType are available
+    if (selectedConfig?.entityType) {
+      console.log("Table name from selectedConfig:", selectedConfig.entityType);
+      fetchColumns(selectedConfig.entityType);
     } else {
-      console.warn("No db_table_name found in selectedConfig");
+      console.warn("No Entity Type found in selectedConfig");
     }
   }, [selectedConfig]); // Re-run when selectedConfig changes
 
@@ -175,19 +175,19 @@ const YViewConfigManager = () => {
             setSelectedConfig(selectedConfig || null);
 
             // Check if the selected config has a valid table name
-            if (selectedConfig?.db_table_name) {
-              console.log("Table Name from Config:", selectedConfig.db_table_name); // Log the table name
+            if (selectedConfig?.entityType) {
+              console.log("Table Name from Config:", selectedConfig.entityType)
 
               try {
                 // Call the RPC function to fetch table columns
                 // const { data, error } = await supabase.rpc('get_table_columns', {
-                //   table_name: selectedConfig.db_table_name, // Ensure correct parameter name
+                //   table_name: selectedConfig.entityType/ Ensure correct parameter name
                 // });
 
-                console.log("Calling RPC to fetch table columns for:", selectedConfig.db_table_name);
+                console.log("Calling RPC to fetch table columns for:", selectedConfig.entityType);
 
                 const { data, error } = await supabase.rpc('get_table_columns', {
-                  tablename: selectedConfig.db_table_name
+                  tablename: selectedConfig.entityType
                 });
 
                 console.log("RPC call completed. Data received:", data);
@@ -218,7 +218,7 @@ const YViewConfigManager = () => {
         >
           {configs.map((config) => (
             <Option key={config.id} value={config.id}>
-              {config.db_table_name}
+              {config.entityType}
             </Option>
           ))}
         </Select>

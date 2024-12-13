@@ -7,14 +7,14 @@ import KanbanView from '../DynamicViews/KanbanView';
 import TableView from '../DynamicViews/TableView-R';
 import Schedule from '../DynamicViews/TimelineView';
 
-const db_table_name = 'clients'
+const entityType = 'clients'
 
 const Index = () => {
     const [viewConfig, setViewConfig] = useState()
     const [data, setData] = useState()
 
     const fetchData = async () => {
-        let { data, error } = await supabase.from(db_table_name).select('*').order('details->>name', { ascending: true });
+        let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
         if (data) {
             console.log("Data", data.map(task => ({ ...task.details, id: task?.id })), data.map(item => ({ ...item, ...item.details, details: undefined })))
             // setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
@@ -26,7 +26,7 @@ const Index = () => {
     };
 
     const fetchViewConfigs = async () => {
-        let { data, error } = await supabase.from('y_view_config').select('*').eq('db_table_name', db_table_name);
+        let { data, error } = await supabase.from('y_view_config').select('*').eq('entity_type', entityType);
         if (data) {
             console.log("viewConfig", data[0]?.tableview)
             setViewConfig(data && data[0]);
@@ -45,7 +45,7 @@ const Index = () => {
     const updateData = async (updatedRow) => {
         const { id, created_at, details, organization_id, ...updates } = updatedRow
         console.log("UR", updates)
-        const { data, error } = await supabase.from(db_table_name).update({ details: updatedRow }).eq('id', updatedRow.id).select('*');
+        const { data, error } = await supabase.from(entityType).update({ details: updatedRow }).eq('id', updatedRow.id).select('*');
 
         if (error) {
             notification.error({ message: error.message });
@@ -57,7 +57,7 @@ const Index = () => {
 
     const deleteData = async (deleteRow) => {
         console.log("Del", deleteRow?.id)
-        const { data, error } = await supabase.from(db_table_name).delete().eq('id', deleteRow?.id);
+        const { data, error } = await supabase.from(entityType).delete().eq('id', deleteRow?.id);
         if (error) {
             notification.error({ message: error.message });
         } else {
@@ -70,7 +70,7 @@ const Index = () => {
         delete formData?.id
         if (editItem) {
             // Update logic
-            const { error } = await supabase.from(db_table_name).update({ details: formData }).eq('id', editItem.id);
+            const { error } = await supabase.from(entityType).update({ details: formData }).eq('id', editItem.id);
             if (error) {
                 notification.error({ message: 'Failed to update task' });
             } else {
@@ -79,7 +79,7 @@ const Index = () => {
             }
         } else {
             // Add logic
-            const { error } = await supabase.from(db_table_name).insert([{ details: formData }]);
+            const { error } = await supabase.from(entityType).insert([{ details: formData }]);
             if (error) {
                 notification.error({ message: 'Failed to add task' });
             } else {
