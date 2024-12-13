@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox, Tooltip } from 'antd';
+import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox, Tooltip, notification, InputNumber } from 'antd';
 // import { DownOutlined, PlusOutlined, SearchOutlined,FilterOutlined, GroupOutlined } from '@ant-design/icons';
 import { DownOutlined, SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutlined, FilterOutlined, GroupOutlined, ExportOutlined } from '@ant-design/icons';
 import DynamicForm from '../DynamicForm';
 import { snakeCaseToTitleCase } from 'components/util-components/utils';
+import { supabase } from 'configs/SupabaseConfig';
 
 const actionIcons = {
     edit: <EditOutlined />,
@@ -20,6 +21,8 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
     const [searchText, setSearchText] = useState('');
     const [visibleColumns, setVisibleColumns] = useState(viewConfig?.tableview?.fields?.map(field => field?.fieldName));
     const [selectedGroupBy, setSelectedGroupBy] = useState(null); // Default to no group by
+    const [score, setScore] = useState('55');
+    const [vd, setVd] = useState();
 
     const { showFeatures, exportOptions, globalSearch, groupBy } = viewConfig?.tableview;
 
@@ -202,14 +205,60 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
         action?.includes("add_new_")
     );
 
+    const handleQualificationUpdate = async (record) => {
+        console.log(record?.id)
+        const item = { ...record }
+        const id = item?.id
+        delete item?.id
+        try {
+            const { data, error } = await supabase
+                .from('y_sales')
+                .update({
+                    details: { ...item, qualification_complete: true, lead_score: score, has_contacted: true }
+                })
+                .eq('id', id);
+
+            if (error) {
+                console.error('Error updating record:', error);
+                Modal.error({
+                    title: 'Update Failed',
+                    content: 'Failed to update qualification. Please try again.',
+                });
+            } else {
+                console.log('Record updated successfully:', data);
+                notification.success({ message: "Update Successful" })
+                // Modal.success({
+                //     title: 'Update Successful',
+                //     content: 'Qualification updated successfully.',
+                // });
+            }
+        } catch (err) {
+            console.error('Unexpected error:', err);
+        }
+    };
+
     // Always include action column, regardless of column visibility
     const actionColumn = {
         title: 'Actions',
         key: 'actions',
         render: (text, record) => (
-            <Dropdown overlay={actionMenu(record)} trigger={['click']}>
-                <Button>Actions</Button>
-            </Dropdown>
+            // <Dropdown overlay={actionMenu(record)} trigger={['click']}>
+            //     <Button>Actions</Button>
+            // </Dropdown>
+            <Space>
+                {/* Existing Actions */}
+                <Dropdown overlay={actionMenu(record)} trigger={['click']}>
+                    <Button>Actions</Button>
+                </Dropdown>
+                {/* New Q Button */}
+                <Button
+                    type="primary"
+                    onClick={() => handleQualificationUpdate(record)}
+                    style={{ backgroundColor: '#4CAF50', borderColor: '#4CAF50' }}
+                >
+                    Q
+                </Button>
+            </Space>
         ),
     };
 
@@ -259,6 +308,7 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
                             style={{ width: 200 }}
                         />
                     </Space>}
+                    <InputNumber value={score} onChange={e => setScore(e.target.value)} />
                 </div>
 
                 {/* Right Section */}

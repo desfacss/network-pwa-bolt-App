@@ -9,6 +9,7 @@ import { renderFilters } from 'components/util-components/utils';
 import Schedule from '../DynamicViews/TimelineView';
 import KanbanView from '../DynamicViews/KanbanView';
 import { useSelector } from 'react-redux';
+import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -21,7 +22,17 @@ const Index = () => {
     // const defaultStartDate = dayjs().subtract(30, 'days');
     const defaultEndDate = dayjs();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
+    const [visible, setVisible] = useState(false);
+    const [vd, setVd] = useState();
 
+    const handleModalOpen = (item) => {
+        setVd(item)
+        setVisible(true);
+    };
+
+    const handleModalCancel = () => {
+        setVisible(false);
+    };
 
     const { session } = useSelector((state) => state.auth);
 
@@ -123,12 +134,26 @@ const Index = () => {
         delete formData?.id
         if (editItem) {
             // Update logic
-            const { error } = await supabase.from(entityType).update({ details: formData, organization_id: session?.user?.organization?.id }).eq('id', editItem.id);
+            const { data, error } = await supabase.from(entityType).update({ details: formData, organization_id: session?.user?.organization?.id }).eq('id', editItem.id).select('*');
             if (error) {
                 notification.error({ message: 'Failed to update task' });
             } else {
-                fetchData();
-                notification.success({ message: 'Task updated successfully' });
+                const { data: vd, error } = await supabase
+                    .rpc('transitionworkflowstage', {
+                        entitytype: entityType,
+                        entityid: data[0]?.id,
+                        newstagename: formData?.status,
+                        userid: session?.user?.id,
+                        reason: "",
+                    });
+                console.log("q", data[0]?.id, error, formData, editItem, vd)
+                if (error) {
+                    console.error('Error fetching data:', error);
+                } else {
+                    handleModalOpen({ ...vd, id: editItem.id })
+                    fetchData();
+                    notification.success({ message: 'Task updated successfully' });
+                }
             }
         } else {
             // Add logic
@@ -197,6 +222,11 @@ const Index = () => {
                     </div>
                 }
                 defaultActiveKey="1" items={tabItems} />}
+            {vd && <WorkflowStageModal
+                visible={visible}
+                onCancel={handleModalCancel}
+                data={vd}  // Pass the response data (vd) to the modal
+            />}
         </Card>
     );
 }
