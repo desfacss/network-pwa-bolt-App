@@ -1,7 +1,6 @@
-import { Card, DatePicker, notification, Select, Tabs } from 'antd';
+import { Card, notification, Tabs } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useState } from 'react';
-import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
 import TableView from '../DynamicViews/TableView-R';
 import dayjs from 'dayjs';
@@ -10,7 +9,8 @@ import Schedule from '../DynamicViews/TimelineView';
 import KanbanView from '../DynamicViews/KanbanView';
 import { useSelector } from 'react-redux';
 import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
-import { generateSchemas } from 'components/common/utils';
+import CalendarView from '../DynamicViews/CalendarView';
+import GanttView from '../DynamicViews/GanttView';
 
 const entityType = 'y_sales'
 
@@ -64,7 +64,7 @@ const Index = () => {
             .select('id, organization_id, created_at, details, current_stage, general_state, workflow_metadata')
             .eq('organization_id', session?.user?.organization?.id).order('created_at', { ascending: false });
         if (data) {
-            console.log("Data", data)// data.map(task => ({ ...task.details, id: task?.id })))
+            console.log("Data", data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })))// data.map(task => ({ ...task.details, id: task?.id })))
             // setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
             setData(data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })));
         }
@@ -271,22 +271,20 @@ const Index = () => {
             children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
         })
     }
-    // if (viewConfig?.ganttview) {
-    //     tabItems.push({
-    //         label: 'Gantt',
-    //         key: '3',
-    //         children: <GanttView
-    //         // tasks={tasks} 
-    //         />,
-    //     })
-    // }
-    // if (viewConfig?.calendarview) {
-    //     tabItems.push({
-    //         label: 'Calendar',
-    //         key: '4',
-    //         children: <CalendarView tasks={tasks} />,
-    //     })
-    // }
+    if (viewConfig?.ganttview) {
+        tabItems.push({
+            label: 'Gantt',
+            key: '5',
+            children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+        })
+    }
+    if (viewConfig?.calendarview) {
+        tabItems.push({
+            label: 'Calendar',
+            key: '6',
+            children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+        })
+    }
 
 
     const required = {
@@ -300,8 +298,6 @@ const Index = () => {
         entry_criteria: {}
     };
 
-    const schemas = generateSchemas(viewConfig?.form_schema, required);
-
     return (
         <Card>
             {(data && viewConfig) && <Tabs
@@ -312,14 +308,9 @@ const Index = () => {
                 }
                 defaultActiveKey="1" items={tabItems} />}
             {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType}
-                visible={visible}
+                visible={visible} viewConfig={viewConfig}
                 onCancel={handleModalCancel}
                 data={vd}  // Pass the response data (vd) to the modal
-            />}
-            {schemas?.data_schema && <DynamicForm
-                schemas={schemas}
-            // uiSchema={uiSchema}
-            // onSubmit={handleSubmit}
             />}
         </Card>
     );

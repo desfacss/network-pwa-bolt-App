@@ -76,6 +76,7 @@ export const getAllValues = (obj) => {
 
 export const generateSchemas = (fields, criteria) => {
     // Extract keys from exit_criteria and entry_criteria
+    console.log(fields, criteria)
     const criteriaKeys = new Set([
         ...Object.keys(criteria?.exit_criteria),
         ...Object.keys(criteria?.entry_criteria)
@@ -110,14 +111,14 @@ export const generateSchemas = (fields, criteria) => {
         };
     });
 
-    const dataSchema = {
+    const data_schema = {
         type: "object",
         properties
     };
 
-    const uiSchema = {
+    const ui_schema = {
         "ui:order": uiOrder
     };
 
-    return { dataSchema, uiSchema };
+    return { data_schema, ui_schema };
 };

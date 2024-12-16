@@ -1,50 +1,17 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button, Checkbox, InputNumber, notification } from 'antd';
+import { Modal, notification } from 'antd';
+import DynamicForm from '../DynamicForm';
+import { generateSchemas } from 'components/common/utils';
 import { supabase } from 'configs/SupabaseConfig';
 
-const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflowTransition, formData }) => {
-    const [form] = Form.useForm();
+const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflowTransition, viewConfig, formData }) => {
 
-    // Prepare initial values from vd (extracted from your RPC function)
-    const initialValues = {
-        exit_criteria: data.exit_criteria,
-        entry_criteria: data.entry_criteria,
-    };
-
-    // Dynamic field rendering for exit and entry criteria
-    const renderCriteriaFields = (criteria, isExit) => {
-        return Object.entries(criteria).map(([key, value]) => {
-            if (typeof value === 'boolean') {
-                return (
-                    <Form.Item name={`${isExit ? 'exit_' : 'entry_'}criteria_${key}`} label={key} valuePropName="checked" key={key}>
-                        <Checkbox>{key}</Checkbox>
-                    </Form.Item>
-                );
-            }
-            if (typeof value === 'number') {
-                return (
-                    <Form.Item name={`${isExit ? 'exit_' : 'entry_'}criteria_${key}`} label={key} key={key}>
-                        <InputNumber min={0} defaultValue={value} style={{ width: '100%' }} />
-                    </Form.Item>
-                );
-            }
-            return (
-                <Form.Item name={`${isExit ? 'exit_' : 'entry_'}criteria_${key}`} label={key} key={key}>
-                    <Input defaultValue={value} />
-                </Form.Item>
-            );
-        });
-    };
-
-    const handleSubmit = async () => {
+    const handleSubmit = async (formData) => {
+        console.log("pl", formData)
         try {
-            const values = await form.validateFields();
-
             const updatedDetails = {
                 ...data?.details,
-                lead_score: values?.exit_criteria_lead_score || values?.entry_criteria_lead_score || data?.details?.lead_score,
-                has_contacted: values?.exit_criteria_has_contacted || data?.details?.has_contacted,
-                qualification_complete: values?.exit_criteria_qualification_complete || data?.details?.qualification_complete,
+                ...formData,
             };
 
             // Update the record in Supabase
@@ -58,13 +25,12 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflo
             }
 
             // Call the parent's handler to handle transitions
-            if (typeof handleWorkflowTransition === "function") {
+            if (typeof handleWorkflowTransition === 'function') {
                 await handleWorkflowTransition(data.id, updatedDetails);
             }
 
             onCancel(); // Close the modal
         } catch (error) {
-            console.log("RT", data, error)
             notification.error({
                 message: 'Error updating record',
                 description: error.message,
@@ -72,24 +38,32 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflo
         }
     };
 
-
+    // const { dataSchema: exitDataSchema, uiSchema: exitUiSchema } = generateSchemas(data.exit_criteria);
+    const schemas = generateSchemas(viewConfig?.form_schema, { entry_criteria: data?.entry_criteria, exit_criteria: data?.exit_criteria });
+    console.log(data)
     return (
         <Modal
             visible={visible}
             title="Update Workflow Stage"
             onCancel={onCancel}
-            onOk={handleSubmit}
-            okText="Update"
-            cancelText="Cancel"
+            onOk={() => { }}
+            footer={null} // Remove default footer to control submission
             width={600}
         >
-            <Form form={form} initialValues={initialValues}>
-                {/* <h3>Exit Criteria</h3> */}
-                {renderCriteriaFields(data.exit_criteria, true)}
-
-                {/* <h3>Entry Criteria</h3> */}
-                {renderCriteriaFields(data.entry_criteria, false)}
-            </Form>
+            {/* <h3>Exit Criteria</h3>
+            <Form
+                schema={exitDataSchema}
+                uiSchema={exitUiSchema}
+                formData={data.exit_criteria}
+                onSubmit={(e) => handleSubmit({ formData: { ...e.formData, ...data.entry_criteria } })}
+            />
+            <h3>Entry Criteria</h3> */}
+            <DynamicForm
+                schemas={schemas}
+                // formData={data}
+                // onFinish={(e) => handleSubmit({ formData: { ...data, ...e.formData } })}
+                onFinish={handleSubmit}
+            />
         </Modal>
     );
 };
