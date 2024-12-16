@@ -43,16 +43,16 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, formData }) =
             // Prepare the updated details object to be sent to Supabase
             const updatedDetails = {
                 ...data.details,
-                exit_criteria: {
-                    ...data.exit_criteria,
-                    lead_score: values.exit_criteria_lead_score,
-                    has_contacted: values.exit_criteria_has_contacted,
-                    qualification_complete: values.exit_criteria_qualification_complete,
-                },
-                entry_criteria: {
-                    ...data.entry_criteria,
-                    lead_score: values.entry_criteria_lead_score,
-                },
+                // exit_criteria: {
+                //     ...data.exit_criteria,
+                lead_score: values.exit_criteria_lead_score || values.entry_criteria_lead_score || data.details.lead_score,
+                has_contacted: values.exit_criteria_has_contacted || data.details.has_contacted,
+                qualification_complete: values.exit_criteria_qualification_complete || data.details.qualification_complete,
+                // },
+                // entry_criteria: {
+                //     ...data.entry_criteria,
+                // lead_score: values.entry_criteria_lead_score,
+                // },
             };
 
             // Update record in Supabase

@@ -8,12 +8,18 @@ import React, { useState } from 'react';
 import Board from 'react-trello';
 
 const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
-    const priorityType = [{
-        name: "Low", sequence: 1, color: "",
-        name: "Medium", sequence: 2, color: "",
-        name: "High", sequence: 3, color: "",
-        name: "Critical", sequence: 4, color: ""
-    }]
+    // const priorityType = [{
+    //     name: "Low", sequence: 1, color: "",
+    //     name: "Medium", sequence: 2, color: "",
+    //     name: "High", sequence: 3, color: "",
+    //     name: "Critical", sequence: 4, color: ""
+    // }]
+    const priorityType = [
+        { name: "Low", sequence: 1, color: "" },
+        { name: "Medium", sequence: 2, color: "" },
+        { name: "High", sequence: 3, color: "" },
+        { name: "Critical", sequence: 4, color: "" }
+    ];
     const [editingCard, setEditingCard] = useState(null); // Track the card being edited
     const [editedCard, setEditedCard] = useState(null); // Store edits temporarily
 
@@ -31,22 +37,54 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
         }, {});
     };
 
-    // Transform data to the format required by react-trello
+    // // Transform data to the format required by react-trello
+    // const buildBoardData = () => {
+    //     const groupedData = groupData(data, kanbanview?.groupBy);
+    //     return {
+    //         lanes: Object.keys(groupedData)?.map((key) => ({
+    //             id: key,
+    //             title: key,
+    //             cards: groupedData[key]?.map((item) => ({
+    //                 id: item?.id,
+    //                 title: item?.name,
+    //                 description: kanbanview?.fields?.includes('description') ? item?.description : '',
+    //                 label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
+    //                 tags: item?.tags?.map((tag) => ({ title: tag })),
+    //                 metadata: item,
+    //             })),
+    //         })),
+    //     };
+    // };
+
     const buildBoardData = () => {
         const groupedData = groupData(data, kanbanview?.groupBy);
+
+        // Determine the source based on the lane grouping type (status or priority)
+        const source = kanbanview?.groupBy === "priority"
+            ? priorityType
+            : workflowConfig?.stages || [];
+
         return {
-            lanes: Object.keys(groupedData)?.map((key) => ({
-                id: key,
-                title: key,
-                cards: groupedData[key]?.map((item) => ({
-                    id: item?.id,
-                    title: item?.name,
-                    description: kanbanview?.fields?.includes('description') ? item?.description : '',
-                    label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
-                    tags: item?.tags?.map((tag) => ({ title: tag })),
-                    metadata: item,
+            lanes: source
+                .sort((a, b) => a.sequence - b.sequence) // Sort by sequence
+                .map((config) => ({
+                    id: config.name,
+                    title: config.name,
+                    cards: (groupedData[config.name] || []).map((item) => ({
+                        id: item?.id,
+                        title: item?.name,
+                        description: kanbanview?.fields?.includes('description') ? item?.description : '',
+                        label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
+                        tags: item?.tags?.map((tag) => ({ title: tag })),
+                        metadata: item,
+                    })),
+                    style: {
+                        backgroundColor: config.color || '#f4f5f7',
+                    },
+                    // If lane is 'priority', disable drag/drop
+                    canDrag: kanbanview?.groupBy !== 'priority',
+                    canAddCard: kanbanview?.groupBy !== 'priority', // Disable adding new cards to priority lanes
                 })),
-            })),
         };
     };
 
