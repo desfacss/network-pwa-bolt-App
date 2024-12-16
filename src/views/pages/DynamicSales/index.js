@@ -150,7 +150,7 @@ const Index = () => {
                 if (error) {
                     console.error('Error fetching data:', error);
                 } else {
-                    handleModalOpen({ ...vd, id: editItem.id })
+                    handleModalOpen({ ...vd, id: editItem.id, details: formData })
                     fetchData();
                     notification.success({ message: 'Task updated successfully' });
                 }

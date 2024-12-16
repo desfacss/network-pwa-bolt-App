@@ -110,7 +110,7 @@ const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
             >
                 <DynamicForm
                     schemas={viewConfig}
-                    formData={editItem?.details || {}}
+                    formData={editItem || {}}
                     onFinish={(formData) => {
                         onFinish(formData, editItem);
                         closeModal();

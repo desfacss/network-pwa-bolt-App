@@ -39,19 +39,19 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, formData }) =
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-
+            console.log("VA", values)
             // Prepare the updated details object to be sent to Supabase
             const updatedDetails = {
                 ...data.details,
                 exit_criteria: {
                     ...data.exit_criteria,
-                    lead_score: { minimum: values.exit_criteria_lead_score_minimum },
+                    lead_score: values.exit_criteria_lead_score,
                     has_contacted: values.exit_criteria_has_contacted,
                     qualification_complete: values.exit_criteria_qualification_complete,
                 },
                 entry_criteria: {
                     ...data.entry_criteria,
-                    lead_score: { minimum: values.entry_criteria_lead_score_minimum },
+                    lead_score: values.entry_criteria_lead_score,
                 },
             };
 
