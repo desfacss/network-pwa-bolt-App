@@ -10,14 +10,12 @@ import Schedule from '../DynamicViews/TimelineView';
 const entityType = 'clients'
 
 const Index = () => {
-    const [viewConfig, setViewConfig] = useState()
-    const [data, setData] = useState()
+    const [viewConfig, setViewConfig] = useState(null);
+    const [data, setData] = useState(null);
 
     const fetchData = async () => {
         let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
         if (data) {
-            console.log("Data", data.map(task => ({ ...task.details, id: task?.id })), data.map(item => ({ ...item, ...item.details, details: undefined })))
-            // setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
             setData(data.map(task => ({ ...task.details, id: task?.id })));
         }
         if (error) {
@@ -28,8 +26,7 @@ const Index = () => {
     const fetchViewConfigs = async () => {
         let { data, error } = await supabase.from('y_view_config').select('*').eq('entity_type', entityType);
         if (data) {
-            console.log("viewConfig", data[0]?.tableview)
-            setViewConfig(data && data[0]);
+            setViewConfig(data[0]);
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch View Config" });
@@ -41,22 +38,18 @@ const Index = () => {
         fetchData();
     }, []);
 
-
     const updateData = async (updatedRow) => {
-        const { id, created_at, details, organization_id, ...updates } = updatedRow
-        console.log("UR", updates)
+        const { id, created_at, details, organization_id, ...updates } = updatedRow;
         const { data, error } = await supabase.from(entityType).update({ details: updatedRow }).eq('id', updatedRow.id).select('*');
-
         if (error) {
             notification.error({ message: error.message });
         } else {
-            notification.success({ message: "Updated Successfully" })
+            notification.success({ message: "Updated Successfully" });
             fetchData(); // Refresh data after updating
         }
     };
 
     const deleteData = async (deleteRow) => {
-        console.log("Del", deleteRow?.id)
         const { data, error } = await supabase.from(entityType).delete().eq('id', deleteRow?.id);
         if (error) {
             notification.error({ message: error.message });
@@ -66,72 +59,80 @@ const Index = () => {
     };
 
     const handleAddOrEdit = async (formData, editItem) => {
-        console.log(formData, editItem)
-        delete formData?.id
+        delete formData?.id;
         if (editItem) {
-            // Update logic
             const { error } = await supabase.from(entityType).update({ details: formData }).eq('id', editItem.id);
             if (error) {
-                notification.error({ message: 'Failed to update task' });
+                notification.error({ message: 'Failed to update Client' });
             } else {
                 fetchData();
-                notification.success({ message: 'Task updated successfully' });
+                notification.success({ message: 'Client updated successfully' });
             }
         } else {
-            // Add logic
             const { error } = await supabase.from(entityType).insert([{ details: formData }]);
             if (error) {
-                notification.error({ message: 'Failed to add task' });
+                notification.error({ message: 'Failed to add Client' });
             } else {
                 fetchData();
-                notification.success({ message: 'Task added successfully' });
+                notification.success({ message: 'Client added successfully' });
             }
         }
     };
 
-
-
-    const tabItems = [
-        {
+    // Dynamically create tab items based on viewConfig
+    const tabItems = [];
+    if (viewConfig?.tableview) {
+        tabItems.push({
             label: 'Table',
             key: '1',
             children: <TableView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
-        },
-        {
+        });
+    }
+    if (viewConfig?.gridview) {
+        tabItems.push({
             label: 'Grid',
             key: '2',
-            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        {
-            label: 'Timeline',
-            key: '3',
-            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        {
+            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+        });
+    }
+    if (viewConfig?.kanbanview) {
+        tabItems.push({
             label: 'Kanban',
+            key: '3',
+            children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+        });
+    }
+    if (viewConfig?.timelineview) {
+        tabItems.push({
+            label: 'Timeline',
             key: '4',
-            children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        // {
-        //     label: 'Gantt',
-        //     key: '3',
-        //     children: <GanttView
-        //     // tasks={tasks} 
-        //     />,
-        // },
-        // {
-        //     label: 'Calendar',
-        //     key: '4',
-        //     children: <CalendarView tasks={tasks} />,
-        // },
-    ];
+            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+        });
+    }
+    // if (viewConfig?.ganttview) {
+    //     tabItems.push({
+    //         label: 'Gantt',
+    //         key: '5',
+    //         children: <GanttView />,
+    //     });
+    // }
+    // if (viewConfig?.calendarview) {
+    //     tabItems.push({
+    //         label: 'Calendar',
+    //         key: '6',
+    //         children: <CalendarView tasks={data} />,
+    //     });
+    // }
 
     return (
         <Card>
-            {/* <DynamicForm schemas={viewConfig} /> */}
-            {(data && viewConfig) && <Tabs defaultActiveKey="1" items={tabItems} />}
+            {(data && viewConfig) && tabItems.length > 0 ? (
+                <Tabs defaultActiveKey="1" items={tabItems} />
+            ) : (
+                <p>No view configurations available</p>
+            )}
         </Card>
     );
-}
+};
 
 export default Index;

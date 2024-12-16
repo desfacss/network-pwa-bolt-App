@@ -63,3 +63,15 @@
       display: block;
   }
 }
+
+
+.fXGURT {
+  background-color: #fff !important;
+  overflow-y: hidden;
+  padding: 5px;
+  color: #393939;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  height: 100vh;
+}
