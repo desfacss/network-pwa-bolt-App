@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Form, Input, Button, Checkbox, InputNumber, notification } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 
-const WorkflowStageModal = ({ visible, onCancel, data, entityType, formData }) => {
+const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflowTransition, formData }) => {
     const [form] = Form.useForm();
 
     // Prepare initial values from vd (extracted from your RPC function)
@@ -39,25 +39,17 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, formData }) =
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            console.log("VA", values)
-            // Prepare the updated details object to be sent to Supabase
+
             const updatedDetails = {
                 ...data?.details,
-                // exit_criteria: {
-                //     ...data.exit_criteria,
                 lead_score: values?.exit_criteria_lead_score || values?.entry_criteria_lead_score || data?.details?.lead_score,
                 has_contacted: values?.exit_criteria_has_contacted || data?.details?.has_contacted,
                 qualification_complete: values?.exit_criteria_qualification_complete || data?.details?.qualification_complete,
-                // },
-                // entry_criteria: {
-                //     ...data.entry_criteria,
-                // lead_score: values.entry_criteria_lead_score,
-                // },
             };
 
-            // Update record in Supabase
+            // Update the record in Supabase
             const { data: updateData, error } = await supabase
-                .from('y_sales')
+                .from(entityType)
                 .update({ details: updatedDetails })
                 .eq('id', data.id);
 
@@ -65,18 +57,21 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, formData }) =
                 throw error;
             }
 
-            notification.success({
-                message: 'Task updated successfully',
-            });
+            // Call the parent's handler to handle transitions
+            if (typeof handleWorkflowTransition === "function") {
+                await handleWorkflowTransition(data.id, updatedDetails);
+            }
+
             onCancel(); // Close the modal
         } catch (error) {
-            console.error('Error updating record:', error);
+            console.log("RT", data, error)
             notification.error({
                 message: 'Error updating record',
                 description: error.message,
             });
         }
     };
+
 
     return (
         <Modal

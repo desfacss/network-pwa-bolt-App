@@ -10,9 +10,7 @@ import Schedule from '../DynamicViews/TimelineView';
 import KanbanView from '../DynamicViews/KanbanView';
 import { useSelector } from 'react-redux';
 import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
-
-const { RangePicker } = DatePicker;
-const { Option } = Select;
+import { generateSchemas } from 'components/common/utils';
 
 const entityType = 'y_sales'
 
@@ -129,89 +127,180 @@ const Index = () => {
         }
     };
 
+    const handleWorkflowTransition = async (entityId, formData) => {
+        const { data: vd, error } = await supabase
+            .rpc('transitionworkflowstage', {
+                entitytype: entityType,
+                entityid: entityId,
+                newstagename: formData?.status,
+                userid: session?.user?.id,
+                reason: "",
+            });
+
+        if (error) {
+            notification.error({ message: error.message });
+            return;
+        }
+        console.log("vd", vd)
+        if (vd?.entry_criteria || vd?.exit_criteria) {
+            // Reopen modal with the updated data
+            handleModalOpen({ ...vd, id: entityId, details: formData });
+        } else {
+            // Fetch data to refresh the view
+            fetchData();
+            notification.success({ message: 'Workflow stage transitioned successfully' });
+        }
+    };
+
     const handleAddOrEdit = async (formData, editItem) => {
-        console.log(formData, editItem)
-        delete formData?.id
         if (editItem) {
             // Update logic
-            const { data, error } = await supabase.from(entityType).update({ details: formData, organization_id: session?.user?.organization?.id }).eq('id', editItem.id).select('*');
+            const { data, error } = await supabase
+                .from(entityType)
+                .update({ details: formData, organization_id: session?.user?.organization?.id })
+                .eq('id', editItem.id)
+                .select('*');
+
             if (error) {
                 notification.error({ message: 'Failed to update task' });
             } else {
-                const { data: vd, error } = await supabase
-                    .rpc('transitionworkflowstage', {
-                        entitytype: entityType,
-                        entityid: data[0]?.id,
-                        newstagename: formData?.status,
-                        userid: session?.user?.id,
-                        reason: "",
-                    });
-                console.log("q", data[0]?.id, error, formData, editItem, vd)
-                if (error) {
-                    console.error('Error fetching data:', error);
-                } else {
-                    handleModalOpen({ ...vd, id: editItem.id, details: formData })
-                    fetchData();
-                    notification.success({ message: 'Task updated successfully' });
-                }
+                await handleWorkflowTransition(editItem.id, formData);
             }
         } else {
             // Add logic
-            const { data, error } = await supabase.from(entityType).insert([{ details: formData, organization_id: session?.user?.organization?.id }]).select('*');
+            const { data, error } = await supabase
+                .from(entityType)
+                .insert([{ details: formData, organization_id: session?.user?.organization?.id }])
+                .select('*');
+
             if (error) {
                 notification.error({ message: 'Failed to add task' });
             } else {
-                console.log("q", data[0]?.id, formData?.name)
-                const { data: vd, error } = await supabase
-                    .rpc('initialize_workflow_instance', {
-                        entitytype: entityType,
-                        entityid: data[0]?.id,
-                    });
-                console.log("w", error, vd)
+                const newEntityId = data[0]?.id;
+                const { data: vd, error } = await supabase.rpc('initialize_workflow_instance', {
+                    entitytype: entityType,
+                    entityid: newEntityId,
+                });
+
                 if (error) {
-                    console.error('Error fetching data:', error);
+                    notification.error({ message: 'Failed to initialize workflow instance' });
                 } else {
-                    fetchData();
                     notification.success({ message: 'Added successfully' });
+                    // await handleWorkflowTransition(newEntityId, formData);
                 }
             }
         }
     };
 
-    const tabItems = [
-        {
+
+
+    // const handleAddOrEdit = async (formData, editItem) => {
+    //     console.log(formData, editItem)
+    //     delete formData?.id
+    //     if (editItem) {
+    //         // Update logic
+    //         const { data, error } = await supabase.from(entityType).update({ details: formData, organization_id: session?.user?.organization?.id }).eq('id', editItem.id).select('*');
+    //         if (error) {
+    //             notification.error({ message: 'Failed to update task' });
+    //         } else {
+    //             const { data: vd, error } = await supabase
+    //                 .rpc('transitionworkflowstage', {
+    //                     entitytype: entityType,
+    //                     entityid: data[0]?.id,
+    //                     newstagename: formData?.status,
+    //                     userid: session?.user?.id,
+    //                     reason: "",
+    //                 });
+    //             console.log("q", data[0]?.id, error, formData, editItem, vd)
+    //             if (error) {
+    //                 console.error('Error fetching data:', error);
+    //             } else {
+    //                 handleModalOpen({ ...vd, id: editItem.id, details: formData })
+    //                 fetchData();
+    //                 notification.success({ message: 'Task updated successfully' });
+    //             }
+    //         }
+    //     } else {
+    //         // Add logic
+    //         const { data, error } = await supabase.from(entityType).insert([{ details: formData, organization_id: session?.user?.organization?.id }]).select('*');
+    //         if (error) {
+    //             notification.error({ message: 'Failed to add task' });
+    //         } else {
+    //             console.log("q", data[0]?.id, formData?.name)
+    //             const { data: vd, error } = await supabase
+    //                 .rpc('initialize_workflow_instance', {
+    //                     entitytype: entityType,
+    //                     entityid: data[0]?.id,
+    //                 });
+    //             console.log("w", error, vd)
+    //             if (error) {
+    //                 console.error('Error fetching data:', error);
+    //             } else {
+    //                 fetchData();
+    //                 notification.success({ message: 'Added successfully' });
+    //             }
+    //         }
+    //     }
+    // };
+    const tabItems = [];
+    if (viewConfig?.tableview) {
+        tabItems.push({
             label: 'Table',
             key: '1',
             children: <TableView data={data} viewConfig={viewConfig} users={users} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
-        },
-        {
+        })
+    }
+    if (viewConfig?.gridview) {
+        tabItems.push({
             label: 'Grid',
             key: '2',
             children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        {
+        })
+    }
+    if (viewConfig?.timelineview) {
+        tabItems.push({
             label: 'Timeline',
             key: '3',
             children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        {
+        })
+    }
+    if (viewConfig?.kanbanview) {
+        tabItems.push({
             label: 'Kanban',
             key: '4',
             children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+        })
+    }
+    // if (viewConfig?.ganttview) {
+    //     tabItems.push({
+    //         label: 'Gantt',
+    //         key: '3',
+    //         children: <GanttView
+    //         // tasks={tasks} 
+    //         />,
+    //     })
+    // }
+    // if (viewConfig?.calendarview) {
+    //     tabItems.push({
+    //         label: 'Calendar',
+    //         key: '4',
+    //         children: <CalendarView tasks={tasks} />,
+    //     })
+    // }
+
+
+    const required = {
+        exit_criteria: {
+            lead_score: {
+                minimum: "50"
+            },
+            has_contacted: true,
+            qualification_complete: true
         },
-        // {
-        //     label: 'Gantt',
-        //     key: '3',
-        //     children: <GanttView
-        //     // tasks={tasks} 
-        //     />,
-        // },
-        // {
-        //     label: 'Calendar',
-        //     key: '4',
-        //     children: <CalendarView tasks={tasks} />,
-        // },
-    ];
+        entry_criteria: {}
+    };
+
+    const schemas = generateSchemas(viewConfig?.form_schema, required);
 
     return (
         <Card>
@@ -222,10 +311,15 @@ const Index = () => {
                     </div>
                 }
                 defaultActiveKey="1" items={tabItems} />}
-            {vd && <WorkflowStageModal
+            {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType}
                 visible={visible}
                 onCancel={handleModalCancel}
                 data={vd}  // Pass the response data (vd) to the modal
+            />}
+            {schemas?.data_schema && <DynamicForm
+                schemas={schemas}
+            // uiSchema={uiSchema}
+            // onSubmit={handleSubmit}
             />}
         </Card>
     );

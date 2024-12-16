@@ -4,8 +4,11 @@
 // The lane dragdrop is True
 // FUTURE - ADD CONFIG IN KANBAN VIEW (SAME AS IN FORM STATIC OR ENUM TABLE >> COLUMN >> DETAIL >> NAME)
 
+import { Select } from 'antd';
 import React, { useState } from 'react';
 import Board from 'react-trello';
+
+const { Option } = Select;
 
 const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
     // const priorityType = [{
@@ -14,6 +17,8 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
     //     name: "High", sequence: 3, color: "",
     //     name: "Critical", sequence: 4, color: ""
     // }]
+    const { kanbanview } = viewConfig;
+    console.log("tt", data)
     const priorityType = [
         { name: "Low", sequence: 1, color: "" },
         { name: "Medium", sequence: 2, color: "" },
@@ -22,8 +27,8 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
     ];
     const [editingCard, setEditingCard] = useState(null); // Track the card being edited
     const [editedCard, setEditedCard] = useState(null); // Store edits temporarily
+    const [groupBy, setGroupBy] = useState(kanbanview.groups[0]);
 
-    const { kanbanview } = viewConfig;
 
     // Function to group data dynamically based on config
     const groupData = (data, groupBy) => {
@@ -57,12 +62,13 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
     // };
 
     const buildBoardData = () => {
-        const groupedData = groupData(data, kanbanview?.groupBy);
+        const groupedData = groupData(data, groupBy);
 
         // Determine the source based on the lane grouping type (status or priority)
-        const source = kanbanview?.groupBy === "priority"
+        console.log("lk", workflowConfig, workflowConfig?.details?.stages?.map(stage => stage?.name))
+        const source = groupBy === "priority"
             ? priorityType
-            : workflowConfig?.stages || [];
+            : workflowConfig?.details?.stages?.map(stage => ({ name: stage?.name, sequence: stage.sequence, color: stage?.color })) || [];
 
         return {
             lanes: source
@@ -82,8 +88,8 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
                         backgroundColor: config.color || '#f4f5f7',
                     },
                     // If lane is 'priority', disable drag/drop
-                    canDrag: kanbanview?.groupBy !== 'priority',
-                    canAddCard: kanbanview?.groupBy !== 'priority', // Disable adding new cards to priority lanes
+                    canDrag: groupBy !== 'priority',
+                    canAddCard: groupBy !== 'priority', // Disable adding new cards to priority lanes
                 })),
         };
     };
@@ -175,7 +181,7 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
     const handleCardMove = (cardId, sourceLaneId, targetLaneId) => {
         const updatedItem = data.find((item) => item?.id === cardId);
         if (updatedItem) {
-            updatedItem[kanbanview?.groupBy] = targetLaneId;
+            updatedItem[groupBy] = targetLaneId;
             updateData(updatedItem);
         }
     };
@@ -201,6 +207,19 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
 
     return (
         <>
+            <div style={{ marginBottom: '16px' }}>
+                <Select
+                    value={groupBy}
+                    onChange={(value) => setGroupBy(value)}
+                    style={{ width: 200 }}
+                >
+                    {viewConfig.kanbanview.groups.map((group) => (
+                        <Option key={group} value={group}>
+                            {group.charAt(0).toUpperCase() + group.slice(1)}
+                        </Option>
+                    ))}
+                </Select>
+            </div>
             <Board editable canAddLanes
                 data={buildBoardData()}
                 draggable

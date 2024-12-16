@@ -6,6 +6,7 @@ import validator from '@rjsf/validator-ajv8';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from 'configs/SupabaseConfig'; // Import Supabase client
 import TableViewConfig from './TableViewConfig'; // Import the TableViewConfig component
+import CrudTableConfig from './FormSchema';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -14,7 +15,7 @@ const YViewConfigManager = () => {
   const [configs, setConfigs] = useState([]); // All rows from y_view_config
   const [selectedConfig, setSelectedConfig] = useState(null); // Current row to edit or add
   const [activeTab, setActiveTab] = useState('tableview'); // Active tab
-  const [dropdownOptions, setDropdownOptions] = useState([]); // Dropdown options for entityType
+  const [dropdownOptions, setDropdownOptions] = useState([]); // Dropdown options for entity_type
   const [selectedRow, setSelectedRow] = useState(null); // Selected row from dropdown
   const [availableColumns, setAvailableColumns] = useState([]); // Available columns for the selected table
 
@@ -83,10 +84,10 @@ const YViewConfigManager = () => {
       }
     };
 
-    // Check if the selectedConfig and entityType are available
-    if (selectedConfig?.entityType) {
-      console.log("Table name from selectedConfig:", selectedConfig.entityType);
-      fetchColumns(selectedConfig.entityType);
+    // Check if the selectedConfig and entity_type are available
+    if (selectedConfig?.entity_type) {
+      console.log("Table name from selectedConfig:", selectedConfig.entity_type);
+      fetchColumns(selectedConfig.entity_type);
     } else {
       console.warn("No Entity Type found in selectedConfig");
     }
@@ -116,8 +117,8 @@ const YViewConfigManager = () => {
         message.success('Configuration added successfully');
       }
 
-      setSelectedConfig(null); // Reset selection
-      setActiveTab('tableview');
+      // setSelectedConfig(null); // Reset selection
+      // setActiveTab('tableview');
     } catch (error) {
       message.error('Failed to save configuration');
     }
@@ -175,19 +176,19 @@ const YViewConfigManager = () => {
             setSelectedConfig(selectedConfig || null);
 
             // Check if the selected config has a valid table name
-            if (selectedConfig?.entityType) {
-              console.log("Table Name from Config:", selectedConfig.entityType)
+            if (selectedConfig?.entity_type) {
+              console.log("Table Name from Config:", selectedConfig.entity_type)
 
               try {
                 // Call the RPC function to fetch table columns
                 // const { data, error } = await supabase.rpc('get_table_columns', {
-                //   table_name: selectedConfig.entityType/ Ensure correct parameter name
+                //   table_name: selectedConfig.entity_type/ Ensure correct parameter name
                 // });
 
-                console.log("Calling RPC to fetch table columns for:", selectedConfig.entityType);
+                console.log("Calling RPC to fetch table columns for:", selectedConfig.entity_type);
 
                 const { data, error } = await supabase.rpc('get_table_columns', {
-                  tablename: selectedConfig.entityType
+                  tablename: selectedConfig.entity_type
                 });
 
                 console.log("RPC call completed. Data received:", data);
@@ -218,7 +219,7 @@ const YViewConfigManager = () => {
         >
           {configs.map((config) => (
             <Option key={config.id} value={config.id}>
-              {config.entityType}
+              {config.entity_type}
             </Option>
           ))}
         </Select>
@@ -250,6 +251,13 @@ const YViewConfigManager = () => {
         </TabPane>
         <TabPane tab="Form View" key="formview">
           {renderTabContent('formview')}
+        </TabPane>
+        <TabPane tab="Form Schema" key="formschema">
+          <CrudTableConfig initialData={selectedConfig?.form_schema}
+            onSave={(updatedData) => {
+              const updatedConfig = { ...selectedConfig, form_schema: updatedData };
+              handleSave('form_schema', updatedData);
+            }} />
         </TabPane>
       </Tabs>
     </div>

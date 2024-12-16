@@ -73,3 +73,51 @@ export const getAllValues = (obj) => {
     }
     return values;
 };
+
+export const generateSchemas = (fields, criteria) => {
+    // Extract keys from exit_criteria and entry_criteria
+    const criteriaKeys = new Set([
+        ...Object.keys(criteria?.exit_criteria),
+        ...Object.keys(criteria?.entry_criteria)
+    ]);
+
+    // Filter fields based on criteriaKeys
+    const filteredFields = fields?.filter((field) => criteriaKeys?.has(field?.field_name));
+
+    // Generate the data schema
+    const properties = {};
+    const uiOrder = [];
+
+    filteredFields?.sort((a, b) => a?.sequence - b?.sequence)?.forEach((field) => {
+        uiOrder.push(field?.field_name);
+
+        let fieldType;
+        switch (field?.field_type) {
+            case "numeric":
+                fieldType = "number";
+                break;
+            case "boolean":
+                fieldType = "boolean";
+                break;
+            case "string":
+            default:
+                fieldType = "string";
+        }
+
+        properties[field?.field_name] = {
+            type: fieldType,
+            title: field?.field_name?.replace(/_/g, " ")?.replace(/\b\w/g, (char) => char?.toUpperCase())
+        };
+    });
+
+    const dataSchema = {
+        type: "object",
+        properties
+    };
+
+    const uiSchema = {
+        "ui:order": uiOrder
+    };
+
+    return { dataSchema, uiSchema };
+};

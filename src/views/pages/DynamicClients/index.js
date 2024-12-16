@@ -109,20 +109,20 @@ const Index = () => {
             children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
         });
     }
-    // if (viewConfig?.ganttview) {
-    //     tabItems.push({
-    //         label: 'Gantt',
-    //         key: '5',
-    //         children: <GanttView />,
-    //     });
-    // }
-    // if (viewConfig?.calendarview) {
-    //     tabItems.push({
-    //         label: 'Calendar',
-    //         key: '6',
-    //         children: <CalendarView tasks={data} />,
-    //     });
-    // }
+    if (viewConfig?.ganttview) {
+        tabItems.push({
+            label: 'Gantt',
+            key: '5',
+            children: <></>,
+        });
+    }
+    if (viewConfig?.calendarview) {
+        tabItems.push({
+            label: 'Calendar',
+            key: '6',
+            children: <></>,
+        });
+    }
 
     return (
         <Card>

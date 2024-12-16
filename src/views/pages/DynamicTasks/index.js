@@ -111,40 +111,51 @@ const Index = () => {
         }
     };
 
-    const tabItems = [
-        {
+    const tabItems = [];
+    if (viewConfig?.tableview) {
+        tabItems.push({
             label: 'Table',
             key: '1',
             children: <TableView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
-        },
-        {
+        })
+    }
+    if (viewConfig?.gridview) {
+        tabItems.push({
             label: 'Grid',
             key: '2',
             children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        {
+        })
+    }
+    if (viewConfig?.timelineview) {
+        tabItems.push({
             label: 'Timeline',
             key: '3',
             children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        {
+        })
+    }
+    if (viewConfig?.kanbanview) {
+        tabItems.push({
             label: 'Kanban',
             key: '4',
             children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
-        },
-        // {
-        //     label: 'Gantt',
-        //     key: '3',
-        //     children: <GanttView
-        //     // tasks={tasks} 
-        //     />,
-        // },
-        // {
-        //     label: 'Calendar',
-        //     key: '4',
-        //     children: <CalendarView tasks={tasks} />,
-        // },
-    ];
+        })
+    }
+    // if (viewConfig?.ganttview) {
+    //     tabItems.push({
+    //         label: 'Gantt',
+    //         key: '3',
+    //         children: <GanttView
+    //         // tasks={tasks} 
+    //         />,
+    //     })
+    // }
+    // if (viewConfig?.calendarview) {
+    //     tabItems.push({
+    //         label: 'Calendar',
+    //         key: '4',
+    //         children: <CalendarView tasks={tasks} />,
+    //     })
+    // }
 
     return (
         <Card>
