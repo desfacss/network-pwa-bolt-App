@@ -55,7 +55,7 @@ const Expenses = () => {
                 tabBarExtraContent={
                     <>
                         {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddExpensesheet} >
-                            Add ExpenseSheet
+                            Add Expenses Claim
                         </Button>}
                         <RangePicker value={dateRange} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
                     </>

@@ -87,7 +87,7 @@ const DashboardTabs = () => {
 
     const getSparklineOptions = (dates, allDates) => {
         const seriesData = allDates?.map(date => dates[date] || 0); // Map all dates to hours, defaulting to 0 if missing
-
+        console.log("ER", seriesData, dates, allDates)
         return {
             chart: {
                 type: 'bar',
@@ -98,7 +98,7 @@ const DashboardTabs = () => {
             tooltip: {
                 enabled: true,
                 x: { show: true },
-                y: { formatter: (val) => `${val} hrs` },
+                y: { formatter: (val) => `Daily hrs: ${val} hrs` },
                 theme: 'light',
                 marker: { show: false },
                 shared: false,
@@ -325,7 +325,7 @@ const DashboardTabs = () => {
 
 
     return (
-        <div ref={reportDataRef}>
+        <div ref={reportDataRef} className='report-container'>
             <Tabs defaultActiveKey="1"
                 tabBarExtraContent={
                     <>
@@ -334,7 +334,7 @@ const DashboardTabs = () => {
                             onChange={(date) => {
                                 setDateRange([date[0]?.format(dateFormat), date[1]?.format(dateFormat)]);
                             }} />
-                        <Checkbox className='ml-2' checked={nonProject}
+                        <Checkbox style={{ marginLeft: 10 }} checked={nonProject}
                             onChange={(e) => { setSelectedProjectName(); setNonProject(e.target.checked) }} >
                             Non-Project
                         </Checkbox>

@@ -64,36 +64,36 @@ export const generateEmailData = (type, action, details) => {
         case "timesheet":
             if (action === "Submitted") {
                 if (!submissionEmail) return;
-                subject = `${type} submitted by ${username}`;
+                subject = `Timesheet Submitted by ${username}`;
                 body = `Timesheet for ${applicationDate} is submitted by ${username}.`;
                 recipients = [approverEmail, ...hrEmails];
             } else if (["Approved", "Rejected"].includes(action)) {
                 if (!reviewEmail) return;
-                subject = `${type} ${action} by ${approverUsername}`;
+                subject = `Timesheet ${action} by ${approverUsername}`;
                 body = `Your Timesheet ${applicationDate} is ${action.toLowerCase()} by ${approverUsername} ${comment ? ` with the following comment: ${comment}` : ""}`;
                 recipients = [userEmail];
             }
         case "leave application":
             if (action === "Submitted") {
                 if (!submissionEmail) return;
-                subject = `${type} submitted by ${username}`;
+                subject = `Leave Application Submitted by ${username}`;
                 body = `${username} is submitting ${type} ${applicationDate} for approval.`;
                 recipients = [approverEmail, ...hrEmails];
             } else if (["Approved", "Rejected"].includes(action)) {
                 if (!reviewEmail) return;
-                subject = `${type} ${action} by ${approverUsername}`;
+                subject = `Leave Application ${action} by ${approverUsername}`;
                 body = `Your leave application ${applicationDate} is ${action.toLowerCase()} ${comment ? ` with the following comment: ${comment}` : ""}`;
                 recipients = [userEmail];
             }
         case "expenses claim":
             if (action === "Submitted") {
                 if (!submissionEmail) return;
-                subject = `${type} submitted by ${username}`;
+                subject = `Expenses Claim Submitted by ${username}`;
                 body = `${username} is submitting ${type} ${applicationDate} for approval.`;
                 recipients = [approverEmail, ...hrEmails];
             } else if (["Approved", "Rejected"].includes(action)) {
                 if (!reviewEmail) return;
-                subject = `${type} ${action} by ${approverUsername}`;
+                subject = `Expenses Claim ${action} by ${approverUsername}`;
                 // body = `${type} ${applicationDate} ${action.toLowerCase()} by ${approverUsername} on ${reviewedTime}${comment ? ` with the following comment: ${comment}` : ""}`;
                 body = `Your ${type} ${applicationDate} is ${action.toLowerCase()} ${comment ? `<br/>With the following comment: ${comment}` : ""}`;
                 recipients = [userEmail];
@@ -111,7 +111,7 @@ export const generateEmailData = (type, action, details) => {
         to: recipients,
         subject: subject,
         html: `<p>${body}</p><p>If you are not the intended recipient, you can safely ignore this message or contact your HR for assistance.
-</p><p>Best regards,<br/>UKPE Global Admin Team</p>`,
+</p><p>Best Regards,<br/>UKPE Global Admin Team</p>`,
     };
 };
 

@@ -245,12 +245,12 @@ const Expensesheet = ({ editItem, onAdd, viewMode }) => {
         }
         const { data: data2, error } = result;
         if (error) {
-            message.error(error.message || "Failed to submit ExpenseSheet");
+            message.error(error.message || "Failed to submit Expenses Claim");
         } else {
             if (emailPayload[0] !== null) {
                 await sendEmail(emailPayload)
             }
-            message.success('ExpenseSheet Submitted.');
+            message.success('Expenses Claim Submitted.');
             setTotal()
             onAdd()
             setLoading(false)

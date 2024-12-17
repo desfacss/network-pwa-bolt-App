@@ -1,6 +1,6 @@
 export const ROW_GUTTER = 10;
 export const SIDE_NAV_WIDTH = 170;
-export const SIDE_NAV_COLLAPSED_WIDTH = 60;
+export const SIDE_NAV_COLLAPSED_WIDTH = 80;
 export const HEADER_HEIGHT = 50;
 export const FOOTER_HEIGHT = 40;
 export const TOP_NAV_HEIGHT = 55;
