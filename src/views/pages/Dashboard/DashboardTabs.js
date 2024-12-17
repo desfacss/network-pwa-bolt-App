@@ -97,8 +97,19 @@ const DashboardTabs = () => {
             },
             tooltip: {
                 enabled: true,
-                x: { show: true },
-                y: { formatter: (val) => `Daily hrs: ${val} hrs` },
+                // x: { show: true },
+                // y: { formatter: (val) => `Daily hrs: ${val} hrs` },
+                custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+                    // Ensure date is retrieved from xaxis.categories
+                    const date = w.config.xaxis.categories[dataPointIndex]; // Correctly fetch the date
+                    const val = series[seriesIndex][dataPointIndex]; // Fetch the value
+                    return `
+                        <div class="custom-tooltip m-1">
+                            <div>${date}</div>
+                            <div>Daily hrs: <strong>${val}</strong> hrs</div>
+                        </div>
+                    `;
+                },
                 theme: 'light',
                 marker: { show: false },
                 shared: false,

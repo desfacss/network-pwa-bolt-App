@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox } from 'antd';
 // import { DownOutlined, PlusOutlined, SearchOutlined,FilterOutlined, GroupOutlined } from '@ant-design/icons';
 import { SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutlined, FilterOutlined, GroupOutlined, ExportOutlined } from '@ant-design/icons';
@@ -13,6 +13,14 @@ const actionIcons = {
 };
 
 const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }) => {
+
+    const pagination = {
+        pageSizeOptions: ['10', '50', '100'], // Options for page sizes
+        defaultPageSize: 10, // Initial page size
+        showSizeChanger: true, // Enables the page size changer dropdown
+        showQuickJumper: true, // Enables quick jump to a page
+    }
+
     const [groupedData, setGroupedData] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
@@ -21,7 +29,6 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
     const [selectedGroupBy, setSelectedGroupBy] = useState(null);
 
     const { showFeatures, exportOptions, globalSearch, groupBy } = viewConfig?.tableview;
-
 
     const openModal = (item = null) => {
         setEditItem(item);
@@ -151,17 +158,7 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
         return Object.keys(groupedData).map((group) => (
             <div key={group} style={{ marginBottom: 20 }}>
                 <h3>{group}</h3>
-                <Table
-                    dataSource={groupedData[group]}
-                    columns={columns}
-                    rowKey="id"
-                    // pagination={false}
-                    pagination={{
-                        pageSizeOptions: ['5', '10', '20', '50'], // Options for page sizes
-                        defaultPageSize: 5, // Initial page size
-                        showSizeChanger: true, // Enables the page size changer dropdown
-                        showQuickJumper: true, // Enables quick jump to a page
-                    }}
+                <Table size={"small"} dataSource={groupedData[group]} columns={columns} rowKey="id" pagination={pagination}
                     renderRow={(record) => (
                         <Dropdown overlay={actionMenu(record)} trigger={['click']}>
                             <Button>Actions</Button>
@@ -311,18 +308,10 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
 
                 </div>
             </div>
-
-
-
             {/* Table with Action Icons */}
             {selectedGroupBy ? renderGroupedTable() : (
-                <Table
-                    dataSource={filteredData}
-                    columns={allColumns}
-                    rowKey="id"
-                />
+                <Table size={'small'} dataSource={filteredData} columns={allColumns} rowKey="id" pagination={pagination} />
             )}
-
             {/* Modal for Adding/Editing Task */}
             <Modal
                 title={editItem ? 'Edit Task' : 'Add New Task'}

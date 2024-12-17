@@ -5,6 +5,7 @@ import { Spin } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import Widgets from "./Widgets";
 // import { ReactElement } from "react";
 // import schema from "./FormSchema.json";
 import ObjectFieldTemplate from "./ObjectFieldTemplate.tsx";
@@ -387,6 +388,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
         <>
             {schema ? <Form
                 schema={_RJSFSchema}
+                widgets={Widgets}
                 validator={validator}
                 templates={{ ObjectFieldTemplate: ObjectFieldTemplate, }}
                 uiSchema={schema?.ui_schema

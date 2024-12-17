@@ -122,3 +122,37 @@ export const generateSchemas = (fields, criteria) => {
 
     return { data_schema, ui_schema };
 };
+
+// fullscreenUtils.js
+export const toggleFullscreen = (element) => {
+    if (document.fullscreenElement) {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            // Safari
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            // IE11
+            document.msExitFullscreen();
+        } else {
+            console.warn("Fullscreen API is not supported for exiting.");
+        }
+    } else if (element) {
+        // Enter fullscreen
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            // Safari
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+            // IE11
+            element.msRequestFullscreen();
+        } else {
+            console.warn("Fullscreen API is not supported for entering.");
+        }
+    } else {
+        console.error("Element is null. Ensure the element is passed correctly.");
+    }
+};
+

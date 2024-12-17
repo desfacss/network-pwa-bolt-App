@@ -20,8 +20,13 @@ const localizer = dateFnsLocalizer({
 const CalendarView = ({ data }) => {
     const transformedEvents = data.map(event => ({
         ...event,
-        start: new Date(event.start_date),
-        end: new Date(event.due_date)
+        title: event?.name,
+        // start: new Date(event.start_date),
+        // end: new Date(event.due_date),
+        start: event?.date_time_range && event?.date_time_range[0] ? new Date(event?.date_time_range[0]) : new Date(),
+        end: event?.date_time_range && event?.date_time_range[1] ? new Date(event?.date_time_range[1]) : new Date(),
+        // start: event?.date_range && event?.date_range[0] ? new Date(event?.date_range[0]) : new Date(),
+        // end: event?.date_range && event?.date_range[1] ? new Date(event?.date_range[1]) : new Date(),
     }));
     return (
         <div style={{ height: "80vh", margin: "20px" }}>

@@ -1,6 +1,6 @@
-import { Card, notification, Tabs } from 'antd';
+import { Button, Card, notification, Tabs } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import GridView from '../DynamicViews/GridView';
 import TableView from '../DynamicViews/TableView-R';
 import dayjs from 'dayjs';
@@ -11,6 +11,9 @@ import { useSelector } from 'react-redux';
 import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
 import CalendarView from '../DynamicViews/CalendarView';
 import GanttView from '../DynamicViews/GanttView';
+import { toggleFullscreen } from 'components/common/utils';
+import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
+import useTabWithHistory from 'components/common/TabHistory';
 
 const entityType = 'y_sales'
 
@@ -22,6 +25,27 @@ const Index = () => {
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
     const [visible, setVisible] = useState(false);
     const [vd, setVd] = useState();
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const { activeTab, onTabChange } = useTabWithHistory("1");
+
+    // useEffect(() => {
+    //     const handleFullscreenChange = () => {
+    //         setIsFullscreen(!!document.fullscreenElement);
+    //     };
+
+    //     document.addEventListener("fullscreenchange", handleFullscreenChange);
+    //     return () => {
+    //         document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    //     };
+    // }, []);
+
+    const divRef = useRef(null);
+
+    const handleFullscreenToggle = () => {
+        if (divRef.current) {
+            toggleFullscreen(divRef.current);
+        }
+    };
 
     const handleModalOpen = (item) => {
         setVd(item)
@@ -142,7 +166,9 @@ const Index = () => {
             return;
         }
         console.log("vd", vd)
-        if (vd?.entry_criteria || vd?.exit_criteria) {
+        const criteriaEmpty = Object.keys(vd?.entry_criteria || {}).length === 0 && Object.keys(vd?.exit_criteria || {}).length === 0
+        if (!criteriaEmpty) {
+            // if (vd?.entry_criteria || vd?.exit_criteria) {
             // Reopen modal with the updated data
             handleModalOpen({ ...vd, id: entityId, details: formData });
         } else {
@@ -299,14 +325,18 @@ const Index = () => {
     };
 
     return (
-        <Card>
+        <Card ref={divRef}>
             {(data && viewConfig) && <Tabs
                 tabBarExtraContent={ //Global filters
                     <div style={{ display: "flex", alignItems: "center" }}>
                         {renderFilters(viewConfig?.global?.search, data)}
+                        <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
+                            {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                            {/* {isFullscreen ? " Exit Fullscreen" : " Go Fullscreen"} */}
+                        </Button>
                     </div>
                 }
-                defaultActiveKey="1" items={tabItems} />}
+                defaultActiveKey="1" items={tabItems} activeKey={activeTab} onChange={onTabChange} />}
             {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType}
                 visible={visible} viewConfig={viewConfig}
                 onCancel={handleModalCancel}
