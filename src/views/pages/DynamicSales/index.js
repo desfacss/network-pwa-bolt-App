@@ -153,7 +153,7 @@ const Index = () => {
 
     const handleWorkflowTransition = async (entityId, formData) => {
         const { data: vd, error } = await supabase
-            .rpc('transitionworkflowstage', {
+            .rpc('transition_workflow_stage_v4', {
                 entitytype: entityType,
                 entityid: entityId,
                 newstagename: formData?.status,
@@ -165,12 +165,13 @@ const Index = () => {
             notification.error({ message: error.message });
             return;
         }
-        console.log("vd", vd)
-        const criteriaEmpty = Object.keys(vd?.entry_criteria || {}).length === 0 && Object.keys(vd?.exit_criteria || {}).length === 0
-        if (!criteriaEmpty) {
+        console.log("vd", vd, error)
+        // const criteriaEmpty = Object.keys(vd?.entry_criteria || {}).length === 0 && Object.keys(vd?.exit_criteria || {}).length === 0
+        const criteriaEmpty = vd
+        if (vd) {
             // if (vd?.entry_criteria || vd?.exit_criteria) {
             // Reopen modal with the updated data
-            handleModalOpen({ ...vd, id: entityId, details: formData });
+            handleModalOpen({ criteria: vd, id: entityId, details: formData });
         } else {
             // Fetch data to refresh the view
             fetchData();
@@ -230,7 +231,7 @@ const Index = () => {
     //             notification.error({ message: 'Failed to update task' });
     //         } else {
     //             const { data: vd, error } = await supabase
-    //                 .rpc('transitionworkflowstage', {
+    //                 .rpc('transition_workflow_stage_v4', {
     //                     entitytype: entityType,
     //                     entityid: data[0]?.id,
     //                     newstagename: formData?.status,

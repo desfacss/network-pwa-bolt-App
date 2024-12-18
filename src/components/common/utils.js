@@ -75,12 +75,12 @@ export const getAllValues = (obj) => {
 };
 
 export const generateSchemas = (fields, criteria) => {
-    // Extract keys from exit_criteria and entry_criteria
-    console.log(fields, criteria)
-    const criteriaKeys = new Set([
-        ...Object.keys(criteria?.exit_criteria),
-        ...Object.keys(criteria?.entry_criteria)
-    ]);
+    console.log(fields, criteria);
+    // const criteriaKeys = new Set([
+    //     ...Object.keys(criteria?.exit_criteria),
+    //     ...Object.keys(criteria?.entry_criteria)
+    // ]);
+    const criteriaKeys = new Set(criteria?.map((criterion) => criterion?.field));
 
     // Filter fields based on criteriaKeys
     const filteredFields = fields?.filter((field) => criteriaKeys?.has(field?.field_name));
@@ -93,12 +93,18 @@ export const generateSchemas = (fields, criteria) => {
         uiOrder.push(field?.field_name);
 
         let fieldType;
+        let enumOptions = null;
+
         switch (field?.field_type) {
             case "numeric":
                 fieldType = "number";
                 break;
             case "boolean":
                 fieldType = "boolean";
+                break;
+            case "select": // Add logic for select type
+                fieldType = "string";
+                enumOptions = field?.options || []; // Assume `options` is defined for select fields
                 break;
             case "string":
             default:
@@ -107,17 +113,23 @@ export const generateSchemas = (fields, criteria) => {
 
         properties[field?.field_name] = {
             type: fieldType,
-            title: field?.field_name?.replace(/_/g, " ")?.replace(/\b\w/g, (char) => char?.toUpperCase())
+            title: field?.field_name
+                ?.replace(/_/g, " ")
+                ?.replace(/\b\w/g, (char) => char?.toUpperCase()),
         };
+
+        if (enumOptions) {
+            properties[field?.field_name].enum = enumOptions;
+        }
     });
 
     const data_schema = {
         type: "object",
-        properties
+        properties,
     };
 
     const ui_schema = {
-        "ui:order": uiOrder
+        "ui:order": uiOrder,
     };
 
     return { data_schema, ui_schema };

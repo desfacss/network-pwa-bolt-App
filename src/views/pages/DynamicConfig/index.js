@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Button, message, Select } from 'antd';
+import { Tabs, Button, message, Select, Input } from 'antd';
 import Form from '@rjsf/antd';
 import { RJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from 'configs/SupabaseConfig'; // Import Supabase client
 import TableViewConfig from './TableViewConfig'; // Import the TableViewConfig component
 import CrudTableConfig from './FormSchema';
+import Status from './Status';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -14,6 +15,8 @@ const { Option } = Select;
 const YViewConfigManager = () => {
   const [configs, setConfigs] = useState([]); // All rows from y_view_config
   const [selectedConfig, setSelectedConfig] = useState(null); // Current row to edit or add
+  const [workflowConfigurations, setWorkflowConfigurations] = useState([]);
+  const [selectedWorkflowConfiguration, setSelectedWorkflowConfiguration] = useState(null);
   const [activeTab, setActiveTab] = useState('tableview'); // Active tab
   const [dropdownOptions, setDropdownOptions] = useState([]); // Dropdown options for entity_type
   const [selectedRow, setSelectedRow] = useState(null); // Selected row from dropdown
@@ -24,14 +27,25 @@ const YViewConfigManager = () => {
     const fetchConfigs = async () => {
       const { data, error } = await supabase.from('y_view_config').select('*');
       if (error) {
-        message.error('Failed to fetch configurations');
+        message.error(error?.message || 'Failed to fetch configurations');
       } else {
         console.log("YC", data)
         setConfigs(data);
       }
     };
 
+    const fetchWorkflowConfigurations = async () => {
+      const { data, error } = await supabase.from('workflow_configurations').select('*');
+      if (error) {
+        message.error(error?.message || 'Failed to fetch Workflow Configurations');
+      } else {
+        console.log("WC", data)
+        setWorkflowConfigurations(data);
+      }
+    };
+
     fetchConfigs();
+    fetchWorkflowConfigurations()
   }, []);
 
   useEffect(() => {
@@ -169,11 +183,13 @@ const YViewConfigManager = () => {
           onChange={async (value) => {
             console.log("Dropdown value selected:", value); // Log the selected value from the dropdown
 
-            const selectedConfig = configs.find((config) => config.id === value);
-            console.log("Selected Config Object:", selectedConfig); // Log the matching config object
+            const selectedConfig = configs?.find((config) => config?.id === value);
+            const selectedWorkflowConfiguration = workflowConfigurations?.find((config) => config?.name === selectedConfig?.entity_type);
+            console.log("Selected Config Object:", selectedConfig, selectedWorkflowConfiguration); // Log the matching config object
 
             setSelectedRow(value);
             setSelectedConfig(selectedConfig || null);
+            setSelectedWorkflowConfiguration(selectedWorkflowConfiguration || null);
 
             // Check if the selected config has a valid table name
             if (selectedConfig?.entity_type) {
@@ -229,14 +245,31 @@ const YViewConfigManager = () => {
           onClick={() => {
             setSelectedRow(null);
             setSelectedConfig({});
+            setSelectedWorkflowConfiguration({});
             setAvailableColumns([]); // Reset available columns when adding new
           }}
         >
-          Add New Configuration
+          Add New
         </Button>
       </div>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
+        <TabPane tab="Fields" key="fields">
+          <CrudTableConfig initialData={selectedConfig?.form_schema}
+            onSave={(updatedData) => {
+              const updatedConfig = { ...selectedConfig, form_schema: updatedData };
+              handleSave('form_schema', updatedData);
+            }} />
+        </TabPane>
+        <TabPane tab="Type" key="type">
+          {/* <Status /> */}
+        </TabPane>
+        <TabPane tab="Status rules" key="status_rules">
+          <Status />
+        </TabPane>
+        <TabPane tab="Kanban View" key="kanbanview">
+          {renderTabContent('kanbanview')}
+        </TabPane>
         <TabPane tab="Table View" key="tableview">
           {renderTabContent('tableview')}
         </TabPane>
@@ -246,18 +279,8 @@ const YViewConfigManager = () => {
         <TabPane tab="Gantt View" key="ganttview">
           {renderTabContent('ganttview')}
         </TabPane>
-        <TabPane tab="Kanban View" key="kanbanview">
-          {renderTabContent('kanbanview')}
-        </TabPane>
         <TabPane tab="Form View" key="formview">
           {renderTabContent('formview')}
-        </TabPane>
-        <TabPane tab="Form Schema" key="formschema">
-          <CrudTableConfig initialData={selectedConfig?.form_schema}
-            onSave={(updatedData) => {
-              const updatedConfig = { ...selectedConfig, form_schema: updatedData };
-              handleSave('form_schema', updatedData);
-            }} />
         </TabPane>
       </Tabs>
     </div>
