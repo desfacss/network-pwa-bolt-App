@@ -135,7 +135,7 @@ export const generateSchemasOld = (fields, criteria) => {
     return { data_schema, ui_schema };
 };
 
-export const generateSchemas = (fields, criteria) => {
+export const generateSchemas = (fields, criteria, data) => {
     console.log("k", fields, criteria);
 
     // Extract the `properties` from fields
@@ -150,6 +150,7 @@ export const generateSchemas = (fields, criteria) => {
             filteredProperties[key] = fieldProperties[key];
         }
     }
+
     // Generate the data schema
     const data_schema = {
         // type: "object",
@@ -158,12 +159,19 @@ export const generateSchemas = (fields, criteria) => {
         properties: filteredProperties,
     };
 
+    const form_data = {};
+    for (const key of Object.keys(filteredProperties)) {
+        if (data.hasOwnProperty(key)) {
+            form_data[key] = data[key];
+        }
+    }
+
     // Generate the UI schema (no sorting, just keys in their existing order)
     const ui_schema = {
         "ui:order": Array.from(criteriaKeys),
     };
 
-    return { data_schema, ui_schema };
+    return { data_schema, ui_schema, form_data };
 };
 
 

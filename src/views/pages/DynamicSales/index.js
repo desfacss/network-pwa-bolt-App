@@ -82,15 +82,16 @@ const Index = () => {
     };
 
 
-    const fetchData = async () => {
-        // let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
-        const { data, error } = await supabase.from('task_entities_with_workflow')
-            .select('id, organization_id, created_at, details, current_stage, general_state, workflow_metadata')
-            .eq('organization_id', session?.user?.organization?.id).order('created_at', { ascending: false });
+    const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
+        let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+        // const { data, error } = await supabase.from('task_entities_with_workflow')
+        //     .select('id, organization_id, created_at, details, current_stage, general_state, workflow_metadata')
+        //     .eq('organization_id', session?.user?.organization?.id).order('created_at', { ascending: false });
         if (data) {
-            console.log("Data", data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })))// data.map(task => ({ ...task.details, id: task?.id })))
-            // setData(data.map(item => ({ ...item, ...item.details, details: undefined })));
-            setData(data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })));
+            // console.log("Data", data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })))// data.map(task => ({ ...task.details, id: task?.id })))
+            // setData(data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })));
+            console.log("Data", data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
+            setData(data.map(item => ({ ...item.details, id: item?.id })));
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch Data" });
@@ -180,31 +181,38 @@ const Index = () => {
     };
 
     const handleAddOrEdit = async (formData, editItem) => {
+        console.log("ei", editItem)
+        let { status, ...details } = formData
         if (editItem) {
+            if (editItem?.status !== undefined) {
+                details.status = status;
+            }
             // Update logic
             const { data, error } = await supabase
                 .from(entityType)
-                .update({ details: formData, organization_id: session?.user?.organization?.id })
+                .update({ details: details, organization_id: session?.user?.organization?.id })
                 .eq('id', editItem.id)
                 .select('*');
 
             if (error) {
                 notification.error({ message: 'Failed to update task' });
             } else {
-                await handleWorkflowTransition(editItem.id, formData);
+                if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
+                    await handleWorkflowTransition(editItem.id, formData);
+                }
             }
         } else {
             // Add logic
             const { data, error } = await supabase
                 .from(entityType)
-                .insert([{ details: formData, organization_id: session?.user?.organization?.id }])
+                .insert([{ details: details, organization_id: session?.user?.organization?.id }])
                 .select('*');
 
             if (error) {
                 notification.error({ message: 'Failed to add task' });
             } else {
                 const newEntityId = data[0]?.id;
-                const { data: vd, error } = await supabase.rpc('initialize_workflow_instance', {
+                const { data: vd, error } = await supabase.rpc('initialize_workflow_instance_v4', {
                     entitytype: entityType,
                     entityid: newEntityId,
                 });
@@ -255,7 +263,7 @@ const Index = () => {
     //         } else {
     //             console.log("q", data[0]?.id, formData?.name)
     //             const { data: vd, error } = await supabase
-    //                 .rpc('initialize_workflow_instance', {
+    //                 .rpc('initialize_workflow_instance_v4', {
     //                     entitytype: entityType,
     //                     entityid: data[0]?.id,
     //                 });

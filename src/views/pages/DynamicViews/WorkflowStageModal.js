@@ -40,8 +40,8 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflo
 
     // const { dataSchema: exitDataSchema, uiSchema: exitUiSchema } = generateSchemas(data.exit_criteria);
     // const schemas = generateSchemas(viewConfig?.form_schema, { entry_criteria: data?.entry_criteria, exit_criteria: data?.exit_criteria });
-    const schemas = generateSchemas(viewConfig?.master_data_schema, data?.criteria);
-    console.log("m", data, schemas)
+    const schemas = generateSchemas(viewConfig?.master_data_schema, data?.criteria, data?.details);
+    console.log("m", data?.details, schemas)
     return (
         <Modal
             visible={visible}
@@ -61,7 +61,7 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflo
             <h3>Entry Criteria</h3> */}
             <DynamicForm
                 schemas={schemas}
-                // formData={data}
+                formData={schemas?.form_data}
                 // onFinish={(e) => handleSubmit({ formData: { ...data, ...e.formData } })}
                 onFinish={handleSubmit}
             />
