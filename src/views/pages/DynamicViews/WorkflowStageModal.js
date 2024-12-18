@@ -40,8 +40,8 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflo
 
     // const { dataSchema: exitDataSchema, uiSchema: exitUiSchema } = generateSchemas(data.exit_criteria);
     // const schemas = generateSchemas(viewConfig?.form_schema, { entry_criteria: data?.entry_criteria, exit_criteria: data?.exit_criteria });
-    console.log("m", data)
-    const schemas = generateSchemas(viewConfig?.form_schema, data?.criteria);
+    const schemas = generateSchemas(viewConfig?.master_data_schema, data?.criteria);
+    console.log("m", data, schemas)
     return (
         <Modal
             visible={visible}

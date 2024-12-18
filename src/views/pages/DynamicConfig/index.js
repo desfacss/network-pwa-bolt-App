@@ -6,8 +6,9 @@ import validator from '@rjsf/validator-ajv8';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from 'configs/SupabaseConfig'; // Import Supabase client
 import TableViewConfig from './TableViewConfig'; // Import the TableViewConfig component
-import CrudTableConfig from './FormSchema';
+// import CrudTableConfig from './FormSchema';
 import Status from './Status';
+import CrudTableConfig from './Forms';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -144,15 +145,20 @@ const YViewConfigManager = () => {
   };
 
   const renderTabContent = (viewName) => {
-    const schema: RJSFSchema = selectedConfig?.data_schema || {};
+    const schema: RJSFSchema = selectedConfig?.master_data_schema || {};
     const uiSchema = selectedConfig?.ui_schema || {};
     const formData = selectedConfig?.[viewName] || {};
+    // console.log("ij", configs[0])
+    const config = selectedConfig ? selectedConfig : configs && configs[0]
+    const data = config && Object.entries(config?.master_data_schema?.properties).map(([fieldName, fieldData], index) => ({
+      columnname: fieldName,
+    }))
 
     if (viewName === 'tableview') {
       return (
         <TableViewConfig
           configData={formData}
-          availableColumns={availableColumns} // Pass dynamically fetched columns
+          availableColumns={data || availableColumns} // Pass dynamically fetched columns
           onSave={(updatedData) => handleSave(viewName, updatedData)}
         />
       );
@@ -255,11 +261,12 @@ const YViewConfigManager = () => {
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="Fields" key="fields">
-          <CrudTableConfig initialData={selectedConfig?.form_schema}
+          <CrudTableConfig jsonSchema={selectedConfig?.master_data_schema || {}} onSave={handleSave} />
+          {/* <CrudTableConfig initialData={selectedConfig?.form_schema || {}}
             onSave={(updatedData) => {
               const updatedConfig = { ...selectedConfig, form_schema: updatedData };
               handleSave('form_schema', updatedData);
-            }} />
+            }} /> */}
         </TabPane>
         <TabPane tab="Type" key="type">
           {/* <Status /> */}

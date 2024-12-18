@@ -4,14 +4,25 @@ import { PlusOutlined, DeleteOutlined, UpOutlined, DownOutlined } from '@ant-des
 
 const { Option } = Select;
 
-const CrudTableConfig = ({ initialData, onSave }) => {
-    const [data, setData] = useState(initialData || []);
+const transformSchemaToFields = (schema) => {
+    console.log("sc", schema)
+    if (!schema || !schema.properties) return [];
+    return Object.entries(schema.properties).map(([fieldName, fieldData], index) => ({
+        sequence: index + 1,
+        field_name: fieldName,
+        field_type: fieldData.type || 'string',
+    }));
+};
+
+const CrudTableConfig = ({ jsonSchema, onSave }) => {
+    const [data, setData] = useState([]);
 
     useEffect(() => {
-        if (initialData) {
-            setData(initialData);
+        if (jsonSchema) {
+            const transformedData = transformSchemaToFields(jsonSchema);
+            setData(transformedData);
         }
-    }, [initialData]);
+    }, [jsonSchema]);
 
     const handleAddField = () => {
         setData([
@@ -40,7 +51,7 @@ const CrudTableConfig = ({ initialData, onSave }) => {
 
     const handleSaveConfig = () => {
         onSave(data);
-        console.log("payload", data)
+        console.log('payload', data);
     };
 
     const columns = [
@@ -104,13 +115,15 @@ const CrudTableConfig = ({ initialData, onSave }) => {
     return (
         <div>
             <h2>CRUD Table Configuration</h2>
-            {data && <Table
-                dataSource={data}
-                columns={columns}
-                rowKey="sequence"
-                pagination={false}
-                style={{ marginBottom: '20px' }}
-            />}
+            {data && (
+                <Table
+                    dataSource={data}
+                    columns={columns}
+                    rowKey="sequence"
+                    pagination={false}
+                    style={{ marginBottom: '20px' }}
+                />
+            )}
 
             <Button
                 type="dashed"

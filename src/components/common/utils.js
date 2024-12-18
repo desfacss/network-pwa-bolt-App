@@ -74,7 +74,7 @@ export const getAllValues = (obj) => {
     return values;
 };
 
-export const generateSchemas = (fields, criteria) => {
+export const generateSchemasOld = (fields, criteria) => {
     console.log(fields, criteria);
     // const criteriaKeys = new Set([
     //     ...Object.keys(criteria?.exit_criteria),
@@ -134,6 +134,38 @@ export const generateSchemas = (fields, criteria) => {
 
     return { data_schema, ui_schema };
 };
+
+export const generateSchemas = (fields, criteria) => {
+    console.log("k", fields, criteria);
+
+    // Extract the `properties` from fields
+    const fieldProperties = fields?.properties || {};
+
+    // Extract field names from criteria
+    const criteriaKeys = new Set(criteria?.map((criterion) => criterion?.field));
+
+    const filteredProperties = {};
+    for (const key in fieldProperties) {
+        if (criteriaKeys.has(key)) {
+            filteredProperties[key] = fieldProperties[key];
+        }
+    }
+    // Generate the data schema
+    const data_schema = {
+        // type: "object",
+        ...fields,
+        required: [],
+        properties: filteredProperties,
+    };
+
+    // Generate the UI schema (no sorting, just keys in their existing order)
+    const ui_schema = {
+        "ui:order": Array.from(criteriaKeys),
+    };
+
+    return { data_schema, ui_schema };
+};
+
 
 // fullscreenUtils.js
 export const toggleFullscreen = (element) => {
