@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox } from 'antd';
+import { Table, Button, Dropdown, Menu, Modal, Drawer, Input, Space, Checkbox } from 'antd';
 // import { DownOutlined, PlusOutlined, SearchOutlined,FilterOutlined, GroupOutlined } from '@ant-design/icons';
 import { SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutlined, FilterOutlined, GroupOutlined, ExportOutlined } from '@ant-design/icons';
 import DynamicForm from '../DynamicForm';
@@ -22,7 +22,7 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
     }
 
     const [groupedData, setGroupedData] = useState(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
     const [searchText, setSearchText] = useState('');
     const [visibleColumns, setVisibleColumns] = useState(viewConfig?.tableview?.fields?.map(field => field?.fieldName));
@@ -30,13 +30,13 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
 
     const { showFeatures, exportOptions, globalSearch, groupBy } = viewConfig?.tableview;
 
-    const openModal = (item = null) => {
+    const openDrawer = (item = null) => {
         setEditItem(item);
-        setIsModalVisible(true);
+        setIsDrawerVisible(true);
     };
 
     const closeModal = () => {
-        setIsModalVisible(false);
+        setIsDrawerVisible(false);
         setEditItem(null);
     };
 
@@ -58,12 +58,13 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
     }, [data, selectedGroupBy]);
 
     const handleRowAction = (action, record) => {
+        // console.log("dr", record)
         if (action === 'edit') {
-            openModal(record);
+            openDrawer(record);
         } else if (action === 'delete') {
             Modal.confirm({
                 title: 'Are you sure you want to delete this record?',
-                content: `This action cannot be undone. Record ID: ${record.id}`,
+                content: `This action cannot be undone. Record: ${record?.name}`,
                 okText: 'Yes, Delete',
                 okType: 'danger',
                 cancelText: 'Cancel',
@@ -76,7 +77,7 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
 
     const handleBulkAction = (action) => {
         if (action === "add_new_task") {
-            openModal();
+            openDrawer();
         } else {
             console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
         }
@@ -313,10 +314,10 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
                 <Table size={'small'} dataSource={filteredData} columns={allColumns} rowKey="id" pagination={pagination} />
             )}
             {/* Modal for Adding/Editing Task */}
-            <Modal
+            <Drawer width="50%"
                 title={editItem ? 'Edit Task' : 'Add New Task'}
-                visible={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
+                visible={isDrawerVisible}
+                onClose={() => setIsDrawerVisible(false)}
                 footer={null}
             >
                 <DynamicForm
@@ -324,10 +325,10 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
                     formData={editItem || {}}
                     onFinish={(formData) => {
                         onFinish(formData, editItem);
-                        setIsModalVisible(false);
+                        setIsDrawerVisible(false);
                     }}
                 />
-            </Modal>
+            </Drawer>
         </div>
     );
 };

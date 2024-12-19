@@ -4,13 +4,41 @@
 // The lane dragdrop is True
 // FUTURE - ADD CONFIG IN KANBAN VIEW (SAME AS IN FORM STATIC OR ENUM TABLE >> COLUMN >> DETAIL >> NAME)
 
-import { Select } from 'antd';
+import { Button, Drawer, Dropdown, Menu, Select } from 'antd';
 import React, { useState } from 'react';
 import Board from 'react-trello';
+import { ExportOutlined } from '@ant-design/icons';
+import DynamicForm from '../DynamicForm';
 
 const { Option } = Select;
 
-const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
+const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, deleteData }) => {
+
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+    const [editItem, setEditItem] = useState(null);
+
+    const dynamicBulkActions = viewConfig?.tableview?.actions?.bulk?.filter(action =>
+        action?.includes("add_new_")
+    );
+    const { showFeatures, exportOptions, globalSearch } = viewConfig?.tableview;
+
+    const openDrawer = (item = null) => {
+        setEditItem(item);
+        setIsDrawerVisible(true);
+    };
+
+    const handleExport = (type) => {
+        console.log(`Export to ${type} triggered`);
+    };
+
+    const handleBulkAction = (action) => {
+        if (action === "add_new_task") {
+            openDrawer();
+        } else {
+            console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
+        }
+    };
+
     // const priorityType = [{
     //     name: "Low", sequence: 1, color: "",
     //     name: "Medium", sequence: 2, color: "",
@@ -181,8 +209,10 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
     const handleCardMove = (cardId, sourceLaneId, targetLaneId) => {
         const updatedItem = data.find((item) => item?.id === cardId);
         if (updatedItem) {
+            const editItem = { ...updatedItem }
             updatedItem[groupBy] = targetLaneId;
-            updateData(updatedItem);
+            console.log("uP", updatedItem)
+            onFinish(updatedItem, editItem);
         }
     };
 
@@ -207,24 +237,68 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
 
     return (
         <>
-            <div style={{ marginBottom: '16px' }}>
-                <Select
-                    value={groupBy}
-                    onChange={(value) => setGroupBy(value)}
-                    style={{ width: 200 }}
-                >
-                    {viewConfig.kanbanview.groups.map((group) => (
-                        <Option key={group} value={group}>
-                            {group.charAt(0).toUpperCase() + group.slice(1)}
-                        </Option>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                    <Select
+                        value={groupBy}
+                        onChange={(value) => setGroupBy(value)}
+                        style={{ width: 200 }}
+                    >
+                        {viewConfig.kanbanview.groups.map((group) => (
+                            <Option key={group} value={group}>
+                                {group.charAt(0).toUpperCase() + group.slice(1)}
+                            </Option>
+                        ))}
+                    </Select>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {/* Bulk Actions */}
+                    {[
+                        ...(dynamicBulkActions || []),
+                        ...viewConfig?.tableview?.bulkActions//?.filter(action => !action.includes("add_new_"))
+                    ].map((action) => (
+                        <Button
+                            key={action}
+                            type="primary"
+                            style={{ marginRight: 8 }}
+                            onClick={() => handleBulkAction(action)}
+                        >
+                            {action
+                                .split('_')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ')}
+                        </Button>
                     ))}
-                </Select>
+
+                    {/* Export Dropdown with Icon */}
+                    {exportOptions?.length > 0 && (
+                        <Dropdown
+                            overlay={
+                                <Menu>
+                                    {exportOptions.includes('csv') && (
+                                        <Menu.Item key="csv" onClick={() => handleExport('CSV')}>
+                                            Export to CSV
+                                        </Menu.Item>
+                                    )}
+                                    {exportOptions.includes('pdf') && (
+                                        <Menu.Item key="pdf" onClick={() => handleExport('PDF')}>
+                                            Export to PDF
+                                        </Menu.Item>
+                                    )}
+                                </Menu>
+                            }
+                            trigger={['click']}
+                        >
+                            <Button icon={<ExportOutlined />} style={{ marginLeft: 8 }} />
+                        </Dropdown>
+                    )}
+                </div>
             </div>
             <Board editable canAddLanes
                 data={buildBoardData()}
                 draggable
                 handleDragEnd={handleCardMove}
-                onCardClick={(cardId) => handleCardClick(cardId)} // Handle card click
+                onCardClick={(cardId, metadata) => openDrawer(metadata)} // Handle card click
                 laneStyle={{
                     backgroundColor: '#f4f5f7',
                     borderRadius: '5px',
@@ -237,7 +311,21 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData }) => {
                     backgroundColor: '#fff',
                 }}
             />
-
+            <Drawer width="50%"
+                title={editItem ? 'Edit Task' : 'Add New Task'}
+                visible={isDrawerVisible}
+                onClose={() => setIsDrawerVisible(false)}
+                footer={null}
+            >
+                <DynamicForm
+                    schemas={viewConfig}
+                    formData={editItem || {}}
+                    onFinish={(formData) => {
+                        onFinish(formData, editItem);
+                        setIsDrawerVisible(false);
+                    }}
+                />
+            </Drawer>
             {/* Modal for editing card */}
             {/* {editingCard && (
                 <div style={modalStyle}>

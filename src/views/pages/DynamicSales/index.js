@@ -1,18 +1,18 @@
-import { Button, Card, notification, Tabs } from 'antd';
-import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useRef, useState } from 'react';
-import GridView from '../DynamicViews/GridView';
-import TableView from '../DynamicViews/TableView-R';
+import { Button, Card, notification, Tabs } from 'antd';
+import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
+import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
+import TableView from '../DynamicViews/TableView-R';
+import GridView from '../DynamicViews/GridView';
+import KanbanView from '../DynamicViews/KanbanView';
+import GanttView from '../DynamicViews/GanttView';
+import CalendarView from '../DynamicViews/CalendarView';
 import { renderFilters } from 'components/util-components/utils';
 import Schedule from '../DynamicViews/TimelineView';
-import KanbanView from '../DynamicViews/KanbanView';
 import { useSelector } from 'react-redux';
 import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
-import CalendarView from '../DynamicViews/CalendarView';
-import GanttView from '../DynamicViews/GanttView';
 import { toggleFullscreen } from 'components/common/utils';
-import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import useTabWithHistory from 'components/common/TabHistory';
 
 const entityType = 'y_sales'
@@ -166,22 +166,25 @@ const Index = () => {
             notification.error({ message: error.message });
             return;
         }
-        console.log("vd", vd, error)
+        console.log("vd", entityId, formData, vd, error)
         // const criteriaEmpty = Object.keys(vd?.entry_criteria || {}).length === 0 && Object.keys(vd?.exit_criteria || {}).length === 0
         const criteriaEmpty = vd
         if (vd) {
             // if (vd?.entry_criteria || vd?.exit_criteria) {
             // Reopen modal with the updated data
             handleModalOpen({ criteria: vd, id: entityId, details: formData });
+            console.log("v")
         } else {
             // Fetch data to refresh the view
+            console.log("d")
             fetchData();
+            setVisible(false);
             notification.success({ message: 'Workflow stage transitioned successfully' });
         }
     };
 
     const handleAddOrEdit = async (formData, editItem) => {
-        console.log("ei", editItem)
+        console.log("ei", formData, editItem)
         let { status, ...details } = formData
         if (editItem) {
             if (editItem?.status !== undefined) {
@@ -199,6 +202,8 @@ const Index = () => {
             } else {
                 if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
                     await handleWorkflowTransition(editItem.id, formData);
+                } else {
+                    fetchData()
                 }
             }
         } else {
@@ -221,6 +226,7 @@ const Index = () => {
                     notification.error({ message: 'Failed to initialize workflow instance' });
                 } else {
                     notification.success({ message: 'Added successfully' });
+                    fetchData()
                     // await handleWorkflowTransition(newEntityId, formData);
                 }
             }
@@ -348,7 +354,7 @@ const Index = () => {
                 defaultActiveKey="1" items={tabItems} activeKey={activeTab} onChange={onTabChange} />}
             {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType}
                 visible={visible} viewConfig={viewConfig}
-                onCancel={handleModalCancel}
+                onCancel={() => { fetchData(); setVisible(false); console.log("e") }}
                 data={vd}  // Pass the response data (vd) to the modal
             />}
         </Card>

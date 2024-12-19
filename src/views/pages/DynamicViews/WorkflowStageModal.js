@@ -7,7 +7,7 @@ import { supabase } from 'configs/SupabaseConfig';
 const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflowTransition, viewConfig, formData }) => {
 
     const handleSubmit = async (formData) => {
-        console.log("pl", formData)
+        console.log("pl", formData, data?.details)
         try {
             const updatedDetails = {
                 ...data?.details,
@@ -29,7 +29,7 @@ const WorkflowStageModal = ({ visible, onCancel, data, entityType, handleWorkflo
                 await handleWorkflowTransition(data.id, updatedDetails);
             }
 
-            onCancel(); // Close the modal
+            // onCancel(); // Close the modal
         } catch (error) {
             notification.error({
                 message: 'Error updating record',

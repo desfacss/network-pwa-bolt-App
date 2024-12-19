@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { Row, Col, Card, Button, Dropdown, Menu, Modal } from 'antd';
+import { Row, Col, Card, Button, Dropdown, Menu, Modal, Drawer } from 'antd';
 import { DownOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import './GridView.css'; // Optional for styling tweaks
 import DynamicForm from '../DynamicForm';
 
 const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
     const { fields, actions } = viewConfig?.gridview;
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
 
-    const openModal = (item = null) => {
+    const openDrawer = (item = null) => {
         setEditItem(item);
-        setIsModalVisible(true);
+        setIsDrawerVisible(true);
     };
 
-    const closeModal = () => {
-        setIsModalVisible(false);
+    const closeDrawer = () => {
+        setIsDrawerVisible(false);
         setEditItem(null);
     };
 
@@ -37,7 +37,7 @@ const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
     // Render Actions Dropdown
     const actionMenu = (record) => (
         <Menu>
-            <Menu.Item key="edit" onClick={() => openModal(record)}>
+            <Menu.Item key="edit" onClick={() => openDrawer(record)}>
                 Edit
             </Menu.Item>
             <Menu.Item key="delete"
@@ -74,7 +74,7 @@ const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
-                    onClick={() => openModal()}
+                    onClick={() => openDrawer()}
                 >
                     Add New Task
                 </Button>
@@ -101,11 +101,11 @@ const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
                 ))}
             </Row>
 
-            {/* Modal for Add/Edit */}
-            <Modal
+            {/* Drawer for Add/Edit */}
+            <Drawer width="50%"
                 title={editItem ? 'Edit Task' : 'Add New Task'}
-                visible={isModalVisible}
-                onCancel={closeModal}
+                visible={isDrawerVisible}
+                onClose={closeDrawer}
                 footer={null}
             >
                 <DynamicForm
@@ -113,10 +113,10 @@ const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
                     formData={editItem || {}}
                     onFinish={(formData) => {
                         onFinish(formData, editItem);
-                        closeModal();
+                        closeDrawer();
                     }}
                 />
-            </Modal>
+            </Drawer>
         </div>
     );
 };
