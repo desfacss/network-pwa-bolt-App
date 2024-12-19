@@ -41,22 +41,36 @@ const SurveyLayout = ({ children }) => {
 					{/* <img src="/img/knba.png" alt="logo" style={{ height: '80px' }} /> */}
 				</div>
 				<Row>
-					<Col xs={0} sm={0} md={0} lg={20}>
-						<img
-							className="img-fluid mb-5"
-							src="/img/others/img-19.png"
-							alt=""
-						/>
-						<div>
-							<img src="/img/ukpe_logo.png" alt="logo" style={{ height: '30px' }} />
-						</div><br /><br /><br /><br />
-						<h3 className="text-white">
-							ENGINEERED TODAY FOR TOMORROW AND BEYOND
-						</h3>
-						<br></br>
-						<p>&rdquo;A leading consultant focused in supporting clients to deliver cost effective and smart design solutions for their investments on energy networks of the future.&rdquo;</p>
-					</Col>
-				</Row>
+	<Col xs={0} sm={0} md={0} lg={20}>
+		<div
+			style={{
+				minHeight: 'calc(100vh - 150px)', // Ensure the content has enough height
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'center',
+			}}
+		>
+			<img
+				className="img-fluid mb-5"
+				src="/img/others/img-19.png"
+				alt=""
+			/>
+			<div>
+				<img src="/img/ukpe_logo.png" alt="logo" style={{ height: '30px' }} />
+			</div>
+			<br /><br /><br /><br />
+			<h3 className="text-white">
+				ENGINEERED TODAY FOR TOMORROW AND BEYOND
+			</h3>
+			<br />
+			<p>
+				&rdquo;A leading consultant focused in supporting clients to deliver cost
+				effective and smart design solutions for their investments on energy networks
+				of the future.&rdquo;
+			</p>
+		</div>
+	</Col>
+</Row>
 				<div
 					className="d-none d-lg-flex flex-column justify-content-end pb-4"
 					style={{

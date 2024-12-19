@@ -273,8 +273,8 @@ const Review = ({ date, employee, fetchData, reportDataRef }) => {
         title: <div className="vertical-header">Daily Total</div>,
         key: 'total',
         align: 'left',
-        fixed: 'right',
-        className: 'sticky-right',
+        // fixed: 'right',
+        // className: 'sticky-right',
         // render: (_, record) => calculateTotalHours(record),
         render: (_, record) => {
           const hours = calculateTotalHours(record)
@@ -298,6 +298,11 @@ const Review = ({ date, employee, fetchData, reportDataRef }) => {
         fixed: 'right',
         width: 'max-content',
         className: 'sticky-right',
+        render: (text) => (
+          <div className="word-wrap">
+            {text}
+          </div>
+        ),
       },
     ];
 
