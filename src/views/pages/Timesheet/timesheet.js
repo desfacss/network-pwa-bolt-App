@@ -161,7 +161,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     setSelectedProjectColumns(columns)
     setProjectData(projectDataMap);
     setExistingTimesheetId(data?.id);
-    setApprovedTimeSheet(['Approved'].includes(data?.status));
+    setApprovedTimeSheet(['Approved', 'Submitted'].includes(data?.status));
   }
 
   const checkExistingTimesheet = async () => {
@@ -801,7 +801,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       key: 'actions',
       render: (_, record) => (
         <div className="d-flex">
-          {record?.status !== 'Approved' &&
+          {(record?.status !== 'Approved' && record?.status !== 'Submitted') &&
             <Tooltip title="Edit">
               <Button
                 type="primary"
@@ -812,7 +812,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
               />
             </Tooltip>
           }
-          {record?.status !== 'Approved' &&
+          {(record?.status !== 'Approved' && record?.status !== 'Submitted') &&
             <Tooltip title="Delete">
               <Button
                 type="primary" ghost
@@ -904,7 +904,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
               <span className='m-2'>Week Ending - {getSunday(currentDate)}</span>
               <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
             </Col>
-            {approvedTimeSheet ? "Approved" : <Col>
+            {approvedTimeSheet ? timesheets?.find(e => e.id === existingTimesheetId)?.status : <Col>
               <Button onClick={() => handleSubmit('Draft')} loading={loading}>Save Draft</Button>
               <Button onClick={() => handleSubmit('Submitted')} loading={loading} disabled={submitDisabled} className='ml-2 mr-2'>Submit</Button>
               <TimesheetInstructions />

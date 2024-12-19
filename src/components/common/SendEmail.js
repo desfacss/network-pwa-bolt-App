@@ -73,6 +73,7 @@ export const generateEmailData = (type, action, details) => {
                 body = `Your Timesheet ${applicationDate} is ${action.toLowerCase()} by ${approverUsername} ${comment ? ` with the following comment: ${comment}` : ""}`;
                 recipients = [userEmail];
             }
+            break;
         case "leave application":
             if (action === "Submitted") {
                 if (!submissionEmail) return;
@@ -85,6 +86,7 @@ export const generateEmailData = (type, action, details) => {
                 body = `Your leave application ${applicationDate} is ${action.toLowerCase()} ${comment ? ` with the following comment: ${comment}` : ""}`;
                 recipients = [userEmail];
             }
+            break;
         case "expenses claim":
             if (action === "Submitted") {
                 if (!submissionEmail) return;
