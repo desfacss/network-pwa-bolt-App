@@ -12,7 +12,7 @@ const actionIcons = {
     add_new: <PlusOutlined />
 };
 
-const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }) => {
+const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, onFinish, users }) => {
 
     const pagination = {
         pageSizeOptions: ['10', '50', '100'], // Options for page sizes
@@ -111,33 +111,105 @@ const TableView = ({ data, viewConfig, updateData, deleteData, onFinish, users }
         });
     }, [data, searchText]);
 
+    // const columns = useMemo(() => {
+    //     return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
+    //         title: snakeCaseToTitleCase(fieldConfig?.fieldName),
+    //         dataIndex: fieldConfig?.fieldName,
+    //         key: fieldConfig?.fieldName,
+    //         sorter: (a, b) =>
+    //             typeof a[fieldConfig?.fieldName] === 'string'
+    //                 ? a[fieldConfig?.fieldName].localeCompare(b[fieldConfig?.fieldName])
+    //                 : a[fieldConfig?.fieldName] - b[fieldConfig?.fieldName],
+    //         render: (text, record) => {
+    //             if (!visibleColumns?.includes(fieldConfig?.fieldName)) {
+    //                 return null; // If column is not visible, return null
+    //             }
+
+    //             // Check if fieldName exists in fetchConfig
+    //             if (fetchConfig[fieldConfig?.fieldName]) {
+    //                 const relatedDataKey = fieldConfig?.fieldName;
+    //                 const relatedData = record?.related_data?.[relatedDataKey];
+    //                 const column = fetchConfig[relatedDataKey]?.column;
+
+    //                 // If related data and the specified column exist, return the value
+    //                 return relatedData?.[column] ?? '-'; // Default to '-' if value is unavailable
+    //             }
+
+    //             return text
+    //             // const truncatedText = text?.length > 20 ? `${text?.substring(0, 20)}...` : text;
+    //             // console.log(truncatedText, text)
+    //             // return (
+    //             //     <Tooltip title={(truncatedText !== text) ? text : ''}>
+    //             //         <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>
+    //             //             {truncatedText}
+    //             //         </div>
+    //             //     </Tooltip>
+    //             // );
+    //         },
+    //         ellipsis: true,
+    //     })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns
+    // }, [viewConfig, visibleColumns, fetchConfig]);
+
+    // const getNestedValue = (object, path) => {
+    //     return path.split('-').reduce((value, key) => (value ? value[key] : undefined), object);
+    // };
+
+    // const columns = useMemo(() => {
+    //     return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
+    //         title: snakeCaseToTitleCase(fieldConfig?.fieldName),
+    //         dataIndex: fieldConfig?.fieldName,
+    //         key: fieldConfig?.fieldName,
+    //         sorter: (a, b) => {
+    //             const aValue = getNestedValue(a, fieldConfig?.fieldName);
+    //             const bValue = getNestedValue(b, fieldConfig?.fieldName);
+
+    //             if (typeof aValue === 'string' && typeof bValue === 'string') {
+    //                 return aValue.localeCompare(bValue);
+    //             }
+    //             return aValue - bValue;
+    //         },
+    //         render: (text, record) => {
+    //             if (!visibleColumns?.includes(fieldConfig?.fieldName)) {
+    //                 return null; // If column is not visible, return null
+    //             }
+
+    //             const value = getNestedValue(record, fieldConfig?.fieldName);
+    //             return value !== undefined ? value : null;
+    //         },
+    //         ellipsis: true,
+    //     })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns
+    // }, [viewConfig, visibleColumns, fetchConfig]);
+
+    const getNestedValue = (object, path) => {
+        return path.split('-').reduce((value, key) => (value ? value[key] : undefined), object);
+    };
+
     const columns = useMemo(() => {
         return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
-            title: snakeCaseToTitleCase(fieldConfig?.fieldName),
-            dataIndex: fieldConfig?.fieldName,
-            key: fieldConfig?.fieldName,
-            sorter: (a, b) =>
-                typeof a[fieldConfig?.fieldName] === 'string'
-                    ? a[fieldConfig?.fieldName].localeCompare(b[fieldConfig?.fieldName])
-                    : a[fieldConfig?.fieldName] - b[fieldConfig?.fieldName],
+            title: snakeCaseToTitleCase(fieldConfig?.fieldName), // Label always uses fieldName
+            dataIndex: fieldConfig?.fieldPath || fieldConfig?.fieldName, // Use fieldPath if available
+            key: fieldConfig?.fieldName, // Unique key from fieldName
+            sorter: (a, b) => {
+                const aValue = getNestedValue(a, fieldConfig?.fieldPath || fieldConfig?.fieldName);
+                const bValue = getNestedValue(b, fieldConfig?.fieldPath || fieldConfig?.fieldName);
+
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    return aValue.localeCompare(bValue);
+                }
+                return aValue - bValue;
+            },
             render: (text, record) => {
                 if (!visibleColumns?.includes(fieldConfig?.fieldName)) {
                     return null; // If column is not visible, return null
                 }
-                return text
-                // const truncatedText = text?.length > 20 ? `${text?.substring(0, 20)}...` : text;
-                // console.log(truncatedText, text)
-                // return (
-                //     <Tooltip title={(truncatedText !== text) ? text : ''}>
-                //         <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>
-                //             {truncatedText}
-                //         </div>
-                //     </Tooltip>
-                // );
+
+                const value = getNestedValue(record, fieldConfig?.fieldPath || fieldConfig?.fieldName);
+                return value !== undefined ? value : null;
             },
             ellipsis: true,
         })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns
-    }, [viewConfig, visibleColumns]);
+    }, [viewConfig, visibleColumns, fetchConfig]);
+
 
     const actionMenu = (record) => (
         <Menu>

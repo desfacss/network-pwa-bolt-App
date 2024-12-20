@@ -77,6 +77,7 @@ const YViewConfigManager = () => {
         console.log("Fetching columns for table:", tableName);
 
         // Call the RPC function
+        // Instead of this rpc, pass the actual + related data to get the column names 
         const { data, error } = await supabase.rpc('get_table_columns', {
           tablename: tableName,
         });

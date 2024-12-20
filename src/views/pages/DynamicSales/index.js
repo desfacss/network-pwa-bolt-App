@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
 import { toggleFullscreen } from 'components/common/utils';
 import useTabWithHistory from 'components/common/TabHistory';
+import Dashboard from '../DynamicViews/Dashboard';
 
 const entityType = 'y_sales'
 
@@ -72,6 +73,12 @@ const Index = () => {
     const [data, setData] = useState()
     const [users, setUsers] = useState();
 
+    const fetchConfig = {
+        assignee: { table: 'users', column: 'user_name' },
+        // foreignKey2: { table: 'table2', column: 'uuid', fields: ['title'] },
+        // foreignKey3: { table: 'table3', column: 'key', fields: ['value'] },
+    };
+
     const fetchUsers = async () => {
         const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
         if (error) {
@@ -82,16 +89,54 @@ const Index = () => {
     };
 
 
+    // const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
+    //     let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+    //     // const { data, error } = await supabase.from('task_entities_with_workflow')
+    //     //     .select('id, organization_id, created_at, details, current_stage, general_state, workflow_metadata')
+    //     //     .eq('organization_id', session?.user?.organization?.id).order('created_at', { ascending: false });
+    //     if (data) {
+    //         // console.log("Data", data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })))// data.map(task => ({ ...task.details, id: task?.id })))
+    //         // setData(data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })));
+    //         console.log("Data", data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
+    //         setData(data.map(item => ({ ...item.details, id: item?.id })));
+    //     }
+    //     if (error) {
+    //         notification.error({ message: error?.message || "Failed to fetch Data" });
+    //     }
+    // };
+
     const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
         let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
-        // const { data, error } = await supabase.from('task_entities_with_workflow')
-        //     .select('id, organization_id, created_at, details, current_stage, general_state, workflow_metadata')
-        //     .eq('organization_id', session?.user?.organization?.id).order('created_at', { ascending: false });
+        console.log("Da", data)
+        if (error) throw error;
         if (data) {
-            // console.log("Data", data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })))// data.map(task => ({ ...task.details, id: task?.id })))
-            // setData(data.map(item => ({ ...item.details, id: item?.id, status: item?.current_stage?.name })));
-            console.log("Data", data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
-            setData(data.map(item => ({ ...item.details, id: item?.id })));
+            let sales = []
+            // Loop through each sale and process foreign keys from the details field
+            for (let sale of data) {
+                const details = sale.details;
+
+                // Loop through each foreign key in the details and fetch related data based on config
+                for (const key in details) {
+                    const foreignKey = details[key];
+                    if (fetchConfig[key]) {
+                        const { table, column } = fetchConfig[key];
+
+                        // Fetch data from the related table
+                        const { data: relatedData, error: relatedError } = await supabase
+                            .from(table)
+                            .select('*') // Use * to fetch all columns if no specific column is mentioned
+                            .eq('id', foreignKey);
+
+                        if (relatedError) throw relatedError;
+
+                        // Store the related data in a separate object for now
+                        sale.related_data = sale.related_data || {};
+                        sale.related_data[key] = relatedData[0]; // Store by key
+                    }
+                }
+            }
+            console.log("Data", sales, data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
+            setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));
         }
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch Data" });
@@ -185,7 +230,7 @@ const Index = () => {
 
     const handleAddOrEdit = async (formData, editItem) => {
         console.log("ei", formData, editItem)
-        let { status, ...details } = formData
+        let { status, related_data, ...details } = formData
         if (editItem) {
             if (editItem?.status !== undefined) {
                 details.status = status;
@@ -288,7 +333,7 @@ const Index = () => {
         tabItems.push({
             label: 'Table',
             key: '1',
-            children: <TableView data={data} viewConfig={viewConfig} users={users} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
         })
     }
     if (viewConfig?.gridview) {
@@ -324,6 +369,13 @@ const Index = () => {
             label: 'Calendar',
             key: '6',
             children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+        })
+    }
+    if (viewConfig?.dashboardview) {
+        tabItems.push({
+            label: 'Dashboard',
+            key: '7',
+            children: <Dashboard data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
         })
     }
 
