@@ -111,9 +111,9 @@ const LeaveApplications = forwardRef(({ startDate, endDate }, ref) => {
             return
         }
 
-        // Validate dateReturning > toDate
-        if (!returning.isAfter(to)) {
-            notification.error({ message: "'Date Returning' should be greater than 'To Date'." });
+        // Validate dateReturning => toDate
+        if (returning.isBefore(to)) {
+            notification.error({ message: "'Date Returning' should be greater than or equal to 'To Date'." });
             return false;
         }
 
