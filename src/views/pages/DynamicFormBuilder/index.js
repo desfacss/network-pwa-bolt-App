@@ -227,7 +227,7 @@ const FormBuilder = () => {
 
       // Build UI schema
       const fieldUiSchema = { ...config.uiSchema };
-      
+
       if (field.placeholder) {
         fieldUiSchema["ui:placeholder"] = field.placeholder;
       }
@@ -257,154 +257,133 @@ const FormBuilder = () => {
 
   const { dataSchema, uiSchema } = generateSchemas();
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <Card.Header>
-          <Card.Title>Add Form Field</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+  return (<div className="space-y-6">
+    <Card title="Add Form Field">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            placeholder="Field Name"
+            value={fieldInput.fieldName}
+            onChange={(e) => handleFieldChange('fieldName', e.target.value)}
+          />
+
+          <Select
+            value={fieldInput.fieldType}
+            onChange={(value) => handleFieldChange('fieldType', value)}
+            placeholder="Select type"
+          >
+            {Object.keys(widgetConfigs).map(type => (
+              <Select.Option key={type} value={type}>
+                {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </Select.Option>
+            ))}
+          </Select>
+
+          <Input
+            type="number"
+            placeholder="UI Order"
+            value={fieldInput.uiOrder}
+            onChange={(e) => handleFieldChange('uiOrder', e.target.value)}
+          />
+
+          <Input
+            placeholder="Placeholder Text"
+            value={fieldInput.placeholder}
+            onChange={(e) => handleFieldChange('placeholder', e.target.value)}
+          />
+
+          {showOptions && (
+            <Input.TextArea
+              placeholder="Enter options (comma-separated)"
+              value={fieldInput.options.join(', ')}
+              onChange={(e) => handleFieldChange('options', e.target.value.split(',').map(opt => opt.trim()).filter(Boolean))}
+              rows={3}
+            />
+          )}
+
+          {showLookup && (
+            <>
               <Input
-                placeholder="Field Name"
-                value={fieldInput.fieldName}
-                onChange={(e) => handleFieldChange('fieldName', e.target.value)}
+                placeholder="Lookup Table"
+                value={fieldInput.lookupTable}
+                onChange={(e) => handleFieldChange('lookupTable', e.target.value)}
               />
-              
-              <Select
-                value={fieldInput.fieldType}
-                onValueChange={(value) => handleFieldChange('fieldType', value)}
-              >
-                <Select.SelectTrigger>
-                  <Select.SelectValue placeholder="Select type" />
-                </Select.SelectTrigger>
-                <Select.SelectContent>
-                  {Object.keys(widgetConfigs).map(type => (
-                    <Select.SelectItem key={type} value={type}>
-                      {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                    </Select.SelectItem>
-                  ))}
-                </Select.SelectContent>
-              </Select>
-
               <Input
-                type="number"
-                placeholder="UI Order"
-                value={fieldInput.uiOrder}
-                onChange={(e) => handleFieldChange('uiOrder', e.target.value)}
+                placeholder="Lookup Column"
+                value={fieldInput.lookupColumn}
+                onChange={(e) => handleFieldChange('lookupColumn', e.target.value)}
               />
+            </>
+          )}
 
-              <Input
-                placeholder="Placeholder Text"
-                value={fieldInput.placeholder}
-                onChange={(e) => handleFieldChange('placeholder', e.target.value)}
-              />
+          {showFileOptions && (
+            <Input
+              placeholder="Accepted File Types"
+              value={fieldInput.acceptedFileTypes}
+              onChange={(e) => handleFieldChange('acceptedFileTypes', e.target.value)}
+            />
+          )}
 
-              {showOptions && (
-                <Input.Textarea
-                  placeholder="Enter options (comma-separated)"
-                  value={fieldInput.options.join(', ')}
-                  onChange={(e) => handleFieldChange('options', e.target.value.split(',').map(opt => opt.trim()).filter(Boolean))}
-                  className="col-span-2"
-                />
+          <div className="flex items-center gap-2 col-span-2">
+            <Switch
+              checked={fieldInput.required}
+              onChange={(checked) => handleFieldChange('required', checked)}
+            />
+            <label>Required Field</label>
+          </div>
+        </div>
+
+        <Button onClick={handleAddField} type="primary" block>
+          Add Field
+        </Button>
+      </div>
+    </Card>
+
+    <Card title="Current Fields">
+      <div className="space-y-2">
+        {fields.map((field, index) => (
+          <div key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded">
+            <div className="flex gap-4">
+              <span className="font-medium">{field.fieldName}</span>
+              <span className="text-slate-600">Type: {field.fieldType}</span>
+              <span className="text-slate-600">Order: {field.uiOrder}</span>
+              {field.required && (
+                <span className="text-red-500">Required</span>
               )}
-
-              {showLookup && (
-                <>
-                  <Input
-                    placeholder="Lookup Table"
-                    value={fieldInput.lookupTable}
-                    onChange={(e) => handleFieldChange('lookupTable', e.target.value)}
-                  />
-                  <Input
-                    placeholder="Lookup Column"
-                    value={fieldInput.lookupColumn}
-                    onChange={(e) => handleFieldChange('lookupColumn', e.target.value)}
-                  />
-                </>
+              {field.options?.length > 0 && (
+                <span className="text-slate-600">Options: {field.options.join(', ')}</span>
               )}
-
-              {showFileOptions && (
-                <Input
-                  placeholder="Accepted File Types"
-                  value={fieldInput.acceptedFileTypes}
-                  onChange={(e) => handleFieldChange('acceptedFileTypes', e.target.value)}
-                />
-              )}
-
-              <div className="flex items-center gap-2 col-span-2">
-                <Switch
-                  id="required"
-                  checked={fieldInput.required}
-                  onCheckedChange={(checked) => handleFieldChange('required', checked)}
-                />
-                <label htmlFor="required">Required Field</label>
-              </div>
             </div>
-
-            <Button onClick={handleAddField} className="w-full">
-              Add Field
+            <Button
+              danger
+              size="small"
+              onClick={() => setFields(prev => prev.filter((_, i) => i !== index))}
+            >
+              Remove
             </Button>
           </div>
-        </Card.Content>
-      </Card>
+        ))}
+      </div>
+    </Card>
 
-      <Card>
-        <Card.Header>
-          <Card.Title>Current Fields</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <div className="space-y-2">
-            {fields.map((field, index) => (
-              <div key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded">
-                <div className="flex gap-4">
-                  <span className="font-medium">{field.fieldName}</span>
-                  <span className="text-slate-600">Type: {field.fieldType}</span>
-                  <span className="text-slate-600">Order: {field.uiOrder}</span>
-                  {field.required && (
-                    <span className="text-red-500">Required</span>
-                  )}
-                  {field.options?.length > 0 && (
-                    <span className="text-slate-600">Options: {field.options.join(', ')}</span>
-                  )}
-                </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setFields(prev => prev.filter((_, i) => i !== index))}
-                >
-                  Remove
-                </Button>
-              </div>
-            ))}
-          </div>
-        </Card.Content>
-      </Card>
-
-      <Card>
-        <Card.Header>
-          <Card.Title>Generated Schema</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="font-medium mb-2">Data Schema:</h3>
-              <pre className="bg-slate-50 p-4 rounded overflow-auto max-h-96">
-                {JSON.stringify(dataSchema, null, 2)}
-              </pre>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">UI Schema:</h3>
-              <pre className="bg-slate-50 p-4 rounded overflow-auto max-h-96">
-                {JSON.stringify(uiSchema, null, 2)}
-              </pre>
-            </div>
-          </div>
-        </Card.Content>
-      </Card>
-    </div>
-  );
+    <Card title="Generated Schema">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <h3 className="font-medium mb-2">Data Schema:</h3>
+          <pre className="bg-slate-50 p-4 rounded overflow-auto max-h-96">
+            {JSON.stringify(dataSchema, null, 2)}
+          </pre>
+        </div>
+        <div>
+          <h3 className="font-medium mb-2">UI Schema:</h3>
+          <pre className="bg-slate-50 p-4 rounded overflow-auto max-h-96">
+            {JSON.stringify(uiSchema, null, 2)}
+          </pre>
+        </div>
+      </div>
+    </Card>
+  </div>
+  )
 };
 
 export default FormBuilder;
