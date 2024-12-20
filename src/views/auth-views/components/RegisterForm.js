@@ -29,7 +29,7 @@ const rules = {
     },
     {
       type: "email",
-      message: "Please enter a validate email!",
+      message: "Please enter a valid email!",
     },
   ],
   mobile: [
