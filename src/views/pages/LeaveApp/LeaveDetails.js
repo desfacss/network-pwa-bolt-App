@@ -24,7 +24,7 @@ const LeaveDetails = ({ userId }) => {
     };
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('*,organization:organization_id(*)').eq('organization_id', session?.user?.organization_id).eq('id', userId);
+        const { data, error } = await supabase.from('users').select('*,organization:organization_id(*)').eq('organization_id', session?.user?.organization_id).eq('id', userId).eq('is_active', true);
         if (error) {
             console.error('Error fetching users:', error);
         } else {

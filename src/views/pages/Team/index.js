@@ -83,7 +83,7 @@ const Users = () => {
         let { data, error } = await supabase.from('users')
             // .select(`*,location (name), hr:users (user_name), manager:users (user_name)`);
             .select(`*,location:location_id (*), hr:hr_id (*), manager:manager_id (*)`)
-            .eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true });
+            .eq('organization_id', session?.user?.organization_id).eq('is_active', true).order('user_name', { ascending: true });
         if (data) {
             setUsers(data);
             // console.log("users1", data);

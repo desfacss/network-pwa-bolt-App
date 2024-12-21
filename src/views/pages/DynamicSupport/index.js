@@ -73,7 +73,7 @@ const Index = () => {
     const [users, setUsers] = useState();
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true);
         if (error) {
             console.error('Error fetching users:', error);
         } else {

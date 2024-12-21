@@ -48,7 +48,7 @@ const NonProject = ({ isDrawerOpen, setIsDrawerOpen, searchText }) => {
     const [form] = Form.useForm();
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true });
+        const { data, error } = await supabase.from('users').select('id, user_name,role_type,details').eq('organization_id', session?.user?.organization_id).order('user_name', { ascending: true }).eq('is_active', true);
         if (error) {
             console.error('Error fetching users:', error);
         } else {
