@@ -79,10 +79,18 @@ const Profile = () => {
             </Modal>}
             {/* Profile Start ************************************* */}
             <Card title={
-                <div style={{
-                    display: 'flex', alignItems: 'center'
-                    // justifyContent: 'space-between',
-                }}>
+                // <div style={{
+                //     display: 'flex', alignItems: 'center'
+                //     // justifyContent: 'space-between',
+                // }}>
+                <div
+            style={{
+                display: 'flex',
+                alignItems: 'left',
+                // justifyContent: 'space-between', // Ensures proper spacing
+                overflow: 'visible', // Prevent cropping
+            }}
+        >
                     <span className='mr-2'>Personal Info</span>
                     <Button className='mr-5' icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
                     </Button>
