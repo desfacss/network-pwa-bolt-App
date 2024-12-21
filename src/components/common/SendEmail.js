@@ -55,8 +55,7 @@ export const generateEmailData = (type, action, details) => {
     } = details;
 
     const state = store.getState();
-    const { submissionEmail, reviewEmail } = state?.auth?.session?.user?.organization?.timesheet_settings?.approvalWorkflow;
-
+    const { submissionEmail = true, reviewEmail = true } = state?.auth?.session?.user?.organization?.timesheet_settings?.approvalWorkflow || {};
     let subject, body, recipients;
 
     // Determine subject and body content
@@ -65,7 +64,7 @@ export const generateEmailData = (type, action, details) => {
             if (action === "Submitted") {
                 if (!submissionEmail) return;
                 subject = `Timesheet Submitted by ${username}`;
-                body = `Timesheet for ${applicationDate} is submitted by ${username}.`;
+                body = `Timesheet ${applicationDate} is submitted by ${username}.`;
                 recipients = [approverEmail, ...hrEmails];
             } else if (["Approved", "Rejected"].includes(action)) {
                 if (!reviewEmail) return;
