@@ -3,26 +3,24 @@ import { Button, Card, notification, Tabs } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
-import TableView from '../DynamicViews/TableView-R';
-import GridView from '../DynamicViews/GridView';
-import KanbanView from '../DynamicViews/KanbanView';
-import GanttView from '../DynamicViews/GanttView';
-import CalendarView from '../DynamicViews/CalendarView';
+import TableView from './TableView-R';
+import GridView from './GridView';
+import KanbanView from './KanbanView';
+import GanttView from './GanttView';
+import CalendarView from './CalendarView';
 import { renderFilters } from 'components/util-components/utils';
-import Schedule from '../DynamicViews/TimelineView';
+import Schedule from './TimelineView';
 import { useSelector } from 'react-redux';
-import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
+import WorkflowStageModal from './WorkflowStageModal';
 import { toggleFullscreen } from 'components/common/utils';
 import useTabWithHistory from 'components/common/TabHistory';
-import Dashboard from '../DynamicViews/Dashboard';
-import ExportImportButtons from '../DynamicViews/CSVOptions';
-// import SchedularView from '../DynamicViews/SchedularView';
-// import MyScheduler from '../DynamicViews/Dk';
-import DynamicForm from '../DynamicForm';
+import Dashboard from './Dashboard';
+import ExportImportButtons from './CSVOptions';
+// import SchedularView from './SchedularView';
 
-const entityType = 'y_sales'
+// const entityType = 'y_sales'
 
-const Index = () => {
+const Index = ({ entityType }) => {
 
     const defaultStartDate = dayjs().subtract(30, 'days');
     // const defaultStartDate = dayjs().subtract(30, 'days');
@@ -75,11 +73,10 @@ const Index = () => {
     const [viewConfig, setViewConfig] = useState()
     const [workflowConfig, setWorkflowConfig] = useState()
     const [data, setData] = useState()
-    const [rawData, setRawData] = useState()
     const [users, setUsers] = useState();
 
     const fetchConfig = {
-        assignee: { table: 'users', column: 'user_name' },
+        // assignee: { table: 'users', column: 'user_name' },
         // foreignKey2: { table: 'table2', column: 'uuid', fields: ['title'] },
         // foreignKey3: { table: 'table3', column: 'key', fields: ['value'] },
     };
@@ -112,6 +109,7 @@ const Index = () => {
 
     const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
         let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+        console.log("Da", data)
         if (error) throw error;
         if (data) {
             let sales = []
@@ -139,8 +137,7 @@ const Index = () => {
                     }
                 }
             }
-            console.log("Data", data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
-            setRawData(data);
+            console.log("Data", sales, data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
             setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));
         }
         if (error) {
@@ -384,8 +381,7 @@ const Index = () => {
     //     tabItems.push({
     //         label: 'Schedule',
     //         key: '7',
-    //         // children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
-    //         children: <MyScheduler />,
+    //         children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
     //     })
     // }
     if (viewConfig?.dashboardview) {
@@ -408,69 +404,12 @@ const Index = () => {
         entry_criteria: {}
     };
 
-    const schemas = {
-        data_schema: {
-            viewBy: "projects",
-            title: "Project User Time",
-            type: "array",
-            // items: [
-            //     { type: "string", title: "User" },
-            //     { type: "string", title: "Project" },
-            //     { type: "number", title: "Time" },
-            // ],
-            items: [
-                {
-                    type: "string",
-                    title: "User",
-                    field: "user_id", // User selection field
-                },
-                // {
-                //     type: "string",
-                //     title: "Project",
-                //     field: "project_id", // Project selection field
-                // },
-                {
-                    type: "number",
-                    title: "Allocated Hr",
-                    field: "allocated_hours", // Field for allocated hours input
-                },
-                {
-                    type: "string",
-                    title: "Start Date",
-                    field: "start_date", // Start date field
-                },
-                {
-                    type: "string",
-                    title: "End Date",
-                    field: "end_date", // End date field
-                },
-                {
-                    type: "number",
-                    title: "Rate/Hr",
-                    field: "rate", // Hourly rate field
-                },
-                {
-                    type: "number",
-                    title: "Expensed Hr",
-                    field: "expensed_hours", // Expensed hours, which may be calculated or disabled
-                },
-            ],
-        },
-        ui_schema: {
-            "ui:widget": "EditableTableWidget",  // Referencing the custom widget
-        }
-    }
-
-    const onFinish = (data) => {
-        console.log(data)
-    }
     return (
         <Card ref={divRef}>
-            <DynamicForm schemas={schemas} onFinish={onFinish} />
             {(data && viewConfig) && <Tabs
                 tabBarExtraContent={ //Global filters
                     <div style={{ display: "flex", alignItems: "center" }}>
-                        <ExportImportButtons data={rawData} fetchData={fetchData} entityType={entityType} viewConfig={viewConfig} />
+                        {/* <ExportImportButtons data={data} fetchData={fetchData} /> */}
                         {renderFilters(viewConfig?.global?.search, data)}
                         <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
                             {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}

@@ -1,6 +1,7 @@
 import React from "react";
 import { DatePicker, Select } from "antd";
 import dayjs from "dayjs";
+import EditableTableWidget from "./EditableTable";
 
 const { RangePicker } = DatePicker;
 
@@ -71,4 +72,5 @@ export default {
     TagsWidget,
     DateRangePickerWidget,
     DateTimeRangePickerWidget,
+    EditableTableWidget
 };
