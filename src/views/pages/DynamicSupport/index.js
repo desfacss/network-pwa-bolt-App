@@ -181,8 +181,16 @@ const Index = () => {
     };
 
     const handleAddOrEdit = async (formData, editItem) => {
-        let { status, ...details } = formData
+        console.log("ei", formData, editItem)
+        let { status, related_data, date_time_range, id, ...details } = formData
+        if (date_time_range && date_time_range.length === 2) {
+            details.start_date = new Date(date_time_range[0]).toISOString();
+            details.due_date = new Date(date_time_range[1]).toISOString();
+        }
         if (editItem) {
+            if (editItem?.status !== undefined) {
+                details.status = status;
+            }
             // Update logic
             const { data, error } = await supabase
                 .from(entityType)
@@ -191,9 +199,13 @@ const Index = () => {
                 .select('*');
 
             if (error) {
-                notification.error({ message: 'Failed to update task' });
+                notification.error({ message: 'Failed to update' });
             } else {
-                await handleWorkflowTransition(editItem.id, formData);
+                if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
+                    await handleWorkflowTransition(editItem.id, formData);
+                } else {
+                    fetchData()
+                }
             }
         } else {
             // Add logic
@@ -203,7 +215,7 @@ const Index = () => {
                 .select('*');
 
             if (error) {
-                notification.error({ message: 'Failed to add task' });
+                notification.error({ message: 'Failed to add' });
             } else {
                 const newEntityId = data[0]?.id;
                 const { data: vd, error } = await supabase.rpc('initialize_workflow_instance_v4', {
@@ -215,6 +227,7 @@ const Index = () => {
                     notification.error({ message: 'Failed to initialize workflow instance' });
                 } else {
                     notification.success({ message: 'Added successfully' });
+                    fetchData()
                     // await handleWorkflowTransition(newEntityId, formData);
                 }
             }

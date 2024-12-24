@@ -15,6 +15,7 @@ import WorkflowStageModal from '../DynamicViews/WorkflowStageModal';
 import { toggleFullscreen } from 'components/common/utils';
 import useTabWithHistory from 'components/common/TabHistory';
 import Dashboard from '../DynamicViews/Dashboard';
+// import SchedularView from '../DynamicViews/SchedularView';
 
 const entityType = 'y_sales'
 
@@ -80,7 +81,7 @@ const Index = () => {
     };
 
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id);
+        const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true);
         if (error) {
             console.error('Error fetching users:', error);
         } else {
@@ -230,7 +231,11 @@ const Index = () => {
 
     const handleAddOrEdit = async (formData, editItem) => {
         console.log("ei", formData, editItem)
-        let { status, related_data, ...details } = formData
+        let { status, related_data, date_time_range, id, ...details } = formData
+        if (date_time_range && date_time_range.length === 2) {
+            details.start_date = new Date(date_time_range[0]).toISOString();
+            details.due_date = new Date(date_time_range[1]).toISOString();
+        }
         if (editItem) {
             if (editItem?.status !== undefined) {
                 details.status = status;
@@ -243,7 +248,7 @@ const Index = () => {
                 .select('*');
 
             if (error) {
-                notification.error({ message: 'Failed to update task' });
+                notification.error({ message: 'Failed to update' });
             } else {
                 if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
                     await handleWorkflowTransition(editItem.id, formData);
@@ -259,7 +264,7 @@ const Index = () => {
                 .select('*');
 
             if (error) {
-                notification.error({ message: 'Failed to add task' });
+                notification.error({ message: 'Failed to add' });
             } else {
                 const newEntityId = data[0]?.id;
                 const { data: vd, error } = await supabase.rpc('initialize_workflow_instance_v4', {
@@ -371,10 +376,17 @@ const Index = () => {
             children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
         })
     }
+    // if (viewConfig?.calendarview) {
+    //     tabItems.push({
+    //         label: 'Schedule',
+    //         key: '7',
+    //         children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+    //     })
+    // }
     if (viewConfig?.dashboardview) {
         tabItems.push({
             label: 'Dashboard',
-            key: '7',
+            key: '8',
             children: <Dashboard data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
         })
     }

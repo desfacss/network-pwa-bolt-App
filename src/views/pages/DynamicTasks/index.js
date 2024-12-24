@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { renderFilters } from 'components/util-components/utils';
 import Schedule from '../DynamicViews/TimelineView';
 import KanbanView from '../DynamicViews/KanbanView';
+import { useSelector } from 'react-redux';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -20,7 +21,46 @@ const Index = () => {
     // const defaultStartDate = dayjs().subtract(30, 'days');
     const defaultEndDate = dayjs();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
+    const [visible, setVisible] = useState(false);
+    const [vd, setVd] = useState();
 
+    const { session } = useSelector((state) => state.auth);
+
+    const handleModalOpen = (item) => {
+        setVd(item)
+        setVisible(true);
+    };
+
+    const handleWorkflowTransition = async (entityId, formData) => {
+        const { data: vd, error } = await supabase
+            .rpc('transition_workflow_stage_v4', {
+                entitytype: entityType,
+                entityid: entityId,
+                newstagename: formData?.status,
+                userid: session?.user?.id,
+                reason: "",
+            });
+
+        if (error) {
+            notification.error({ message: error.message });
+            return;
+        }
+        console.log("vd", entityId, formData, vd, error)
+        // const criteriaEmpty = Object.keys(vd?.entry_criteria || {}).length === 0 && Object.keys(vd?.exit_criteria || {}).length === 0
+        const criteriaEmpty = vd
+        if (vd) {
+            // if (vd?.entry_criteria || vd?.exit_criteria) {
+            // Reopen modal with the updated data
+            handleModalOpen({ criteria: vd, id: entityId, details: formData });
+            console.log("v")
+        } else {
+            // Fetch data to refresh the view
+            console.log("d")
+            fetchData();
+            setVisible(false);
+            notification.success({ message: 'Workflow stage transitioned successfully' });
+        }
+    };
 
     const onDateRangeChange = (dates) => {
         if (dates) {
@@ -88,25 +128,55 @@ const Index = () => {
     };
 
     const handleAddOrEdit = async (formData, editItem) => {
-        console.log(formData, editItem)
-        delete formData?.id
+        console.log("ei", formData, editItem)
+        let { status, related_data, date_time_range, id, ...details } = formData
+        if (date_time_range && date_time_range.length === 2) {
+            details.start_date = new Date(date_time_range[0]).toISOString();
+            details.due_date = new Date(date_time_range[1]).toISOString();
+        }
         if (editItem) {
+            if (editItem?.status !== undefined) {
+                details.status = status;
+            }
             // Update logic
-            const { error } = await supabase.from(entityType).update({ details: formData }).eq('id', editItem.id);
+            const { data, error } = await supabase
+                .from(entityType)
+                .update({ details: details, organization_id: session?.user?.organization?.id })
+                .eq('id', editItem.id)
+                .select('*');
+
             if (error) {
-                notification.error({ message: 'Failed to update task' });
+                notification.error({ message: 'Failed to update' });
             } else {
-                fetchData();
-                notification.success({ message: 'Task updated successfully' });
+                if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
+                    await handleWorkflowTransition(editItem.id, formData);
+                } else {
+                    fetchData()
+                }
             }
         } else {
             // Add logic
-            const { error } = await supabase.from(entityType).insert([{ details: formData }]);
+            const { data, error } = await supabase
+                .from(entityType)
+                .insert([{ details: details, organization_id: session?.user?.organization?.id }])
+                .select('*');
+
             if (error) {
-                notification.error({ message: 'Failed to add task' });
+                notification.error({ message: 'Failed to add' });
             } else {
-                fetchData();
-                notification.success({ message: 'Task added successfully' });
+                const newEntityId = data[0]?.id;
+                const { data: vd, error } = await supabase.rpc('initialize_workflow_instance_v4', {
+                    entitytype: entityType,
+                    entityid: newEntityId,
+                });
+
+                if (error) {
+                    notification.error({ message: 'Failed to initialize workflow instance' });
+                } else {
+                    notification.success({ message: 'Added successfully' });
+                    fetchData()
+                    // await handleWorkflowTransition(newEntityId, formData);
+                }
             }
         }
     };

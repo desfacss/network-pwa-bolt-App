@@ -50,12 +50,10 @@ const CalendarView = ({ data, onFinish, deleteData, viewConfig }) => {
     const transformedEvents = data.map(event => ({
         ...event,
         title: event?.name,
-        // start: new Date(event.start_date),
-        // end: new Date(event.due_date),
-        start: event?.date_time_range && event?.date_time_range[0] ? new Date(event?.date_time_range[0]) : new Date(),
-        end: event?.date_time_range && event?.date_time_range[1] ? new Date(event?.date_time_range[1]) : new Date(),
-        // start: event?.date_range && event?.date_range[0] ? new Date(event?.date_range[0]) : new Date(),
-        // end: event?.date_range && event?.date_range[1] ? new Date(event?.date_range[1]) : new Date(),
+        // start: event?.date_time_range && event?.date_time_range[0] ? new Date(event?.date_time_range[0]) : new Date(),
+        // end: event?.date_time_range && event?.date_time_range[1] ? new Date(event?.date_time_range[1]) : new Date(),
+        start: event?.start_date ? new Date(event.start_date) : new Date(),
+        end: event?.due_date ? new Date(event.due_date) : new Date(),
     }));
     return (
         <div style={{ height: "80vh", margin: "20px" }}>
