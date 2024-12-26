@@ -65,7 +65,9 @@ export const generateEmailData = (type, action, details) => {
                 if (!submissionEmail) return;
                 subject = `Timesheet Submitted by ${username}`;
                 body = `Timesheet ${applicationDate} is submitted by ${username}.`;
-                recipients = [approverEmail, ...hrEmails];
+                // recipients = [approverEmail, ...hrEmails];
+                //For Local Testing
+                recipients = [approverEmail];
             } else if (["Approved", "Rejected"].includes(action)) {
                 if (!reviewEmail) return;
                 subject = `Timesheet ${action} by ${approverUsername}`;
@@ -78,7 +80,8 @@ export const generateEmailData = (type, action, details) => {
                 if (!submissionEmail) return;
                 subject = `Leave Application Submitted by ${username}`;
                 body = `${username} is submitting ${type} ${applicationDate} for approval.`;
-                recipients = [approverEmail, ...hrEmails];
+                // recipients = [approverEmail, ...hrEmails];
+                recipients = [approverEmail];
             } else if (["Approved", "Rejected"].includes(action)) {
                 if (!reviewEmail) return;
                 subject = `Leave Application ${action} by ${approverUsername}`;
@@ -91,7 +94,8 @@ export const generateEmailData = (type, action, details) => {
                 if (!submissionEmail) return;
                 subject = `Expenses Claim Submitted by ${username}`;
                 body = `${username} is submitting ${type} ${applicationDate} for approval.`;
-                recipients = [approverEmail, ...hrEmails];
+                // recipients = [approverEmail, ...hrEmails];
+                recipients = [approverEmail];
             } else if (["Approved", "Rejected"].includes(action)) {
                 if (!reviewEmail) return;
                 subject = `Expenses Claim ${action} by ${approverUsername}`;

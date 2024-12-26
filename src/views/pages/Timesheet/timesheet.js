@@ -41,6 +41,8 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
 
   const { timesheet_settings } = session?.user?.organization
 
+  const workingHours = session?.user?.role_type === 'contractor' ? timesheet_settings?.contractWorkingHours : timesheet_settings?.workingHours
+
   useEffect(() => {
     const fetchUsers = async () => {
       const { data, error } = await supabase.from('users').select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true);
@@ -438,8 +440,10 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
   };
 
   const handleInputChange = (inputValue, date, project, field) => {
-    const hours = field === 'hours' ? Number(inputValue.trim().replace(".", "")) : 0
-    const value = field === 'hours' ? (hours > 0 ? Math.round(hours) : 0) : inputValue;
+    // const hours = field === 'hours' ? Number(inputValue.trim().replace(".", "")) : 0
+    // const value = field === 'hours' ? (hours > 0 ? Math.round(hours) : 0) : inputValue;
+    const hours = field === 'hours' ? Number(inputValue.trim()) : 0
+    const value = field === 'hours' ? (hours > 0 ? hours : 0) : inputValue;
     // console.log("HC", field, inputValue, value, date, project)
     // console.log("first", inputValue)
     setProjectData(prevData => ({
@@ -522,7 +526,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
                 status={checkhoursIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
                 onChange={(e) => handleInputChange(e?.target?.value, record?.date, projectName, 'hours')}
                 disabled={approvedTimeSheet}
-                style={{ width: '100%' }}
+                style={{ width: '100%' }} step={0.5}
               />
               <Input type="text" placeholder="Description" value={record?.dailyEntries[projectName]?.description}
                 status={checkDescriptionIsNull(record?.dailyEntries[projectName]?.hours, record?.dailyEntries[projectName]?.description)}
@@ -545,7 +549,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
         var dailyTotal = projects?.reduce((sum, project) => sum + (parseFloat(record.dailyEntries?.[project.id]?.hours) || 0), 0)
 
         var isWeekend = record?.weekend;
-        var minHrs = timesheet_settings?.workingHours?.standardDailyHours || 8
+        var minHrs = workingHours?.standardDailyHours ?? 8
         var maxHrs = timesheet_settings?.overtimeTracking?.maxOvertimeHours || 16
 
         var invalid = (isWeekend ? false : dailyTotal < (minHrs)) || dailyTotal > (minHrs + maxHrs)
@@ -618,8 +622,8 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       );
     });
     const total = Object.values(projectTotals).reduce((total, value) => total + value, 0)
-    const invalidweeklyTotal = total < (timesheet_settings?.workingHours?.standardWeeklyHours || 40)
-    if (invalidweeklyTotal) {
+    const invalidweeklyTotal = total < (workingHours?.standardWeeklyHours ?? 40)
+    if (invalidweeklyTotal || total === 0) {
       setSubmitDisabled(true)
     }
     // const { balance, total } = calculateBalanceHours(projectName, projectTotals)
@@ -687,7 +691,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
     var color = null
     var balance = allocatedHours - expensedHours - (approvedTimeSheet ? 0 : projectTotals[projectName])
 
-    if (balance <= ((100 - (timesheet_settings?.workingHours?.projectFinalHours || 80)) / 100) * allocatedHours) {
+    if (balance <= ((100 - (workingHours?.projectFinalHours || 80)) / 100) * allocatedHours) {
       color = 'gold'
     }
     if (balance < 0 && allocatedHours) {

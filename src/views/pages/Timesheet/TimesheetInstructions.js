@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 const TimesheetInstructions = () => {
     const { session } = useSelector((state) => state.auth);
     const { timesheet_settings } = session?.user?.organization
+    const workingHours = session?.user?.role_type === 'contractor' ? timesheet_settings?.contractWorkingHours : timesheet_settings?.workingHours
 
     const instructions = (
         <Card
@@ -19,10 +20,10 @@ const TimesheetInstructions = () => {
             <h3 style={{ marginBottom: 10 }}>Please Note:</h3>
             <ul style={{ paddingLeft: 20 }}>
                 <li>
-                    <strong>Workday Time:</strong> The minimum time logged per workday should be <strong>greater than {timesheet_settings?.workingHours?.standardDailyHours || 8} hours</strong> and <strong>less than {timesheet_settings?.overtimeTracking?.maxOvertimeHours || 16} hours</strong>.
+                    <strong>Workday Time:</strong> The minimum time logged per workday should be <strong>greater than {workingHours?.standardDailyHours ?? 8} hours</strong> and <strong>less than {(workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours) || 24} hours</strong>.
                 </li>
                 <li>
-                    <strong>Workweek Time:</strong> The total minimum time logged per workweek should be <strong>greater than {timesheet_settings?.workingHours?.standardWeeklyHours || 40} hours</strong>.
+                    <strong>Workweek Time:</strong> The total minimum time logged per workweek should be <strong>greater than {workingHours?.standardWeeklyHours ?? 40} hours</strong>.
                 </li>
                 <li>
                     <strong>Balance Allocation:</strong> The balance time allocation should be <strong>less than {' '}

@@ -147,8 +147,24 @@ const TimesheetSettings = ({ locationId }) => {
                     </Form.Item> */}
                 </Panel>
 
-                {/* 4. Overtime Tracking
-                <Panel forceRender header="Overtime Tracking" key="4">
+                {/* 4. Contract Working Hours */}
+                <Panel forceRender header="Contract Working Hours" key="4">
+                    <Form.Item name={["contractWorkingHours", "standardDailyHours"]} label="Standard Daily Hours" disable >
+                        <InputNumber min={0} max={24} />
+                    </Form.Item>
+                    <Form.Item name={["contractWorkingHours", "maxOvertimeHours"]} label="Max Overtime Hours">
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    <Form.Item name={["contractWorkingHours", "standardWeeklyHours"]} label="Standard Weekly Hours" disable >
+                        <InputNumber min={0} max={168} />
+                    </Form.Item>
+                    <Form.Item name={["contractWorkingHours", "projectFinalHours"]} label="Project Warning Threshold(%)">
+                        <InputNumber min={1} max={100} />
+                    </Form.Item>
+                </Panel>
+
+                {/* 5. Overtime Tracking
+                <Panel forceRender header="Overtime Tracking" key="5">
                     <Form.Item name={["overtimeTracking", "enableOvertime"]} label="Enable Overtime" valuePropName="checked">
                         <Switch disabled />
                     </Form.Item>
@@ -163,8 +179,8 @@ const TimesheetSettings = ({ locationId }) => {
                     </Form.Item>
                 </Panel> */}
 
-                {/* 5. Break Policy */}
-                {/* <Panel forceRender header="Break Policy" key="5">
+                {/* 6. Break Policy */}
+                {/* <Panel forceRender header="Break Policy" key="6">
                     <Form.Item name={["breakPolicy", "enableBreakTracking"]} label="Enable Break Tracking" valuePropName="checked">
                         <Switch />
                     </Form.Item>

@@ -33,6 +33,7 @@ const Review = ({ date, employee, fetchData, reportDataRef }) => {
   const { session } = useSelector((state) => state.auth);
 
   const { timesheet_settings } = session?.user?.organization
+  const workingHours = session?.user?.role_type === 'contractor' ? timesheet_settings?.contractWorkingHours : timesheet_settings?.workingHours
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -278,8 +279,8 @@ const Review = ({ date, employee, fetchData, reportDataRef }) => {
         // render: (_, record) => calculateTotalHours(record),
         render: (_, record) => {
           const hours = calculateTotalHours(record)
-          var invalid = hours >= ((timesheet_settings?.workingHours?.standardDailyHours || 8) + (timesheet_settings?.overtimeTracking?.maxOvertimeHours || 16))
-          var warning = hours > (timesheet_settings?.workingHours?.standardDailyHours || 8)
+          var invalid = hours >= (((workingHours?.standardDailyHours + timesheet_settings?.overtimeTracking?.maxOvertimeHours) || 24))
+          var warning = hours > (workingHours?.standardDailyHours || 8)
           return <div
             // style={{ color: ((warning && !invalid) ? 'gold' : ((invalid) && 'red')) }}
             style={{
