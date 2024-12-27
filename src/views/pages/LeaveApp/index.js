@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { Button, Card, DatePicker, Tabs } from 'antd';
+import { Button, Card, DatePicker, Space, Tabs } from 'antd';
 import MyLeaves from './MyLeaves';
 import TeamLeaves from './TeamLeaves';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
+import HolidaysDrawer from 'components/common/Holidays';
 
 const { RangePicker } = DatePicker;
 
@@ -53,12 +54,17 @@ const LeaveApp = () => {
         <Card>
             <Tabs defaultActiveKey="1" activeKey={activeKey} onChange={(key) => setActiveKey(key)} items={tabItems}
                 tabBarExtraContent={
-                    <>
-                        {activeKey === '1' && <Button type="primary" className='mr-2' onClick={handleAddLeaveApplication} >
-                            Add Leave Application
-                        </Button>}
+                    <Space>
+                        {activeKey === '1' &&
+                            <>
+                                <HolidaysDrawer />
+                                <Button type="primary" className='mr-2' onClick={handleAddLeaveApplication} >
+                                    Add Leave Application
+                                </Button>
+                            </>
+                        }
                         <RangePicker value={dateRange} allowClear={false} onChange={onDateRangeChange} format="YYYY-MM-DD" />
-                    </>
+                    </Space>
                 }
             />
         </Card>
