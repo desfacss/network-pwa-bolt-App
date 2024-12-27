@@ -4,7 +4,11 @@ import { Table, Input, InputNumber, Select, DatePicker, Button } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
 
-const EditableTable = ({ value = [], onChange, schema }) => {
+const EditableTable = ({ value = [], onChange, schema, formContext }) => {
+    const { fullSchema, formData } = formContext;
+
+    console.log("Full Schema:", fullSchema); // Logs the entire schema object
+    console.log("Form Data:", formData);
     const [data, setData] = useState([]);
     const [projects, setProjects] = useState([]);
     const [users, setUsers] = useState([]);
