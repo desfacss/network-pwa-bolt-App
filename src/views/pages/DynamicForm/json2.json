@@ -8,7 +8,7 @@
                         "type": "string",
                         "default": "Default name"
                     },
-                    "name3": {
+                    "name1": {
                         "type": "string",
                         "default": "Default name"
                     },
@@ -48,7 +48,6 @@
             "minItemsList": {
                 "type": "array",
                 "title": "A list with a minimal number of items",
-                "minItems": 3,
                 "items": {
                     "$ref": "#/definitions/Thing"
                 }
