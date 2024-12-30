@@ -469,7 +469,7 @@ const Review = ({ date, employee, fetchData, reportDataRef }) => {
         approverUsername: session?.user?.user_name,
         comment,
         userEmail: users?.find(user => user?.id === existingTimesheet?.user_id)?.details?.email,
-        applicationDate: `for the Week Ending ${getNextSunday(existingTimesheet?.timesheet_date)}`,
+        applicationDate: `for the week ending ${getNextSunday(existingTimesheet?.timesheet_date)}`,
         reviewedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
       })]
 
@@ -690,7 +690,7 @@ const Review = ({ date, employee, fetchData, reportDataRef }) => {
         <Col>
           <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
           {/* <label className="ml-2 mr-2">{formatDate(currentDate)}</label> */}
-          <label className="ml-2 mr-2">Week Ending - {getSunday(currentDate)}</label>
+          <label className="ml-2 mr-2">Week ending - {getSunday(currentDate)}</label>
           {!hideNext && (
             <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))}>Next</Button>
           )}
@@ -707,7 +707,7 @@ const Review = ({ date, employee, fetchData, reportDataRef }) => {
         <div ref={reportDataRef} className="conditional-padding" >
           <div className="conditional-div">
             <h4>
-              Timesheet for Week Ending - {getSunday(currentDate)}
+              Timesheet for week ending - {getSunday(currentDate)}
             </h4>
             <h5>
               Employee: {employees?.find(emp => emp?.id === selectedEmployeesId)?.user_name}

@@ -301,7 +301,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
       approverEmail: users?.find(user => user?.id === approver_id)?.details?.email,
       hrEmails: users?.filter(user => user?.role_type === 'hr')?.map(user => user?.details?.email),
       // applicationDate: `for the week staring ${currentDate?.toISOString()?.slice(0, 10)?.replace("T", " ")}`,
-      applicationDate: `for the Week Ending ${getSunday(currentDate)}`,
+      applicationDate: `for the week ending ${getSunday(currentDate)}`,
       submittedTime: new Date(new Date)?.toISOString()?.slice(0, 19)?.replace("T", " "),
     })]
 
@@ -905,7 +905,7 @@ const Timesheet = forwardRef(({ startDate, endDate }, ref) => {
             <Col>
               <Button onClick={() => setCurrentDate(goToPrevious(viewMode, currentDate))}>Previous</Button>
               {/* <span className='m-2'>{currentDate.toDateString()}</span> */}
-              <span className='m-2'>Week Ending - {getSunday(currentDate)}</span>
+              <span className='m-2'>Week ending - {getSunday(currentDate)}</span>
               <Button onClick={() => setCurrentDate(goToNext(viewMode, currentDate))} disabled={hideNext}>Next</Button>
             </Col>
             {approvedTimeSheet ? timesheets?.find(e => e.id === existingTimesheetId)?.status : <Col>
