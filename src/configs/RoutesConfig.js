@@ -119,32 +119,37 @@ export const protectedRoutes = (feature) => {
 
 
 
-        // feature?.dynamicViews && {
-        feature?.rnd && {
-            key: 'ytasks',
-            path: `${APP_PREFIX_PATH}/ytasks`,
-            component: React.lazy(() => import('views/pages/DynamicTasks')),
-        },
-        feature?.rnd && {
-            key: 'ysales',
-            path: `${APP_PREFIX_PATH}/ysales`,
-            component: React.lazy(() => import('views/pages/DynamicSales')),
-        },
-        feature?.rnd && {
-            key: 'ysupport',
-            path: `${APP_PREFIX_PATH}/ysupport`,
-            component: React.lazy(() => import('views/pages/DynamicSupport')),
-        },
-        feature?.rnd && {
-            key: 'yclients',
-            path: `${APP_PREFIX_PATH}/yclients`,
-            component: React.lazy(() => import('views/pages/DynamicClients')),
-        },
-        feature?.rnd && {
-            key: 'yconfig',
-            path: `${APP_PREFIX_PATH}/yconfig`,
-            component: React.lazy(() => import('views/pages/DynamicConfig')),
-        },
+        // // feature?.dynamicViews && {
+        // feature?.rnd && {
+        //     key: 'ytasks',
+        //     path: `${APP_PREFIX_PATH}/ytasks`,
+        //     component: React.lazy(() => import('views/pages/DynamicTasks')),
+        // },
+        // feature?.rnd && {
+        //     key: 'ysales',
+        //     path: `${APP_PREFIX_PATH}/ysales`,
+        //     component: React.lazy(() => import('views/pages/DynamicSales')),
+        // },
+        // feature?.rnd && {
+        //     key: 'yformbuilder',
+        //     path: `${APP_PREFIX_PATH}/yform`,
+        //     component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
+        // },
+        // feature?.rnd && {
+        //     key: 'ysupport',
+        //     path: `${APP_PREFIX_PATH}/ysupport`,
+        //     component: React.lazy(() => import('views/pages/DynamicSupport')),
+        // },
+        // feature?.rnd && {
+        //     key: 'yclients',
+        //     path: `${APP_PREFIX_PATH}/yclients`,
+        //     component: React.lazy(() => import('views/pages/DynamicClients')),
+        // },
+        // feature?.rnd && {
+        //     key: 'yconfig',
+        //     path: `${APP_PREFIX_PATH}/yconfig`,
+        //     component: React.lazy(() => import('views/pages/DynamicConfig')),
+        // },
 
 
         // {
