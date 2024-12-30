@@ -36,8 +36,8 @@ const HolidaysDrawer = () => {
 
     return (
         <div>
-            <Button type="primary" onClick={() => setIsDrawerOpen(true)}>
-                Holidays
+            <Button onClick={() => setIsDrawerOpen(true)}>
+                View Holidays
             </Button>
             <Drawer
                 title={`Public Holidays ( ${location?.name} )`}
