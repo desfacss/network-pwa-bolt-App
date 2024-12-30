@@ -18,10 +18,10 @@ import Dashboard from '../DynamicViews/Dashboard';
 import ExportImportButtons from '../DynamicViews/CSVOptions';
 // import SchedularView from '../DynamicViews/SchedularView';
 // import MyScheduler from '../DynamicViews/Dk';
-import DynamicTable from '../DynamicTable/index';
+// import DynamicTable from '../DynamicTable/index';
 import SchedulerView from '../DynamicViews/SchedularView';
 
-const entityType = 'y_sales'
+const entityType = 'y_projects'
 const dataConfig = 'y_sales.details'
 
 
@@ -469,7 +469,6 @@ const Index = () => {
     }
     return (
         <Card ref={divRef}>
-            <DynamicTable />
             {(data && viewConfig) && <Tabs
                 tabBarExtraContent={ //Global filters
                     <div style={{ display: "flex", alignItems: "center" }}>

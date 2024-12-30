@@ -1,0 +1,81 @@
+{
+    "data_schema": {
+        "definitions": {
+            "Thing": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "Default name"
+                    },
+                    "name3": {
+                        "type": "string",
+                        "default": "Default name"
+                    },
+                    "bull": {
+                        "type": "boolean"
+                    },
+                    "day": {
+                        "type": "string",
+                        "title_": "Start Date",
+                        "field_": "start_date",
+                        "format": "date-time"
+                    }
+                }
+            }
+        },
+        "type": "object",
+        "properties": {
+            "fixedItemsList": {
+                "type": "array",
+                "title": "A list of fixed items",
+                "items": [
+                    {
+                        "title": "A string value",
+                        "type": "string",
+                        "default": "lorem ipsum"
+                    },
+                    {
+                        "title": "a boolean value",
+                        "type": "boolean"
+                    }
+                ],
+                "additionalItems": {
+                    "title": "Additional item",
+                    "type": "number"
+                }
+            },
+            "minItemsList": {
+                "type": "array",
+                "title": "A list with a minimal number of items",
+                "minItems": 3,
+                "items": {
+                    "$ref": "#/definitions/Thing"
+                }
+            }
+        }
+    },
+    "ui_schema": {
+        "fixedItemsList": {
+            "items": [
+                {
+                    "ui:widget": "textarea"
+                },
+                {
+                    "ui:widget": "select"
+                }
+            ],
+            "additionalItems": {
+                "ui:widget": "updown"
+            }
+        },
+        "minItemsList": {
+            "ui:widget": "EditableTableWidget",
+            "ui:options": {
+                "addable": true,
+                "orderable": true,
+                "removable": true
+            }
+        }
+    }
+}
