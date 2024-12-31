@@ -22,27 +22,7 @@ import ExportImportButtons from '../DynamicViews/CSVOptions';
 import SchedulerView from '../DynamicViews/SchedularView';
 
 const entityType = 'y_projects'
-// const dataConfig = 'y_sales.details'
 
-// const dataConfig = {
-//     table: 'y_projects', // Main table to operate on
-//     columns: { // Specific columns in the table to update
-//         details: 'details', // Map field to column
-//         // status: 'status',
-//         // related_data: 'related_data'
-//     },
-//     secondaryOperations: [ // Array to handle additional table operations
-//         {
-//             table: 'allocations_duplicate',
-//             rows: 'minItemsList', // Field in `formData` that contains the array of rows to insert
-//             map: { // Map formData fields to table columns
-//                 // sales_id: 'id',
-//                 // related_id: 'related_id'
-//                 name: 'name'
-//             }
-//         }
-//     ]
-// };
 const dataConfig = {
     mainTable: {
         table: 'y_projects',
@@ -54,6 +34,12 @@ const dataConfig = {
         mapping: {
             name: 'name',
             day: 'day'
+        },
+        additionalFields: { // Additional fields to include in each row
+            // mainEntityId: 'project_id', // Adding the mainEntityId to allocations rows
+            project_id: 'mainEntityId', // `project_id` in allocations table will map to `formData.id`
+            name: '10dad5b9-43c2-45c4-b7fa-d876323f52fz', // `project_id` in allocations table will map to `formData.id`
+            // fixedField: 'fixedValue' // Can also use a fixed value if needed
         },
         wholeRowColumn: 'details' // Optional: Specify if the entire row should be stored in one column (set to column name or `null`)
     }
@@ -70,17 +56,6 @@ const Index = () => {
     const [vd, setVd] = useState();
     const [isFullscreen, setIsFullscreen] = useState(false);
     const { activeTab, onTabChange } = useTabWithHistory("1");
-
-    // useEffect(() => {
-    //     const handleFullscreenChange = () => {
-    //         setIsFullscreen(!!document.fullscreenElement);
-    //     };
-
-    //     document.addEventListener("fullscreenchange", handleFullscreenChange);
-    //     return () => {
-    //         document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    //     };
-    // }, []);
 
     const divRef = useRef(null);
 
@@ -271,153 +246,6 @@ const Index = () => {
         }
     };
 
-    // const handleAddOrEdit = async (formData, editItem) => {
-    //     console.log("ei", formData, editItem)
-    //     let { status, related_data, date_time_range, id, ...details } = formData
-    //     if (date_time_range && date_time_range.length === 2) {
-    //         details.start_date = new Date(date_time_range[0]).toISOString();
-    //         details.due_date = new Date(date_time_range[1]).toISOString();
-    //     }
-    //     if (editItem) {
-    //         if (editItem?.status !== undefined) {
-    //             details.status = status;
-    //         }
-    //         // Update logic
-    //         const { data, error } = await supabase
-    //             .from(entityType)
-    //             .update({ details: details, organization_id: session?.user?.organization?.id })
-    //             .eq('id', editItem.id)
-    //             .select('*');
-
-    //         if (error) {
-    //             notification.error({ message: 'Failed to update' });
-    //         } else {
-    //             if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
-    //                 await handleWorkflowTransition(editItem.id, formData);
-    //             } else {
-    //                 fetchData()
-    //             }
-    //         }
-    //     } else {
-    //         // Add logic
-    //         const { data, error } = await supabase
-    //             .from(entityType)
-    //             .insert([{ details: details, organization_id: session?.user?.organization?.id }])
-    //             .select('*');
-
-    //         if (error) {
-    //             notification.error({ message: 'Failed to add' });
-    //         } else {
-    //             const newEntityId = data[0]?.id;
-    //             const { data: vd, error } = await supabase.rpc('initialize_workflow_instance_v4', {
-    //                 entitytype: entityType,
-    //                 entityid: newEntityId,
-    //             });
-
-    //             if (error) {
-    //                 notification.error({ message: 'Failed to initialize workflow instance' });
-    //             } else {
-    //                 notification.success({ message: 'Added successfully' });
-    //                 fetchData()
-    //                 // await handleWorkflowTransition(newEntityId, formData);
-    //             }
-    //         }
-    //     }
-    // };
-
-    // const handleAddOrEdit = async (formData, editItem) => {
-    //     console.log("ei", formData, editItem);
-
-    //     let { id, date_time_range, ...remainingFormData } = formData;
-
-    //     // Handle date_time_range
-    //     if (date_time_range && date_time_range.length === 2) {
-    //         remainingFormData.start_date = new Date(date_time_range[0]).toISOString();
-    //         remainingFormData.due_date = new Date(date_time_range[1]).toISOString();
-    //     }
-
-    //     const mainTable = dataConfig.table;
-    //     const columnMappings = dataConfig.columns;
-    //     const secondaryOps = dataConfig.secondaryOperations;
-
-    //     const mainTableData = {};
-
-    //     // Map fields to main table columns
-    //     Object.keys(columnMappings).forEach(key => {
-    //         if (formData[key] !== undefined) {
-    //             mainTableData[columnMappings[key]] = formData[key];
-    //         }
-    //     });
-
-    //     if (editItem) {
-    //         // Update logic
-    //         const { data, error } = await supabase
-    //             .from(mainTable)
-    //             .update(mainTableData)
-    //             .eq('id', editItem.id)
-    //             .select('*');
-
-    //         if (error) {
-    //             notification.error({ message: 'Failed to update' });
-    //             return;
-    //         }
-
-    //         // Handle secondary operations (e.g., inserting into related tables)
-    //         await handleSecondaryOperations(secondaryOps, formData, editItem.id);
-
-    //         fetchData();
-    //     } else {
-    //         // Insert logic
-    //         const { data, error } = await supabase
-    //             .from(mainTable)
-    //             .insert([mainTableData])
-    //             .select('*');
-
-    //         if (error) {
-    //             notification.error({ message: 'Failed to add' });
-    //             return;
-    //         }
-
-    //         const newEntityId = data[0]?.id;
-
-    //         // Handle secondary operations (e.g., inserting into related tables)
-    //         await handleSecondaryOperations(secondaryOps, formData, newEntityId);
-
-    //         notification.success({ message: 'Added successfully' });
-    //         fetchData();
-    //     }
-    // };
-
-    // const handleSecondaryOperations = async (operations, formData, mainEntityId) => {
-    //     for (const operation of operations) {
-    //         const { table, rows, map } = operation;
-    //         const dataArray = formData[rows];
-
-    //         if (Array.isArray(dataArray)) {
-    //             const formattedRows = dataArray.map(item => {
-    //                 const newRow = {};
-    //                 Object.keys(map).forEach(key => {
-    //                     if (key === 'sales_id') {
-    //                         newRow[map[key]] = mainEntityId; // Assign main entity ID
-    //                     } else {
-    //                         newRow[map[key]] = item[key];
-    //                     }
-    //                 });
-    //                 return newRow;
-    //             });
-
-    //             const { data, error } = await supabase
-    //                 .from(table)
-    //                 .insert(formattedRows);
-
-    //             if (error) {
-    //                 notification.error({ message: `Failed to insert into ${table}` });
-    //                 console.error('Error:', error);
-    //             }
-    //         }
-    //     }
-    // };
-
     const handleAddOrEdit = async (formData, editItem) => {
         const { mainTable, allocationsTable } = dataConfig;
 
@@ -438,7 +266,7 @@ const Index = () => {
             // Insert into main table
             const { data, error } = await supabase
                 .from(mainTable.table)
-                .insert([{ [mainTable.column]: formData }])
+                .insert([{ [mainTable.column]: formData, organization_id: session?.user?.organization_id }])
                 .select('*');
 
             if (error) {
@@ -456,11 +284,11 @@ const Index = () => {
     };
 
     const handleAllocations = async (formData, allocationsTable, mainEntityId) => {
-        const { table, rows, mapping, wholeRowColumn } = allocationsTable;
+        const { table, rows, mapping, additionalFields, wholeRowColumn } = allocationsTable;
         const itemsList = formData[rows];
 
         if (Array.isArray(itemsList)) {
-            const formattedRows = itemsList.map(item => {
+            const formattedRows = itemsList?.map(item => {
                 const newRow = {};
 
                 // If wholeRowColumn is specified, store the entire row as a single value
@@ -473,71 +301,39 @@ const Index = () => {
                     });
                 }
 
-                return newRow;
-            });
+                // Add additional fields to each row
+                if (additionalFields) {
+                    Object.keys(additionalFields).forEach(fieldKey => {
+                        const fieldValue = additionalFields[fieldKey];
 
+                        // If the value in additionalFields is 'mainEntityId', use the mainEntityId
+                        if (fieldValue === 'mainEntityId') {
+                            newRow[fieldKey] = mainEntityId;
+                        } else if (formData[fieldValue] !== undefined) {
+                            // Otherwise, use the value from formData
+                            newRow[fieldKey] = formData[fieldValue];
+                        } else {
+                            // If no value in formData, use the fixed value specified in additionalFields
+                            newRow[fieldKey] = fieldValue;
+                        }
+                    });
+                }
+
+                return { ...newRow, organization_id: session?.user?.organization_id };
+            });
+            console.log("rw", formattedRows)
             // Insert rows into allocations table
             const { data, error } = await supabase
                 .from(table)
                 .insert(formattedRows);
 
             if (error) {
-                notification.error({ message: 'Failed to add to allocations table' });
+                notification.error({ message: `Failed to add to ${table}` });
                 console.error('Error:', error);
             }
         }
     };
 
-
-
-    // const handleAddOrEdit = async (formData, editItem) => {
-    //     console.log(formData, editItem)
-    //     delete formData?.id
-    //     if (editItem) {
-    //         // Update logic
-    //         const { data, error } = await supabase.from(entityType).update({ details: formData, organization_id: session?.user?.organization?.id }).eq('id', editItem.id).select('*');
-    //         if (error) {
-    //             notification.error({ message: 'Failed to update task' });
-    //         } else {
-    //             const { data: vd, error } = await supabase
-    //                 .rpc('transition_workflow_stage_v4', {
-    //                     entitytype: entityType,
-    //                     entityid: data[0]?.id,
-    //                     newstagename: formData?.status,
-    //                     userid: session?.user?.id,
-    //                     reason: "",
-    //                 });
-    //             console.log("q", data[0]?.id, error, formData, editItem, vd)
-    //             if (error) {
-    //                 console.error('Error fetching data:', error);
-    //             } else {
-    //                 handleModalOpen({ ...vd, id: editItem.id, details: formData })
-    //                 fetchData();
-    //                 notification.success({ message: 'Task updated successfully' });
-    //             }
-    //         }
-    //     } else {
-    //         // Add logic
-    //         const { data, error } = await supabase.from(entityType).insert([{ details: formData, organization_id: session?.user?.organization?.id }]).select('*');
-    //         if (error) {
-    //             notification.error({ message: 'Failed to add task' });
-    //         } else {
-    //             console.log("q", data[0]?.id, formData?.name)
-    //             const { data: vd, error } = await supabase
-    //                 .rpc('initialize_workflow_instance_v4', {
-    //                     entitytype: entityType,
-    //                     entityid: data[0]?.id,
-    //                 });
-    //             console.log("w", error, vd)
-    //             if (error) {
-    //                 console.error('Error fetching data:', error);
-    //             } else {
-    //                 fetchData();
-    //                 notification.success({ message: 'Added successfully' });
-    //             }
-    //         }
-    //     }
-    // };
     const tabItems = [];
     if (viewConfig?.tableview) {
         tabItems.push({
