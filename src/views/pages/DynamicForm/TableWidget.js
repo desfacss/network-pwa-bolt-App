@@ -58,6 +58,18 @@ const EditableTableWidget = ({
                         />
                     );
                 }
+                if (fieldSchema.enum) {
+                    return (
+                        <Select
+                            value={cellValue}
+                            onChange={(value) => handleChangeCell(index, key, value)}
+                            options={fieldSchema.enum.map((option, i) => ({
+                                label: fieldSchema?.enumNames[i],
+                                value: option,
+                            }))}
+                        />
+                    );
+                }
                 if (fieldSchema.type === "string") {
                     return (
                         <Input
@@ -71,18 +83,6 @@ const EditableTableWidget = ({
                         <Checkbox
                             checked={!!cellValue}
                             onChange={(e) => handleChangeCell(index, key, e.target.checked)}
-                        />
-                    );
-                }
-                if (fieldSchema.enum) {
-                    return (
-                        <Select
-                            value={cellValue}
-                            onChange={(value) => handleChangeCell(index, key, value)}
-                            options={fieldSchema.enum.map((option) => ({
-                                label: option,
-                                value: option,
-                            }))}
                         />
                     );
                 }

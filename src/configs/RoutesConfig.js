@@ -116,7 +116,41 @@ export const protectedRoutes = (feature) => {
         //     component: React.lazy(() => import('views/pages/Jobs')),
         // },
 
-
+        feature?.rnd && {
+            key: 'ytasks',
+            path: `${APP_PREFIX_PATH}/ytasks`,
+            component: React.lazy(() => import('views/pages/DynamicTasks')),
+        },
+        feature?.rnd && {
+            key: 'ysales',
+            path: `${APP_PREFIX_PATH}/ysales`,
+            component: React.lazy(() => import('views/pages/DynamicSales')),
+        },
+        feature?.rnd && {
+            key: 'yprojects',
+            path: `${APP_PREFIX_PATH}/yprojects`,
+            component: React.lazy(() => import('views/pages/DynamicProjects')),
+        },
+        feature?.rnd && {
+            key: 'ysupport',
+            path: `${APP_PREFIX_PATH}/ysupport`,
+            component: React.lazy(() => import('views/pages/DynamicSupport')),
+        },
+        feature?.rnd && {
+            key: 'yclients',
+            path: `${APP_PREFIX_PATH}/yclients`,
+            component: React.lazy(() => import('views/pages/DynamicClients')),
+        },
+        feature?.rnd && {
+            key: 'yconfig',
+            path: `${APP_PREFIX_PATH}/yconfig`,
+            component: React.lazy(() => import('views/pages/DynamicConfig')),
+        },
+        feature?.rnd && {
+            key: 'yform',
+            path: `${APP_PREFIX_PATH}/yform`,
+            component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
+        },
 
 
         // // feature?.dynamicViews && {

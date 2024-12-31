@@ -16,10 +16,10 @@ import { toggleFullscreen } from 'components/common/utils';
 import useTabWithHistory from 'components/common/TabHistory';
 import Dashboard from '../DynamicViews/Dashboard';
 import ExportImportButtons from '../DynamicViews/CSVOptions';
-// import SchedularView from '../DynamicViews/SchedularView';
+// import ScheduleView from '../DynamicViews/ScheduleView';
 // import MyScheduler from '../DynamicViews/Dk';
-import DynamicTable from '../DynamicTable/index';
-import SchedulerView from '../DynamicViews/SchedularView';
+import SchedularView from '../DynamicViews/SchedularView';
+import ScheduleView from '../DynamicViews/ScheduleView';
 
 const entityType = 'y_sales'
 const dataConfig = 'y_sales.details'
@@ -142,7 +142,7 @@ const Index = () => {
                     }
                 }
             }
-            console.log("Data", data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
+            console.log("Data", data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })), data)// data.map(task => ({ ...task.details, id: task?.id })))
             setRawData(data);
             setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));
         }
@@ -387,8 +387,9 @@ const Index = () => {
         tabItems.push({
             label: 'Schedule',
             key: '7',
-            // children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
-            children: <SchedulerView />,
+            children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            // children: <ScheduleView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            // children: <SchedulerView />,
         })
     }
     if (viewConfig?.dashboardview) {
@@ -469,7 +470,6 @@ const Index = () => {
     }
     return (
         <Card ref={divRef}>
-            <DynamicTable />
             {(data && viewConfig) && <Tabs
                 tabBarExtraContent={ //Global filters
                     <div style={{ display: "flex", alignItems: "center" }}>
