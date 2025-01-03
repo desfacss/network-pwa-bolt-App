@@ -11,6 +11,7 @@ import "./lang";
 import { setSession } from "store/slices/authSlice";
 import { supabase } from "configs/SupabaseConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { indexedDB } from "state/services/indexedDB";
 // import { store } from "../store";
 
 const themes = {
@@ -18,8 +19,11 @@ const themes = {
   light: `${process.env.PUBLIC_URL}/css/light-theme.css`,
 };
 
-function App() {
+(async () => {
+  await indexedDB.init();
+})();
 
+function App() {
   // useEffect(() => {
   //   // Fetch the session and user data
   //   const fetchUserData = async (session) => {
