@@ -97,6 +97,7 @@ const ScheduleView = () => {
   );
 
   // Use DemoData for sample resources and events
+  console.log("DD", DemoData)
   schedulerData.setResources(DemoData.resources);
   schedulerData.setEvents(DemoData.events);
 

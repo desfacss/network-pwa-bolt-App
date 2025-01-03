@@ -16,10 +16,12 @@ import { toggleFullscreen } from 'components/common/utils';
 import useTabWithHistory from 'components/common/TabHistory';
 import Dashboard from '../DynamicViews/Dashboard';
 import ExportImportButtons from '../DynamicViews/CSVOptions';
-// import SchedularView from '../DynamicViews/SchedularView';
 // import MyScheduler from '../DynamicViews/Dk';
 // import DynamicTable from '../DynamicTable/index';
-import SchedulerView from '../DynamicViews/SchedularView';
+// import SchedulerView from '../DynamicViews/SchedularView';
+
+import SchedularView from '../DynamicViews/SchedularView';
+import ScheduleView from '../DynamicViews/ScheduleView';
 
 const entityType = 'y_projects'
 
@@ -381,8 +383,8 @@ const Index = () => {
         tabItems.push({
             label: 'Schedule',
             key: '7',
-            // children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
-            children: <SchedulerView />,
+            children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            // children: <ScheduleView />,
         })
     }
     if (viewConfig?.dashboardview) {
