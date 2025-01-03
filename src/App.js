@@ -10,6 +10,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import "./lang";
 import { setSession } from "store/slices/authSlice";
 import { supabase } from "configs/SupabaseConfig";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { store } from "../store";
 
 const themes = {
@@ -67,18 +68,18 @@ function App() {
   //   return () => subscription.unsubscribe();
   // }, [supabase]);
 
+  // Create a QueryClient instance
+  const queryClient = new QueryClient();
 
   return (
     <div className="App">
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <BrowserRouter history={history}>
-            <ThemeSwitcherProvider
-              themeMap={themes}
-              defaultTheme={THEME_CONFIG.currentTheme}
-              insertionPoint="styles-insertion-point"
-            >
-              <Layouts />
+            <ThemeSwitcherProvider themeMap={themes} defaultTheme={THEME_CONFIG.currentTheme} insertionPoint="styles-insertion-point" >
+              <QueryClientProvider client={queryClient}>
+                <Layouts />
+              </QueryClientProvider>
             </ThemeSwitcherProvider>
           </BrowserRouter>
         </PersistGate>

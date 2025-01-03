@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { supabase } from 'configs/SupabaseConfig';
 import { useReactToPrint } from 'react-to-print';
 import { FilePdfFilled } from '@ant-design/icons';
+// import jsPDF from 'jspdf';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -20,10 +21,38 @@ const DashboardTabs = () => {
     const dateFormat = 'YYYY/MM/DD';
     const reportDataRef = useRef(null);
     const [loading, setLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState("1");
+
+    // // Generate dynamic file name
+    // const generateFileName = () => {
+    //     const startDate = dateRange[0].format("YYYY-MM-DD");
+    //     const endDate = dateRange[1].format("YYYY-MM-DD");
+    //     const range = `${startDate}_to_${endDate}`;
+
+    //     if (activeTab === "1") {
+    //         // Project Summary tab
+    //         const user = selectedUserId || "All";
+    //         return `Project_Summary_${user}_${range}.pdf`;
+    //     } else if (activeTab === "2") {
+    //         // Employee Summary tab
+    //         const project = selectedProjectName || "All";
+    //         return `Employee_Summary_${project}_${range}.pdf`;
+    //     }
+
+    //     return `Report_${range}.pdf`;
+    // };
 
     const handlePrint = useReactToPrint({
-        // content: () => reportDataRef?.current,
-        contentRef: reportDataRef
+        contentRef: reportDataRef//,
+        // onBeforePrint: () => {
+        //     const fileName = generateFileName();
+        //     console.log("Printing with file name:", fileName);
+        //     const doc = new jsPDF();
+        //     doc.save(fileName);
+        //     return Promise.resolve();
+        //     // Note: React-to-Print doesn't directly allow file naming. To save PDFs with custom names,
+        //     // you may need a library like jsPDF instead.
+        // }
     })
 
     const [selectedUserId, setSelectedUserId] = useState(null);
@@ -337,7 +366,7 @@ const DashboardTabs = () => {
 
     return (
         <div ref={reportDataRef} className='report-container'>
-            <Tabs defaultActiveKey="1"
+            <Tabs defaultActiveKey="1" onChange={setActiveTab}
                 tabBarExtraContent={
                     <>
                         <RangePicker defaultValue={[defaultStartDate, defaultEndDate]} allowClear={false}
