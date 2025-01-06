@@ -1,24 +1,45 @@
 //#dynamicState/index.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from 'api/supabaseClient';
 import { syncQueue } from 'state/services/offline/syncQueue';
 import useTableStore from 'state/stores/useTable';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
+import dayjs from 'dayjs'; // Ensure dayjs is imported
 
 const { RangePicker } = DatePicker;
 
 const StateTable = () => {
-    const { items, filters, pagination, setItems, setFilters, setPagination, addItem, updateItem, deleteItem } = useTableStore();
+    const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore();
     const [isOnline, setIsOnline] = useState(true);
     const queryClient = useQueryClient();
+
+    // Persist filter state using sessionStorage
+    const [filters, setFilters] = useState(() => {
+        const savedState = sessionStorage.getItem('filters');
+        if (savedState) {
+            const parsedState = JSON.parse(savedState);
+            return {
+                ...parsedState,
+                dateRange: parsedState.dateRange ? parsedState.dateRange.map(dateString => dayjs(dateString)) : []
+            };
+        }
+        return { dateRange: [dayjs(), dayjs()] };
+    });
+
+    useEffect(() => {
+        sessionStorage.setItem('filters', JSON.stringify({
+            ...filters,
+            dateRange: filters.dateRange ? filters.dateRange.map(date => date.toISOString()) : []
+        }));
+    }, [filters]);
 
     useEffect(() => {
         const unsubscribe = networkMonitor.onOnline(state => {
             setIsOnline(state);
             if (state) {
-                queryClient.invalidateQueries('data'); // Refetch data when back online
+                queryClient.invalidateQueries('data'); 
             }
         });
         return () => unsubscribe();
@@ -28,17 +49,16 @@ const StateTable = () => {
         const [, filters, pagination] = queryKey;
         let query = supabase
             .from('y_state')
-            .select('*', { count: 'exact' });
+            .select('id, name, updated_at', { count: 'exact' });
     
         if (filters.dateRange && filters.dateRange.length === 2) {
-            const [startDate, endDate] = filters.dateRange;
-            const startIso = startDate.startOf('day').toISOString().split('T')[0]; // Only the date part
-            const endIso = endDate.endOf('day').toISOString().split('T')[0];       // Only the date part
-    
-            // Assuming 'updated_at' can be either '2025-01-06 13:21:02' or '2025-01-06T13:21:02.173985'
+            const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
+            const startIso = startDate.startOf('day').toISOString().split('T')[0]; 
+            const endIso = endDate.endOf('day').toISOString().split('T')[0];       
+
             query = query
-                .gte('updated_at', `${startIso} 00:00:00`) // Start of day
-                .lte('updated_at', `${endIso} 23:59:59`);  // End of day
+                .gte('updated_at', `${startIso} 00:00:00`) 
+                .lte('updated_at', `${endIso} 23:59:59`);
         }
     
         query = query.range((pagination.current - 1) * pagination.pageSize, pagination.current * pagination.pageSize - 1);
@@ -53,6 +73,9 @@ const StateTable = () => {
     const { data, isLoading } = useQuery({
         queryKey: ['data', filters, pagination], 
         queryFn: fetchData,
+        staleTime: 1000 * 60 * 5,
+        cacheTime: 1000 * 60 * 30,
+        refetchOnWindowFocus: false,
     });
 
     const createMutation = useMutation({
@@ -67,8 +90,23 @@ const StateTable = () => {
                 syncQueue.addToQueue({ type: 'create', item });
             }
         },
-        onSuccess: () => queryClient.invalidateQueries('data'),
-        onError: (error) => console.error(error),  // Add error handling
+        onMutate: async (newItem) => {
+            await queryClient.cancelQueries('data');
+            const previousData = queryClient.getQueryData('data');
+            queryClient.setQueryData('data', (old) => {
+                if (old && old.items) {
+                    return { ...old, items: [...old.items, newItem] };
+                }
+                return old;
+            });
+            return { previousData };
+        },
+        onError: (err, newItem, context) => {
+            queryClient.setQueryData('data', context.previousData);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries('data');
+        }
     });
 
     const updateMutation = useMutation({
@@ -82,8 +120,26 @@ const StateTable = () => {
                 syncQueue.addToQueue({ type: 'update', item: updatedItem });
             }
         },
-        onSuccess: () => queryClient.invalidateQueries('data'),
-        onError: (error) => console.error(error),  // Add error handling
+        onMutate: async ({ id, ...updatedItem }) => {
+            await queryClient.cancelQueries('data');
+            const previousData = queryClient.getQueryData('data');
+            queryClient.setQueryData('data', (old) => {
+                if (old && old.items) {
+                    return {
+                        ...old,
+                        items: old.items.map(item => item.id === id ? { ...item, ...updatedItem } : item)
+                    };
+                }
+                return old;
+            });
+            return { previousData };
+        },
+        onError: (err, { id, ...updatedItem }, context) => {
+            queryClient.setQueryData('data', context.previousData);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries('data');
+        }
     });
 
     const deleteMutation = useMutation({
@@ -96,8 +152,26 @@ const StateTable = () => {
                 syncQueue.addToQueue({ type: 'delete', id });
             }
         },
-        onSuccess: () => queryClient.invalidateQueries('data'),
-        onError: (error) => console.error(error),  // Add error handling
+        onMutate: async (id) => {
+            await queryClient.cancelQueries('data');
+            const previousData = queryClient.getQueryData('data');
+            queryClient.setQueryData('data', (old) => {
+                if (old && old.items) {
+                    return {
+                        ...old,
+                        items: old.items.filter(item => item.id !== id)
+                    };
+                }
+                return old;
+            });
+            return { previousData };
+        },
+        onError: (err, id, context) => {
+            queryClient.setQueryData('data', context.previousData);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries('data');
+        }
     });
 
     const [form] = Form.useForm();
@@ -106,7 +180,15 @@ const StateTable = () => {
         form.resetFields();
     };
 
-    const columns = [
+    const onDateRangeChange = (dates) => {
+        if (dates && dates.length === 2) {
+            setFilters({ ...filters, dateRange: dates.map(date => dayjs(date)) });
+        } else {
+            setFilters({ ...filters, dateRange: [] });
+        }
+    };
+
+    const columns = useMemo(() => [
         { title: 'Name', dataIndex: 'name', key: 'name' },
         { title: 'Updated Date', dataIndex: 'updated_at', key: 'updated_at' },
         {
@@ -120,7 +202,7 @@ const StateTable = () => {
                 </Space>
             ),
         },
-    ];
+    ], []);
 
     if (isLoading) return <div>Loading...</div>;
 
@@ -128,9 +210,7 @@ const StateTable = () => {
         <div style={{ padding: 20 }}>
             <Space style={{ marginBottom: 20 }}>
                 <RangePicker
-                    onChange={(dates, dateStrings) => {
-                        setFilters({ dateRange: dates });
-                    }}
+                    onChange={onDateRangeChange}
                     value={filters.dateRange}
                     allowClear
                 />
