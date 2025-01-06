@@ -1,18 +1,19 @@
 //#dynamicState/index.js
 import React, { useState, useEffect, useMemo } from 'react';
-import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
+import { Table, DatePicker, Space, Button, Input, Form, Skeleton } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from 'api/supabaseClient';
 import { syncQueue } from 'state/services/offline/syncQueue';
 import useTableStore from 'state/stores/useTable';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
-import dayjs from 'dayjs'; // Ensure dayjs is imported
+import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
 
 const StateTable = () => {
     const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore();
     const [isOnline, setIsOnline] = useState(true);
+    // const [previousData, setPreviousData] = useState(null); no old data
     const queryClient = useQueryClient();
 
     // Persist filter state using sessionStorage
@@ -27,7 +28,7 @@ const StateTable = () => {
         }
         return { dateRange: [dayjs(), dayjs()] };
     });
-
+    
     useEffect(() => {
         sessionStorage.setItem('filters', JSON.stringify({
             ...filters,
@@ -69,13 +70,16 @@ const StateTable = () => {
     
         return { items: data, total: count };
     };
-
-    const { data, isLoading } = useQuery({
+    // const { data, isLoading, isFetching } = useQuery({ 
+    const { data, isLoading } = useQuery({  // Include isFetching here
         queryKey: ['data', filters, pagination], 
         queryFn: fetchData,
         staleTime: 1000 * 60 * 5,
         cacheTime: 1000 * 60 * 30,
         refetchOnWindowFocus: false,
+        // onSuccess: (data) => {
+        //     setPreviousData({ items: data.items, total: data.total });
+        // }
     });
 
     const createMutation = useMutation({
@@ -205,6 +209,10 @@ const StateTable = () => {
     ], []);
 
     if (isLoading) return <div>Loading...</div>;
+    // if (isLoading && !previousData) return <Skeleton active />;
+
+    // const tableData = isFetching && previousData ? previousData.items : (isOnline ? data?.items : items);
+    // const totalCount = isFetching && previousData ? previousData.total : (isOnline ? data?.total : items.length);
 
     return (
         <div style={{ padding: 20 }}>
@@ -218,7 +226,7 @@ const StateTable = () => {
                     Apply Filters
                 </Button>
             </Space>
-            <Form form={form} onFinish={onFinish} layout="inline">
+            {/* <Form form={form} onFinish={onFinish} layout="inline">
                 <Form.Item name="name" label="Name" rules={[{ required: true }]}>
                     <Input placeholder="Name" />
                 </Form.Item>
@@ -227,7 +235,9 @@ const StateTable = () => {
                         Add
                     </Button>
                 </Form.Item>
-            </Form>
+            </Form> */}
+            {/* RPC Function goes here... */}
+
             <Table
                 columns={columns}
                 dataSource={isOnline ? data?.items : items}
@@ -239,6 +249,17 @@ const StateTable = () => {
                 }}
                 loading={isLoading || createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading}
             />
+            {/* <Table
+                columns={columns}
+                dataSource={tableData}
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    total: totalCount,
+                    onChange: (current, pageSize) => setPagination({ current, pageSize }),
+                }}
+                loading={isLoading || isFetching || createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading}
+            /> */}
         </div>
     );
 };
