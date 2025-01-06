@@ -24,6 +24,7 @@ export const useRecords = (tableId) => {
             const { data, error } = await supabase
                 .from(tableId)
                 .select('*')
+                .order('id', { ascending: true })
             // .eq('organization_id', user?.organization_id);;
 
             if (error) throw error;
@@ -37,6 +38,57 @@ export const useRecords = (tableId) => {
             throw error;
         }
     };
+    const addRecord = useMutation({
+        mutationFn: async (newData) => {
+            // Optimistic update
+            queryClient.setQueryData(['records', tableId], (old) => [...(old || []), newData]);
+
+            try {
+                const { data, error } = await supabase.from(tableId).insert(newData);
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                queryClient.invalidateQueries(['records', tableId]);
+                throw error;
+            }
+        },
+    });
+
+    const updateRecord = useMutation({
+        mutationFn: async ({ id, ...updates }) => {
+            // Optimistic update
+            queryClient.setQueryData(['records', tableId], (old) =>
+                old.map((record) => (record.id === id ? { ...record, ...updates } : record))
+            );
+
+            try {
+                const { data, error } = await supabase.from(tableId).update(updates).eq('id', id);
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                queryClient.invalidateQueries(['records', tableId]);
+                throw error;
+            }
+        },
+    });
+
+    const deleteRecord = useMutation({
+        mutationFn: async (id) => {
+            // Optimistic update
+            queryClient.setQueryData(['records', tableId], (old) =>
+                old.filter((record) => record.id !== id)
+            );
+
+            try {
+                const { data, error } = await supabase.from(tableId).delete().eq('id', id);
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                queryClient.invalidateQueries(['records', tableId]);
+                throw error;
+            }
+        },
+    });
 
     const mutation = useMutation({
         mutationFn: async (newData) => {
@@ -70,6 +122,9 @@ export const useRecords = (tableId) => {
             cacheTime: 1 * 60 * 1000,
             refetchInterval: 15000,
         }),
-        mutation,
+        // mutation,
+        addRecord,
+        updateRecord,
+        deleteRecord,
     };
 };

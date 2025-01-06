@@ -74,6 +74,11 @@ class IndexedDBService {
                     const syncStore = db.createObjectStore('syncQueue', { keyPath: 'id' });
                     syncStore.createIndex('timestamp', 'timestamp');
                 }
+                // Create data store with indexes
+                if (!db.objectStoreNames.contains('data')) {
+                    const dataStore = db.createObjectStore('data', { keyPath: 'id' });
+                    dataStore.createIndex('lastModified', 'lastModified');
+                }
             },
         });
     }

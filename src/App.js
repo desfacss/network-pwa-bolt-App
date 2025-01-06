@@ -74,6 +74,9 @@ function App() {
 
   // Create a QueryClient instance
   const queryClient = new QueryClient();
+  // const persister = createAsyncStoragePersister({
+  //   storage: AsyncStorage,
+  // });
 
   return (
     <div className="App">
@@ -81,7 +84,9 @@ function App() {
         <PersistGate loading={null} persistor={persistor}>
           <BrowserRouter history={history}>
             <ThemeSwitcherProvider themeMap={themes} defaultTheme={THEME_CONFIG.currentTheme} insertionPoint="styles-insertion-point" >
-              <QueryClientProvider client={queryClient}>
+              <QueryClientProvider client={queryClient}
+              // persistOptions={{ persister }}
+              >
                 <Layouts />
               </QueryClientProvider>
             </ThemeSwitcherProvider>

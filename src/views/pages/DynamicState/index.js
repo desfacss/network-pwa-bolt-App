@@ -1,82 +1,91 @@
-// components/DynamicTable/index.jsx
-/**
- * Enhanced dynamic table component with advanced features
- */
-import React, { useEffect } from 'react';
-import { Table } from 'antd';
+import React from 'react';
+import { Table, Button, Popconfirm, Card } from 'antd';
 import { useRecords } from 'state/hooks/useRecords';
-import { useViewConfig } from 'state/hooks/useViewConfig';
-import { useUserStore } from 'state/stores/userStore';
-// import { useRecords } from '../../state/hooks/useRecords';
-// import { useViewConfig } from '../../state/hooks/useViewConfig';
-// import { useUserStore } from '../../state/stores/userStore';
-// import { subscriptionService } from '../../services/realtime/subscriptionService';
+import StateTable from './StateTable';
 
 const DynamicTable = () => {
-    const entityType = 'y_state'
-    const onConfigChange = () => { }
-    // const user = useUserStore((state) => state.user);
-    const { query: { data: records, isLoading: recordsLoading }, mutation } = useRecords(entityType);
-    console.log("Rp", records, recordsLoading)
+    const entityType = 'y_state';
+    const {
+        query: { data: records, isLoading },
+        addRecord,
+        updateRecord,
+        deleteRecord,
+    } = useRecords(entityType);
 
-    // Add serial numbers to records
     const recordsWithSerialNumbers = records?.map((record, index) => ({
         ...record,
-        serialNumber: index + 1, // Add a serial number
+        serialNumber: index + 1,
     }));
 
-    // const { data: viewConfig, isLoading: configLoading } = useViewConfig(entityType);
+    const handleEdit = (record) => {
+        const updatedData = { ...record, name: 'Updated Name' }; // Example update
+        updateRecord.mutate({ id: record.id, ...updatedData });
+    };
 
-    // useEffect(() => {
-    //     if (user?.organization_id) {
-    //         subscriptionService.subscribe(tableId,
-    //             { organization_id: user.organization_id },
-    //             (payload) => {
-    //                 console.log('Real-time update:', payload);
-    //             }
-    //         );
-    //     }
+    const handleDelete = (id) => {
+        deleteRecord.mutate(id);
+    };
 
-    //     return () => subscriptionService.unsubscribe(tableId);
-    // }, [tableId, user?.organization_id]);
+    // Function to generate random data
+    const generateRandomData = () => {
+        const randomId = Math.floor(Math.random() * 10000); // Example random ID
+        return {
+            id: randomId,
+            name: `Name ${randomId}`,
+            email: `email${randomId}@example.com`,
+            phone: `+91${Math.floor(Math.random() * 1000000000)}`,
+            address: `Address for ${randomId}`,
+            city: `City ${randomId}`,
+            state: `State ${randomId}`,
+            country: `Country ${randomId}`,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+    };
+
+    // Add random data when the button is clicked
+    const handleAddRandom = () => {
+        const newRecord = generateRandomData();
+        addRecord.mutate(newRecord);
+    };
 
     const columns = [
-        { title: 'S.No', dataIndex: 'serialNumber', key: 'serialNumber' },
-        { title: 'ID', dataIndex: 'id', key: 'id' },
+        { title: 'S.No', dataIndex: 'id', key: 'id' },
         { title: 'Name', dataIndex: 'name', key: 'name' },
-        { title: 'Email', dataIndex: 'email', key: 'email' },
-        { title: 'Phone', dataIndex: 'phone', key: 'phone' },
-        { title: 'Address', dataIndex: 'address', key: 'address' },
-        { title: 'City', dataIndex: 'city', key: 'city' },
-        { title: 'State', dataIndex: 'state', key: 'state' },
-        { title: 'Country', dataIndex: 'country', key: 'country' },
-        { title: 'Created At', dataIndex: 'created_at', key: 'created_at' },
-        { title: 'Updated At', dataIndex: 'updated_at', key: 'updated_at' },
-    ]//.filter(col => viewConfig?.visibleColumns?.includes(col.key));
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+                <>
+                    <Button onClick={() => handleEdit(record)}>Edit</Button>
+                    <Popconfirm
+                        title="Are you sure to delete this record?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Button danger>Delete</Button>
+                    </Popconfirm>
+                </>
+            ),
+        },
+    ];
 
-    // if (!user) return <div>Please log in</div>;
-    // if (recordsLoading || configLoading) return <div>Loading...</div>;
-    if (recordsLoading) return <div>Loading...</div>;
+    if (isLoading) return <div>Loading...</div>;
 
     return (
-        <Table
-            columns={columns}
-            dataSource={recordsWithSerialNumbers}
-            rowKey="id"
-            pagination={{
-                // pageSize: viewConfig?.pageSize || 10,
-                showSizeChanger: true,
-            }}
-            onChange={(pagination, filters, sorter) => {
-                if (onConfigChange) {
-                    onConfigChange({
-                        pagination,
-                        filters,
-                        sorter,
-                    });
-                }
-            }}
-        />
+        <Card>
+            <StateTable />
+            <Button type="primary" onClick={handleAddRandom} style={{ marginBottom: 16 }}>
+                Add Random Record
+            </Button>
+            <Table
+                columns={columns}
+                dataSource={records}
+                rowKey="id"
+                pagination={{ showSizeChanger: true }}
+            />
+        </Card>
     );
 };
 
