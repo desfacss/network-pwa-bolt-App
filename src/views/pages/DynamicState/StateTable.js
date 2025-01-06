@@ -1,3 +1,4 @@
+//#dynamicState/index.js
 import React, { useState, useEffect } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,23 +29,30 @@ const StateTable = () => {
         let query = supabase
             .from('y_state')
             .select('*', { count: 'exact' });
-
-        if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
-            query = query.gte('date', filters.dateRange[0].toISOString().split('T')[0])
-                .lte('date', filters.dateRange[1].toISOString().split('T')[0]);
+    
+        if (filters.dateRange && filters.dateRange.length === 2) {
+            const [startDate, endDate] = filters.dateRange;
+            const startIso = startDate.startOf('day').toISOString().split('T')[0]; // Only the date part
+            const endIso = endDate.endOf('day').toISOString().split('T')[0];       // Only the date part
+    
+            // Assuming 'updated_at' can be either '2025-01-06 13:21:02' or '2025-01-06T13:21:02.173985'
+            query = query
+                .gte('updated_at', `${startIso} 00:00:00`) // Start of day
+                .lte('updated_at', `${endIso} 23:59:59`);  // End of day
         }
-
+    
         query = query.range((pagination.current - 1) * pagination.pageSize, pagination.current * pagination.pageSize - 1);
-
+    
         const { data, error, count } = await query;
-
+    
         if (error) throw new Error(error.message);
-
+    
         return { items: data, total: count };
     };
 
     const { data, isLoading } = useQuery({
-        queryKey: ['data', filters, pagination], queryFn: fetchData,
+        queryKey: ['data', filters, pagination], 
+        queryFn: fetchData,
     });
 
     const createMutation = useMutation({
@@ -120,7 +128,9 @@ const StateTable = () => {
         <div style={{ padding: 20 }}>
             <Space style={{ marginBottom: 20 }}>
                 <RangePicker
-                    onChange={(dates) => setFilters({ dateRange: dates })}
+                    onChange={(dates, dateStrings) => {
+                        setFilters({ dateRange: dates });
+                    }}
                     value={filters.dateRange}
                     allowClear
                 />
