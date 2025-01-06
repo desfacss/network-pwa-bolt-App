@@ -47,7 +47,7 @@ const useTableStore = create(
             // Add a new item
             addItem: (item) => {
                 try {
-                    if (!item.id || !item.name || !item.date) {
+                    if (!item.id || !item.name || !item.updated_at) {
                         throw new Error(`Invalid item: ${JSON.stringify(item)}`);
                     }
                     const newItem = {
@@ -56,6 +56,7 @@ const useTableStore = create(
                         lastModified: new Date().toISOString(),
                     };
                     set((state) => ({ items: [...state.items, newItem] }));
+                    console.log("ot", newItem)
                 } catch (error) {
                     console.error('Validation error:', error);
                     throw error;

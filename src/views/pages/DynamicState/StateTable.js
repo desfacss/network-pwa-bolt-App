@@ -28,7 +28,7 @@ const StateTable = () => {
         }
         return { dateRange: [dayjs(), dayjs()] };
     });
-    
+
     useEffect(() => {
         sessionStorage.setItem('filters', JSON.stringify({
             ...filters,
@@ -36,43 +36,45 @@ const StateTable = () => {
         }));
     }, [filters]);
 
+    //this useeffect is not executed if online or offline state change
     useEffect(() => {
+        console.log("st")
         const unsubscribe = networkMonitor.onOnline(state => {
             setIsOnline(state);
             if (state) {
-                queryClient.invalidateQueries('data'); 
+                queryClient.invalidateQueries('data');
             }
         });
         return () => unsubscribe();
-    }, [queryClient]);
+    }, [queryClient, networkMonitor]);
 
     const fetchData = async ({ queryKey }) => {
         const [, filters, pagination] = queryKey;
         let query = supabase
             .from('y_state')
             .select('id, name, updated_at', { count: 'exact' });
-    
+
         if (filters.dateRange && filters.dateRange.length === 2) {
             const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
-            const startIso = startDate.startOf('day').toISOString().split('T')[0]; 
-            const endIso = endDate.endOf('day').toISOString().split('T')[0];       
+            const startIso = startDate.startOf('day').toISOString().split('T')[0];
+            const endIso = endDate.endOf('day').toISOString().split('T')[0];
 
             query = query
-                .gte('updated_at', `${startIso} 00:00:00`) 
+                .gte('updated_at', `${startIso} 00:00:00`)
                 .lte('updated_at', `${endIso} 23:59:59`);
         }
-    
+
         query = query.range((pagination.current - 1) * pagination.pageSize, pagination.current * pagination.pageSize - 1);
-    
+
         const { data, error, count } = await query;
-    
+
         if (error) throw new Error(error.message);
-    
+
         return { items: data, total: count };
     };
     // const { data, isLoading, isFetching } = useQuery({ 
     const { data, isLoading } = useQuery({  // Include isFetching here
-        queryKey: ['data', filters, pagination], 
+        queryKey: ['data', filters, pagination],
         queryFn: fetchData,
         staleTime: 1000 * 60 * 5,
         cacheTime: 1000 * 60 * 30,
@@ -82,20 +84,134 @@ const StateTable = () => {
         // }
     });
 
+    // Function to generate random data
+    const generateRandomData = () => {
+        const randomId = Math.floor(Math.random() * 10000); // Example random ID
+        return {
+            id: randomId,
+            name: `Name ${randomId}`,
+            email: `email${randomId}@example.com`,
+            phone: `+91${Math.floor(Math.random() * 1000000000)}`,
+            address: `Address for ${randomId}`,
+            city: `City ${randomId}`,
+            state: `State ${randomId}`,
+            country: `Country ${randomId}`,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            // date: new Date().toISOString(),
+        };
+    };
+
+    // const createMutation = useMutation({
+    //     mutationFn: async (newItem) => {
+    //         const item = generateRandomData();
+    //         if (isOnline) {
+    //             console.log("A1", item)
+    //             const { data, error } = await supabase.from('y_state').insert([item]).select('*');
+    //             console.log("A2", data, error)
+    //             if (error) throw new Error(error.message);
+    //             return data[0];
+    //         } else {
+    //             // const item = { ...newItem, id: Math.random().toString(36).substr(2, 9) };
+    //             // const item = generateRandomData();
+    //             console.log("A1", item)
+    //             addItem(item);
+    //             syncQueue.addToQueue({ type: 'create', item });
+    //         }
+    //     },
+    //     onMutate: async (newItem) => {
+    //         await queryClient.cancelQueries('data');
+    //         const previousData = queryClient.getQueryData('data');
+    //         queryClient.setQueryData('data', (old) => {
+    //             if (old && old.items) {
+    //                 return { ...old, items: [...old.items, newItem] };
+    //             }
+    //             return old;
+    //         });
+    //         return { previousData };
+    //     },
+    //     onError: (err, newItem, context) => {
+    //         queryClient.setQueryData('data', context.previousData);
+    //     },
+    //     onSuccess: () => {
+    //         queryClient.invalidateQueries('data');
+    //     }
+    // });
+
+    // const createMutation = useMutation({
+    //     mutationFn: async (newItem) => {
+    //         const item = generateRandomData();
+    //         if (isOnline) {
+    //             console.log("A1", item)
+    //             const { data, error } = await supabase.from('y_state').insert([item]).select('*');
+    //             console.log("A2", data, error)
+    //             if (error) throw new Error(error.message);
+    //             return data[0];
+    //         } else {
+    //             console.log("o1", item)
+    //             const tempId = Math.random().toString(36).substr(2, 9);
+    //             // const offlineItem = { ...newItem, id: tempId };
+    //             const offlineItem = item;
+    //             addItem(offlineItem); // Update local state immediately
+    //             syncQueue.addToQueue({ type: 'create', item: offlineItem });
+    //             return offlineItem; // Return the offline item for UI update
+    //         }
+    //     },
+    //     onMutate: async (newItem) => {
+    //         if (!isOnline) {
+    //             queryClient.cancelQueries('data');
+    //             const previousData = queryClient.getQueryData('data');
+    //             queryClient.setQueryData('data', (old) => {
+    //                 console.log("yu", newItem)
+    //                 if (old && old.items) {
+    //                     return { ...old, items: [...old.items, newItem] };
+    //                 }
+    //                 return old;
+    //             });
+    //             return { previousData };
+    //         }
+    //     },
+    //     onError: (err, newItem, context) => {
+    //         if (!isOnline) {
+    //             queryClient.setQueryData('data', context.previousData);
+    //         }
+    //     },
+    //     onSuccess: () => {
+    //         if (isOnline) {
+    //             queryClient.invalidateQueries('data');
+    //         }
+    //     }
+    // });
+
     const createMutation = useMutation({
         mutationFn: async (newItem) => {
+            const item = generateRandomData();
             if (isOnline) {
-                const { data, error } = await supabase.from('y_state').insert([newItem]);
-                if (error) throw new Error(error.message);
-                return data[0];
+                // Update local state immediately for consistency
+                console.log("tre", item)
+                addItem(item); // Immediate UI update
+                try {
+                    const { data, error } = await supabase.from('y_state').insert([item]).select('*');
+                    if (error) throw new Error(error.message);
+                    console.log("tr", data)
+                    // Optional: Update local state again with server response (in case the server modifies the data)
+                    updateItem(data[0]); // Replace the item with server response
+                    return data[0];
+                } catch (err) {
+                    // Rollback local state if server operation fails
+                    deleteItem(item.id);
+                    throw err;
+                }
             } else {
-                const item = { ...newItem, id: Math.random().toString(36).substr(2, 9) };
+                // Offline flow: update local state and add to syncQueue
                 addItem(item);
                 syncQueue.addToQueue({ type: 'create', item });
+                return item; // Return offline item for UI update
             }
         },
         onMutate: async (newItem) => {
-            await queryClient.cancelQueries('data');
+            // Always ensure local state is updated optimistically
+            queryClient.cancelQueries('data');
             const previousData = queryClient.getQueryData('data');
             queryClient.setQueryData('data', (old) => {
                 if (old && old.items) {
@@ -106,12 +222,14 @@ const StateTable = () => {
             return { previousData };
         },
         onError: (err, newItem, context) => {
+            // Rollback changes if mutation fails
             queryClient.setQueryData('data', context.previousData);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries('data');
+            queryClient.invalidateQueries('data'); // Refresh server data
         }
     });
+
 
     const updateMutation = useMutation({
         mutationFn: async ({ id, ...updatedItem }) => {
@@ -180,7 +298,10 @@ const StateTable = () => {
 
     const [form] = Form.useForm();
     const onFinish = (values) => {
+        console.log("2")
         createMutation.mutate({ ...values, date: new Date().toISOString().split('T')[0] });
+        console.log("3")
+
         form.resetFields();
     };
 
@@ -226,21 +347,22 @@ const StateTable = () => {
                     Apply Filters
                 </Button>
             </Space>
-            {/* <Form form={form} onFinish={onFinish} layout="inline">
-                <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+            <Form form={form} onFinish={onFinish} layout="inline">
+                {/* <Form.Item name="name" label="Name" rules={[{ required: true }]}>
                     <Input placeholder="Name" />
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
                         Add
                     </Button>
                 </Form.Item>
-            </Form> */}
+            </Form>
             {/* RPC Function goes here... */}
 
             <Table
                 columns={columns}
                 dataSource={isOnline ? data?.items : items}
+                // dataSource={data?.items}
                 pagination={{
                     current: pagination.current,
                     pageSize: pagination.pageSize,

@@ -40,6 +40,9 @@ class SyncQueueManager {
             // Retry failed operations periodically
             setInterval(() => this.retryFailedOperations(), 5 * 60 * 1000); // Every 5 minutes
 
+            // Clean up old queue items periodically
+            setInterval(() => this.cleanUpQueue(), 24 * 60 * 60 * 1000); // Daily cleanup
+
             this.notifyListeners();
         } catch (error) {
             console.error('Sync queue initialization error:', error);
@@ -143,14 +146,22 @@ class SyncQueueManager {
     }
 
     async handleUpdate(item) {
-        // Implementation for updating the item (API call or local logic)
         console.log('Processing update:', item);
-        // Simple conflict resolution: last write wins or merge
         const serverItem = await this.getServerVersion(item.id);
         if (serverItem && item.version !== serverItem.version) {
-            // Here you could implement a merge strategy or choose which version to keep
-            console.log('Conflict detected, choosing last write wins:', item);
+            // Decide here how to handle conflict - merge, last write wins, etc.
+            // Example: last write wins
+            const updatedItem = { ...serverItem, ...item, version: Math.max(item.version, serverItem.version) + 1 };
+            await this.updateItemOnServer(updatedItem);
+        } else {
+            await this.updateItemOnServer(item);
         }
+    }
+
+    async updateItemOnServer(item) {
+        // API call to update on server
+        console.log('Updating item on server:', item);
+        // Here you would make the actual API call
     }
 
     async handleDelete(id) {
@@ -179,6 +190,19 @@ class SyncQueueManager {
             }
             this.processQueue();
         }
+    }
+
+    async cleanUpQueue() {
+        const db = await dbPromise;
+        const now = Date.now();
+        const oldItems = await db.getAllFromIndex('syncQueue', 'timestamp', IDBKeyRange.upperBound(now - (30 * 24 * 60 * 60 * 1000))); // 30 days old
+        for (const item of oldItems) {
+            if (item.status === 'failed' && item.retries >= MAX_RETRIES) {
+                await db.delete('syncQueue', item.id);
+                this.queue = this.queue.filter(q => q.id !== item.id);
+            }
+        }
+        this.notifyListeners();
     }
 
     onQueueUpdate(callback) {
