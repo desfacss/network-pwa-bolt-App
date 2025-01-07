@@ -76,7 +76,7 @@ const DynamicTable = () => {
     return (
         <Card>
             <StateTable />
-            <Button type="primary" onClick={handleAddRandom} style={{ marginBottom: 16 }}>
+            {/* <Button type="primary" onClick={handleAddRandom} style={{ marginBottom: 16 }}>
                 Add Random Record
             </Button>
             <Table
@@ -84,7 +84,7 @@ const DynamicTable = () => {
                 dataSource={records}
                 rowKey="id"
                 pagination={{ showSizeChanger: true }}
-            />
+            /> */}
         </Card>
     );
 };

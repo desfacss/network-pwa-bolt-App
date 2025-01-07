@@ -23,7 +23,10 @@ const useTableStore = create(
                     // Perform simple validation (ensure items are objects with required fields)
                     const validatedItems = items.map((item) => {
                         if (!item.id || !item.name || !item.date) {
-                            throw new Error(`Invalid item: ${JSON.stringify(item)}`);
+                            throw new Error(`6x. Invalid item: ${JSON.stringify(item)}`);
+
+
+
                         }
                         return {
                             ...item,
@@ -45,18 +48,41 @@ const useTableStore = create(
             setPagination: (pagination) => set((state) => ({ ...state, pagination })),
 
             // Add a new item
+    //         addItem: (item) => {
+    //             try {
+    //                 if (!item.id || !item.name || !item.updated_at) {
+    //                     throw new Error(`6. Invalid item: ${JSON.stringify(item)}`);
+
+    //                         //                         Validation error: Error: Invalid item: {"date":"2025-01-06"}
+    // // at addItem (src_views_pages_Dyna…ot-update.js:653:15)
+    // // at Object.mutationFn (src_views_pages_Dyna…hot-update.js:253:9)
+    //                 }
+    //                 const newItem = {
+    //                     ...item,
+    //                     version: 1,
+    //                     lastModified: new Date().toISOString(),
+    //                 };
+    //                 set((state) => ({ items: [...state.items, newItem] }));
+    //                 console.log("ot", newItem)
+    //             } catch (error) {
+    //                 console.error('Validation error:', error);
+    //                 throw error;
+    //             }
+    //         },
+
             addItem: (item) => {
                 try {
                     if (!item.id || !item.name || !item.updated_at) {
-                        throw new Error(`Invalid item: ${JSON.stringify(item)}`);
+                        throw new Error(`6. Invalid item: ${JSON.stringify(item)}`);
                     }
                     const newItem = {
                         ...item,
                         version: 1,
                         lastModified: new Date().toISOString(),
+                        updated_at: new Date(item.updated_at).toISOString() // Ensure updated_at is in ISO format
                     };
                     set((state) => ({ items: [...state.items, newItem] }));
-                    console.log("ot", newItem)
+                    console.log("A6. useTable add new item", newItem)
                 } catch (error) {
                     console.error('Validation error:', error);
                     throw error;

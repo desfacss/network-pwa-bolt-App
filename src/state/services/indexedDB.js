@@ -1,54 +1,60 @@
-// // services/cache/indexedDB.js
-// /**
-//  * Enhanced IndexedDB implementation with versioning and sync
-//  */
 // import { openDB } from 'idb';
 
-// const DB_NAME = 'enhancedAppDB';
-// const DB_VERSION = 1;
-// let db;
+// class IndexedDBService {
+//     constructor() {
+//         this.db = null;
+//         this.DB_NAME = 'enhancedAppDB';
+//         this.DB_VERSION = 2; // Increased from 1 to 2 to trigger upgrade
+//     }
 
-// async function init() {
-//     db = await openDB(DB_NAME, DB_VERSION, {
-//         upgrade(db) {
-//             if (!db.objectStoreNames.contains('records')) {
-//                 const recordStore = db.createObjectStore('records');
-//                 recordStore.createIndex('timestamp', 'timestamp');
-//             }
-//             if (!db.objectStoreNames.contains('viewConfigs')) {
-//                 const configStore = db.createObjectStore('viewConfigs');
-//                 configStore.createIndex('timestamp', 'timestamp');
-//             }
-//             if (!db.objectStoreNames.contains('syncQueue')) {
-//                 const syncStore = db.createObjectStore('syncQueue');
-//                 syncStore.createIndex('timestamp', 'timestamp');
-//             }
-//         },
-//     });
+//     async init() {
+//         this.db = await openDB(this.DB_NAME, this.DB_VERSION, {
+//             upgrade(db) {
+//                 if (!db.objectStoreNames.contains('records')) {
+//                     const recordStore = db.createObjectStore('records', { keyPath: 'id' });
+//                     recordStore.createIndex('timestamp', 'timestamp');
+//                 }
+//                 if (!db.objectStoreNames.contains('viewConfigs')) {
+//                     const configStore = db.createObjectStore('viewConfigs', { keyPath: 'id' });
+//                     configStore.createIndex('timestamp', 'timestamp');
+//                 }
+//                 if (!db.objectStoreNames.contains('syncQueue')) {
+//                     const syncStore = db.createObjectStore('syncQueue', { keyPath: 'id' });
+//                     syncStore.createIndex('timestamp', 'timestamp');
+//                 }
+//                 // Create data store with indexes
+//                 if (!db.objectStoreNames.contains('data')) {
+//                     const dataStore = db.createObjectStore('data', { keyPath: 'id' });
+//                     dataStore.createIndex('lastModified', 'lastModified');
+//                 }
+//             },
+//         });
+//     }
+
+//     async set(storeName, key, value) {
+//         await this.db.put(storeName, {
+//             id: key, // Adding a keyPath field for the object
+//             data: value,
+//             timestamp: Date.now(),
+//             version: 1,
+//         });
+//     }
+
+//     async get(storeName, key) {
+//         return this.db.get(storeName, key);
+//     }
+
+//     async addToSyncQueue(action, data) {
+//         await this.db.add('syncQueue', {
+//             id: `${Date.now()}-${Math.random()}`, // Adding a unique keyPath value
+//             action,
+//             data,
+//             timestamp: Date.now(),
+//         });
+//     }
 // }
 
-// async function set(storeName, key, value) {
-//     await db.put(storeName, {
-//         data: value,
-//         timestamp: Date.now(),
-//         version: 1,
-//     }, key);
-// }
-
-// async function get(storeName, key) {
-//     return db.get(storeName, key);
-// }
-
-// async function addToSyncQueue(action, data) {
-//     await db.add('syncQueue', {
-//         action,
-//         data,
-//         timestamp: Date.now(),
-//     }, `${Date.now()}-${Math.random()}`);
-// }
-
-// export default { init, set, get, addToSyncQueue };
-
+// export const indexedDB = new IndexedDBService();
 
 import { openDB } from 'idb';
 
@@ -56,7 +62,7 @@ class IndexedDBService {
     constructor() {
         this.db = null;
         this.DB_NAME = 'enhancedAppDB';
-        this.DB_VERSION = 1;
+        this.DB_VERSION = 2; // Increased from 1 to 2 to trigger upgrade
     }
 
     async init() {
@@ -94,6 +100,10 @@ class IndexedDBService {
 
     async get(storeName, key) {
         return this.db.get(storeName, key);
+    }
+
+    async getAll(storeName) {
+        return this.db.getAll(storeName);
     }
 
     async addToSyncQueue(action, data) {
