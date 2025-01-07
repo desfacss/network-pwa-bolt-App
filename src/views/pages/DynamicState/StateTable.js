@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from 'api/supabaseClient';
-import { syncQueue } from 'state/services/offline/syncQueue';
+import { useSyncQueueManager } from 'state/hooks/useSyncQueueManager';
 import useTableStore from 'state/stores/useTable';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
 import dayjs from 'dayjs';
@@ -12,10 +12,40 @@ import { debounce } from 'lodash';
 const { RangePicker } = DatePicker;
 
 const StateTable = () => {
-    const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore();
+    // Use the domain when accessing the store
+    // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore('y_state'); // If dynamic
+    const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore('y_state')();
+    // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore((state) => state.y_state);
+    // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore(state => state);
+
+
+    // const { addItem, updateItem, deleteItem } = useTableStore('y_state');
+
     const [isOnline, setIsOnline] = useState(true);
-    // const [previousData, setPreviousData] = useState(null); no old data
     const queryClient = useQueryClient();
+
+    // Create debounced function outside useEffect but inside component with pagination and current data issue
+    // const debouncedInvalidate = useMemo(
+    //     () => 
+    //     debounce(() => {
+    //         console.log("L3. Network is online, invalidating queries");
+    //         queryClient.invalidateQueries('data');
+            
+    //         // Use optional chaining to safely access data.total
+    //         const currentData = queryClient.getQueryData('data');
+    //         if (currentData && currentData.total < (pagination.current - 1) * pagination.pageSize) {
+    //             setPagination((prev) => ({ ...prev, current: 1 }));
+    //         }
+    //     }, 500),
+    //     [queryClient, pagination.current, pagination.pageSize]
+    // );
+
+    const debouncedInvalidate = useMemo(() => {
+        return () => {
+            console.log("Placeholder for debouncedInvalidate: Pagination logic is disabled");
+        };
+    }, []);
+
 
     // Persist filter state using sessionStorage
     const [filters, setFilters] = useState(() => {
@@ -37,80 +67,111 @@ const StateTable = () => {
         }));
     }, [filters]);
 
-
+    // This useEffect is for handling network status changes
     useEffect(() => {
         const debouncedInvalidate = debounce(() => {
             console.log("L3. Network is online, invalidating queries");
             queryClient.invalidateQueries('data');
             
-            // Use optional chaining to safely access data.total
-            const currentData = queryClient.getQueryData('data');
-            if (currentData && currentData.total < (pagination.current - 1) * pagination.pageSize) {
-                setPagination((prev) => ({ ...prev, current: 1 }));
-            }
+            // // Use optional chaining to safely access data.total
+            // const currentData = queryClient.getQueryData('data');
+            // if (currentData && currentData.total < (pagination.current - 1) * pagination.pageSize) {
+            //     setPagination((prev) => ({ ...prev, current: 1 }));
+            // }
         }, 500);
-    
-        const unsubscribe = networkMonitor.onOnline(state => {
+
+        const handleNetworkChange = (state) => {
             console.log("L1. Network status changed to:", state);
             setIsOnline(state);
             if (state) {
                 debouncedInvalidate();
             }
-        });
-    
+        };
+
+        const unsubscribe = networkMonitor.subscribe('online', handleNetworkChange);
+
         return () => {
             console.log("Cleaning up network status listener");
             unsubscribe();
             debouncedInvalidate.cancel();
         };
-    }, [pagination, queryClient]); // Add queryClient to the dependency array if it's not already there
+    }, [debouncedInvalidate, queryClient]);
+    // }, [debouncedInvalidate, pagination.current, pagination.pageSize, queryClient]);
+
+    // const fetchData = async ({ queryKey }) => {
+    //     // const [, filters, pagination] = queryKey; // revisit later is pagination is needed
+    //     const [, filters] = queryKey; // Removed pagination since it's commented out
+    //     let query = supabase
+    //         .from('y_state')
+    //         .select('id, name, updated_at', { count: 'exact' });
+    
+    //     if (filters.dateRange && filters.dateRange.length === 2) {
+    //         const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
+    //         const startIso = startDate.startOf('day').toISOString().split('T')[0];
+    //         const endIso = endDate.endOf('day').toISOString().split('T')[0];
+    
+    //         query = query
+    //             .gte('updated_at', `${startIso} 00:00:00`)
+    //             .lte('updated_at', `${endIso} 23:59:59`);
+    //     }
+    
+    //     // Ensure pagination.current starts from 1 if no changes have been made
+    //     if (pagination.current < 1) {
+    //         setPagination((prev) => ({ ...prev, current: 1 }));
+    //     }
+    
+    //     const offset = (pagination.current - 1) * pagination.pageSize;
+    //     // Use count from the query result for pagination
+    //     const { data, error, count } = await query;
+        
+    //     console.log('Fetched data:', { data, count }); // Add console log to check data availability
+    
+    //     if (error) throw new Error(error.message);
+    
+    //     // Now calculate end using 'count'
+    //     const end = Math.min(offset + pagination.pageSize - 1, count ? count - 1 : offset); // Adjust end to prevent out-of-bounds
+    
+    //     return { items: data, total: count };
+    // };
 
     const fetchData = async ({ queryKey }) => {
-        const [, filters, pagination] = queryKey;
+        const [, filters] = queryKey;
         let query = supabase
             .from('y_state')
             .select('id, name, updated_at', { count: 'exact' });
     
         if (filters.dateRange && filters.dateRange.length === 2) {
             const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
-            const startIso = startDate.startOf('day').toISOString().split('T')[0];
-            const endIso = endDate.endOf('day').toISOString().split('T')[0];
+            const startIso = startDate.startOf('day').toISOString();
+            const endIso = endDate.endOf('day').toISOString();
     
             query = query
-                .gte('updated_at', `${startIso} 00:00:00`)
-                .lte('updated_at', `${endIso} 23:59:59`);
+                .gte('updated_at', startIso)
+                .lte('updated_at', endIso);
         }
     
-        // Ensure pagination.current starts from 1 if no changes have been made
-        if (pagination.current < 1) {
-            setPagination((prev) => ({ ...prev, current: 1 }));
-        }
+        const current = pagination?.current || 1; // temporary to avoid error - commented earlier - need to fix there and remove here
+        const pageSize = pagination?.pageSize || 5; // temporary to avoid error - commented earlier - need to fix there and remove here
     
-        const offset = (pagination.current - 1) * pagination.pageSize;
-        // Use count from the query result for pagination
+        const offset = (current - 1) * pageSize;
+        query = query.range(offset, offset + pageSize - 1);
+    
         const { data, error, count } = await query;
-        
-        console.log('Fetched data:', { data, count }); // Add console log to check data availability
+        console.log('Query results:', { data, error, count });
     
-        if (error) throw new Error(error.message);
-    
-        // Now calculate end using 'count'
-        const end = Math.min(offset + pagination.pageSize - 1, count - 1 || offset); // Adjust end to prevent out-of-bounds
+        if (error) {
+            console.error('Error fetching data:', error.message);
+            throw new Error(error.message);
+        }
     
         return { items: data, total: count };
     };
-    // const { data, isLoading, isFetching } = useQuery({ 
-    // const { data, isLoading } = useQuery({// Include isFetching here only if needed
-    //     queryKey: ['data', JSON.stringify(filters), JSON.stringify(pagination)],
-    //     queryFn: fetchData,
-    //     staleTime: 1000 * 60 * 5,
-    //     cacheTime: 1000 * 60 * 30,
-    //     refetchOnWindowFocus: false,
-    //     onSettled: (data, error) => {
-    //         console.log("Fetching data settled", { data, error });
-    //     }
-    // });
-    const { data, isLoading } = useQuery({  // Include isFetching here
+    
+
+    // Use the hook to get the sync queue manager methods
+    const { addToQueue } = useSyncQueueManager();
+
+    const { data, isLoading } = useQuery({  
         queryKey: ['data', filters, pagination],
         queryFn: fetchData,
         staleTime: 1000 * 60 * 5,
@@ -161,7 +222,7 @@ const StateTable = () => {
             } else {
                 console.log("createMutation: Offline mode - adding to local state and sync queue", item);
                 addItem(item);
-                syncQueue.addToQueue({ type: 'create', item });
+                addToQueue({ type: 'create', item }, 'y_state');
                 return item; // Return offline item for UI update
             }
         },
@@ -177,14 +238,13 @@ const StateTable = () => {
             });
         },
         onError: (err, newItem, context) => {
-            console.error("createMutation: Mutation failed, rolling back", err);
+            console.error("A 5.1. createMutation: Mutation failed, rolling back", err);
         },
         onSuccess: () => {
             console.log("A9. createMutation: Mutation successful, invalidating data query");
             queryClient.invalidateQueries('data'); 
         }
     });
-
 
     const updateMutation = useMutation({
         mutationFn: async ({ id, ...updatedItem }) => {
@@ -198,7 +258,7 @@ const StateTable = () => {
             } else {
                 console.log("U4.updateMutation: Offline mode - updating local state and sync queue", { id, updatedItem });
                 updateItem(updatedItem);
-                syncQueue.addToQueue({ type: 'update', item: updatedItem });
+                addToQueue({ type: 'update', item: updatedItem }, 'y_state');
                 return updatedItem;
             }
         },
@@ -226,7 +286,6 @@ const StateTable = () => {
             queryClient.invalidateQueries('data');
         }
     });
-    
 
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
@@ -239,7 +298,7 @@ const StateTable = () => {
             } else {
                 console.log("D4.deleteMutation: Offline mode - deleting from local state and sync queue", id);
                 deleteItem(id);
-                syncQueue.addToQueue({ type: 'delete', id });
+                addToQueue({ type: 'delete', id }, 'y_state');
             }
         },
         onMutate: async (id) => {
@@ -266,8 +325,7 @@ const StateTable = () => {
             queryClient.invalidateQueries('data');
         }
     });
-    
-    
+
     const [form] = Form.useForm();
     const onFinish = () => {
         const values = generateRandomData();
@@ -293,7 +351,6 @@ const StateTable = () => {
             dataIndex: '',
             key: 'action', // Unique key for the action column
             render: (_, record) => {
-                // console.log("Rendering action for record:", record.id); // Correct placement of console.log
                 return (
                     <Space size="middle" key={record.id}>
                         <Button onClick={() => updateMutation.mutate({ ...record, name: `Updated ${record.name}` })}>
@@ -307,7 +364,6 @@ const StateTable = () => {
             },
         },
     ], [updateMutation, deleteMutation]);
-    
 
     if (isLoading) return <div>Loading...</div>;
 
@@ -326,46 +382,30 @@ const StateTable = () => {
                 </Button>
             </Space>
             <Form form={form} onFinish={onFinish} layout="inline">
-                {/* <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-                    <Input placeholder="Name" />
-                </Form.Item> */}
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
                         Add
                     </Button>
                 </Form.Item>
             </Form>
-            {/* RPC Function goes here... */}
 
             <Table
                 columns={columns}
                 dataSource={isOnline ? data?.items : items}
                 rowKey={(record) => record.id}
-                // dataSource={data?.items}
                 pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
+                    // current: pagination.current,
+                    // pageSize: pagination.pageSize,
                     total: isOnline ? data?.total : items.length,
                     onChange: (current, pageSize) => setPagination({ current, pageSize }),
                 }}
                 loading={isLoading || createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading}
-            />
-            {/* <Table
-                columns={columns}
-                dataSource={tableData}
-                pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: totalCount,
-                    onChange: (current, pageSize) => setPagination({ current, pageSize }),
-                }}
-                loading={isLoading || isFetching || createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading}
-            /> */}
-        </div>
-    );
-};
-
-export default StateTable;
+                />
+                </div>
+            );
+        }
+        
+        export default StateTable;
 
 
 // Offline 
