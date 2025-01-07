@@ -2,6 +2,7 @@ import React from 'react';
 import { Table, Button, Popconfirm, Card } from 'antd';
 import { useRecords } from 'state/hooks/useRecords';
 import StateTable from './StateTable';
+import StateManager from './StateManager11';
 
 const DynamicTable = () => {
     const entityType = 'y_state';
@@ -75,6 +76,7 @@ const DynamicTable = () => {
 
     return (
         <Card>
+            {/* <StateManager /> */}
             <StateTable />
             {/* <Button type="primary" onClick={handleAddRandom} style={{ marginBottom: 16 }}>
                 Add Random Record
