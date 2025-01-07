@@ -184,7 +184,7 @@
 
 
 // state/services/offline/sync.js
-import { db } from './dexie';
+import { dexieDB } from './dexie';
 import { networkMonitor } from './networkMonitor';
 
 const RETRY_DELAYS = [1000, 5000, 15000, 30000, 60000]; // Exponential backoff delays
@@ -199,8 +199,8 @@ class SyncQueue {
 
     async initialize() {
         try {
-            this.queue = await db.syncQueue.toArray();
-            this.isProcessing = await db.table('syncQueueState').get('isProcessing') || false;
+            this.queue = await dexieDB.syncQueue.toArray();
+            this.isProcessing = await dexieDB.table('syncQueueState').get('isProcessing') || false;
 
             networkMonitor.addEventListener('onOnline', this.processQueue.bind(this));
             networkMonitor.addEventListener('onConnectionQualityChange', () => {
@@ -248,7 +248,7 @@ class SyncQueue {
                 lastAttempt: null,
             };
 
-            await db.syncQueue.add(queueItem);
+            await dexieDB.syncQueue.add(queueItem);
             this.queue.push(queueItem);
 
             if (networkMonitor.isOnline && networkMonitor.isConnectionStable) {
@@ -269,7 +269,7 @@ class SyncQueue {
         if (this.isProcessing || this.queue.length === 0) return;
 
         this.isProcessing = true;
-        await db.table('syncQueueState').put({ isProcessing: true }, 'isProcessing');
+        await dexieDB.table('syncQueueState').put({ isProcessing: true }, 'isProcessing');
 
         for (let i = 0; i < this.queue.length; i++) {
             const item = this.queue[i];
@@ -277,7 +277,7 @@ class SyncQueue {
 
             try {
                 await this.processOperation(item);
-                await db.syncQueue.delete(item.id);
+                await dexieDB.syncQueue.delete(item.id);
                 this.queue.splice(i, 1);
                 i--; // Adjust index after removal
             } catch (error) {
@@ -291,7 +291,7 @@ class SyncQueue {
                     error: error.message,
                 };
 
-                await db.syncQueue.put(updatedItem);
+                await dexieDB.syncQueue.put(updatedItem);
                 this.queue[i] = updatedItem;
 
                 await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[Math.min(item.retries, MAX_RETRIES - 1)]));
@@ -302,7 +302,7 @@ class SyncQueue {
         this.notifyListeners();
 
         this.isProcessing = false;
-        await db.table('syncQueueState').put({ isProcessing: false }, 'isProcessing');
+        await dexieDB.table('syncQueueState').put({ isProcessing: false }, 'isProcessing');
     }
 
     notifyListeners() {
@@ -408,13 +408,13 @@ class SyncQueue {
     }
 
     async retryFailedOperations() {
-        const failedItems = await db.syncQueue.where('status').equals('failed').and(item => item.retries < MAX_RETRIES).toArray();
+        const failedItems = await dexieDB.syncQueue.where('status').equals('failed').and(item => item.retries < MAX_RETRIES).toArray();
 
         if (failedItems.length > 0 && networkMonitor.isOnline && networkMonitor.isConnectionStable) {
             for (const item of failedItems) {
                 item.status = 'pending';
                 item.lastAttempt = null;
-                await db.syncQueue.put(item);
+                await dexieDB.syncQueue.put(item);
             }
             this.processQueue();
         }
@@ -422,7 +422,7 @@ class SyncQueue {
 
     async cleanUpQueue() {
         const now = Date.now();
-        await db.syncQueue.where('timestamp').below(now - (30 * 24 * 60 * 60 * 1000))
+        await dexieDB.syncQueue.where('timestamp').below(now - (30 * 24 * 60 * 60 * 1000))
             .and(item => item.status === 'failed' && item.retries >= MAX_RETRIES)
             .delete();
     }

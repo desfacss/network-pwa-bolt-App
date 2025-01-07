@@ -13,25 +13,28 @@
 
 // export const db = new EnhancedAppDB();
 
-// class EnhancedAppDB extends Dexie {
-//     // Your tables will be properties of this class
-//     records;
-//     viewConfigs;
-//     syncQueue;
-//     data;
+import Dexie from 'dexie';
+class genericOfflineDB extends Dexie {
+    // Your tables will be properties of this class
+    records;
+    viewConfigs;
+    syncQueue;
+    data;
+    tableState;
 
-//     constructor() {
-//         super('enhancedAppDB');
-//         this.version(1).stores({
-//             records: 'id, *timestamp',
-//             viewConfigs: 'id, *timestamp',
-//             syncQueue: 'id, *timestamp',
-//             data: 'id, *lastModified'
-//         });
-//     }
-// }
+    constructor() {
+        super('genericOfflineDB');
+        this.version(2).stores({
+            records: 'id, *timestamp',
+            viewConfigs: 'id, *timestamp',
+            syncQueue: 'id, *timestamp',
+            data: 'id, *lastModified',
+            tablestate: 'id, *timestamp, name, email, phone'
+        });
+    }
+}
 
-// export const db = new EnhancedAppDB();
+export const dexieDB = new genericOfflineDB();
 
 
 // import Dexie from 'dexie';
@@ -158,39 +161,39 @@
 
 
 
-// // Generic approach
+// // // Generic approach
 
-import Dexie from 'dexie';
+// import Dexie from 'dexie';
 
-class GenericOfflineDB extends Dexie {
-    syncQueue;
+// class GenericOfflineDB extends Dexie {
+//     syncQueue;
 
-    constructor() {
-        super('genericOfflineDB');
-        this.version(1).stores({
-            syncQueue: '++id, table, data, operation'
-        });
-    }
+//     constructor() {
+//         super('genericOfflineDB');
+//         this.version(1).stores({
+//             syncQueue: '++id, table, data, operation'
+//         });
+//     }
 
-    // Method to dynamically add a new store for any table
-    async addStore(tableName) {
-        // Instead of modifying verno directly, we use the version method with a new number
-        const newVersion = this.verno + 1;
-        await this.version(newVersion).stores({
-            [tableName]: 'id'
-        });
-        // Open the database with the new schema
-        await this.open();
-        console.log(`Store ${tableName} added at version ${this.verno}`);
-    }
+//     // Method to dynamically add a new store for any table
+//     async addStore(tableName) {
+//         // Instead of modifying verno directly, we use the version method with a new number
+//         const newVersion = this.verno + 1;
+//         await this.version(newVersion).stores({
+//             [tableName]: 'id'
+//         });
+//         // Open the database with the new schema
+//         await this.open();
+//         console.log(`Store ${tableName} added at version ${this.verno}`);
+//     }
 
-    // Method to ensure a store exists for a table
-    async ensureStore(tableName) {
-        if (!this[tableName]) {
-            await this.addStore(tableName);
-        }
-        return this[tableName];
-    }
-}
+//     // Method to ensure a store exists for a table
+//     async ensureStore(tableName) {
+//         if (!this[tableName]) {
+//             await this.addStore(tableName);
+//         }
+//         return this[tableName];
+//     }
+// }
 
-export const db = new GenericOfflineDB();
+// export const db = new GenericOfflineDB();

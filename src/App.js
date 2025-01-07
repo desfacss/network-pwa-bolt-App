@@ -11,7 +11,7 @@ import "./lang";
 import { setSession } from "store/slices/authSlice";
 import { supabase } from "configs/SupabaseConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { indexedDB } from "state/services/indexedDB";
+// import { indexedDB } from "state/services/indexedDB";
 // import { store } from "../store";
 
 const themes = {
@@ -19,9 +19,10 @@ const themes = {
   light: `${process.env.PUBLIC_URL}/css/light-theme.css`,
 };
 
-(async () => {
-  await indexedDB.init();
-})();
+// (async () => {
+//   await indexedDB.init();
+// })();
+
 
 function App() {
   // useEffect(() => {

@@ -8,15 +8,15 @@ import useTableStore from 'state/stores/useTable';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
-import useGenericStore from 'state/stores/useGenericStore';
-
+// import useGenericStore from 'state/stores/useGenericStore';
+// useGenericStore
 
 const { RangePicker } = DatePicker;
 
 const StateTable = () => {
     // Use the domain when accessing the store
     // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore('y_state'); // If dynamic
-    const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useGenericStore('y_state')();
+    const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore('y_state')();
     // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore((state) => state.y_state);
     // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore(state => state);
 
@@ -27,26 +27,26 @@ const StateTable = () => {
     const queryClient = useQueryClient();
 
     // Create debounced function outside useEffect but inside component with pagination and current data issue
-    // const debouncedInvalidate = useMemo(
-    //     () => 
-    //     debounce(() => {
-    //         console.log("L3. Network is online, invalidating queries");
-    //         queryClient.invalidateQueries('data');
+    const debouncedInvalidate = useMemo(
+        () => 
+        debounce(() => {
+            console.log("L3. Network is online, invalidating queries");
+            queryClient.invalidateQueries('data');
             
-    //         // Use optional chaining to safely access data.total
-    //         const currentData = queryClient.getQueryData('data');
-    //         if (currentData && currentData.total < (pagination.current - 1) * pagination.pageSize) {
-    //             setPagination((prev) => ({ ...prev, current: 1 }));
-    //         }
-    //     }, 500),
-    //     [queryClient, pagination.current, pagination.pageSize]
-    // );
+            // Use optional chaining to safely access data.total
+            const currentData = queryClient.getQueryData('data');
+            if (currentData && currentData.total < (pagination.current - 1) * pagination.pageSize) {
+                setPagination((prev) => ({ ...prev, current: 1 }));
+            }
+        }, 500),
+        [queryClient, pagination.current, pagination.pageSize]
+    );
 
-    const debouncedInvalidate = useMemo(() => {
-        return () => {
-            console.log("Placeholder for debouncedInvalidate: Pagination logic is disabled");
-        };
-    }, []);
+    // const debouncedInvalidate = useMemo(() => {
+    //     return () => {
+    //         console.log("Placeholder for debouncedInvalidate: Pagination logic is disabled");
+    //     };
+    // }, []);
 
 
     // Persist filter state using sessionStorage
@@ -76,10 +76,10 @@ const StateTable = () => {
             queryClient.invalidateQueries('data');
             
             // // Use optional chaining to safely access data.total
-            // const currentData = queryClient.getQueryData('data');
-            // if (currentData && currentData.total < (pagination.current - 1) * pagination.pageSize) {
-            //     setPagination((prev) => ({ ...prev, current: 1 }));
-            // }
+            const currentData = queryClient.getQueryData('data');
+            if (currentData && currentData.total < (pagination.current - 1) * pagination.pageSize) {
+                setPagination((prev) => ({ ...prev, current: 1 }));
+            }
         }, 500);
 
         const handleNetworkChange = (state) => {
@@ -100,74 +100,74 @@ const StateTable = () => {
     }, [debouncedInvalidate, queryClient]);
     // }, [debouncedInvalidate, pagination.current, pagination.pageSize, queryClient]);
 
-    // const fetchData = async ({ queryKey }) => {
-    //     // const [, filters, pagination] = queryKey; // revisit later is pagination is needed
-    //     const [, filters] = queryKey; // Removed pagination since it's commented out
-    //     let query = supabase
-    //         .from('y_state')
-    //         .select('id, name, updated_at', { count: 'exact' });
-    
-    //     if (filters.dateRange && filters.dateRange.length === 2) {
-    //         const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
-    //         const startIso = startDate.startOf('day').toISOString().split('T')[0];
-    //         const endIso = endDate.endOf('day').toISOString().split('T')[0];
-    
-    //         query = query
-    //             .gte('updated_at', `${startIso} 00:00:00`)
-    //             .lte('updated_at', `${endIso} 23:59:59`);
-    //     }
-    
-    //     // Ensure pagination.current starts from 1 if no changes have been made
-    //     if (pagination.current < 1) {
-    //         setPagination((prev) => ({ ...prev, current: 1 }));
-    //     }
-    
-    //     const offset = (pagination.current - 1) * pagination.pageSize;
-    //     // Use count from the query result for pagination
-    //     const { data, error, count } = await query;
-        
-    //     console.log('Fetched data:', { data, count }); // Add console log to check data availability
-    
-    //     if (error) throw new Error(error.message);
-    
-    //     // Now calculate end using 'count'
-    //     const end = Math.min(offset + pagination.pageSize - 1, count ? count - 1 : offset); // Adjust end to prevent out-of-bounds
-    
-    //     return { items: data, total: count };
-    // };
-
     const fetchData = async ({ queryKey }) => {
-        const [, filters] = queryKey;
+        // const [, filters, pagination] = queryKey; // revisit later is pagination is needed
+        const [, filters] = queryKey; // Removed pagination since it's commented out
         let query = supabase
             .from('y_state')
             .select('id, name, updated_at', { count: 'exact' });
     
         if (filters.dateRange && filters.dateRange.length === 2) {
             const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
-            const startIso = startDate.startOf('day').toISOString();
-            const endIso = endDate.endOf('day').toISOString();
+            const startIso = startDate.startOf('day').toISOString().split('T')[0];
+            const endIso = endDate.endOf('day').toISOString().split('T')[0];
     
             query = query
-                .gte('updated_at', startIso)
-                .lte('updated_at', endIso);
+                .gte('updated_at', `${startIso} 00:00:00`)
+                .lte('updated_at', `${endIso} 23:59:59`);
         }
     
-        const current = pagination?.current || 1; // temporary to avoid error - commented earlier - need to fix there and remove here
-        const pageSize = pagination?.pageSize || 5; // temporary to avoid error - commented earlier - need to fix there and remove here
+        // Ensure pagination.current starts from 1 if no changes have been made
+        if (pagination.current < 1) {
+            setPagination((prev) => ({ ...prev, current: 1 }));
+        }
     
-        const offset = (current - 1) * pageSize;
-        query = query.range(offset, offset + pageSize - 1);
-    
+        const offset = (pagination.current - 1) * pagination.pageSize;
+        // Use count from the query result for pagination
         const { data, error, count } = await query;
-        console.log('Query results:', { data, error, count });
+        
+        console.log('Fetched data:', { data, count }); // Add console log to check data availability
     
-        if (error) {
-            console.error('Error fetching data:', error.message);
-            throw new Error(error.message);
-        }
+        if (error) throw new Error(error.message);
+    
+        // Now calculate end using 'count'
+        const end = Math.min(offset + pagination.pageSize - 1, count ? count - 1 : offset); // Adjust end to prevent out-of-bounds
     
         return { items: data, total: count };
     };
+
+    // const fetchData = async ({ queryKey }) => {
+    //     const [, filters] = queryKey;
+    //     let query = supabase
+    //         .from('y_state')
+    //         .select('id, name, updated_at', { count: 'exact' });
+    
+    //     if (filters.dateRange && filters.dateRange.length === 2) {
+    //         const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
+    //         const startIso = startDate.startOf('day').toISOString();
+    //         const endIso = endDate.endOf('day').toISOString();
+    
+    //         query = query
+    //             .gte('updated_at', startIso)
+    //             .lte('updated_at', endIso);
+    //     }
+    
+        // const current = pagination?.current || 1; // temporary to avoid error - commented earlier - need to fix there and remove here
+        // const pageSize = pagination?.pageSize || 5; // temporary to avoid error - commented earlier - need to fix there and remove here
+    
+    //     const offset = (current - 1) * pageSize;
+    //     query = query.range(offset, offset + pageSize - 1);
+    
+    //     const { data, error, count } = await query;
+    //     console.log('Query results:', { data, error, count });
+    
+    //     if (error) {
+    //         console.error('Error fetching data:', error.message);
+    //         throw new Error(error.message);
+    //     }
+    
+    //     return { items: data, total: count };
+    // };
     
 
     // Use the hook to get the sync queue manager methods
@@ -223,7 +223,7 @@ const StateTable = () => {
                 }
             } else {
                 console.log("createMutation: Offline mode - adding to local state and sync queue", item);
-                addItem(item);
+                addItem(item, false);// Immediate UI update
                 addToQueue({ type: 'create', item }, 'y_state');
                 return item; // Return offline item for UI update
             }
@@ -369,7 +369,7 @@ const StateTable = () => {
 
     if (isLoading) return <div>Loading...</div>;
 
-    console.log("A7. L2. D2.1. Component render", { isOnline, items: isOnline ? data?.items : items, filters, pagination });
+    console.log("A7. L2. D2.1. Main Bloc - Component render", { isOnline, items: isOnline ? data?.items : items, filters, pagination });
 
     return (
         <div style={{ padding: 20 }}>
@@ -396,8 +396,8 @@ const StateTable = () => {
                 dataSource={isOnline ? data?.items : items}
                 rowKey={(record) => record.id}
                 pagination={{
-                    // current: pagination.current,
-                    // pageSize: pagination.pageSize,
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
                     total: isOnline ? data?.total : items.length,
                     onChange: (current, pageSize) => setPagination({ current, pageSize }),
                 }}

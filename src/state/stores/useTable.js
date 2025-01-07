@@ -79,11 +79,11 @@ const createTableStore = (domain) => create(
                             pendingOperations: isOnline ? state.syncStatus.pendingOperations : state.syncStatus.pendingOperations + 1
                         }
                     }));
-                    console.log(`${domain} store: Added new item`, newItem);
+                    console.log(`A5.01. ${domain} store: Added new item`, newItem);
             
                     if (!isOnline) {
                         // Queue for sync when offline
-                        console.log('Adding item offline:', item);
+                        console.log('OFFLINE - Adding item offline:', item);
                         const syncQueue = await getStorage().getItem(`syncQueue-${domain}`) || [];
                         syncQueue.push({ type: 'add', item: newItem });
                         await getStorage().setItem(`syncQueue-${domain}`, syncQueue);
@@ -239,12 +239,12 @@ const createTableStore = (domain) => create(
 const stores = {};
 
 const useTableStore = (domain) => {
-    console.log(`Accessing store for domain: ${domain}`);
+    console.log(`A5.02. Accessing store for domain: ${domain}`);
     if (!stores[domain]) {
         console.log(`Creating new store for domain: ${domain}`);
         stores[domain] = createTableStore(domain);
     }
-    console.log(`Returning store for domain: ${domain}`, stores[domain]);
+    console.log(`A5.03. Returning store for domain: ${domain}`, stores[domain]);
     return stores[domain];
 };
 
