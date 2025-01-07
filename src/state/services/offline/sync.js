@@ -328,19 +328,83 @@ class SyncQueue {
         }
     }
 
+    // async handleCreate(item, domain) {
+    //     // Implement logic to create item in backend here
+    //     console.log('Creating item:', item, 'for domain:', domain);
+    // }
+
+    // async handleUpdate(item, domain) {
+    //     // Implement logic to update item in backend here
+    //     console.log('Updating item:', item, 'for domain:', domain);
+    // }
+
+    // async handleDelete(id, domain) {
+    //     // Implement logic to delete item from backend here
+    //     console.log('Deleting item with id:', id, 'for domain:', domain);
+    // }
+
     async handleCreate(item, domain) {
-        // Implement logic to create item in backend here
-        console.log('Creating item:', item, 'for domain:', domain);
+        try {
+            const response = await fetch(`/api/${domain}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(item),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const newItem = await response.json();
+            // Optionally update local state or return the new item for further handling
+            return newItem;
+        } catch (error) {
+            console.error('Error creating item:', error);
+            throw error;
+        }
     }
-
+    
     async handleUpdate(item, domain) {
-        // Implement logic to update item in backend here
-        console.log('Updating item:', item, 'for domain:', domain);
+        try {
+            const response = await fetch(`/api/${domain}/${item.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(item),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const updatedItem = await response.json();
+            // Optionally update local state or return the updated item
+            return updatedItem;
+        } catch (error) {
+            console.error('Error updating item:', error);
+            throw error;
+        }
     }
-
+    
     async handleDelete(id, domain) {
-        // Implement logic to delete item from backend here
-        console.log('Deleting item with id:', id, 'for domain:', domain);
+        try {
+            const response = await fetch(`/api/${domain}/${id}`, {
+                method: 'DELETE',
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            // Typically, DELETE operations don't return content, but you might return metadata
+            return { message: 'Item deleted successfully' };
+        } catch (error) {
+            console.error('Error deleting item:', error);
+            throw error;
+        }
     }
 
     async retryFailedOperations() {

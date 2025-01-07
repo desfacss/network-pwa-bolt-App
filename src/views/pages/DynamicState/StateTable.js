@@ -8,13 +8,15 @@ import useTableStore from 'state/stores/useTable';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
+import useGenericStore from 'state/stores/useGenericStore';
+
 
 const { RangePicker } = DatePicker;
 
 const StateTable = () => {
     // Use the domain when accessing the store
     // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore('y_state'); // If dynamic
-    const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore('y_state')();
+    const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useGenericStore('y_state')();
     // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore((state) => state.y_state);
     // const { items, pagination, setItems, setPagination, addItem, updateItem, deleteItem } = useTableStore(state => state);
 

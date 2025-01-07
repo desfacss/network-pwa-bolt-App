@@ -250,6 +250,8 @@ const useTableStore = (domain) => {
 
 export default useTableStore; // Add this line at the end of the file to make it a default export
 
+// The isOnline parameter usage in useTableStore might not be necessary if all operations are automatically queued by useSyncQueueManager. You can simplify these methods by removing isOnline checks since the queue management is handled externally:
+
 
 
 // without dynamic domain 
