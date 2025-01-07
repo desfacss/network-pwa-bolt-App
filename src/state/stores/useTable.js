@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { openDB } from 'idb';
+import { dexieDB } from 'state/services/offline/dexie';
 
 const DB_NAME = 'myDb';
 const DB_VERSION = 1;
@@ -86,6 +87,7 @@ const createTableStore = (domain) => create(
                         console.log('OFFLINE - Adding item offline:', item);
                         const syncQueue = await getStorage().getItem(`syncQueue-${domain}`) || [];
                         syncQueue.push({ type: 'add', item: newItem });
+                        await dexieDB.y_state.add(newItem); // addint to local dexieDB
                         await getStorage().setItem(`syncQueue-${domain}`, syncQueue);
                     }
                 } catch (error) {

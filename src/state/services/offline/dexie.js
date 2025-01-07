@@ -24,12 +24,12 @@ class genericOfflineDB extends Dexie {
 
     constructor() {
         super('genericOfflineDB');
-        this.version(2).stores({
+        this.version(3).stores({
             records: 'id, *timestamp',
             viewConfigs: 'id, *timestamp',
-            syncQueue: 'id, *timestamp',
+            syncQueue: 'id, *timestamp', // table will hold operations pending sync, which is crucial for offline functionality.
             data: 'id, *lastModified',
-            tablestate: 'id, *timestamp, name, email, phone'
+            y_state: 'id, *timestamp, name, email, phone'
         });
     }
 }
