@@ -1,4 +1,4 @@
-// import Dexie from 'dexie';
+import Dexie from 'dexie';
 
 // class OfflineDB extends Dexie {
 //     y_state;
@@ -170,5 +170,5 @@ class OfflineDB extends Dexie {
     }
 }
 
-export const dexieDB = new OfflineDB();
+export const offlineDB = new OfflineDB();
 

@@ -1,5 +1,5 @@
 
-// import { dexieDB } from 'state/services/offline/dexie';
+// import { offlineDB } from 'state/services/offline/dexie';
 // import { networkMonitor } from 'state/services/offline/networkMonitor';
 
 // const RETRY_DELAYS = [1000, 5000, 15000, 30000, 60000]; // Exponential backoff delays
@@ -16,10 +16,10 @@
 //         try {
 //             console.log("A1. SyncQueue: Initializing sync queue...");
 //             // Ensure database is opened before accessing tables
-//             await dexieDB.open();
-//             this.queue = await dexieDB.syncQueue.toArray();
+//             await offlineDB.open();
+//             this.queue = await offlineDB.syncQueue.toArray();
 //             console.log("A2. SyncQueue: Loaded queue items:", this.queue.length);
-//             this.isProcessing = await dexieDB.getSyncQueueState() || false;
+//             this.isProcessing = await offlineDB.getSyncQueueState() || false;
 //             console.log("A3. SyncQueue: Current processing state:", this.isProcessing);
 
 //             // Use subscribe for network status changes
@@ -73,7 +73,7 @@
 //                 lastAttempt: null,
 //             };
 
-//             await dexieDB.syncQueue.add(queueItem);
+//             await offlineDB.syncQueue.add(queueItem);
 //             this.queue.push(queueItem);
 //             console.log("A10. Added to queue:", queueItem);
 
@@ -100,7 +100,7 @@
 //         }
 
 //         this.isProcessing = true;
-//         await dexieDB.updateSyncQueueState({ isProcessing: true });
+//         await offlineDB.updateSyncQueueState({ isProcessing: true });
 //         console.log("A14. Started processing queue. Items to process:", this.queue.length);
 
 //         try {
@@ -113,7 +113,7 @@
 
 //                 try {
 //                     await this.processOperation(item);
-//                     await dexieDB.syncQueue.delete(item.id);
+//                     await offlineDB.syncQueue.delete(item.id);
 //                     this.queue.splice(i, 1);
 //                     i--; // Adjust index after removal
 //                     console.log("A16. Successfully processed item:", item.id);
@@ -128,7 +128,7 @@
 //                         error: error.message,
 //                     };
 
-//                     await dexieDB.syncQueue.put(updatedItem);
+//                     await offlineDB.syncQueue.put(updatedItem);
 //                     this.queue[i] = updatedItem;
 
 //                     // Wait before next retry
@@ -140,7 +140,7 @@
 //             }
 //         } finally {
 //             this.isProcessing = false;
-//             await dexieDB.updateSyncQueueState({ isProcessing: false });
+//             await offlineDB.updateSyncQueueState({ isProcessing: false });
 //             console.log("A19. Finished processing queue.");
 //         }
 //     }
@@ -234,14 +234,14 @@
 //      * Retries operations that failed but haven't exceeded max retries
 //      */
 //     async retryFailedOperations() {
-//         const failedItems = await dexieDB.syncQueue.where('status').equals('failed').and(item => item.retries < MAX_RETRIES).toArray();
+//         const failedItems = await offlineDB.syncQueue.where('status').equals('failed').and(item => item.retries < MAX_RETRIES).toArray();
 //         console.log("A22. Retrying", failedItems.length, "failed operations");
 
 //         if (failedItems.length > 0 && networkMonitor.isOnline && networkMonitor.isConnectionStable) {
 //             for (const item of failedItems) {
 //                 item.status = 'pending';
 //                 item.lastAttempt = null;
-//                 await dexieDB.syncQueue.put(item);
+//                 await offlineDB.syncQueue.put(item);
 //                 console.log("A23. Resetting item for retry:", item.id);
 //             }
 //             this.processQueue();
@@ -253,7 +253,7 @@
 //      */
 //     async cleanUpQueue() {
 //         const now = Date.now();
-//         const count = await dexieDB.syncQueue.where('timestamp').below(now - (30 * 24 * 60 * 60 * 1000))
+//         const count = await offlineDB.syncQueue.where('timestamp').below(now - (30 * 24 * 60 * 60 * 1000))
 //             .and(item => item.status === 'failed' && item.retries >= MAX_RETRIES)
 //             .delete();
 //         console.log("A24. Cleaned up", count, "old failed operations from the queue.");
@@ -264,7 +264,7 @@
 
 
 
-import { dexieDB } from 'state/services/offline/dexie';
+import { offlineDB } from 'state/services/offline/offlinedb';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
 
 const RETRY_DELAYS = [1000, 5000, 15000, 30000, 60000]; // Exponential backoff delays
@@ -280,10 +280,10 @@ class SyncQueue {
     async initialize() {
         try {
             console.log("A1. SyncQueue: Initializing sync queue...");
-            await dexieDB.open();
-            this.queue = await dexieDB.syncQueue.toArray();
+            await offlineDB.open();
+            this.queue = await offlineDB.syncQueue.toArray();
             console.log("A2. SyncQueue: Loaded queue items:", this.queue.length);
-            this.isProcessing = await dexieDB.getSyncQueueState() || false;
+            this.isProcessing = await offlineDB.getSyncQueueState() || false;
             console.log("A3. SyncQueue: Current processing state:", this.isProcessing);
 
             // Use subscribe for network status changes
@@ -332,7 +332,7 @@ class SyncQueue {
                 lastAttempt: null,
             };
 
-            await dexieDB.syncQueue.add(queueItem);
+            await offlineDB.syncQueue.add(queueItem);
             this.queue.push(queueItem);
             console.log("A10. Added to queue:", queueItem);
 
@@ -361,7 +361,7 @@ class SyncQueue {
         }
 
         this.isProcessing = true;
-        await dexieDB.updateSyncQueueState({ isProcessing: true });
+        await offlineDB.updateSyncQueueState({ isProcessing: true });
         console.log("A14. Started processing queue. Items to process:", this.queue.length);
 
         try {
@@ -374,7 +374,7 @@ class SyncQueue {
 
                 try {
                     await this.processOperation(item);
-                    await dexieDB.syncQueue.delete(item.id);
+                    await offlineDB.syncQueue.delete(item.id);
                     this.queue.splice(i, 1);
                     i--; // Adjust index after removal
                     console.log("A16. Successfully processed item:", item.id);
@@ -389,7 +389,7 @@ class SyncQueue {
                         error: error.message,
                     };
 
-                    await dexieDB.syncQueue.put(updatedItem);
+                    await offlineDB.syncQueue.put(updatedItem);
                     this.queue[i] = updatedItem;
 
                     // Wait before next retry
@@ -401,7 +401,7 @@ class SyncQueue {
             }
         } finally {
             this.isProcessing = false;
-            await dexieDB.updateSyncQueueState({ isProcessing: false });
+            await offlineDB.updateSyncQueueState({ isProcessing: false });
             console.log("A19. Finished processing queue.");
         }
     }
@@ -483,14 +483,14 @@ class SyncQueue {
     }
 
     async retryFailedOperations() {
-        const failedItems = await dexieDB.syncQueue.where('status').equals('failed').and(item => item.retries < MAX_RETRIES).toArray();
+        const failedItems = await offlineDB.syncQueue.where('status').equals('failed').and(item => item.retries < MAX_RETRIES).toArray();
         console.log("A22. Retrying", failedItems.length, "failed operations");
 
         if (failedItems.length > 0 && networkMonitor.isOnline && networkMonitor.isConnectionStable) {
             for (const item of failedItems) {
                 item.status = 'pending';
                 item.lastAttempt = null;
-                await dexieDB.syncQueue.put(item);
+                await offlineDB.syncQueue.put(item);
                 console.log("A23. Resetting item for retry:", item.id);
             }
             this.processQueue();
@@ -499,7 +499,7 @@ class SyncQueue {
 
     async cleanUpQueue() {
         const now = Date.now();
-        const count = await dexieDB.syncQueue.where('timestamp').below(now - (30 * 24 * 60 * 60 * 1000))
+        const count = await offlineDB.syncQueue.where('timestamp').below(now - (30 * 24 * 60 * 60 * 1000))
             .and(item => item.status === 'failed' && item.retries >= MAX_RETRIES)
             .delete();
         console.log("A24. Cleaned up", count, "old failed operations from the queue.");

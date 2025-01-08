@@ -15,7 +15,7 @@
 //     const [isOnline, setIsOnline] = useState(true);
 //     const queryClient = useQueryClient();
 //     const { addToQueue, queueStatus } = useSyncQueueManager();
-    
+
 //     // Persist filter state using sessionStorage
 //     const [filters, setFilters] = useState(() => {
 //         const savedState = sessionStorage.getItem('filters');
@@ -224,10 +224,11 @@ import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from 'api/supabaseClient';
 import { useSyncQueue } from 'state/hooks/useSyncQueue';
-import useTableStore from 'state/stores/useTableStore';
+// import useTableStore from 'state/stores/useTableStore';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
+import useTableStore from 'state/stores/useGenericDomainTable';
 
 const { RangePicker } = DatePicker;
 
@@ -236,7 +237,7 @@ const StateTable = () => {
     const [isOnline, setIsOnline] = useState(true);
     const queryClient = useQueryClient();
     const { addToQueue, queueStatus } = useSyncQueue();
-    
+
     // Persist filter state using sessionStorage
     // This state will be used for filtering data based on user input
     const [filters, setFilters] = useState(() => {
@@ -300,9 +301,9 @@ const StateTable = () => {
                 }
             }
         };
-    
+
         const unsubscribe = networkMonitor.subscribe(handleNetworkChange);
-    
+
         return () => {
             console.log("A0.2. Cleaning up network status listener");
             unsubscribe();
@@ -312,16 +313,17 @@ const StateTable = () => {
 
     // useEffect(() => {
     //     const unsubscribe = networkMonitor.subscribe(handleNetworkChange);
-        
+
     //     return () => {
     //         console.log("A0.2. Cleaning up network status listener");
     //         unsubscribe();
     //         debouncedInvalidate.cancel();
     //     };
     // }, [isOnline, debouncedInvalidate]);
-
+    const pageSize = 7;
+    const initPageParam = 1;
     // Fetch data from Supabase with pagination
-    const fetchData = async ({ pageParam = 1 }) => {
+    const fetchData = async ({ pageParam = initPageParam }) => {
         console.log("P1. Fetching data for page:", pageParam);
         let query = supabase
             .from('y_state')
@@ -336,7 +338,7 @@ const StateTable = () => {
                 .lte('updated_at', endIso);
         }
 
-        const pageSize = 10; // Hardcode or use from state if dynamic
+        // const pageSize = 10; // Hardcode or use from state if dynamic
         const offset = (pageParam - 1) * pageSize;
         const { data, error, count } = await query.range(offset, offset + pageSize - 1);
 
@@ -363,12 +365,12 @@ const StateTable = () => {
     } = useInfiniteQuery({ // useQuery - manage pagination manually and query for each page, does not flatten available data
         queryKey: ['data', filters],
         queryFn: fetchData,
-        // initialPageParam: 2, // or 1, for testing
+        // initialPageParam: 1, // or 1, for testing
         // initialPageParam: staticPage, // Start with page 2 for testing
         getNextPageParam: (lastPage, allPages) => {
             console.log("P8. Last Page:", lastPage, "All Pages:", allPages);
             const total = lastPage.total;
-            const pageSize = 10; // Match with fetchData
+            // const pageSize = 10; // Match with fetchData
             const nextPage = allPages.length + 1;
             return nextPage * pageSize < total ? nextPage : undefined;
         },
@@ -542,7 +544,7 @@ const StateTable = () => {
     //     }, 100),
     //     [data?.pageParams, fetchNextPageWithLog]
     // );
-    
+
     // const allItems = useMemo(() => 
     //     data?.pages?.flatMap(page => page.items) || []
     // , [data]);
@@ -555,7 +557,7 @@ const StateTable = () => {
     //     [onPaginationChange]
     // );
 
-    
+
 
     // const debouncedPaginationChange = useCallback(
     //     debounce((page, pageSize) => {
@@ -623,7 +625,7 @@ const StateTable = () => {
                 dataSource={isOnline ? allItems : items}
                 rowKey={(record) => record.id}
                 pagination={{
-                    pageSize: 10,
+                    pageSize: pageSize,
                     onChange: debouncedPaginationChange,
                     total: data?.pages[0]?.total || 0,
                     current: data?.pageParams?.length || 1,
