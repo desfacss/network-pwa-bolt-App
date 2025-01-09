@@ -1,8 +1,6 @@
 import React from 'react';
 import { Table, Button, Popconfirm, Card } from 'antd';
-// import { useRecords } from 'state/hooks/useRecords';
-import StateTable from './StateTable-N1';
-import StateManager from './StateManager11';
+import StateTable from './StateTable-N2';
 
 const DynamicTable = () => {
     // const entityType = 'y_state';
