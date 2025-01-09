@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
-import { Card, Button, Input, Select, Switch, Drawer, Row, Col } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Button, Input, Select, Switch, Drawer, Row, Col, Divider } from 'antd';
 import DynamicForm from '../DynamicForm';
 import { widgetConfigs } from './widgets';
+import JSONInput from 'react-json-editor-ajrm';
+import locale from 'react-json-editor-ajrm/locale/en';
 
 const FormBuilder = () => {
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+  const [dataSchema, setDataSchema] = useState({
+    type: "object",
+    properties: {},
+    required: [],
+  });
+  const [uiSchema, setUiSchema] = useState({});
   const [fields, setFields] = useState([]);
   const [fieldInput, setFieldInput] = useState({
     title: "",
@@ -43,7 +51,7 @@ const FormBuilder = () => {
     };
 
     setFields(prev => [...prev, newField]);
-
+    updateSchemas([...fields, newField]);
     // Reset form
     setFieldInput({
       title: fieldInput?.title || "",
@@ -58,69 +66,136 @@ const FormBuilder = () => {
       lookupColumn: '',
       acceptedFileTypes: '.pdf'
     });
+
+    // const updatedSchemas = generateSchemas([...fields, newField]);
+    // setDataSchema(updatedSchemas.data_schema);
+    // setUiSchema(updatedSchemas.ui_schema);
   };
 
-  const generateSchemas = () => {
-    const dataSchema = {
-      type: "object",
-      title: fieldInput?.title,
-      description: fieldInput?.description,
-      required: [],
-      properties: {}
-    };
+  // const generateSchemas = () => {
+  //   const dataSchema = {
+  //     type: "object",
+  //     title: fieldInput?.title,
+  //     description: fieldInput?.description,
+  //     required: [],
+  //     properties: {}
+  //   };
 
-    const uiSchema = {};
+  //   const uiSchema = {};
 
-    fields.forEach(field => {
-      const config = widgetConfigs[field.fieldType];
-      if (!config) return;
+  //   fields.forEach(field => {
+  //     const config = widgetConfigs[field.fieldType];
+  //     if (!config) return;
 
-      // Build data schema
-      const fieldDataSchema = { ...config.dataSchema, title: field.fieldName };
+  //     // Build data schema
+  //     const fieldDataSchema = { ...config.dataSchema, title: field.fieldName };
 
-      // Handle enums and lookups
-      if (config.requiresOptions && field.options?.length) {
-        fieldDataSchema.enum = field.options;
-      } else if (config.requiresLookup && field.lookupTable && field.lookupColumn) {
-        fieldDataSchema.enum = {
-          table: field.lookupTable,
-          column: field.lookupColumn
-        };
-      }
+  //     // Handle enums and lookups
+  //     if (config.requiresOptions && field.options?.length) {
+  //       fieldDataSchema.enum = field.options;
+  //     } else if (config.requiresLookup && field.lookupTable && field.lookupColumn) {
+  //       fieldDataSchema.enum = {
+  //         table: field.lookupTable,
+  //         column: field.lookupColumn
+  //       };
+  //     }
 
-      dataSchema.properties[field.fieldName] = fieldDataSchema;
+  //     dataSchema.properties[field.fieldName] = fieldDataSchema;
 
-      // Build UI schema
-      const fieldUiSchema = { ...config.uiSchema };
+  //     // Build UI schema
+  //     const fieldUiSchema = { ...config.uiSchema };
 
-      if (field.placeholder) {
-        fieldUiSchema["ui:placeholder"] = field.placeholder;
-      }
+  //     if (field.placeholder) {
+  //       fieldUiSchema["ui:placeholder"] = field.placeholder;
+  //     }
 
-      if (config.hasFileOptions && field.acceptedFileTypes) {
-        fieldUiSchema["ui:options"] = {
-          ...fieldUiSchema["ui:options"],
-          accept: field.acceptedFileTypes
-        };
-      }
+  //     if (config.hasFileOptions && field.acceptedFileTypes) {
+  //       fieldUiSchema["ui:options"] = {
+  //         ...fieldUiSchema["ui:options"],
+  //         accept: field.acceptedFileTypes
+  //       };
+  //     }
 
-      fieldUiSchema["ui:order"] = field.uiOrder;
-      uiSchema[field.fieldName] = fieldUiSchema;
+  //     fieldUiSchema["ui:order"] = field.uiOrder;
+  //     uiSchema[field.fieldName] = fieldUiSchema;
 
-      if (field.required) {
-        dataSchema.required.push(field.fieldName);
-      }
-    });
+  //     if (field.required) {
+  //       dataSchema.required.push(field.fieldName);
+  //     }
+  //   });
 
-    return { data_schema: dataSchema, ui_schema: uiSchema };
-  };
+  //   return { data_schema: dataSchema, ui_schema: uiSchema };
+  // };
 
   const currentConfig = widgetConfigs[fieldInput.fieldType];
   const showOptions = currentConfig?.requiresOptions;
   const showLookup = currentConfig?.requiresLookup;
   const showFileOptions = currentConfig?.hasFileOptions;
 
-  const schemas = generateSchemas();
+  // const schemas = generateSchemas();
+
+  const updateSchemas = (updatedFields) => {
+    const newDataSchema = {
+      type: "object",
+      title: fieldInput?.title,
+      description: fieldInput?.description,
+      required: [],
+      properties: {}
+    };
+    const newUiSchema = {
+      "ui:submitButtonOptions": {
+        "props": {
+          "disabled": false,
+          "className": "ant-btn-variant-solid ant-btn-block"
+        },
+        "norender": false,
+        "submitText": "Save"
+      }
+    };
+    // "className": "ant-btn css-dev-only-do-not-override-1stfoss ant-btn-submit ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-block"
+
+    updatedFields.forEach(field => {
+      const config = widgetConfigs[field.fieldType];
+      if (!config) return;
+
+      const fieldDataSchema = { ...config.dataSchema, title: field.fieldName };
+      if (config.requiresOptions && field.options?.length) {
+        fieldDataSchema.enum = field.options;
+      } else if (config.requiresLookup && field.lookupTable && field.lookupColumn) {
+        fieldDataSchema.enum = {
+          table: field.lookupTable,
+          column: field.lookupColumn,
+        };
+      }
+
+      newDataSchema.properties[field.fieldName] = fieldDataSchema;
+      if (field.required) {
+        newDataSchema.required.push(field.fieldName);
+      }
+
+      const fieldUiSchema = { ...config.uiSchema };
+      if (field.placeholder) {
+        fieldUiSchema["ui:placeholder"] = field.placeholder;
+      }
+      if (config.hasFileOptions && field.acceptedFileTypes) {
+        fieldUiSchema["ui:options"] = {
+          ...fieldUiSchema["ui:options"],
+          accept: field.acceptedFileTypes
+        };
+      }
+      fieldUiSchema["ui:order"] = field.uiOrder;
+      newUiSchema[field.fieldName] = fieldUiSchema;
+    });
+
+    setDataSchema(newDataSchema);
+    setUiSchema(newUiSchema);
+  };
+
+  useEffect(() => {
+    updateSchemas(fields);
+  }, [fields]);
+
+  const onFinish = () => { setIsDrawerVisible(false) }
 
   return (<div className="space-y-6">
     <Row gutter={16}>
@@ -191,11 +266,8 @@ const FormBuilder = () => {
                 </Row>
               )}
               {showFileOptions && (
-                <Input className='mt-2'
-                  placeholder="Accepted File Types"
-                  value={fieldInput?.acceptedFileTypes}
-                  onChange={(e) => handleFieldChange('acceptedFileTypes', e.target.value)}
-                />
+                <Input className='mt-2' placeholder="Accepted File Types" value={fieldInput?.acceptedFileTypes}
+                  onChange={(e) => handleFieldChange('acceptedFileTypes', e.target.value)} />
               )}
             </div>
             <Button onClick={handleAddField} type="primary" block className='mt-2'>
@@ -204,33 +276,23 @@ const FormBuilder = () => {
           </div>
         </Card>
 
-        <Card
-          title={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>Current Fields</span>
-              <Button onClick={() => setIsDrawerVisible(true)} type="primary">
-                Show Form
-              </Button>
-            </div>
-          }
-        >
+        <Card title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Current Fields</span>
+            <Button onClick={() => setIsDrawerVisible(true)} type="primary">
+              Show Form
+            </Button>
+          </div>
+        } >
           <div className="space-y-2">
-            {fields.map((field, index) => (
-              <div key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded">
-                <div className="flex gap-4">
-                  <span className="font-medium">{field.fieldName}</span>
-                  <span className="text-slate-600">Type: {field.fieldType}</span>
-                  <span className="text-slate-600">Order: {field.uiOrder}</span>
-                  {field.required && (
-                    <span className="text-red-500">Required</span>
-                  )}
-                  {field.options?.length > 0 && (
-                    <span className="text-slate-600">Options: {field.options.join(', ')}</span>
-                  )}
+            {fields?.map((field, index) => (
+              <div key={index} className="flex justify-between items-center p-1 bg-slate-50 rounded">
+                <div className="flex gap-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="font-medium">{field.fieldName} ( {field.fieldType} , {field.uiOrder} ) </span>
+                  <Button danger size="small" onClick={() => setFields(prev => prev.filter((_, i) => i !== index))} >
+                    X
+                  </Button>
                 </div>
-                <Button danger size="small" onClick={() => setFields(prev => prev.filter((_, i) => i !== index))} >
-                  Remove
-                </Button>
               </div>
             ))}
           </div>
@@ -243,13 +305,19 @@ const FormBuilder = () => {
             <div style={{ flex: 1 }}>
               <h3 className="font-medium mb-1">Data Schema:</h3>
               <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
-                {JSON.stringify(schemas?.data_schema, null, 2)}
+                {/* {JSON.stringify(schemas?.data_schema, null, 2)} */}
+                <JSONInput style={{ body: { fontSize: '14px' } }} id="data_schema_editor" locale={locale} height="600px" width="100%"
+                  onChange={(e) => e.jsObject && setDataSchema(e.jsObject)} placeholder={dataSchema} // placeholder={schemas?.data_schema}
+                />
               </pre>
             </div>
             <div style={{ flex: 1 }}>
               <h3 className="font-medium mb-1">UI Schema:</h3>
               <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
-                {JSON.stringify(schemas?.ui_schema, null, 2)}
+                {/* {JSON.stringify(schemas?.ui_schema, null, 2)} */}
+                <JSONInput style={{ body: { fontSize: '14px' } }} id="ui_schema_editor" locale={locale} height="600px" width="100%"
+                  onChange={(e) => e.jsObject && setUiSchema(e.jsObject)} placeholder={uiSchema} // placeholder={schemas?.ui_schema}
+                />
               </pre>
             </div>
           </div>
@@ -258,7 +326,9 @@ const FormBuilder = () => {
     </Row>
 
     <Drawer width="50%" title={'Form Fields'} visible={isDrawerVisible} onClose={() => setIsDrawerVisible(false)} footer={null} >
-      {schemas && <DynamicForm schemas={schemas} />}
+      <DynamicForm schemas={{ data_schema: dataSchema, ui_schema: uiSchema }} onFinish={onFinish}
+      // schemas={schemas}
+      />
     </Drawer>
   </div>
   )

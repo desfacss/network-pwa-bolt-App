@@ -40,7 +40,7 @@ const dataConfig = {
         additionalFields: { // Additional fields to include in each row
             // mainEntityId: 'project_id', // Adding the mainEntityId to allocations rows
             project_id: 'mainEntityId', // `project_id` in allocations table will map to `formData.id`
-            name: '10dad5b9-43c2-45c4-b7fa-d876323f52fz', // `project_id` in allocations table will map to `formData.id`
+            // name: '10dad5b9-43c2-45c4-b7fa-d876323f52fz', // `project_id` in allocations table will map to `formData.id`
             // fixedField: 'fixedValue' // Can also use a fixed value if needed
         },
         wholeRowColumn: 'details' // Optional: Specify if the entire row should be stored in one column (set to column name or `null`)
@@ -323,7 +323,7 @@ const Index = () => {
 
                 return { ...newRow, organization_id: session?.user?.organization_id };
             });
-            console.log("rw", formattedRows, table)
+            console.log("rw", formattedRows)
             // Insert rows into allocations table
             const { data, error } = await supabase
                 .from(table)
