@@ -1,155 +1,14 @@
 import React, { useState } from 'react';
-// import { Card, Card.Header, Card.Title, Card.Content } from 'antd';
-// import { Button, Card, notification, Tabs } from 'antd';
-import { Card, Button, Input, Select, Switch } from 'antd';
-// import { Button } from '@/components/ui/button';
-// import { Input } from '@/components/ui/input';
-// import { Select, Select.SelectContent, Select.SelectItem, Select.SelectTrigger, Select.SelectValue } from '@/components/ui/select';
-// import { Switch } from '@/components/ui/switch';
-// import { Label } from '@/components/ui/label';
-// import { Input.Textarea } from '@/components/ui/Input.Textarea';
-
-const widgetConfigs = {
-  "text": {
-    dataSchema: {
-      type: "string",
-    },
-    uiSchema: {
-      "ui:widget": "text",
-      "ui:placeholder": "Enter text"
-    },
-    requiresOptions: false
-  },
-  "Input.Textarea": {
-    dataSchema: {
-      type: "string",
-    },
-    uiSchema: {
-      "ui:widget": "Input.Textarea",
-      "ui:placeholder": "Enter description"
-    },
-    requiresOptions: false
-  },
-  "select": {
-    dataSchema: {
-      type: "string",
-      enum: []
-    },
-    uiSchema: {
-      "ui:widget": "select",
-      "ui:placeholder": "Select an option"
-    },
-    requiresOptions: true
-  },
-  "radio": {
-    dataSchema: {
-      type: "string",
-      enum: []
-    },
-    uiSchema: {
-      "ui:widget": "radio"
-    },
-    requiresOptions: true
-  },
-  "checkboxes": {
-    dataSchema: {
-      type: "array",
-      items: {
-        type: "string"
-      }
-    },
-    uiSchema: {
-      "ui:widget": "checkboxes"
-    },
-    requiresOptions: true
-  },
-  "date": {
-    dataSchema: {
-      type: "string",
-      format: "date"
-    },
-    uiSchema: {
-      "ui:widget": "date"
-    },
-    requiresOptions: false
-  },
-  "datetime": {
-    dataSchema: {
-      type: "string",
-      format: "date-time"
-    },
-    uiSchema: {
-      "ui:widget": "date-time"
-    },
-    requiresOptions: false
-  },
-  "datetime-range": {
-    dataSchema: {
-      type: "array",
-      items: {
-        type: "string",
-        format: "date-time"
-      }
-    },
-    uiSchema: {
-      "ui:widget": "DateTimeRangePickerWidget"
-    },
-    requiresOptions: false
-  },
-  "file": {
-    dataSchema: {
-      type: "string",
-      format: "data-url"
-    },
-    uiSchema: {
-      "ui:widget": "file",
-      "ui:options": {
-        "accept": ".pdf"
-      }
-    },
-    requiresOptions: false,
-    hasFileOptions: true
-  },
-  "hidden": {
-    dataSchema: {
-      type: "string"
-    },
-    uiSchema: {
-      "ui:widget": "hidden"
-    },
-    requiresOptions: false
-  },
-  "readonly-datetime": {
-    dataSchema: {
-      type: "string",
-      format: "date-time",
-      readOnly: true
-    },
-    uiSchema: {
-      "ui:widget": "date-time",
-      "ui:readonly": true
-    },
-    requiresOptions: false
-  },
-  "lookup-select": {
-    dataSchema: {
-      type: "string",
-      enum: {
-        table: "",
-        column: ""
-      }
-    },
-    uiSchema: {
-      "ui:widget": "select",
-      "ui:placeholder": "Select from lookup"
-    },
-    requiresLookup: true
-  }
-};
+import { Card, Button, Input, Select, Switch, Drawer, Row, Col } from 'antd';
+import DynamicForm from '../DynamicForm';
+import { widgetConfigs } from './widgets';
 
 const FormBuilder = () => {
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [fields, setFields] = useState([]);
   const [fieldInput, setFieldInput] = useState({
+    title: "",
+    description: "",
     fieldName: '',
     fieldType: 'text',
     uiOrder: '0',
@@ -178,13 +37,17 @@ const FormBuilder = () => {
       uiOrder: parseInt(fieldInput.uiOrder),
       options: fieldInput.options.length ? fieldInput.options : undefined,
       lookupTable: fieldInput.lookupTable || undefined,
-      lookupColumn: fieldInput.lookupColumn || undefined
+      lookupColumn: fieldInput.lookupColumn || undefined,
+      // title: fieldInput?.title || "",
+      // description: fieldInput?.description || ""
     };
 
     setFields(prev => [...prev, newField]);
 
     // Reset form
     setFieldInput({
+      title: fieldInput?.title || "",
+      description: fieldInput?.description || "",
       fieldName: '',
       fieldType: 'text',
       uiOrder: String(fields.length + 1),
@@ -200,6 +63,8 @@ const FormBuilder = () => {
   const generateSchemas = () => {
     const dataSchema = {
       type: "object",
+      title: fieldInput?.title,
+      description: fieldInput?.description,
       required: [],
       properties: {}
     };
@@ -247,7 +112,7 @@ const FormBuilder = () => {
       }
     });
 
-    return { dataSchema, uiSchema };
+    return { data_schema: dataSchema, ui_schema: uiSchema };
   };
 
   const currentConfig = widgetConfigs[fieldInput.fieldType];
@@ -255,133 +120,146 @@ const FormBuilder = () => {
   const showLookup = currentConfig?.requiresLookup;
   const showFileOptions = currentConfig?.hasFileOptions;
 
-  const { dataSchema, uiSchema } = generateSchemas();
+  const schemas = generateSchemas();
 
   return (<div className="space-y-6">
-    <Card title="Add Form Field">
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            placeholder="Field Name"
-            value={fieldInput.fieldName}
-            onChange={(e) => handleFieldChange('fieldName', e.target.value)}
-          />
+    <Row gutter={16}>
+      <Col span={8}>
+        <Row gutter={4}>
+          <Col span={12}>
+            <Input placeholder="Title" value={fieldInput?.title}
+              onChange={(e) => handleFieldChange('title', e.target.value)} />
+          </Col>
+          <Col span={12}>
+            <Input placeholder="Description" value={fieldInput?.description}
+              onChange={(e) => handleFieldChange('description', e.target.value)} />
+          </Col>
+        </Row>
+        <Card title="Add Form Field">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Row gutter={4}>
+                <Col span={12}>
+                  <Input placeholder="Field Name" value={fieldInput?.fieldName}
+                    onChange={(e) => handleFieldChange('fieldName', e.target.value)} />
+                </Col>
+                <Col span={12}>
+                  <Select style={{ width: "100%" }} value={fieldInput?.fieldType} placeholder="Select type"
+                    onChange={(value) => handleFieldChange('fieldType', value)} >
+                    {Object.keys(widgetConfigs)?.map(type => (
+                      <Select.Option key={type} value={type}>
+                        {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Col>
+              </Row>
+              <Row gutter={4} className='mt-2'>
+                <Col span={12}>
+                  <Input type="number" placeholder="UI Order" value={fieldInput?.uiOrder}
+                    onChange={(e) => handleFieldChange('uiOrder', e.target.value)} />
+                </Col>
+                <Col span={12}>
+                  {/* <div className="flex items-center gap-2 col-span-2"> */}
+                  <Switch checked={fieldInput?.required}
+                    onChange={(checked) => handleFieldChange('required', checked)} />
+                  <label>Required</label>
+                  {/* </div> */}
+                </Col>
+              </Row>
 
-          <Select
-            value={fieldInput.fieldType}
-            onChange={(value) => handleFieldChange('fieldType', value)}
-            placeholder="Select type"
-          >
-            {Object.keys(widgetConfigs).map(type => (
-              <Select.Option key={type} value={type}>
-                {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-              </Select.Option>
-            ))}
-          </Select>
+              <Input className='mt-2' placeholder="Placeholder Text" value={fieldInput?.placeholder}
+                onChange={(e) => handleFieldChange('placeholder', e.target.value)} />
 
-          <Input
-            type="number"
-            placeholder="UI Order"
-            value={fieldInput.uiOrder}
-            onChange={(e) => handleFieldChange('uiOrder', e.target.value)}
-          />
-
-          <Input
-            placeholder="Placeholder Text"
-            value={fieldInput.placeholder}
-            onChange={(e) => handleFieldChange('placeholder', e.target.value)}
-          />
-
-          {showOptions && (
-            <Input.TextArea
-              placeholder="Enter options (comma-separated)"
-              value={fieldInput.options.join(', ')}
-              onChange={(e) => handleFieldChange('options', e.target.value.split(',').map(opt => opt.trim()).filter(Boolean))}
-              rows={3}
-            />
-          )}
-
-          {showLookup && (
-            <>
-              <Input
-                placeholder="Lookup Table"
-                value={fieldInput.lookupTable}
-                onChange={(e) => handleFieldChange('lookupTable', e.target.value)}
-              />
-              <Input
-                placeholder="Lookup Column"
-                value={fieldInput.lookupColumn}
-                onChange={(e) => handleFieldChange('lookupColumn', e.target.value)}
-              />
-            </>
-          )}
-
-          {showFileOptions && (
-            <Input
-              placeholder="Accepted File Types"
-              value={fieldInput.acceptedFileTypes}
-              onChange={(e) => handleFieldChange('acceptedFileTypes', e.target.value)}
-            />
-          )}
-
-          <div className="flex items-center gap-2 col-span-2">
-            <Switch
-              checked={fieldInput.required}
-              onChange={(checked) => handleFieldChange('required', checked)}
-            />
-            <label>Required Field</label>
-          </div>
-        </div>
-
-        <Button onClick={handleAddField} type="primary" block>
-          Add Field
-        </Button>
-      </div>
-    </Card>
-
-    <Card title="Current Fields">
-      <div className="space-y-2">
-        {fields.map((field, index) => (
-          <div key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded">
-            <div className="flex gap-4">
-              <span className="font-medium">{field.fieldName}</span>
-              <span className="text-slate-600">Type: {field.fieldType}</span>
-              <span className="text-slate-600">Order: {field.uiOrder}</span>
-              {field.required && (
-                <span className="text-red-500">Required</span>
+              {showOptions && (
+                <Input.TextArea className='mt-2' placeholder="Enter options (comma-separated)" rows={3}
+                  // value={fieldInput?.options?.join(', ')}
+                  onChange={(e) => handleFieldChange('options', e.target.value.split(',').map(opt => opt.trim()).filter(Boolean))}
+                />
               )}
-              {field.options?.length > 0 && (
-                <span className="text-slate-600">Options: {field.options.join(', ')}</span>
+
+              {showLookup && (
+                <Row gutter={4} className='mt-2'>
+                  <Col span={12}>
+                    <Input placeholder="Lookup Table" value={fieldInput?.lookupTable}
+                      onChange={(e) => handleFieldChange('lookupTable', e.target.value)} />
+                  </Col>
+                  <Col span={12}>
+                    <Input placeholder="Lookup Column" value={fieldInput?.lookupColumn}
+                      onChange={(e) => handleFieldChange('lookupColumn', e.target.value)} />
+                  </Col>
+                </Row>
+              )}
+              {showFileOptions && (
+                <Input className='mt-2'
+                  placeholder="Accepted File Types"
+                  value={fieldInput?.acceptedFileTypes}
+                  onChange={(e) => handleFieldChange('acceptedFileTypes', e.target.value)}
+                />
               )}
             </div>
-            <Button
-              danger
-              size="small"
-              onClick={() => setFields(prev => prev.filter((_, i) => i !== index))}
-            >
-              Remove
+            <Button onClick={handleAddField} type="primary" block className='mt-2'>
+              Add Field
             </Button>
           </div>
-        ))}
-      </div>
-    </Card>
+        </Card>
 
-    <Card title="Generated Schema">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <h3 className="font-medium mb-2">Data Schema:</h3>
-          <pre className="bg-slate-50 p-4 rounded overflow-auto max-h-96">
-            {JSON.stringify(dataSchema, null, 2)}
-          </pre>
-        </div>
-        <div>
-          <h3 className="font-medium mb-2">UI Schema:</h3>
-          <pre className="bg-slate-50 p-4 rounded overflow-auto max-h-96">
-            {JSON.stringify(uiSchema, null, 2)}
-          </pre>
-        </div>
-      </div>
-    </Card>
+        <Card
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Current Fields</span>
+              <Button onClick={() => setIsDrawerVisible(true)} type="primary">
+                Show Form
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-2">
+            {fields.map((field, index) => (
+              <div key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded">
+                <div className="flex gap-4">
+                  <span className="font-medium">{field.fieldName}</span>
+                  <span className="text-slate-600">Type: {field.fieldType}</span>
+                  <span className="text-slate-600">Order: {field.uiOrder}</span>
+                  {field.required && (
+                    <span className="text-red-500">Required</span>
+                  )}
+                  {field.options?.length > 0 && (
+                    <span className="text-slate-600">Options: {field.options.join(', ')}</span>
+                  )}
+                </div>
+                <Button danger size="small" onClick={() => setFields(prev => prev.filter((_, i) => i !== index))} >
+                  Remove
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </Col>
+      <Col span={16}>
+
+        <Card title="">
+          <div style={{ display: "flex", gap: "16px" }}>
+            <div style={{ flex: 1 }}>
+              <h3 className="font-medium mb-1">Data Schema:</h3>
+              <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
+                {JSON.stringify(schemas?.data_schema, null, 2)}
+              </pre>
+            </div>
+            <div style={{ flex: 1 }}>
+              <h3 className="font-medium mb-1">UI Schema:</h3>
+              <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
+                {JSON.stringify(schemas?.ui_schema, null, 2)}
+              </pre>
+            </div>
+          </div>
+        </Card>
+      </Col>
+    </Row>
+
+    <Drawer width="50%" title={'Form Fields'} visible={isDrawerVisible} onClose={() => setIsDrawerVisible(false)} footer={null} >
+      {schemas && <DynamicForm schemas={schemas} />}
+    </Drawer>
   </div>
   )
 };
