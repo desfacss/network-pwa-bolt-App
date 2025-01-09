@@ -11,6 +11,51 @@ import { debounce } from 'lodash';
 const { RangePicker } = DatePicker;
 
 const StateTable = () => {
+
+    //     // // ZUSTAND STORAGE RELATED
+//     // // const { items, filters, setFilters, pagination, setPagination } = useTableStore();
+//     // // const { currentPage, pageSize } = pagination;
+//     // const { items, setFilters, pagination, setPagination } = useTableStore();
+//     // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
+//     // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
+//     // // const { items, filters = {}, pagination = { currentPage: 1, pageSize: 5 } } = useTableStore();
+//     // const filters = {
+//     //     dateRange: filters?.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()], // Default
+//     //   };
+//     // const [isOnline, setIsOnline] = useState(true);
+//     // const queryClient = useQueryClient();
+//     // const { addToQueue, queueStatus } = useSyncQueue();
+    
+//     // // ZUSTAND STORAGE RELATED ENDS
+
+//     // // ZUSTAND STORAGE RELATED
+//     // const { items, filters, setFilters, pagination, setPagination } = useTableStore();
+//     // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
+//     // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
+//     // const dateRange = filters?.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()]; // Default if undefined
+//     // const [isOnline, setIsOnline] = useState(true);
+//     // const queryClient = useQueryClient();
+//     // const { addToQueue, queueStatus } = useSyncQueue();
+//     // // ZUSTAND STORAGE RELATED ENDS
+
+//     // ZUSTAND STORAGE RELATED
+// // const store = useTableStore();
+// // const { items, setFilters, pagination } = store;
+// // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
+// // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
+// // const filters = store.filters ?? {}; // Ensure filters is always an object
+// // const dateRange = filters.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()]; // Default if undefined
+// const [isOnline, setIsOnline] = useState(true);
+// const queryClient = useQueryClient();
+// const { addToQueue, queueStatus } = useSyncQueue();
+// // const setPagination = (newPagination) => store.setState({ pagination: newPagination });
+// const setCurrentPage = (newPagination) => {
+//     console.log("1. Updating pagination:", newPagination);
+//     store.setState({ pagination: newPagination });
+// };
+// // ZUSTAND STORAGE RELATED ENDS
+    
+// SESSION STORAGE RELATED
     const { items, setItems } = useTableStore();
     const [isOnline, setIsOnline] = useState(true);
     const queryClient = useQueryClient();
@@ -38,6 +83,13 @@ const StateTable = () => {
             dateRange: filters.dateRange ? filters.dateRange.map(date => date.toISOString()) : []
         }));
     }, [filters]);
+    // SESSION STORAGE RELATED ENDS
+
+    // ZUSTAND
+    // useEffect(() => {
+    //     console.log("Pagination state:", pagination);
+    // }, [pagination]);
+    // ZUSTAND
 
     // Network status change listener with debounce
     // This effect listens for network status changes to manage online/offline behavior
@@ -69,8 +121,9 @@ const StateTable = () => {
         };
     }, [isOnline, debouncedInvalidate]);
 
-    const pageSize = 5;
-    const fetchData = async ({ pageParam = 1 }) => {
+    const pageSize = 5; // COMMENTED FOR ZUSRAND FOR SESSION ITS NEEDED
+    // const fetchData = async ({ pageParam = 1 }) => {
+    const fetchData = async ({ pageParam = currentPage }) => {
         console.log("P1. Fetching data for page:", pageParam);
         let query = supabase
             .from('y_state')
@@ -107,22 +160,23 @@ const StateTable = () => {
         isFetchingNextPage, 
         isFetchingPreviousPage 
     } = useInfiniteQuery({
-        queryKey: ['data', filters],
+        queryKey: ['data', filters], // correct for slice or all
+        // queryKey: ['data', filters, currentPage], // correct for slice or all
         queryFn: fetchData,
+         // want to check total or not
         getNextPageParam: (lastPage) => lastPage.pageParam + 1,
         getPreviousPageParam: (firstPage) => firstPage.pageParam > 1 ? firstPage.pageParam - 1 : undefined,
-        initialPageParam: currentPage,
-
-
-        // getNextPageParam: (lastPage, allPages) => {
+        initialPageParam: currentPage, 
+        // want to check total or not
+        // getNextPageParam: (lastPage) => {
         //     const nextPage = lastPage.pageParam + 1;
-        //     return nextPage * pageSize < lastPage.total ? nextPage : undefined;
+        //     return nextPage <= Math.ceil(lastPage.total / pageSize) ? nextPage : undefined;
         // },
-        // getPreviousPageParam: (firstPage, allPages) => {
+        // getPreviousPageParam: (firstPage) => {
         //     const prevPage = firstPage.pageParam - 1;
         //     return prevPage > 0 ? prevPage : undefined;
         // },
-        staleTime: 1000 * 60 * 5,
+
         cacheTime: 1000 * 60 * 30,
         refetchOnWindowFocus: false,
         // can comment later
@@ -134,6 +188,13 @@ const StateTable = () => {
         }
         // finish can comment later
     });
+
+    // ZUSTAND RELATED ADDED Invalidate or not?
+    // Ensure currentPage Sync:
+    // useEffect(() => {
+    //     queryClient.invalidateQueries('data');
+    // }, [currentPage, queryClient]);
+    // ZUSTAND RELATED ENDS
 
     // Mutations for CRUD operations
     const createMutation = useMutation({
@@ -227,6 +288,7 @@ const StateTable = () => {
         },
     ], []);
 
+    // SESSION STORAGE RELATED
     const onPaginationChange = useCallback((page, pageSize) => {
         console.log("P4. Pagination change requested for page:", page);
         setCurrentPage(page);  // Update current page
@@ -242,6 +304,20 @@ const StateTable = () => {
             console.log("P7. Using cached data for page:", page);
         }
     }, [data?.pageParams, fetchNextPage, fetchPreviousPage]);
+    // SESSION STORAGE RELATED ENDS
+
+    // NOT WORKING FOR ZUSTAND
+
+    // const onPaginationChange = useCallback((page, pageSize) => {
+    //     console.log("P4. Pagination change requested for page:", page);
+    //     setCurrentPage({ currentPage: page, pageSize: pageSize });  
+    //     if (page > currentPage) {
+    //         fetchNextPage({ pageParam: page });  // Use 'page' directly
+    //     } else if (page < currentPage) {
+    //         fetchPreviousPage({ pageParam: page }); // Use 'page' directly
+    //     }
+    // }, [currentPage, fetchNextPage, fetchPreviousPage, setCurrentPage]);
+    // ZUSTAND STORAGE RELATED
 
     // Debounce pagination change to prevent multiple API calls on rapid clicks
     const debouncedPaginationChange = useCallback(
@@ -252,6 +328,8 @@ const StateTable = () => {
     // Recompute the dataSource when data.pages changes
     const allItems = useMemo(() => 
         data?.pages?.flatMap(page => page.items) || []
+    // Check for data Existence:
+        // data?.pages?.flatMap(page => page.items) ?? [] // this one is correct?
     , [data?.pages]);
 
     const totalCount = data?.pages?.[0]?.total || 0;
@@ -283,16 +361,14 @@ const StateTable = () => {
 
             <Table
                 columns={columns}
-                dataSource={isOnline ? allItems : items}
+                dataSource={isOnline ? allItems : items} // without queryKEY page
+                // dataSource={isOnline ? allItems.slice((currentPage - 1) * pageSize, currentPage * pageSize) : items} // with KEY SPECIFIC current page
                 rowKey={(record) => record.id}
                 pagination={{
                     pageSize: pageSize,
                     onChange: debouncedPaginationChange,
-                    total: totalCount,
+                    total: totalCount, // Ensure this matches server-side total count
                     current: currentPage,
-
-                    // total: data?.pages[0]?.total || 0,
-                    // current: data?.pageParams?.length || 1,
                     showSizeChanger: false
                 }}
                 loading={isLoading || isFetching || createMutation.isLoading || isFetchingNextPage || isFetchingPreviousPage}
