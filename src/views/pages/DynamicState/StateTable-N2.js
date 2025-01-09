@@ -13,49 +13,49 @@ const { RangePicker } = DatePicker;
 const StateTable = () => {
 
     //     // // ZUSTAND STORAGE RELATED
-//     // // const { items, filters, setFilters, pagination, setPagination } = useTableStore();
-//     // // const { currentPage, pageSize } = pagination;
-//     // const { items, setFilters, pagination, setPagination } = useTableStore();
-//     // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
-//     // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
-//     // // const { items, filters = {}, pagination = { currentPage: 1, pageSize: 5 } } = useTableStore();
-//     // const filters = {
-//     //     dateRange: filters?.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()], // Default
-//     //   };
-//     // const [isOnline, setIsOnline] = useState(true);
-//     // const queryClient = useQueryClient();
-//     // const { addToQueue, queueStatus } = useSyncQueue();
-    
-//     // // ZUSTAND STORAGE RELATED ENDS
+    //     // // const { items, filters, setFilters, pagination, setPagination } = useTableStore();
+    //     // // const { currentPage, pageSize } = pagination;
+    //     // const { items, setFilters, pagination, setPagination } = useTableStore();
+    //     // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
+    //     // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
+    //     // // const { items, filters = {}, pagination = { currentPage: 1, pageSize: 5 } } = useTableStore();
+    //     // const filters = {
+    //     //     dateRange: filters?.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()], // Default
+    //     //   };
+    //     // const [isOnline, setIsOnline] = useState(true);
+    //     // const queryClient = useQueryClient();
+    //     // const { addToQueue, queueStatus } = useSyncQueue();
 
-//     // // ZUSTAND STORAGE RELATED
-//     // const { items, filters, setFilters, pagination, setPagination } = useTableStore();
-//     // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
-//     // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
-//     // const dateRange = filters?.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()]; // Default if undefined
-//     // const [isOnline, setIsOnline] = useState(true);
-//     // const queryClient = useQueryClient();
-//     // const { addToQueue, queueStatus } = useSyncQueue();
-//     // // ZUSTAND STORAGE RELATED ENDS
+    //     // // ZUSTAND STORAGE RELATED ENDS
 
-//     // ZUSTAND STORAGE RELATED
-// // const store = useTableStore();
-// // const { items, setFilters, pagination } = store;
-// // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
-// // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
-// // const filters = store.filters ?? {}; // Ensure filters is always an object
-// // const dateRange = filters.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()]; // Default if undefined
-// const [isOnline, setIsOnline] = useState(true);
-// const queryClient = useQueryClient();
-// const { addToQueue, queueStatus } = useSyncQueue();
-// // const setPagination = (newPagination) => store.setState({ pagination: newPagination });
-// const setCurrentPage = (newPagination) => {
-//     console.log("1. Updating pagination:", newPagination);
-//     store.setState({ pagination: newPagination });
-// };
-// // ZUSTAND STORAGE RELATED ENDS
-    
-// SESSION STORAGE RELATED
+    //     // // ZUSTAND STORAGE RELATED
+    //     // const { items, filters, setFilters, pagination, setPagination } = useTableStore();
+    //     // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
+    //     // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
+    //     // const dateRange = filters?.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()]; // Default if undefined
+    //     // const [isOnline, setIsOnline] = useState(true);
+    //     // const queryClient = useQueryClient();
+    //     // const { addToQueue, queueStatus } = useSyncQueue();
+    //     // // ZUSTAND STORAGE RELATED ENDS
+
+    //     // ZUSTAND STORAGE RELATED
+    // // const store = useTableStore();
+    // // const { items, setFilters, pagination } = store;
+    // // const currentPage = pagination?.currentPage ?? 1; // Default to 1 if undefined
+    // // const pageSize = pagination?.pageSize ?? 5; // Default to 5 if undefined
+    // // const filters = store.filters ?? {}; // Ensure filters is always an object
+    // // const dateRange = filters.dateRange ?? [dayjs().subtract(3, 'days'), dayjs()]; // Default if undefined
+    // const [isOnline, setIsOnline] = useState(true);
+    // const queryClient = useQueryClient();
+    // const { addToQueue, queueStatus } = useSyncQueue();
+    // // const setPagination = (newPagination) => store.setState({ pagination: newPagination });
+    // const setCurrentPage = (newPagination) => {
+    //     console.log("1. Updating pagination:", newPagination);
+    //     store.setState({ pagination: newPagination });
+    // };
+    // // ZUSTAND STORAGE RELATED ENDS
+
+    // SESSION STORAGE RELATED
     const { items, setItems } = useTableStore();
     const [isOnline, setIsOnline] = useState(true);
     const queryClient = useQueryClient();
@@ -149,24 +149,24 @@ const StateTable = () => {
     };
 
     // Use Infinite Query for pagination
-        const { 
-        data, 
-        isLoading, 
-        isFetching, 
-        fetchNextPage, 
-        fetchPreviousPage, 
-        hasNextPage, 
-        hasPreviousPage, 
-        isFetchingNextPage, 
-        isFetchingPreviousPage 
+    const {
+        data,
+        isLoading,
+        isFetching,
+        fetchNextPage,
+        fetchPreviousPage,
+        hasNextPage,
+        hasPreviousPage,
+        isFetchingNextPage,
+        isFetchingPreviousPage
     } = useInfiniteQuery({
         queryKey: ['data', filters], // correct for slice or all
         // queryKey: ['data', filters, currentPage], // correct for slice or all
         queryFn: fetchData,
-         // want to check total or not
+        // want to check total or not
         getNextPageParam: (lastPage) => lastPage.pageParam + 1,
         getPreviousPageParam: (firstPage) => firstPage.pageParam > 1 ? firstPage.pageParam - 1 : undefined,
-        initialPageParam: currentPage, 
+        initialPageParam: currentPage,
         // want to check total or not
         // getNextPageParam: (lastPage) => {
         //     const nextPage = lastPage.pageParam + 1;
@@ -326,15 +326,17 @@ const StateTable = () => {
     );
     // Compute the items to display in the table
     // Recompute the dataSource when data.pages changes
-    const allItems = useMemo(() => 
+    const allItems = useMemo(() =>
         data?.pages?.flatMap(page => page.items) || []
-    // Check for data Existence:
+        // Check for data Existence:
         // data?.pages?.flatMap(page => page.items) ?? [] // this one is correct?
-    , [data?.pages]);
+        , [data?.pages]);
 
     const totalCount = data?.pages?.[0]?.total || 0;
     const totalPages = Math.ceil(totalCount / pageSize);
-
+    const curTotalPages = (currentPage * pageSize) + 1
+    // const total = totalCount > curTotalPages ? curTotalPages : totalCount
+    const total = Math.min(Math.max(allItems?.length, curTotalPages), totalCount)
     return (
         <div style={{ padding: 20 }}>
             <Space style={{ marginBottom: 20 }}>
@@ -365,9 +367,11 @@ const StateTable = () => {
                 // dataSource={isOnline ? allItems.slice((currentPage - 1) * pageSize, currentPage * pageSize) : items} // with KEY SPECIFIC current page
                 rowKey={(record) => record.id}
                 pagination={{
+                    // simple: true,
+                    // pageSizeOptions: ['5', '10', '20'],
                     pageSize: pageSize,
                     onChange: debouncedPaginationChange,
-                    total: totalCount, // Ensure this matches server-side total count
+                    total: total, // Ensure this matches server-side total count
                     current: currentPage,
                     showSizeChanger: false
                 }}
