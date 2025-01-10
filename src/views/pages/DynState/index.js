@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
-import { 
-  useInfiniteQuery, 
-  useMutation, 
-  useQueryClient, 
-  QueryClient, 
-  QueryClientProvider 
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider
 } from '@tanstack/react-query';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
@@ -21,7 +21,7 @@ let isLoggingEnabled = true;
 
 // Override console.log based on the logging flag
 if (!isLoggingEnabled) {
-  console.log = () => {};
+  console.log = () => { };
 }
 
 const { RangePicker } = DatePicker;
@@ -45,13 +45,23 @@ persistQueryClient({
 });
 
 const DynState = () => {
-  const { 
-    filters: storedFilters = {}, 
+  const {
+    filters: storedFilters = {},
     pagination: { pageSize: storedPageSize = 5, currentPage: storedCurrentPage = 1 },
     setFilters,
     setPagination
   } = useTableStore();
 
+  // *************
+  const [isOnline, setIsOnline] = useState(true);
+  // const debouncedInvalidate = useCallback(
+  //   debounce(() => {
+  //     console.log("A0.1. Invalidating queries due to network change");
+  //     queryClient.invalidateQueries('data');
+  //   }, 500),
+  //   [queryClient]
+  // );
+  // *************
   useSyncQueue();
 
   const queryClient = useQueryClient();
@@ -71,6 +81,28 @@ const DynState = () => {
       updated_at: new Date().toISOString(),
     };
   };
+
+  // *************
+  useEffect(() => {
+    const handleNetworkChange = (state) => {
+      console.log("A0. Network status changed to:", state);
+      if (state !== isOnline) {
+        setIsOnline(state);
+        // if (state) {
+        //   debouncedInvalidate();
+        // }
+      }
+    };
+
+    const unsubscribe = networkMonitor.subscribe(handleNetworkChange);
+
+    return () => {
+      console.log("A0.2. Cleaning up network status listener");
+      unsubscribe();
+      // debouncedInvalidate.cancel();
+    };
+  }, [isOnline]);
+  // *************
 
   const onFinish = () => {
     const values = generateRandomData();
@@ -103,10 +135,10 @@ const DynState = () => {
     return { items: data || [], total: count || 0, pageParam };
   };
 
-  const { 
-    data, 
-    isLoading, 
-    fetchNextPage, 
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
     fetchPreviousPage,
   } = useInfiniteQuery({
     queryKey: ['data', storedFilters, storedCurrentPage],
@@ -117,7 +149,8 @@ const DynState = () => {
       return lastPage.pageParam < totalPages ? lastPage.pageParam + 1 : undefined;
     },
     getPreviousPageParam: (firstPage) => firstPage.pageParam > 1 ? firstPage.pageParam - 1 : undefined,
-    enabled: networkMonitor.isOnline(),
+    //******  enabled: networkMonitor.isOnline(),
+    enabled: isOnline,
     onSuccess: (data) => {
       console.log("Query success:", data);
     },
@@ -153,7 +186,7 @@ const DynState = () => {
   }, [data, storedCurrentPage, storedPageSize, setPagination]);
 
   const allItems = data?.pages?.flatMap(page => page.items) || [];
-  
+  console.log("allItems:", allItems);
   const totalCount = data?.pages?.[0]?.total ?? 0;
 
   const columns = [
@@ -198,7 +231,9 @@ const DynState = () => {
       queryClient.invalidateQueries(['data', storedFilters]);
     },
     onMutate: async (newItem) => {
+      console.log("Optimistic update for create:", newItem)
       await queryClient.cancelQueries(['data', storedFilters]);
+      console.log("Current cache after mutation:", queryClient.getQueryData(['data', storedFilters]));
       const previousItems = queryClient.getQueryData(['data', storedFilters]);
       queryClient.setQueryData(['data', storedFilters], (old) => ({
         pages: old?.pages?.map(page => ({
@@ -207,10 +242,11 @@ const DynState = () => {
         })) || [],
         pageParams: old?.pageParams || []
       }));
+      console.log("Optimistic update for create2:", previousItems)
       return { previousItems };
     },
   });
-  
+
 
   // const updateMutation = useMutation({
   //   mutationFn: async (item) => {
@@ -238,7 +274,7 @@ const DynState = () => {
       queryClient.setQueryData(['data', storedFilters], (old) => ({
         pages: old?.pages?.map(page => ({
           ...page,
-          items: page.items.map(item => 
+          items: page.items.map(item =>
             item.id === updatedItem.id ? { ...item, name: `${updatedItem.name}-updated` } : item
           )
         })) || [],
