@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import 'react-big-scheduler/lib/css/style.css';
 import DynamicForm from '../DynamicForm';
 import { Button, Drawer, Modal, Dropdown, Menu, Space } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';

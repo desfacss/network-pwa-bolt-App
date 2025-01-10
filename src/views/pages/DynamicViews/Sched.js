@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import 'react-big-scheduler/lib/css/style.css';
 import { Scheduler, SchedulerData, ViewType, DemoData, DATE_FORMAT } from 'react-big-schedule';
 import dayjs from 'dayjs';
 import { DndProvider } from 'react-dnd';
