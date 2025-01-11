@@ -9,17 +9,42 @@ export const widgetConfigs = {
         },
         requiresOptions: false
     },
-    "Input.Textarea": {
+    "Textarea": {
         dataSchema: {
             type: "string",
         },
         uiSchema: {
-            "ui:widget": "Input.Textarea",
-            "ui:placeholder": "Enter description"
+            "ui:widget": "textarea",
         },
         requiresOptions: false
     },
-    "select": {
+    "Number": {
+        dataSchema: {
+            type: "number",
+        },
+        uiSchema: {
+            "ui:widget": "updown",
+        }
+    },
+    "Phone": {
+        dataSchema: {
+            type: "string",
+        },
+        uiSchema: {
+            "ui:options": {
+                "inputType": "tel"
+            }
+        }
+    },
+    "Password": {
+        dataSchema: {
+            type: "string",
+        },
+        uiSchema: {
+            "ui:widget": "password",
+        }
+    },
+    "Select": {
         dataSchema: {
             type: "string",
             enum: []
@@ -30,10 +55,51 @@ export const widgetConfigs = {
         },
         requiresOptions: true
     },
+    "Select-Filters": {
+        dataSchema: {
+            "enum": {
+                "table": "users",
+                "column": "user_name",
+                "filters": [
+                    {
+                        "key": "role_type",
+                        "value": [
+                            "hr",
+                            "manager",
+                            "admin"
+                        ],
+                        "operator": "in"
+                    },
+                    {
+                        "key": "is_active",
+                        "value": true,
+                        "operator": "eq"
+                    }
+                ]
+            },
+            "type": "string",
+        },
+        uiSchema: {
+            "ui:widget": "select",
+        },
+        requiresOptions: true
+    },
+    "Multi-Select": {
+        dataSchema: {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "title": "Tags",
+        },
+        uiSchema: {
+            "ui:widget": "TagsWidget"
+        },
+        requiresOptions: true,
+    },
     "radio": {
         dataSchema: {
-            type: "string",
-            enum: []
+            "type": "boolean",
         },
         uiSchema: {
             "ui:widget": "radio"
@@ -42,15 +108,21 @@ export const widgetConfigs = {
     },
     "checkboxes": {
         dataSchema: {
-            type: "array",
-            items: {
-                type: "string"
-            }
+            "type": "boolean",
         },
         uiSchema: {
-            "ui:widget": "checkboxes"
+            // "ui:widget": "checkboxes"
         },
-        requiresOptions: true
+    },
+    "range": {
+        dataSchema: {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+        },
+        uiSchema: {
+            "ui:widget": "range"
+        },
     },
     "date": {
         dataSchema: {
@@ -133,5 +205,44 @@ export const widgetConfigs = {
             "ui:placeholder": "Select from lookup"
         },
         requiresLookup: true
+    },
+    "table": {
+        dataSchema: {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Users"
+            },
+            "title": "A list with a minimal number of items",
+            "definitions": {
+                "Users": {
+                    "type": "object",
+                    "properties": {
+                        "day": {
+                            "type": "string",
+                            "field_": "start_date",
+                            "format": "date-time",
+                            "title_": "Start Date"
+                        },
+                        "name": {
+                            "enum": {
+                                "table": "users",
+                                "column": "user_name"
+                            },
+                            "type": "string",
+                            "default": "Default name"
+                        }
+                    }
+                }
+            },
+
+        },
+        uiSchema: {
+            "ui:widget": "EditableTableWidget",
+            "ui:options": {
+                "addable": true,
+                "orderable": true,
+                "removable": true
+            }
+        }
     }
 };

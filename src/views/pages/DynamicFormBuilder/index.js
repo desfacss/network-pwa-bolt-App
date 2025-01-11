@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Input, Select, Switch, Drawer, Row, Col, Divider } from 'antd';
+import { Card, Button, Input, Select, Switch, Drawer, Row, Col, message } from 'antd';
 import DynamicForm from '../DynamicForm';
 import { widgetConfigs } from './widgets';
 import JSONInput from 'react-json-editor-ajrm';
@@ -21,6 +21,8 @@ const FormBuilder = () => {
     fieldType: 'text',
     uiOrder: '0',
     required: false,
+    readonly: false,
+    hidden: false,
     options: [],
     placeholder: '',
     lookupTable: '',
@@ -37,6 +39,7 @@ const FormBuilder = () => {
 
   const handleAddField = () => {
     if (!fieldInput.fieldName.trim()) {
+      message.error("Enter Field Name");
       return;
     }
 
@@ -60,6 +63,8 @@ const FormBuilder = () => {
       fieldType: 'text',
       uiOrder: String(fields.length + 1),
       required: false,
+      readonly: false,
+      hidden: false,
       options: [],
       placeholder: '',
       lookupTable: '',
@@ -140,7 +145,8 @@ const FormBuilder = () => {
       title: fieldInput?.title,
       description: fieldInput?.description,
       required: [],
-      properties: {}
+      properties: {},
+      definitions: {}
     };
     const newUiSchema = {
       "ui:submitButtonOptions": {
@@ -158,7 +164,9 @@ const FormBuilder = () => {
       const config = widgetConfigs[field.fieldType];
       if (!config) return;
 
+      // Handle enums and lookups
       const fieldDataSchema = { ...config.dataSchema, title: field.fieldName };
+
       if (config.requiresOptions && field.options?.length) {
         fieldDataSchema.enum = field.options;
       } else if (config.requiresLookup && field.lookupTable && field.lookupColumn) {
@@ -167,6 +175,16 @@ const FormBuilder = () => {
           column: field.lookupColumn,
         };
       }
+
+      // Merge definitions if available
+      if (config.dataSchema.definitions) {
+        newDataSchema.definitions = {
+          ...newDataSchema.definitions,
+          ...config.dataSchema.definitions
+        };
+        delete fieldDataSchema.definitions; // Remove definitions from the field object
+      }
+      // delete config.dataSchema.definitions
 
       newDataSchema.properties[field.fieldName] = fieldDataSchema;
       if (field.required) {
@@ -182,6 +200,12 @@ const FormBuilder = () => {
           ...fieldUiSchema["ui:options"],
           accept: field.acceptedFileTypes
         };
+      }
+      if (field.readonly) {
+        fieldUiSchema["ui:readonly"] = true;
+      }
+      if (field.hidden) {
+        fieldUiSchema["ui:widget"] = "hidden";
       }
       fieldUiSchema["ui:order"] = field.uiOrder;
       newUiSchema[field.fieldName] = fieldUiSchema;
@@ -230,16 +254,30 @@ const FormBuilder = () => {
                 </Col>
               </Row>
               <Row gutter={4} className='mt-2'>
-                <Col span={12}>
+                <Col span={6}>
                   <Input type="number" placeholder="UI Order" value={fieldInput?.uiOrder}
                     onChange={(e) => handleFieldChange('uiOrder', e.target.value)} />
                 </Col>
-                <Col span={12}>
+                <Col span={6}>
                   {/* <div className="flex items-center gap-2 col-span-2"> */}
                   <Switch checked={fieldInput?.required}
                     onChange={(checked) => handleFieldChange('required', checked)} />
-                  <label>Required</label>
+                  <label>Req</label>
                   {/* </div> */}
+                </Col>
+                <Col span={6}>
+                  <Switch
+                    checked={fieldInput?.readonly}
+                    onChange={(checked) => handleFieldChange('readonly', checked)}
+                  />
+                  <label>Readonly</label>
+                </Col>
+                <Col span={6}>
+                  <Switch
+                    checked={fieldInput?.hidden}
+                    onChange={(checked) => handleFieldChange('hidden', checked)}
+                  />
+                  <label>Hidden</label>
                 </Col>
               </Row>
 
