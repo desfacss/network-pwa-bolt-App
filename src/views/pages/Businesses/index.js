@@ -23,7 +23,7 @@ import ExportImportButtons from '../DynamicViews/CSVOptions';
 import SchedularView from '../DynamicViews/SchedularView';
 import ScheduleView from '../DynamicViews/ScheduleView';
 
-const entityType = 'y_projects'
+const entityType = 'ib_businesses'
 
 const dataConfig = {
     mainTable: {
@@ -57,7 +57,7 @@ const Index = () => {
     const [visible, setVisible] = useState(false);
     const [vd, setVd] = useState();
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const { activeTab, onTabChange } = useTabWithHistory("1");
+    const { activeTab, onTabChange } = useTabWithHistory("2");
 
     const divRef = useRef(null);
 
@@ -465,6 +465,7 @@ const Index = () => {
     }
     return (
         <Card ref={divRef}>
+            {viewConfig?.gridview && <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />}
             {(data && viewConfig) && <Tabs
                 tabBarExtraContent={ //Global filters
                     <div style={{ display: "flex", alignItems: "center" }}>

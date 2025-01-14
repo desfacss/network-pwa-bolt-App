@@ -11,7 +11,7 @@ const PostList = () => {
   useEffect(() => {
     // Fetch posts from Supabase
     const fetchPosts = async () => {
-      let { data, error } = await supabase.from('ib_posts').select('*');
+      let { data, error } = await supabase.from('posts').select('*');
       if (error) {
         console.error(error);
       } else {

@@ -4,8 +4,12 @@ import DynamicForm from '../DynamicForm';
 import { widgetConfigs } from './widgets';
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
+import { supabase } from 'api/supabaseClient';
+// import { QueryFilter } from './QueryBuilder';
 
 const FormBuilder = () => {
+  const [forms, setForms] = useState([]);
+  const [selectedForm, setSelectedForm] = useState(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [dataSchema, setDataSchema] = useState({
     type: "object",
@@ -221,7 +225,35 @@ const FormBuilder = () => {
 
   const onFinish = () => { setIsDrawerVisible(false) }
 
+  // Fetch forms from Supabase
+  const fetchForms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('forms')
+        .select('id, name, data_schema, ui_schema');
+      if (error) throw error;
+      setForms(data);
+    } catch (error) {
+      message.error(`Error fetching forms: ${error.message}`);
+    }
+  };
+
+  // Handle form selection
+  const handleFormChange = (formId) => {
+    const form = forms.find((form) => form.id === formId);
+    if (form) {
+      setSelectedForm(formId);
+      setDataSchema(form.data_schema);
+      setUiSchema(form.ui_schema);
+    }
+  };
+
+  useEffect(() => {
+    fetchForms();
+  }, []);
+
   return (<div className="space-y-6">
+    {/* <QueryFilter /> */}
     <Row gutter={16}>
       <Col span={8}>
         <Row gutter={4}>
@@ -316,7 +348,19 @@ const FormBuilder = () => {
 
         <Card title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Current Fields</span>
+            <span>Fields</span>
+            <Select className='ml-1 mr-1'
+              style={{ width: '100%' }}
+              placeholder="Select a form"
+              onChange={handleFormChange}
+              value={selectedForm}
+            >
+              {forms.map((form) => (
+                <Select.Option key={form.id} value={form.id}>
+                  {form.name}
+                </Select.Option>
+              ))}
+            </Select>
             <Button onClick={() => setIsDrawerVisible(true)} type="primary">
               Show Form
             </Button>
@@ -344,7 +388,7 @@ const FormBuilder = () => {
               <h3 className="font-medium mb-1">Data Schema:</h3>
               <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
                 {/* {JSON.stringify(schemas?.data_schema, null, 2)} */}
-                <JSONInput style={{ body: { fontSize: '14px' } }} id="data_schema_editor" locale={locale} height="600px" width="100%"
+                <JSONInput waitAfterKeyPress={5000} style={{ body: { fontSize: '14px' } }} id="data_schema_editor" locale={locale} height="600px" width="100%"
                   onChange={(e) => e.jsObject && setDataSchema(e.jsObject)} placeholder={dataSchema} // placeholder={schemas?.data_schema}
                 />
               </pre>
@@ -353,7 +397,7 @@ const FormBuilder = () => {
               <h3 className="font-medium mb-1">UI Schema:</h3>
               <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
                 {/* {JSON.stringify(schemas?.ui_schema, null, 2)} */}
-                <JSONInput style={{ body: { fontSize: '14px' } }} id="ui_schema_editor" locale={locale} height="600px" width="100%"
+                <JSONInput waitAfterKeyPress={5000} style={{ body: { fontSize: '14px' } }} id="ui_schema_editor" locale={locale} height="600px" width="100%"
                   onChange={(e) => e.jsObject && setUiSchema(e.jsObject)} placeholder={uiSchema} // placeholder={schemas?.ui_schema}
                 />
               </pre>
