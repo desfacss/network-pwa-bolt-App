@@ -465,19 +465,26 @@ const Index = () => {
     }
     return (
         <Card ref={divRef}>
-            {viewConfig?.gridview && <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />}
-            {(data && viewConfig) && <Tabs
-                tabBarExtraContent={ //Global filters
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                        <ExportImportButtons data={rawData} fetchData={fetchData} entityType={entityType} viewConfig={viewConfig} />
-                        {renderFilters(viewConfig?.global?.search, data)}
-                        <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
-                            {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                            {/* {isFullscreen ? " Exit Fullscreen" : " Go Fullscreen"} */}
-                        </Button>
-                    </div>
-                }
-                defaultActiveKey="1" items={tabItems} activeKey={activeTab} onChange={onTabChange} />}
+            {/* {viewConfig?.gridview && <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />} */}
+            {(data && viewConfig) && (
+                tabItems.length > 1 ? (
+                    <Tabs
+                        tabBarExtraContent={ //Global filters
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                                <ExportImportButtons data={rawData} fetchData={fetchData} entityType={entityType} viewConfig={viewConfig} />
+                                {renderFilters(viewConfig?.global?.search, data)}
+                                <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
+                                    {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                                    {/* {isFullscreen ? " Exit Fullscreen" : " Go Fullscreen"} */}
+                                </Button>
+                            </div>
+                        }
+                        defaultActiveKey="1" items={tabItems} activeKey={activeTab} onChange={onTabChange} />
+                ) : (
+                    // Display the only available view directly (no tabs)
+                    tabItems[0]?.children
+                )
+            )}
             {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType}
                 visible={visible} viewConfig={viewConfig}
                 onCancel={() => { fetchData(); setVisible(false); console.log("e") }}

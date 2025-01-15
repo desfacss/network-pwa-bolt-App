@@ -274,7 +274,7 @@ const Networking = () => {
 
 	return (
 		<>
-			<PostList />
+			{/* <PostList /> */}
 			<Modal
 				title="Create New Post"
 				open={modal}

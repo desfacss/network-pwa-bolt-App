@@ -27,6 +27,11 @@ const Layouts = () => {
   const { selectedOrganization, selectedUser } = useSelector((state) => state.auth);
 
   useEffect(() => {
+    // Set the title dynamically
+    document.title = session?.user?.organization?.app_settings?.full_name;
+  }, [session]);
+
+  useEffect(() => {
     // Fetch the session and user data
     const fetchUserData = async (session) => {
       if (!session || !session.user) return;

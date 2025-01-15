@@ -13,12 +13,12 @@ const Routes = () => {
   const [filteredProtectedRoutes, setFilteredProtectedRoutes] = useState()
 
   useEffect(() => {
-    setFilteredProtectedRoutes(protectedRoutes(session?.user?.features?.feature))
+    setFilteredProtectedRoutes(protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features))
   }, [session])
 
   // Determine the fallback path
   const fallbackPath = useMemo(() => {
-    const isValidPath = protectedRoutes(session?.user?.features?.feature)?.some(
+    const isValidPath = protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.some(
       (route) => route?.path === location?.pathname
     );
     return isValidPath ? location?.pathname : "/app/dashboard";

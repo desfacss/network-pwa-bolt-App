@@ -82,7 +82,7 @@ const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
 
             {/* Grid Layout */}
             <Row gutter={[16, 16]}>
-                {data.map((item) => (
+                {data?.map((item) => (
                     <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
                         <Card
                             title={item.name}

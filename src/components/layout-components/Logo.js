@@ -6,16 +6,20 @@ import utils from 'utils';
 import { Grid } from 'antd';
 import styled from '@emotion/styled';
 import { TEMPLATE } from 'constants/ThemeConstant';
+import { store } from 'store';
+
+const state = store.getState();
+const app_name = state?.auth?.session?.user?.organization?.app_settings?.name;
 
 const LogoWrapper = styled.div(({ isCollapsed }) => ({
-	height: TEMPLATE.HEADER_HEIGHT,
-	display: 'flex',
-	alignItems: 'center',
-	padding: `0 1rem`,
-	paddingLeft: isCollapsed ? '28px' : '1rem', 
-	backgroundColor: 'transparent',
-	transition: 'all 0.5s ease', 
-  }));
+  height: TEMPLATE.HEADER_HEIGHT,
+  display: 'flex',
+  alignItems: 'center',
+  padding: `0 1rem`,
+  paddingLeft: isCollapsed ? '28px' : '1rem',
+  backgroundColor: 'transparent',
+  transition: 'all 0.5s ease',
+}));
 
 const { useBreakpoint } = Grid;
 
@@ -43,15 +47,15 @@ export const Logo = ({ mobileLogo, logoType }) => {
   const getLogo = () => {
     if (logoType === 'light') {
       if (navCollapsed) {
-        return '/img/ukpe.png';
+        return `/img/${app_name}/light.png`;
       }
-      return '/img/ukpe_logo.png';
+      return `/img/${app_name}/logo_light.png`;
     }
 
     if (navCollapsed) {
-      return '/img/ukpe.png';
+      return `/img/${app_name}/dark.png`;
     }
-    return '/img/ukpe_logo_dark.png';
+    return `/img/${app_name}/logo_dark.png`;
   };
 
   return (
@@ -60,7 +64,7 @@ export const Logo = ({ mobileLogo, logoType }) => {
       isCollapsed={navCollapsed} // Pass navCollapsed as a prop
       style={{ width: `${getLogoWidthGutter()}` }}
     >
-      <img src={getLogo()} alt={`${APP_NAME} logo`} height={isMobile ? '25px' : '25px'} />
+      <img src={getLogo()} alt={`${app_name} logo`} height={isMobile ? '25px' : '25px'} />
     </LogoWrapper>
   );
 };

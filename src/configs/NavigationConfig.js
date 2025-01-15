@@ -16,6 +16,7 @@ import { store } from 'store';
 
 const state = store.getState();
 const feature = state?.auth?.session?.user?.features?.feature;
+const module_features = state?.auth?.session?.user?.organization?.module_features;
 
 
 const navigationConfig = [
@@ -27,7 +28,7 @@ const navigationConfig = [
     // icon: DashboardOutlined,
     breadcrumb: false,
     submenu: [
-      {
+      module_features?.dashboard && feature?.dashboard && {
         key: 'dashboard',
         path: `${APP_PREFIX_PATH}/dashboard`,
         title: 'Dashboard',
@@ -35,7 +36,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.timesheets && {
+      module_features?.timesheets && feature?.timesheets && {
         key: 'timesheets',
         path: `${APP_PREFIX_PATH}/timesheet`,
         title: 'Timesheet',
@@ -43,7 +44,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.leaves && { //Comment for Prod
+      module_features?.leaves && feature?.leaves && { //Comment for Prod
         key: 'leave_app',
         path: `${APP_PREFIX_PATH}/leave_app`,
         //Comment for Prod
@@ -52,7 +53,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.expenses && {
+      module_features?.expenses && feature?.expenses && {
         key: 'expenses',
         path: `${APP_PREFIX_PATH}/expenses`,
         title: 'Expense',
@@ -60,10 +61,34 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.reports && {
+      module_features?.reports && feature?.reports && {
         key: 'reports',
         path: `${APP_PREFIX_PATH}/reports`,
         title: 'Reports',
+        icon: UserOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibBusinesses && feature?.ibBusinesses && {
+        key: 'ib_businesses',
+        path: `${APP_PREFIX_PATH}/ib_businesses`,
+        title: 'Businesses',
+        icon: UserOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibMembers && feature?.ibMembers && {
+        key: 'ib_members',
+        path: `${APP_PREFIX_PATH}/ib_members`,
+        title: 'Members',
+        icon: UserOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibNetworking && feature?.ibNetworking && {
+        key: 'ib_networking',
+        path: `${APP_PREFIX_PATH}/ib_networking`,
+        title: 'Networking',
         icon: UserOutlined,
         breadcrumb: false,
         submenu: [],
@@ -83,7 +108,7 @@ const navigationConfig = [
       //   breadcrumb: false,
       //   isGroupTitle: true,
       //   submenu: [
-      feature?.clients && {
+      module_features?.clients && feature?.clients && {
         key: 'clients',
         path: `${APP_PREFIX_PATH}/clients`,
         title: 'Clients',
@@ -91,7 +116,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.projects && {
+      module_features?.projects && feature?.projects && {
         key: 'projects',
         path: `${APP_PREFIX_PATH}/projects`,
         title: 'Projects',
@@ -99,7 +124,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.team && {
+      module_features?.team && feature?.team && {
         key: 'team',
         path: `${APP_PREFIX_PATH}/team`,
         title: 'Team',
@@ -107,7 +132,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.notifications && {
+      module_features?.notifications && feature?.notifications && {
         key: 'notifications',
         path: `${APP_PREFIX_PATH}/notifications`,
         title: 'Notifications',
@@ -115,7 +140,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.settings && {
+      module_features?.settings && feature?.settings && {
         key: 'settings',
         path: `${APP_PREFIX_PATH}/settings`,
         title: 'Settings',

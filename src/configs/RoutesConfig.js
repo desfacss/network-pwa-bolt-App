@@ -26,7 +26,7 @@ export const publicRoutes = [
 ]
 
 // export const protectedRoutes = [
-export const protectedRoutes = (feature) => {
+export const protectedRoutes = (feature, module_features) => {
     // console.log("Features", feature)
     return [
         {
@@ -34,52 +34,52 @@ export const protectedRoutes = (feature) => {
             path: `${APP_PREFIX_PATH}/dashboard`,
             component: React.lazy(() => import('views/pages/Dashboard')),
         },
-        feature?.timesheets && {
+        module_features?.timesheets && feature?.timesheets && {
             key: 'timesheet',
             path: `${APP_PREFIX_PATH}/timesheet`,
             component: React.lazy(() => import('views/pages/Timesheet')),
         },
-        feature?.timesheetsH && {
+        module_features?.timesheetsH && feature?.timesheetsH && {
             key: 'timesheeth',
             path: `${APP_PREFIX_PATH}/timesheeth`,
             component: React.lazy(() => import('views/pages/TimesheetH')),
         },
-        feature?.leaves && {
+        module_features?.leaves && feature?.leaves && {
             key: 'leave_app',
             path: `${APP_PREFIX_PATH}/leave_app`,
             component: React.lazy(() => import('views/pages/LeaveApp')),
         },
-        feature?.expenses && {
+        module_features?.expenses && feature?.expenses && {
             key: 'expenses',
             path: `${APP_PREFIX_PATH}/expenses`,
             component: React.lazy(() => import('views/pages/Expenses')),
         },
-        feature?.reports && {
+        module_features?.reports && feature?.reports && {
             key: 'reports',
             path: `${APP_PREFIX_PATH}/reports`,
             component: React.lazy(() => import('views/pages/Reports')),
         },
-        feature?.clients && {
+        module_features?.clients && feature?.clients && {
             key: 'clients',
             path: `${APP_PREFIX_PATH}/clients`,
             component: React.lazy(() => import('views/pages/Clients')),// /Clients is view table/card, /client/:id is view detail page
         },
-        feature?.projects && {
+        module_features?.projects && feature?.projects && {
             key: 'projects',
             path: `${APP_PREFIX_PATH}/projects`,
             component: React.lazy(() => import('views/pages/Projects/index')),
         },
-        feature?.team && {
+        module_features?.team && feature?.team && {
             key: 'team',
             path: `${APP_PREFIX_PATH}/team`,
             component: React.lazy(() => import('views/pages/Team/index')),
         },
-        feature?.notifications && {
+        module_features?.notifications && feature?.notifications && {
             key: 'notifications',
             path: `${APP_PREFIX_PATH}/notifications`,
             component: React.lazy(() => import('views/pages/Notifications')),
         },
-        feature?.settings && {
+        module_features?.settings && feature?.settings && {
             key: 'settings',
             path: `${APP_PREFIX_PATH}/settings`,
             component: React.lazy(() => import('views/pages/Settings')),
@@ -94,127 +94,127 @@ export const protectedRoutes = (feature) => {
 
         // RND
 
-        // feature?.rnd && {
+        // module_features?.a && feature?.rnd && {
         // {
         //     key: 'schedule',
         //     path: `${APP_PREFIX_PATH}/schedule`,
         //     component: React.lazy(() => import('views/pages/Schedule')),
         // },
-        // feature?.rnd && {
+        // module_features?.a && feature?.rnd && {
         //     key: 'services',
         //     path: `${APP_PREFIX_PATH}/services`,
         //     component: React.lazy(() => import('views/pages/Services')),
         // },
-        // feature?.rnd && {
+        // module_features?.a && feature?.rnd && {
         //     key: 'tasks',
         //     path: `${APP_PREFIX_PATH}/tasks`,
         //     component: React.lazy(() => import('views/pages/Tasks')),
         // },
-        // feature?.rnd && {
+        // module_features?.a && feature?.rnd && {
         //     key: 'jobs',
         //     path: `${APP_PREFIX_PATH}/jobs`,
         //     component: React.lazy(() => import('views/pages/Jobs')),
         // },
 
-        feature?.rnd && {
+        module_features?.ytasks && feature?.ytasks && {
             key: 'ytasks',
             path: `${APP_PREFIX_PATH}/ytasks`,
             component: React.lazy(() => import('views/pages/DynamicTasks')),
         },
-        feature?.rnd && {
+        module_features?.ysales && feature?.ysales && {
             key: 'ysales',
             path: `${APP_PREFIX_PATH}/ysales`,
             component: React.lazy(() => import('views/pages/DynamicSales')),
         },
-        feature?.rnd && {
+        module_features?.yprojects && feature?.yprojects && {
             key: 'yprojects',
             path: `${APP_PREFIX_PATH}/yprojects`,
             component: React.lazy(() => import('views/pages/DynamicProj')),
         },
-        feature?.rnd && {
+        module_features?.ystate && feature?.ystate && {
             key: 'ystate',
             path: `${APP_PREFIX_PATH}/ystate`,
             component: React.lazy(() => import('views/pages/DynamicState')),
         },
-        feature?.rnd && {
+        module_features?.yst && feature?.yst && {
             key: 'yst',
             path: `${APP_PREFIX_PATH}/yst`,
             component: React.lazy(() => import('views/pages/DynState')),
         },
-        feature?.rnd && {
+        module_features?.ysupport && feature?.ysupport && {
             key: 'ysupport',
             path: `${APP_PREFIX_PATH}/ysupport`,
             component: React.lazy(() => import('views/pages/DynamicSupport')),
         },
-        feature?.rnd && {
+        module_features?.yclients && feature?.yclients && {
             key: 'yclients',
             path: `${APP_PREFIX_PATH}/yclients`,
             component: React.lazy(() => import('views/pages/DynamicClients')),
         },
-        feature?.rnd && {
+        module_features?.yconfig && feature?.yconfig && {
             key: 'yconfig',
             path: `${APP_PREFIX_PATH}/yconfig`,
             component: React.lazy(() => import('views/pages/DynamicConfig')),
         },
-        feature?.rnd && {
+        module_features?.yform && feature?.yform && {
             key: 'yform',
             path: `${APP_PREFIX_PATH}/yform`,
             component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
         },
-        feature?.rnd && {
+        module_features?.ibBusinesses && feature?.ibBusinesses && {
             key: 'ib_businesses',
             path: `${APP_PREFIX_PATH}/ib_businesses`,
             component: React.lazy(() => import('views/pages/Businesses')),
         },
-        feature?.rnd && {
+        module_features?.ibMembers && feature?.ibMembers && {
             key: 'ib_members',
             path: `${APP_PREFIX_PATH}/ib_members`,
             component: React.lazy(() => import('views/pages/Members')),
         },
-        feature?.rnd && {
+        module_features?.ibChat && feature?.ibChat && {
             key: 'ib_chat',
             path: `${APP_PREFIX_PATH}/ib_chat/:chatId`,
             component: React.lazy(() => import('views/pages/ib/Chat')),
         },
-        feature?.rnd && {
+        module_features?.ibNetworking && feature?.ibNetworking && {
             key: 'ib_networking',
             path: `${APP_PREFIX_PATH}/ib_networking`,
             component: React.lazy(() => import('views/pages/ib/Networking')),
         },
-        feature?.rnd && {
+        module_features?.ibPoll && feature?.ibPoll && {
             key: 'ib_poll',
             path: `${APP_PREFIX_PATH}/ib_poll`,
             component: React.lazy(() => import('views/pages/ib/Poll')),
         },
 
 
-        // // feature?.dynamicViews && {
-        // feature?.rnd && {
+        // // module_features?.dynamicViews && feature?.dynamicViews && {
+        // module_features?.a && feature?.rnd && {
         //     key: 'ytasks',
         //     path: `${APP_PREFIX_PATH}/ytasks`,
         //     component: React.lazy(() => import('views/pages/DynamicTasks')),
         // },
-        // feature?.rnd && {
+        // module_features?.rnd && feature?.rnd && {
         //     key: 'ysales',
         //     path: `${APP_PREFIX_PATH}/ysales`,
         //     component: React.lazy(() => import('views/pages/DynamicSales')),
         // },
-        // feature?.rnd && {
+        // module_features?.rnd && feature?.rnd && {
         //     key: 'yformbuilder',
         //     path: `${APP_PREFIX_PATH}/yform`,
         //     component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
         // },
-        // feature?.rnd && {
+        // module_features?.rnd && feature?.rnd && {
         //     key: 'ysupport',
         //     path: `${APP_PREFIX_PATH}/ysupport`,
         //     component: React.lazy(() => import('views/pages/DynamicSupport')),
         // },
-        // feature?.rnd && {
+        // module_features?.rnd && feature?.rnd && {
         //     key: 'yclients',
         //     path: `${APP_PREFIX_PATH}/yclients`,
         //     component: React.lazy(() => import('views/pages/DynamicClients')),
         // },
-        // feature?.rnd && {
+        // module_features?.rnd && feature?.rnd && {
         //     key: 'yconfig',
         //     path: `${APP_PREFIX_PATH}/yconfig`,
         //     component: React.lazy(() => import('views/pages/DynamicConfig')),
