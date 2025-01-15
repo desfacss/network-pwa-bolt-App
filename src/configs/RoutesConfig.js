@@ -129,7 +129,7 @@ export const protectedRoutes = (feature) => {
         feature?.rnd && {
             key: 'yprojects',
             path: `${APP_PREFIX_PATH}/yprojects`,
-            component: React.lazy(() => import('views/pages/DynamicProjects')),
+            component: React.lazy(() => import('views/pages/DynamicProj')),
         },
         feature?.rnd && {
             key: 'ystate',
@@ -160,6 +160,31 @@ export const protectedRoutes = (feature) => {
             key: 'yform',
             path: `${APP_PREFIX_PATH}/yform`,
             component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
+        },
+        feature?.rnd && {
+            key: 'ib_businesses',
+            path: `${APP_PREFIX_PATH}/ib_businesses`,
+            component: React.lazy(() => import('views/pages/Businesses')),
+        },
+        feature?.rnd && {
+            key: 'ib_members',
+            path: `${APP_PREFIX_PATH}/ib_members`,
+            component: React.lazy(() => import('views/pages/Members')),
+        },
+        feature?.rnd && {
+            key: 'ib_chat',
+            path: `${APP_PREFIX_PATH}/ib_chat/:chatId`,
+            component: React.lazy(() => import('views/pages/ib/Chat')),
+        },
+        feature?.rnd && {
+            key: 'ib_networking',
+            path: `${APP_PREFIX_PATH}/ib_networking`,
+            component: React.lazy(() => import('views/pages/ib/Networking')),
+        },
+        feature?.rnd && {
+            key: 'ib_poll',
+            path: `${APP_PREFIX_PATH}/ib_poll`,
+            component: React.lazy(() => import('views/pages/ib/Poll')),
         },
 
 
