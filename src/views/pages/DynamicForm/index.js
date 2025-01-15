@@ -14,8 +14,16 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     const [enums, setEnums] = useState()
     const [schema, setSchema] = useState()
     const [userId, setUserId] = useState();
+    const [organization, setOrganization] = useState();
 
     const { session } = useSelector((state) => state.auth);
+
+    const getOrganization = async () => {
+        const { data, error } = await supabase.from('organizations').select('*').eq('name', process.env.REACT_APP_ORGANIZATION_APP || 'Dev').single()
+        if (data) {
+            setOrganization(data)
+        }
+    }
 
     useEffect(() => {
         const getUser = async () => {
@@ -24,18 +32,19 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
             });
         };
         getUser();
+        getOrganization()
     }, []);
 
     useEffect(() => {
         const getEnums = async () => {
-            let { data, error } = await supabase.from('enums').select('*').eq('organization_id', session?.user?.organization_id)
+            let { data, error } = await supabase.from('enums').select('*')//.eq('organization_id', session?.user?.organization_id || organization?.id)
+            console.log("Enums", error, data)
             if (data) {
-                // console.log("Enums", data)
                 setEnums(data)
             }
         }
         getEnums()
-    }, [])
+    }, [organization])
 
     useEffect(() => {
 

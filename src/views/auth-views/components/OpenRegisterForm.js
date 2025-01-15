@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 // import { LockOutlined, MailOutlined, UserOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber } from "antd";
+import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber, message } from "antd";
 import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
 import { useLocation, Link } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
@@ -11,15 +11,22 @@ import { APP_PREFIX_PATH, SURVEY_PREFIX_PATH } from "configs/AppConfig";
 import DynamicForm from "views/pages/DynamicForm";
 import { store } from "store";
 
-export const RegisterForm = (props) => {
+export const OpenRegisterForm = (props) => {
   // const [isSubmitted, setIsSubmitted] = useState(false);
   const [enums, setEnums] = useState();
+  const [organization, setOrganization] = useState();
   const [signIn, setSignIn] = useState(false)
   const [schema, setSchema] = useState();
   const [roles, setRoles] = useState();
 
+  const getOrganization = async () => {
+    const { data, error } = await supabase.from('organizations').select('*').eq('name', process.env.REACT_APP_ORGANIZATION_APP || 'Dev').single()
+    if (data) {
+      setOrganization(data)
+    }
+  }
   const getForms = async () => {
-    const { data, error } = await supabase.from('forms').select('*').eq('name', "user_admin_registration_form").single()
+    const { data, error } = await supabase.from('forms').select('*').eq('organization_id', organization?.id).eq('name', "open_user_registration_form").single()
     if (data) {
       setSchema(data)
     }
@@ -52,20 +59,27 @@ export const RegisterForm = (props) => {
         setEnums(data);
       }
     };
-    getForms()
+    getOrganization()
     // getUserType();
     getRoles()
     getEnums();
   }, []);
 
+  useEffect(() => {
+    if (organization) {
+      getForms()
+    }
+  }, [organization]);
+
   const surveyLayout = location.pathname.startsWith("/survey")
   const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
   const onFinish = async (values) => {
-    console.log("payload", values)
-
-    // let { data, error } = await supabase.auth.admin.inviteUserByEmail('ganeshmr3003@gmail.com')
-    // console.log(data, error)
+    if (values?.password !== values?.retypePassword) {
+      return message.error("Password doesn't match")
+    }
+    const user_name = values?.firstName + " " + values?.lastName
+    console.log("payload", values, user_name)
 
     const { data, error } = await supabase.auth.signUp({
       email: values?.email,
@@ -80,49 +94,27 @@ export const RegisterForm = (props) => {
     }
     if (data) {
       console.log("reg data", data)
-      const user_id = data?.user?.id;
-      const { data: data2, error: insertError2 } = await supabase.from('organizations').insert([
+      delete values?.retypePassword
+      const { data: data2, error: error2 } = await supabase.from('users').insert([
         {
-          auth_id: user_id,
-          name: values?.orgName || "",
-          details: { name: values?.orgName || "" }
+          id: data?.user?.id,
+          organization_id: organization?.id,
+          details: { ...values, user_name },
+          user_name,
+          // role_type: values?.role,
+          // manager_id: user_id,
+          // hr_id: user_id,
+          // role_id: roles?.find(i => i.role_name === values?.role)?.id
+          // TODO role_id, location_id
         },
-      ]).select();
-      console.log("orgn", data2, insertError2)
-      if (insertError2) {
-        console.log("Error org", insertError2);
-        return notification.error({ message: insertError2.message || "Error" })
+      ]);
+      if (error2) {
+        console.log("Error2", error2);
+        return notification.error({ message: error2.message || "Error" })
       }
-      if (data2?.length > 0) {
-        const user_id = data?.user?.id;
-        delete values?.password;
-        console.log("org", {
-          user_id: user_id,
-          organization_id: data2[0]?.id,
-          details: values,
-          role_type: values?.role
-        })
 
-        const { data: data3, error: insertError3 } = await supabase.from('users').insert([
-          {
-            id: user_id,
-            organization_id: data2[0]?.id,
-            details: { ...values, user_name: values?.orgName },
-            user_name: values?.orgName,
-            role_type: values?.role,
-            manager_id: user_id,
-            hr_id: user_id,
-            role_id: roles?.find(i => i.role_name === values?.role)?.id
-            // TODO role_id, location_id
-          },
-        ]);
-        if (insertError3) {
-          console.log("Error", insertError3);
-          return notification.error({ message: insertError3.message || "Error" })
-        }
-
-      }
     }
+
     const fetchUserData = async (session) => {
       if (!session || !session.user) return;
 
@@ -208,4 +200,4 @@ const mapDispatchToProps = {
   showLoading,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);
+export default connect(mapStateToProps, mapDispatchToProps)(OpenRegisterForm);

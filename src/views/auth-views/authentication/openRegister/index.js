@@ -1,11 +1,11 @@
 import React from "react";
-import RegisterForm from "../../components/RegisterForm3";
+import OpenRegisterForm from "../../components/OpenRegisterForm";
 // import IBCNLayout from "components/layout-components/IBCNLayout";
 
 const RegisterTwo = (props) => {
   return (
     <div>
-      <RegisterForm {...props} />
+      <OpenRegisterForm {...props} />
     </div>
   );
 };

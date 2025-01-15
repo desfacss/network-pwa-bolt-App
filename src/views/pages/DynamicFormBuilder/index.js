@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, Button, Input, Select, Switch, Drawer, Row, Col, message } from 'antd';
 import DynamicForm from '../DynamicForm';
 import { widgetConfigs } from './widgets';
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 import { supabase } from 'api/supabaseClient';
-import { QueryFilter } from './QueryBuilder';
+// import { QueryFilter } from './QueryBuilder';
 // import { QueryFilter } from './QueryBuilderStatic';
 
 const FormBuilder = () => {
@@ -165,7 +165,13 @@ const FormBuilder = () => {
     };
     // "className": "ant-btn css-dev-only-do-not-override-1stfoss ant-btn-submit ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-block"
 
-    updatedFields.forEach(field => {
+    const gridStructure = []; // Array for building ui:grid structure
+    const orderMap = {}; // Map to group fields by ui:order
+
+    // Sort fields by uiOrder
+    const sortedFields = [...updatedFields]?.sort((a, b) => a.uiOrder - b.uiOrder);
+
+    sortedFields?.forEach(field => {
       const config = widgetConfigs[field.fieldType];
       if (!config) return;
 
@@ -214,7 +220,34 @@ const FormBuilder = () => {
       }
       fieldUiSchema["ui:order"] = field.uiOrder;
       newUiSchema[field.fieldName] = fieldUiSchema;
+
+      if (!orderMap[field.uiOrder]) {
+        orderMap[field.uiOrder] = [];
+      }
+      orderMap[field.uiOrder].push(field.fieldName);
     });
+
+    // Build ui:grid with a total of 24 for each index
+    Object.keys(orderMap).sort((a, b) => a - b).forEach(order => {
+      const fieldsInOrder = orderMap[order];
+      const rowObject = {};
+      const fieldCount = fieldsInOrder.length;
+      const baseWidth = Math.floor(24 / fieldCount);
+      let remainingWidth = 24;
+
+      fieldsInOrder.forEach((fieldName, index) => {
+        const width = index === fieldCount - 1 ? remainingWidth : baseWidth;
+        rowObject[fieldName] = width;
+        remainingWidth -= width;
+      });
+
+      gridStructure.push(rowObject);
+    });
+
+    newUiSchema["ui:grid"] = gridStructure;
+
+    // Add ui:order property based on sorted field names
+    newUiSchema["ui:order"] = sortedFields.map(field => field.fieldName);
 
     setDataSchema(newDataSchema);
     setUiSchema(newUiSchema);
@@ -254,7 +287,7 @@ const FormBuilder = () => {
   }, []);
 
   return (<div className="space-y-6">
-    <QueryFilter />
+    {/* <QueryFilter /> */}
     <Row gutter={16}>
       <Col span={8}>
         <Row gutter={4}>

@@ -8,11 +8,16 @@ export const publicRoutes = [
         component: React.lazy(() => import('views/auth-views/authentication/login')),
     },
     //ONLY APPLICABLE ON A SAAS WEBSITE(FOR NEW COMPANY REGISTRATION)
-    // {
-    //     key: 'register',
-    //     path: `${APP_PREFIX_PATH}/web-register`,
-    //     component: React.lazy(() => import('views/auth-views/authentication/register')),
-    // },
+    {
+        key: 'web-register',
+        path: `${APP_PREFIX_PATH}/web-register`,
+        component: React.lazy(() => import('views/auth-views/authentication/webRegister')),
+    },
+    {
+        key: 'register',
+        path: `${APP_PREFIX_PATH}/register`,
+        component: React.lazy(() => import('views/auth-views/authentication/openRegister')),
+    },
     {
         key: 'confirm-signup',
         path: `${APP_PREFIX_PATH}/confirm-signup`,
