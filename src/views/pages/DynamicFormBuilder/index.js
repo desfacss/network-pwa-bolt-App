@@ -5,7 +5,8 @@ import { widgetConfigs } from './widgets';
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 import { supabase } from 'api/supabaseClient';
-// import { QueryFilter } from './QueryBuilder';
+import { QueryFilter } from './QueryBuilder';
+// import { QueryFilter } from './QueryBuilderStatic';
 
 const FormBuilder = () => {
   const [forms, setForms] = useState([]);
@@ -59,7 +60,7 @@ const FormBuilder = () => {
 
     setFields(prev => [...prev, newField]);
     updateSchemas([...fields, newField]);
-    // Reset form
+
     setFieldInput({
       title: fieldInput?.title || "",
       description: fieldInput?.description || "",
@@ -253,7 +254,7 @@ const FormBuilder = () => {
   }, []);
 
   return (<div className="space-y-6">
-    {/* <QueryFilter /> */}
+    <QueryFilter />
     <Row gutter={16}>
       <Col span={8}>
         <Row gutter={4}>
