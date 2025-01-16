@@ -21,7 +21,7 @@ const Position = () => {
     const [schema, setSchema] = useState()
     useEffect(() => {
         const getEnums = async () => {
-            let { data, error } = await supabase.from('enum').select('*')
+            let { data, error } = await supabase.from('enums').select('*')
             if (data) {
                 console.log("Enums", data)
                 setEnums(data)

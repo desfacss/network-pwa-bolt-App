@@ -14,7 +14,7 @@ function Chat2() {
 
     useEffect(() => {
         const fetchChats = async () => {
-            const { data, error } = await supabase.from('ib_chats').select('*').contains('users', [session?.user?.id])
+            const { data, error } = await supabase.from('ib_posts').select('*').contains('users', [session?.user?.id])
             if (error) {
                 console.error('Error fetching chats:', error)
             } else {

@@ -140,7 +140,7 @@ export const RegisterForm = (props) => {
   useEffect(() => {
     const getEnums = async () => {
       let { data, error } = await supabase
-        .from('enum')
+        .from('enums')
         .select('*')
       if (data) {
         setEnums(data)

@@ -6,21 +6,13 @@ import DynamicForm from "../DynamicForm";
 import { ExportOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
-const GanttChart = ({ data, onFinish, deleteData, viewConfig }) => {
+const GanttChart = ({ data, onFinish, openDrawer, deleteData, viewConfig }) => {
     const [viewMode, setViewMode] = useState(ViewMode.Day);
-
-    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-    const [editItem, setEditItem] = useState(null);
 
     const dynamicBulkActions = viewConfig?.tableview?.actions?.bulk?.filter(action =>
         action?.includes("add_new_")
     );
     const { showFeatures, exportOptions, globalSearch } = viewConfig?.tableview;
-
-    const openModal = (item = null) => {
-        setEditItem(item);
-        setIsDrawerVisible(true);
-    };
 
     const handleExport = (type) => {
         console.log(`Export to ${type} triggered`);
@@ -28,7 +20,7 @@ const GanttChart = ({ data, onFinish, deleteData, viewConfig }) => {
 
     const handleBulkAction = (action) => {
         if (action === "add_new_task") {
-            openModal();
+            openDrawer();
         } else {
             console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
         }
@@ -84,7 +76,7 @@ const GanttChart = ({ data, onFinish, deleteData, viewConfig }) => {
             ];
             console.log("ET", updatedEvent)
             // Call the `onFinish` function with the updated event
-            openModal(updatedEvent); // Use second argument for editing context
+            openDrawer(updatedEvent); // Use second argument for editing context
         }
     }
 
@@ -153,21 +145,6 @@ const GanttChart = ({ data, onFinish, deleteData, viewConfig }) => {
                     console.log(`${task.name} ${isSelected ? "selected" : "deselected"}`);
                 }}
             />
-            <Drawer width="50%"
-                title={editItem ? 'Edit Task' : 'Add New Task'}
-                visible={isDrawerVisible}
-                onClose={() => setIsDrawerVisible(false)}
-                footer={null}
-            >
-                <DynamicForm
-                    schemas={viewConfig}
-                    formData={editItem || {}}
-                    onFinish={(formData) => {
-                        onFinish(formData, editItem);
-                        setIsDrawerVisible(false);
-                    }}
-                />
-            </Drawer>
         </div>
     );
 };

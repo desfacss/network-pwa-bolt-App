@@ -6,7 +6,7 @@ async function createChat(name, user_id) {
     // let users = []
     // users.push(user_id)
     const { data, error } = await supabase
-        .from('ib_chats')
+        .from('ib_posts')
         .insert([{ name, users: [user_id] }])
         .single()
 
@@ -22,7 +22,7 @@ async function createChat(name, user_id) {
 
 async function addMessage(chat_id, name, message, user_id) {
     const { data, error } = await supabase
-        .from('ib_chat_messages')
+        .from('ib_post_messages')
         .insert([{ chat_id, name, message, user_id }])
         .single()
 
@@ -40,7 +40,7 @@ async function fetchMessages(chat_id) {
     const ses = await supabase.auth.getSession()
     console.log("SEssion", ses)
     const { data, error } = await supabase
-        .from('ib_chat_messages')
+        .from('ib_post_messages')
         .select('*')
         .eq('chat_id', chat_id)
         .order('created_at', { ascending: true })

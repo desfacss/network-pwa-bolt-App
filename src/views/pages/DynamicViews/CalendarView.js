@@ -20,20 +20,13 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
-const CalendarView = ({ data, onFinish, deleteData, viewConfig }) => {
-
-    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-    const [editItem, setEditItem] = useState(null);
+const CalendarView = ({ data, onFinish, deleteData, viewConfig, openDrawer }) => {
 
     const dynamicBulkActions = viewConfig?.tableview?.actions?.bulk?.filter(action =>
         action?.includes("add_new_")
     );
     const { showFeatures, exportOptions, globalSearch } = viewConfig?.tableview;
 
-    const openModal = (item = null) => {
-        setEditItem(item);
-        setIsDrawerVisible(true);
-    };
 
     const handleExport = (type) => {
         console.log(`Export to ${type} triggered`);
@@ -41,7 +34,7 @@ const CalendarView = ({ data, onFinish, deleteData, viewConfig }) => {
 
     const handleBulkAction = (action) => {
         if (action === "add_new_task") {
-            openModal();
+            openDrawer();
         } else {
             console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
         }
@@ -104,28 +97,13 @@ const CalendarView = ({ data, onFinish, deleteData, viewConfig }) => {
                     )}
                 </div>
             </div>
-            <Calendar onSelectEvent={(event) => { delete event.start; delete event?.end; openModal(event) }}
+            <Calendar onSelectEvent={(event) => { delete event.start; delete event?.end; openDrawer(event) }}
                 localizer={localizer}
                 events={transformedEvents}
                 startAccessor="start"
                 endAccessor="end"
                 style={{ height: 500 }}
             />
-            <Drawer width="50%"
-                title={editItem ? 'Edit Task' : 'Add New Task'}
-                visible={isDrawerVisible}
-                onClose={() => setIsDrawerVisible(false)}
-                footer={null}
-            >
-                <DynamicForm
-                    schemas={viewConfig}
-                    formData={editItem || {}}
-                    onFinish={(formData) => {
-                        onFinish(formData, editItem);
-                        setIsDrawerVisible(false);
-                    }}
-                />
-            </Drawer>
         </div>
     );
 };

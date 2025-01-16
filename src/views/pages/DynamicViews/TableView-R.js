@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Table, Button, Dropdown, Menu, Modal, Drawer, Input, Space, Checkbox } from 'antd';
+import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox } from 'antd';
 // import { DownOutlined, PlusOutlined, SearchOutlined,FilterOutlined, GroupOutlined } from '@ant-design/icons';
 import { SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutlined, FilterOutlined, GroupOutlined, ExportOutlined } from '@ant-design/icons';
 import DynamicForm from '../DynamicForm';
@@ -12,7 +12,7 @@ const actionIcons = {
     add_new: <PlusOutlined />
 };
 
-const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, onFinish, users }) => {
+const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openDrawer, users }) => {
 
     const pagination = {
         pageSizeOptions: ['10', '50', '100'], // Options for page sizes
@@ -22,23 +22,12 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, onFi
     }
 
     const [groupedData, setGroupedData] = useState(null);
-    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-    const [editItem, setEditItem] = useState(null);
     const [searchText, setSearchText] = useState('');
     const [visibleColumns, setVisibleColumns] = useState(viewConfig?.tableview?.fields?.map(field => field?.fieldName));
     const [selectedGroupBy, setSelectedGroupBy] = useState(null);
 
     const { showFeatures, exportOptions, globalSearch, groupBy } = viewConfig?.tableview;
 
-    const openDrawer = (item = null) => {
-        setEditItem(item);
-        setIsDrawerVisible(true);
-    };
-
-    const closeModal = () => {
-        setIsDrawerVisible(false);
-        setEditItem(null);
-    };
 
     // Grouping data by the selected field
     const groupedTableData = useMemo(() => {
@@ -385,22 +374,6 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, onFi
             {selectedGroupBy ? renderGroupedTable() : (
                 <Table size={'small'} dataSource={filteredData} columns={allColumns} rowKey="id" pagination={pagination} />
             )}
-            {/* Modal for Adding/Editing Task */}
-            <Drawer width="50%"
-                title={editItem ? 'Edit Task' : 'Add New Task'}
-                visible={isDrawerVisible}
-                onClose={() => setIsDrawerVisible(false)}
-                footer={null}
-            >
-                <DynamicForm
-                    schemas={viewConfig}
-                    formData={editItem || {}}
-                    onFinish={(formData) => {
-                        onFinish(formData, editItem);
-                        setIsDrawerVisible(false);
-                    }}
-                />
-            </Drawer>
         </div>
     );
 };

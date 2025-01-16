@@ -12,20 +12,12 @@ import DynamicForm from '../DynamicForm';
 
 const { Option } = Select;
 
-const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, deleteData }) => {
-
-    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-    const [editItem, setEditItem] = useState(null);
+const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, openDrawer, deleteData }) => {
 
     const dynamicBulkActions = viewConfig?.tableview?.actions?.bulk?.filter(action =>
         action?.includes("add_new_")
     );
     const { showFeatures, exportOptions, globalSearch } = viewConfig?.tableview;
-
-    const openDrawer = (item = null) => {
-        setEditItem(item);
-        setIsDrawerVisible(true);
-    };
 
     const handleExport = (type) => {
         console.log(`Export to ${type} triggered`);
@@ -311,21 +303,6 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, de
                     backgroundColor: '#fff',
                 }}
             />
-            <Drawer width="50%"
-                title={editItem ? 'Edit Task' : 'Add New Task'}
-                visible={isDrawerVisible}
-                onClose={() => setIsDrawerVisible(false)}
-                footer={null}
-            >
-                <DynamicForm
-                    schemas={viewConfig}
-                    formData={editItem || {}}
-                    onFinish={(formData) => {
-                        onFinish(formData, editItem);
-                        setIsDrawerVisible(false);
-                    }}
-                />
-            </Drawer>
             {/* Modal for editing card */}
             {/* {editingCard && (
                 <div style={modalStyle}>

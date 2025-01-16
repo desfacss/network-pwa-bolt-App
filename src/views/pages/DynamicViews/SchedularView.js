@@ -8,17 +8,13 @@ import { Scheduler, SchedulerData, ViewType, DemoData, DATE_FORMAT } from 'react
 import Schedular from './Sched';
 import dayjs from 'dayjs';
 
-const SchedularView = ({ data, viewConfig, onFinish, deleteData }) => {
+const SchedularView = ({ data, viewConfig, onFinish, deleteData, openDrawer }) => {
     const [schedulerData, setSchedulerData] = useState(
         new SchedulerData(dayjs().format(DATE_FORMAT), ViewType.Week, false, false, {
             schedulerWidth: '85%',
             schedulerMaxHeight: 500,
         })
     );
-    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-    const [editItem, setEditItem] = useState(null);
-
-    console.log("rd", data)
 
     const resources = useMemo(() => {
         return data?.reduce((acc, item) => {
@@ -69,8 +65,8 @@ const SchedularView = ({ data, viewConfig, onFinish, deleteData }) => {
 
     const handleEventClick = (schedulerEvent) => {
         const item = data.find(item => item.id === schedulerEvent.id);
-        setEditItem(item);
-        setIsDrawerVisible(true);
+        // setEditItem(item);
+        // setIsDrawerVisible(true);
     };
 
     const handleDelete = (event) => {
@@ -85,16 +81,11 @@ const SchedularView = ({ data, viewConfig, onFinish, deleteData }) => {
         });
     };
 
-    const handleAddEvent = () => {
-        setEditItem(null);
-        setIsDrawerVisible(true);
-    };
-
     return (
         <div>
             {/* Toolbar for Adding New Events */}
             <Space style={{ marginBottom: 16 }}>
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleAddEvent}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={openDrawer}>
                     Add Event
                 </Button>
             </Space>
@@ -118,23 +109,6 @@ const SchedularView = ({ data, viewConfig, onFinish, deleteData }) => {
                     deleteEventClick={(e) => handleDelete(e)}
                 />
             </DndProvider> */}
-
-            {/* Drawer for Editing/Adding Events */}
-            <Drawer
-                title={editItem ? 'Edit Event' : 'Add New Event'}
-                visible={isDrawerVisible}
-                onClose={() => setIsDrawerVisible(false)}
-                footer={null}
-            >
-                <DynamicForm
-                    schemas={viewConfig}
-                    formData={editItem || {}}
-                    onFinish={(formData) => {
-                        onFinish(formData, editItem);
-                        setIsDrawerVisible(false);
-                    }}
-                />
-            </Drawer>
         </div>
     );
 };

@@ -4,20 +4,21 @@ import { DownOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import './GridView.css'; // Optional for styling tweaks
 import DynamicForm from '../DynamicForm';
 
-const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
+const GridView = ({ data, viewConfig, updateData, deleteData, openDrawer }) => {
+    console.log("re", data)
     const { fields, actions } = viewConfig?.gridview;
-    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-    const [editItem, setEditItem] = useState(null);
+    // const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+    // const [editItem, setEditItem] = useState(null);
 
-    const openDrawer = (item = null) => {
-        setEditItem(item);
-        setIsDrawerVisible(true);
-    };
+    // const openDrawer = (item = null) => {
+    //     setEditItem(item);
+    //     setIsDrawerVisible(true);
+    // };
 
-    const closeDrawer = () => {
-        setIsDrawerVisible(false);
-        setEditItem(null);
-    };
+    // const closeDrawer = () => {
+    //     setIsDrawerVisible(false);
+    //     setEditItem(null);
+    // };
 
     const handleBulkAction = (action) => {
         console.log(`Bulk action "${action}" triggered for all cards.`);
@@ -101,22 +102,6 @@ const GridView = ({ data, viewConfig, updateData, deleteData, onFinish }) => {
                 ))}
             </Row>
 
-            {/* Drawer for Add/Edit */}
-            <Drawer width="50%"
-                title={editItem ? 'Edit Task' : 'Add New Task'}
-                visible={isDrawerVisible}
-                onClose={closeDrawer}
-                footer={null}
-            >
-                <DynamicForm
-                    schemas={viewConfig}
-                    formData={editItem || {}}
-                    onFinish={(formData) => {
-                        onFinish(formData, editItem);
-                        closeDrawer();
-                    }}
-                />
-            </Drawer>
         </div>
     );
 };

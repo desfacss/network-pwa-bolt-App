@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, notification, Tabs } from 'antd';
+import { Button, Card, Drawer, notification, Tabs } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
@@ -16,6 +16,7 @@ import { toggleFullscreen } from 'components/common/utils';
 import useTabWithHistory from 'components/common/TabHistory';
 import Dashboard from './Dashboard';
 import ExportImportButtons from './CSVOptions';
+import DynamicForm from '../DynamicForm';
 // import SchedularView from './SchedularView';
 
 // const entityType = 'y_sales'
@@ -30,6 +31,19 @@ const Index = ({ entityType }) => {
     const [vd, setVd] = useState();
     const [isFullscreen, setIsFullscreen] = useState(false);
     const { activeTab, onTabChange } = useTabWithHistory("1");
+
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+    const [editItem, setEditItem] = useState(null);
+
+    const openDrawer = (item = null) => {
+        setEditItem(item);
+        setIsDrawerVisible(true);
+    };
+
+    const closeDrawer = () => {
+        setIsDrawerVisible(false);
+        setEditItem(null);
+    };
 
     // useEffect(() => {
     //     const handleFullscreenChange = () => {
@@ -339,56 +353,56 @@ const Index = ({ entityType }) => {
         tabItems.push({
             label: 'Table',
             key: '1',
-            children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
         })
     }
     if (viewConfig?.gridview) {
         tabItems.push({
             label: 'Grid',
             key: '2',
-            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />
         })
     }
     if (viewConfig?.timelineview) {
         tabItems.push({
             label: 'Timeline',
             key: '3',
-            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />
         })
     }
     if (viewConfig?.kanbanview) {
         tabItems.push({
             label: 'Kanban',
             key: '4',
-            children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />
+            children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} />
         })
     }
     if (viewConfig?.ganttview) {
         tabItems.push({
             label: 'Gantt',
             key: '5',
-            children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} />,
         })
     }
     if (viewConfig?.calendarview) {
         tabItems.push({
             label: 'Calendar',
             key: '6',
-            children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} />,
         })
     }
     // if (viewConfig?.calendarview) {
     //     tabItems.push({
     //         label: 'Schedule',
     //         key: '7',
-    //         children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+    //         children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
     //     })
     // }
     if (viewConfig?.dashboardview) {
         tabItems.push({
             label: 'Dashboard',
             key: '8',
-            children: <Dashboard data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <Dashboard data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} />,
         })
     }
 
@@ -430,6 +444,22 @@ const Index = ({ entityType }) => {
                 onCancel={() => { fetchData(); setVisible(false); console.log("e") }}
                 data={vd}  // Pass the response data (vd) to the modal
             />}
+            <Drawer
+                width="50%"
+                title={editItem ? 'Edit Task' : 'Add New Task'}
+                open={isDrawerVisible}
+                onClose={closeDrawer}
+                footer={null}
+            >
+                <DynamicForm
+                    schemas={viewConfig} // Replace with actual schemas
+                    formData={editItem || {}}
+                    onFinish={(formData) => {
+                        handleAddOrEdit(formData, editItem);
+                        closeDrawer();
+                    }}
+                />
+            </Drawer>
         </Card>
     );
 }

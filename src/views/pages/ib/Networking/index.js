@@ -18,6 +18,10 @@ import EllipsisDropdown from 'components/shared-components/EllipsisDropdown'
 import { supabase } from 'configs/SupabaseConfig';
 import PostList from './PostList';
 import { useNavigate } from 'react-router-dom';
+import CategorySelector from './Chat';
+import ChatList from './ChatList';
+// import CategorySelector from './Add';
+// import CategorySelector from './Interests';
 
 const VIEW_LIST = 'LIST';
 const VIEW_GRID = 'GRID';
@@ -184,6 +188,19 @@ const Networking = () => {
 	const [type, setType] = useState('imlookingfor');
 	const [sectorOptions, setSectorOptions] = useState([]);
 
+	const [modalVisible, setModalVisible] = useState(false);
+	const [editChatId, setEditChatId] = useState(null);
+
+	const openModalForNew = () => {
+		setEditChatId(null);
+		setModalVisible(true);
+	};
+
+	const openModalForEdit = (id) => {
+		setEditChatId(id);
+		setModalVisible(true);
+	};
+
 	const navigate = useNavigate();
 	const handleChatClick = (chatId) => {
 		navigate(`/app/ib_chat/${chatId}`);
@@ -191,17 +208,17 @@ const Networking = () => {
 
 	useEffect(() => {
 		const getEnums = async () => {
-			let { data, error } = await supabase.from('enum').select('*');
-			console.log("Enums", data?.find(item => item.name === type))
+			let { data, error } = await supabase.from('enums').select('*');
+			console.log("Enums", data?.find(item => item?.name === type))
 			if (data) {
-				setEnums(data?.find(item => item.name === type).options);
+				setEnums(data?.find(item => item?.name === type)?.options);
 			}
 		};
 		getEnums();
 	}, [type]);
 	useEffect(() => {
 		const getChats = async () => {
-			let { data, error } = await supabase.from('ib_chats').select('*');
+			let { data, error } = await supabase.from('ib_posts').select('*');
 			console.log("Chats", data)
 			if (data) {
 				setChats(data);
@@ -238,7 +255,7 @@ const Networking = () => {
 
 		try {
 			const { data, error } = await supabase
-				.from('ib_chats')
+				.from('ib_posts')
 				.insert([
 					{
 						name: values.title, // Insert the title into the `name` column
@@ -275,6 +292,19 @@ const Networking = () => {
 	return (
 		<>
 			{/* <PostList /> */}
+			<Button type="primary" onClick={openModalForNew}>
+				Create New Chat
+			</Button>
+
+			{/* <Button onClick={() => openModalForEdit(123)} style={{ marginLeft: 10 }}>
+        Edit Chat (ID: 123)
+      </Button> */}
+
+			{modalVisible && <CategorySelector
+				visible={modalVisible}
+				onClose={() => setModalVisible(false)}
+				chatId={editChatId}
+			/>}
 			<Modal
 				title="Create New Post"
 				open={modal}
@@ -371,6 +401,7 @@ const Networking = () => {
 							))}
 						</Row>
 				}
+				<ChatList />
 			</div>
 		</>
 	)

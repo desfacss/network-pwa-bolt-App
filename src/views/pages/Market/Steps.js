@@ -57,7 +57,7 @@ const MultiStepForm = ({ schemas, update }) => {
             })
         }
         const getEnums = async () => {
-            let { data, error } = await supabase.from('enum').select('*')
+            let { data, error } = await supabase.from('enums').select('*')
             if (data) {
                 setEnums(data)
             }

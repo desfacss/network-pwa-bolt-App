@@ -1,4 +1,4 @@
-import { Card, notification, Tabs } from 'antd';
+import { Card, Drawer, notification, Tabs } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useState } from 'react';
 import DynamicForm from '../DynamicForm';
@@ -12,6 +12,18 @@ const entityType = 'clients'
 const Index = () => {
     const [viewConfig, setViewConfig] = useState(null);
     const [data, setData] = useState(null);
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+    const [editItem, setEditItem] = useState(null);
+
+    const openDrawer = (item = null) => {
+        setEditItem(item);
+        setIsDrawerVisible(true);
+    };
+
+    const closeDrawer = () => {
+        setIsDrawerVisible(false);
+        setEditItem(null);
+    };
 
     const fetchData = async () => {
         let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
@@ -85,28 +97,28 @@ const Index = () => {
         tabItems.push({
             label: 'Table',
             key: '1',
-            children: <TableView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <TableView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
         });
     }
     if (viewConfig?.gridview) {
         tabItems.push({
             label: 'Grid',
             key: '2',
-            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
         });
     }
     if (viewConfig?.kanbanview) {
         tabItems.push({
             label: 'Kanban',
             key: '3',
-            children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <KanbanView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} openDrawer={openDrawer} />,
         });
     }
     if (viewConfig?.timelineview) {
         tabItems.push({
             label: 'Timeline',
             key: '4',
-            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} onFinish={handleAddOrEdit} />,
+            children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
         });
     }
     if (viewConfig?.ganttview) {
@@ -131,6 +143,22 @@ const Index = () => {
             ) : (
                 <p>No view configurations available</p>
             )}
+            <Drawer
+                width="50%"
+                title={editItem ? 'Edit Task' : 'Add New Task'}
+                open={isDrawerVisible}
+                onClose={closeDrawer}
+                footer={null}
+            >
+                <DynamicForm
+                    schemas={viewConfig} // Replace with actual schemas
+                    formData={editItem || {}}
+                    onFinish={(formData) => {
+                        handleAddOrEdit(formData, editItem);
+                        closeDrawer();
+                    }}
+                />
+            </Drawer>
         </Card>
     );
 };
