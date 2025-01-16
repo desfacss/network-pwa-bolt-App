@@ -186,6 +186,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/ib_networking`,
             component: React.lazy(() => import('views/pages/ib/Networking')),
         },
+        module_features?.ibNetworking && feature?.ibNetworking && {
+            key: 'ib_heirarchy',
+            path: `${APP_PREFIX_PATH}/ib_heirarchy`,
+            component: React.lazy(() => import('views/pages/ib/Heirarchy')),
+        },
         module_features?.ibPoll && feature?.ibPoll && {
             key: 'ib_poll',
             path: `${APP_PREFIX_PATH}/ib_poll`,
