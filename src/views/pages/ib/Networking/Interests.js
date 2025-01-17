@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Card, Checkbox, Button, message } from "antd";
+import { Card, Checkbox, Button, message, Drawer, Row, Col } from "antd";
 import { supabase } from "api/supabaseClient";
 import { useSelector } from "react-redux";
 
-const Interests = () => {
+const Interests = ({ open, onClose }) => {
     const [categories, setCategories] = useState([]);
     const [selectedInterests, setSelectedInterests] = useState({});
     const { session } = useSelector((state) => state.auth);
@@ -81,30 +81,46 @@ const Interests = () => {
             message.error("Failed to save interests");
         } else {
             message.success("Interests saved successfully!");
+            onClose(); // Close drawer after saving
         }
     };
 
     return (
-        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-            {categories.map((parent) => (
-                <Card key={parent.id} title={parent.category_name} style={{ width: 300 }}>
-                    <Checkbox.Group
-                        value={selectedInterests[parent.id] || []}
-                        onChange={(checkedValues) => handleCheckboxChange(checkedValues, parent.id)}
-                    >
-                        {parent.children.map((child) => (
-                            <div key={child.id}>
-                                <Checkbox value={child.id}>{child.category_name}</Checkbox>
-                            </div>
-                        ))}
-                    </Checkbox.Group>
-                </Card>
-            ))}
-            <div style={{ width: "100%", marginTop: 16 }}>
-                <Button type="primary" onClick={handleSubmit}>Save Interests</Button>
+        <Drawer title="Select Interests" open={open} onClose={onClose} width={'100%'}>
+            <Row gutter={[16, 16]} justify="start">
+                {categories.map((parent) => (
+                    <Col key={parent.id} xs={24} sm={12} md={8} lg={6}>
+                        <Card title={parent.category_name} style={{ width: "100%" }}>
+                            <Checkbox.Group
+                                value={selectedInterests[parent.id] || []}
+                                onChange={(checkedValues) => handleCheckboxChange(checkedValues, parent.id)}
+                            >
+                                {parent.children.map((child) => (
+                                    <div key={child.id} style={{ marginBottom: 8, display: "block" }}>
+                                        <Checkbox value={child.id}>{child.category_name}</Checkbox>
+                                    </div>
+                                ))}
+                            </Checkbox.Group>
+                        </Card>
+                    </Col>
+                ))}
+            </Row>
+            <div style={{ marginTop: 16 }}>
+                <Button type="primary" onClick={handleSubmit} block>Save Interests</Button>
             </div>
-        </div>
+        </Drawer>
     );
 };
 
-export default Interests;
+const InterestsDrawer = () => {
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    return (
+        <>
+            <Button type="primary" onClick={() => setIsDrawerOpen(true)}>Interests</Button>
+            <Interests open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+        </>
+    );
+};
+
+export default InterestsDrawer;
