@@ -178,7 +178,7 @@ export const protectedRoutes = (feature, module_features) => {
         },
         module_features?.ibChat && feature?.ibChat && {
             key: 'ib_chat',
-            path: `${APP_PREFIX_PATH}/ib_chat/:chatId`,
+            path: `${APP_PREFIX_PATH}/networking/:chatId`,
             component: React.lazy(() => import('views/pages/ib/Chat')),
         },
         module_features?.ibNetworking && feature?.ibNetworking && {

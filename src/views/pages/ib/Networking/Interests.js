@@ -1,107 +1,110 @@
-import React, { useState, useEffect } from "react";
-import { Select, Checkbox, Button, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Checkbox, Button, message } from "antd";
 import { supabase } from "api/supabaseClient";
 import { useSelector } from "react-redux";
 
-const { Option } = Select;
-
-
-const CategorySelector = ({ userId }) => {
+const Interests = () => {
     const [categories, setCategories] = useState([]);
-    const [level1Categories, setLevel1Categories] = useState([]);
-    const [selectedLevel1, setSelectedLevel1] = useState(null);
-    const [level2Categories, setLevel2Categories] = useState([]);
-    const [selectedLevel2, setSelectedLevel2] = useState([]);
-
+    const [selectedInterests, setSelectedInterests] = useState({});
     const { session } = useSelector((state) => state.auth);
+    const userId = session?.user?.id;
 
-    // Fetch categories and build tree
+    // Fetch categories from ib_categories
     useEffect(() => {
         const fetchCategories = async () => {
             const { data, error } = await supabase
                 .from("ib_categories")
-                .select("*")
-                .order("created_at", { ascending: true });
+                .select("id, category_name, parent_category_id").order('category_name', { scending: true });
 
             if (error) {
                 message.error("Failed to fetch categories");
-                console.error(error);
-            } else {
-                setCategories(data);
-                const level1 = data.filter((category) => category.parent_category_id === null);
-                setLevel1Categories(level1);
+                return;
             }
+
+            // Organize categories into parent-child structure
+            const categoryMap = {};
+            data.forEach((cat) => {
+                if (!cat.parent_category_id) {
+                    categoryMap[cat.id] = { ...cat, children: [] };
+                }
+            });
+            data.forEach((cat) => {
+                if (cat.parent_category_id && categoryMap[cat.parent_category_id]) {
+                    categoryMap[cat.parent_category_id].children.push(cat);
+                }
+            });
+
+            setCategories(Object.values(categoryMap));
         };
 
         fetchCategories();
     }, []);
 
-    // Update level 2 categories based on level 1 selection
+    // Fetch user's saved interests
     useEffect(() => {
-        if (selectedLevel1) {
-            const level2 = categories.filter((category) => category.parent_category_id === selectedLevel1);
-            setLevel2Categories(level2);
-        } else {
-            setLevel2Categories([]);
+        const fetchUserInterests = async () => {
+            const { data, error } = await supabase
+                .from("ib_members")
+                .select("networking")
+                .eq("user_id", userId)
+                .single();
+
+            if (error) {
+                message.error("Failed to fetch user interests");
+                return;
+            }
+
+            setSelectedInterests(data?.networking || {});
+        };
+
+        if (userId) {
+            fetchUserInterests();
         }
-    }, [selectedLevel1, categories]);
+    }, [userId]);
 
+    // Handle checkbox selection
+    const handleCheckboxChange = (checkedValues, parentId) => {
+        setSelectedInterests((prev) => ({
+            ...prev,
+            [parentId]: checkedValues, // Store child IDs under their parent ID
+        }));
+    };
+
+    // Save selected interests in nested format
     const handleSubmit = async () => {
-        console.log(selectedLevel2)
-        // try {
-        //     const { error } = await supabase
-        //         .from("users")
-        //         .update({ networking: selectedLevel2 })
-        //         .eq("id", session?.user?.id);
+        const { error } = await supabase
+            .from("ib_members")
+            .update({ networking: selectedInterests }) // Save as a structured object
+            .eq("user_id", userId);
 
-        //     if (error) throw error;
-        //     message.success("Updated successfully!");
-        // } catch (err) {
-        //     message.error("Failed to update!");
-        //     console.error(err);
-        // }
+        if (error) {
+            message.error("Failed to save interests");
+        } else {
+            message.success("Interests saved successfully!");
+        }
     };
 
     return (
-        <div>
-            <h3>Select Level 1 Category</h3>
-            <Select
-                placeholder="Select a Level 1 Category"
-                style={{ width: "100%" }}
-                onChange={(value) => setSelectedLevel1(value)}
-                value={selectedLevel1}
-            >
-                {level1Categories.map((category) => (
-                    <Option key={category.id} value={category.id}>
-                        {category.category_name}
-                    </Option>
-                ))}
-            </Select>
-
-            {level2Categories.length > 0 && (
-                <>
-                    <h3>Select Level 2 Categories</h3>
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+            {categories.map((parent) => (
+                <Card key={parent.id} title={parent.category_name} style={{ width: 300 }}>
                     <Checkbox.Group
-                        options={level2Categories.map((category) => ({
-                            label: category.category_name,
-                            value: category.id,
-                        }))}
-                        value={selectedLevel2}
-                        onChange={(checkedValues) => setSelectedLevel2(checkedValues)}
-                    />
-                </>
-            )}
-
-            <Button
-                type="primary"
-                style={{ marginTop: "20px" }}
-                onClick={handleSubmit}
-                disabled={!selectedLevel1 || selectedLevel2.length === 0}
-            >
-                Submit
-            </Button>
+                        value={selectedInterests[parent.id] || []}
+                        onChange={(checkedValues) => handleCheckboxChange(checkedValues, parent.id)}
+                    >
+                        {parent.children.map((child) => (
+                            <div key={child.id}>
+                                <Checkbox value={child.id}>{child.category_name}</Checkbox>
+                            </div>
+                        ))}
+                    </Checkbox.Group>
+                </Card>
+            ))}
+            <div style={{ width: "100%", marginTop: 16 }}>
+                <Button type="primary" onClick={handleSubmit}>Save Interests</Button>
+            </div>
         </div>
     );
 };
 
-export default CategorySelector;
+export default Interests;

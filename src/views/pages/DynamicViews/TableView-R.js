@@ -4,6 +4,7 @@ import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox } from 'an
 import { SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutlined, FilterOutlined, GroupOutlined, ExportOutlined } from '@ant-design/icons';
 import DynamicForm from '../DynamicForm';
 import { snakeCaseToTitleCase } from 'components/util-components/utils';
+import { useNavigate } from 'react-router-dom';
 
 const actionIcons = {
     edit: <EditOutlined />,
@@ -26,8 +27,9 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     const [visibleColumns, setVisibleColumns] = useState(viewConfig?.tableview?.fields?.map(field => field?.fieldName));
     const [selectedGroupBy, setSelectedGroupBy] = useState(null);
 
-    const { showFeatures, exportOptions, globalSearch, groupBy } = viewConfig?.tableview;
+    const { showFeatures, exportOptions, globalSearch, groupBy, viewLink } = viewConfig?.tableview;
 
+    const navigate = useNavigate();
 
     // Grouping data by the selected field
     const groupedTableData = useMemo(() => {
@@ -48,7 +50,9 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
 
     const handleRowAction = (action, record) => {
         // console.log("dr", record)
-        if (action === 'edit') {
+        if (action === 'view') {
+            navigate(`/app${viewLink}${record?.id}`)
+        } else if (action === 'edit') {
             openDrawer(record);
         } else if (action === 'delete') {
             Modal.confirm({
@@ -169,13 +173,62 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     //     })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns
     // }, [viewConfig, visibleColumns, fetchConfig]);
 
+    // const getNestedValue = (object, path) => {
+    //     return path.split('-').reduce((value, key) => (value ? value[key] : undefined), object);
+    // };
+
     const getNestedValue = (object, path) => {
-        return path.split('-').reduce((value, key) => (value ? value[key] : undefined), object);
+        if (!object || !path) return undefined;
+
+        const keys = path.split('-');
+
+        return keys.reduce((value, key) => {
+            if (!value) return undefined;
+
+            // If `value` is an array, map over it and extract the next key
+            if (Array.isArray(value)) {
+                return value.map(item => item[key]).filter(Boolean); // Remove undefined values
+            }
+
+            return value[key];
+        }, object);
     };
+
+    // const getNestedValue = (object, path) => {
+    //     if (!object || !path) return undefined;
+
+    //     const keys = path.split('-');
+
+    //     const extractValues = (obj, keyIndex) => {
+    //         if (keyIndex >= keys.length) return obj;
+
+    //         const key = keys[keyIndex];
+
+    //         if (Array.isArray(obj)) {
+    //             // If it's an array, process each element recursively and flatten the results
+    //             return obj.map(item => extractValues(item, keyIndex)).flat().filter(Boolean);
+    //         }
+
+    //         return extractValues(obj?.[key], keyIndex + 1);
+    //     };
+
+    //     return extractValues(object, 0);
+    // };
+
+
+    const formatColumnTitle = (fieldName) => {
+        // Extract the part after the last underscore
+        const cleanFieldName = fieldName.includes('_')
+            ? fieldName.split('_').pop()  // Get the last part after '_'
+            : fieldName;
+
+        return snakeCaseToTitleCase(cleanFieldName);
+    };
+
 
     const columns = useMemo(() => {
         return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
-            title: snakeCaseToTitleCase(fieldConfig?.fieldName), // Label always uses fieldName
+            title: formatColumnTitle(fieldConfig?.fieldName), // Label always uses fieldName
             dataIndex: fieldConfig?.fieldPath || fieldConfig?.fieldName, // Use fieldPath if available
             key: fieldConfig?.fieldName, // Unique key from fieldName
             sorter: (a, b) => {
@@ -193,7 +246,10 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                 }
 
                 const value = getNestedValue(record, fieldConfig?.fieldPath || fieldConfig?.fieldName);
-                return value !== undefined ? value : null;
+                // If value is an array, join values with commas
+                Array.isArray(value) && console.log("vl", value)
+                return Array.isArray(value) ? value.join(', ') : value ?? null;
+                // return value !== undefined ? value : null;
             },
             ellipsis: true,
         })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns

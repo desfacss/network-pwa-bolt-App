@@ -1,7 +1,8 @@
-import { Card } from 'antd';
+import { Button, Card, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import PostCard from './Post';
 import { addMessage, fetchMessages } from './utils';
 
 const Chat2 = () => {
@@ -33,6 +34,7 @@ const Chat2 = () => {
 
     return (
         <Card>
+            <PostCard chatId={chatId} />
             <h2>Messages</h2>
             <ul>
                 {messages?.map((message, index) => (
@@ -41,12 +43,11 @@ const Chat2 = () => {
                     </li>
                 ))}
             </ul>
-            <input
-                type="text"
+            <Input.TextArea
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
             />
-            <button onClick={handleAddMessage}>Send</button>
+            <Button onClick={handleAddMessage} type='primary'>Send</Button>
         </Card>
     );
 };

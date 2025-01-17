@@ -18,10 +18,12 @@ import EllipsisDropdown from 'components/shared-components/EllipsisDropdown'
 import { supabase } from 'configs/SupabaseConfig';
 import PostList from './PostList';
 import { useNavigate } from 'react-router-dom';
-import CategorySelector from './Chat';
 import ChatList from './ChatList';
-// import CategorySelector from './Add';
+import DynamicViews from '../../DynamicViews/index2';
+import Interests from './Interests';
+import CategorySelector from './Chat';
 // import CategorySelector from './Interests';
+// import CategorySelector from './Add';
 
 const VIEW_LIST = 'LIST';
 const VIEW_GRID = 'GRID';
@@ -113,7 +115,7 @@ const ListItem = ({ data, removeId }) => (
 	<Card>
 		<Row align="middle">
 			<Col xs={24} sm={24} md={8}>
-				<ItemHeader name={data?.name} category={data?.details?.description} />
+				<ItemHeader name={data?.title} category={data?.details?.description} />
 			</Col>
 			<Col xs={24} sm={24} md={6}>
 				<ItemInfo
@@ -190,9 +192,18 @@ const Networking = () => {
 
 	const [modalVisible, setModalVisible] = useState(false);
 	const [editChatId, setEditChatId] = useState(null);
+	const [callFetch, setCallFetch] = useState(null);
 
-	const openModalForNew = () => {
-		setEditChatId(null);
+	const openModal = (item) => {
+		if (item) {
+			console.log(item)
+			// form.setFieldsValue({
+			//     title: item.title,
+			//     description: item.description,
+			//     type: item.type
+			// });
+		}
+		setEditChatId(item?.id || null);
 		setModalVisible(true);
 	};
 
@@ -203,7 +214,7 @@ const Networking = () => {
 
 	const navigate = useNavigate();
 	const handleChatClick = (chatId) => {
-		navigate(`/app/ib_chat/${chatId}`);
+		navigate(`/app/networking/${chatId}`);
 	};
 
 	useEffect(() => {
@@ -291,18 +302,10 @@ const Networking = () => {
 
 	return (
 		<>
-			{/* <PostList /> */}
-			<Button type="primary" onClick={openModalForNew}>
-				Create New Chat
-			</Button>
-
-			{/* <Button onClick={() => openModalForEdit(123)} style={{ marginLeft: 10 }}>
-        Edit Chat (ID: 123)
-      </Button> */}
-
+			<Interests />
 			{modalVisible && <CategorySelector
 				visible={modalVisible}
-				onClose={() => setModalVisible(false)}
+				onClose={() => { setModalVisible(false); setEditChatId(); callFetch() }}
 				chatId={editChatId}
 			/>}
 			<Modal
@@ -322,20 +325,6 @@ const Networking = () => {
 							<Option value="icanoffer">I Can Offer</Option>
 						</Select>
 					</Form.Item>
-
-					{/* <Form.Item
-						name="sector"
-						label="Sector"
-						rules={[{ required: true, message: 'Please select a sector' }]}
-					>
-						<Select>
-							{enums?.map((item) => (
-								<Option key={item} value={item}>
-									{item}
-								</Option>
-							))}
-						</Select>
-					</Form.Item> */}
 
 					<Form.Item
 						name="title"
@@ -360,15 +349,15 @@ const Networking = () => {
 					</Form.Item>
 				</Form>
 			</Modal>
-			<PageHeaderAlt className="border-bottom">
+			{/* <PageHeaderAlt className="border-bottom">
 				<div className="container-fluid">
 					<Flex justifyContent="space-between" alignItems="center" className="py-4">
 						<h2>Posts</h2>
 						<div>
-							{/* <Radio.Group defaultValue={VIEW_LIST} onChange={e => onChangeProjectView(e)}>
+							<Radio.Group defaultValue={VIEW_LIST} onChange={e => onChangeProjectView(e)}>
 								<Radio.Button value={VIEW_GRID}><AppstoreOutlined /></Radio.Button>
 								<Radio.Button value={VIEW_LIST}><UnorderedListOutlined /></Radio.Button>
-							</Radio.Group> */}
+							</Radio.Group>
 							<Button type="primary" className="ml-2" onClick={() => setModal(true)}>
 								<PlusOutlined />
 								<span>New</span>
@@ -376,9 +365,9 @@ const Networking = () => {
 						</div>
 					</Flex>
 				</div>
-			</PageHeaderAlt>
+			</PageHeaderAlt> */}
 			<div className={`my-4 ${view === VIEW_LIST ? 'container' : 'container-fluid'}`}>
-				{
+				{/* {
 					view === VIEW_LIST ?
 						chats?.map(elm =>
 						(
@@ -400,8 +389,9 @@ const Networking = () => {
 								</Col>
 							))}
 						</Row>
-				}
-				<ChatList />
+				} */}
+				<DynamicViews entityType={'ib_posts'} addEditFunction={openModal} setCallFetch={setCallFetch} />
+				{/* <ChatList addEditFunction={openModal} /> */}
 			</div>
 		</>
 	)

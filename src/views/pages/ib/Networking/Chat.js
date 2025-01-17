@@ -54,9 +54,9 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
             if (error) {
                 message.error("Failed to load chat details");
             } else {
-                setTitle(data.name);
-                setDescription(data.details?.description || "");
-                setSelectedCategories([data.details?.category_id, ...(data.details?.tags || [])].filter(Boolean));
+                setTitle(data?.title);
+                setDescription(data?.details?.description || "");
+                setSelectedCategories([data?.details?.category_id, ...(data?.details?.tags || [])].filter(Boolean));
             }
         };
 
@@ -90,7 +90,7 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
             const { data, error } = await supabase
                 .from("ib_posts")
                 .update({
-                    name: title,
+                    title,
                     details: { description, category_id: categoryId, tags },
                 })
                 .eq("id", chatId);
@@ -107,7 +107,7 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
                 .from("ib_posts")
                 .insert([
                     {
-                        name: title,
+                        title,
                         details: { description, category_id: categoryId, tags },
                         created_by: userId,
                     },
