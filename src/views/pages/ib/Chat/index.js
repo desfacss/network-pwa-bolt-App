@@ -1,4 +1,5 @@
 import { Button, Card, Input } from 'antd';
+import { supabase } from 'api/supabaseClient';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -19,6 +20,25 @@ const Chat2 = () => {
             }
         };
         fetchMessagesForChat();
+
+        // Subscribe to real-time message updates
+        const channel = supabase
+            .channel(`realtime-messages-${chatId}`)
+            .on('postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'ib_post_messages', filter: `chat_id=eq.${chatId}` },
+                async (payload) => {
+                    console.log('New message received:', payload.new);
+                    setMessages((prevMessages) => [...prevMessages, payload.new]);
+                    // const messages = await fetchMessages(chatId);
+                    // setMessages(messages);
+                }
+            )
+            .subscribe();
+
+        // Cleanup subscription on unmount
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [chatId]);
 
     const handleAddMessage = async () => {

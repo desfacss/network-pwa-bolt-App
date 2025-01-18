@@ -10,7 +10,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
 
-//   console.log('View Config:', viewConfig);
+  //   console.log('View Config:', viewConfig);
   const gridViewConfig = viewConfig?.gridview;
 
   // Extract layout config
@@ -196,49 +196,49 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         {/* console.log("ViewConfig before rendering cards:", gridViewConfig); */}
 
         {filteredData.map((record, index) => {
-        const fields = gridViewConfig?.fields || [];
-        const hasLink = fields.some(f => f.link);
+          const fields = gridViewConfig?.fields || [];
+          const hasLink = fields.some(f => f.link);
 
-        console.log("Rendering record:", record);
-        console.log("Fields:", fields);
-        console.log("Has link:", hasLink);
+          console.log("Rendering record:", record);
+          console.log("Fields:", fields);
+          console.log("Has link:", hasLink);
 
-        return (
+          return (
             <Col key={record.id || index} {...getResponsiveSpans(cardsPerRow)}>
-            <Card
+              <Card
                 style={{
-                height: aspectRatio === 'auto' ? 'auto' : '100%',
-                ...cardStyle,
-                cursor: hasLink ? 'pointer' : 'default'
+                  height: aspectRatio === 'auto' ? 'auto' : '100%',
+                  ...cardStyle,
+                  cursor: hasLink ? 'pointer' : 'default'
                 }}
                 actions={gridViewConfig?.actions?.card ? [
-                <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+                  <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
                     <EllipsisOutlined key="ellipsis" />
-                </Dropdown>
+                  </Dropdown>
                 ] : undefined}
-            >
+              >
                 <Space direction="vertical" style={{ width: '100%' }}>
-                {/* {fields.map((fieldConfig) => (
+                  {/* {fields.map((fieldConfig) => (
                     <div key={fieldConfig.fieldName}>
                     {renderField(record, fieldConfig)}
                     </div>
                 ))} */}
-                {fields.map((fieldConfig) => (
+                  {fields.map((fieldConfig) => (
                     <div key={fieldConfig.fieldName}>
-                        {fieldConfig.fieldName === 'details_tags'
-                            ? record.details_tags.map(tag => (
-                                <Tag key={tag.id} color="blue">
-                                    {tag.category_name}
-                                </Tag>
-                              ))
-                            : renderField(record, fieldConfig)
-                        }
+                      {fieldConfig.fieldName === 'details_tags'
+                        ? record.related_data?.details_tags.map(tag => (
+                          <Tag key={tag.id} color="blue">
+                            {tag.category_name}
+                          </Tag>
+                        ))
+                        : renderField(record, fieldConfig)
+                      }
                     </div>
-                ))}
+                  ))}
                 </Space>
-            </Card>
+              </Card>
             </Col>
-        );
+          );
         })}
       </Row>
     </div>
