@@ -24,7 +24,7 @@ export default function Footer() {
 			}
 		`}>
 			<span>
-				Copyright © UK Power Engineers Ltd 2024. All rights reserved.
+				Copyright © Claritiz 2024. All rights reserved.
 			</span>
 			<span>
 				Developed by{' '}
