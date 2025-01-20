@@ -124,7 +124,35 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   }, [data, searchText, gridViewConfig.fields]);
 
   // Action menu for each card
-  const getActionMenu = (record) => (
+//   const getActionMenu = (record) => (
+//     <Menu>
+//       {gridViewConfig.actions?.card?.map(action => (
+//         <Menu.Item
+//           key={action}
+//           onClick={() => {
+//             console.log(`Executing action '${action}' for record:`, record);
+//             switch (action) {
+//               case 'view':
+//                 navigate(`/app${gridViewConfig.viewLink}${record.id}`);
+//                 break;
+//               case 'edit':
+//                 openDrawer(record);
+//                 break;
+//               case 'delete':
+//                 deleteData(record);
+//                 break;
+//               default:
+//                 console.log(`Action ${action} not implemented`);
+//             }
+//           }}
+//         >
+//           {action.charAt(0).toUpperCase() + action.slice(1)}
+//         </Menu.Item>
+//       ))}
+//     </Menu>
+//   );
+
+const getActionMenu = (record) => (
     <Menu>
       {gridViewConfig.actions?.card?.map(action => (
         <Menu.Item
@@ -152,11 +180,12 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     </Menu>
   );
 
-  return (
+return (
     <div style={{ maxWidth: gridViewConfig.layout?.maxWidth }}>
       {/* Header with search and actions */}
       {gridViewConfig.showFeatures?.includes('search') && (
         <Space style={{ marginBottom: spacing }}>
+        {/* <Space style={{ marginBottom: gridViewConfig.layout.spacing }}> */}
           <Input
             placeholder="Search"
             prefix={<SearchOutlined />}
@@ -167,75 +196,83 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       )}
 
       {/* Grid Layout */}
-      <Row gutter={[spacing, spacing]}>
-        {/* {filteredData.map((record, index) => (
-          <Col key={record.id || index} {...getResponsiveSpans(cardsPerRow)}>
-            <Card
-              style={{
-                height: aspectRatio === 'auto' ? 'auto' : '100%',
-                ...cardStyle,
-                cursor: gridViewConfig.fields.some(f => f.link) ? 'pointer' : 'default'
-              }}
-              actions={gridViewConfig.actions?.card ? [
-                <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
-                  <EllipsisOutlined key="ellipsis" />
-                </Dropdown>
-              ] : undefined}
-            >
-              <Space direction="vertical" style={{ width: '100%' }}>
-                {gridViewConfig.fields.map((fieldConfig) => (
-                  <div key={fieldConfig.fieldName}>
-                    {renderField(record, fieldConfig)}
-                  </div>
-                ))}
-              </Space>
-            </Card>
-          </Col>
-        ))} */}
-
-        {/* console.log("ViewConfig before rendering cards:", gridViewConfig); */}
-
+      <Row gutter={[gridViewConfig.layout.spacing, gridViewConfig.layout.spacing]}>
         {filteredData.map((record, index) => {
           const fields = gridViewConfig?.fields || [];
-          const hasLink = fields.some(f => f.link);
 
           console.log("Rendering record:", record);
           console.log("Fields:", fields);
-          console.log("Has link:", hasLink);
+
+          // Separate fields by where they should be placed
+          const titleFields = fields.filter(f => f.cardSection === 'title');
+          const footerFields = fields.filter(f => f.cardSection === 'footer');
+          const bodyFields = fields.filter(f => !f.cardSection || f.cardSection === 'body');
 
           return (
-            <Col key={record.id || index} {...getResponsiveSpans(cardsPerRow)}>
+            <Col key={record.id || index} {...getResponsiveSpans(gridViewConfig.layout.cardsPerRow)}>
               <Card
+                size={gridViewConfig.layout.size || 'default'} // default to 'default' if size not provided
                 style={{
-                  height: aspectRatio === 'auto' ? 'auto' : '100%',
-                  ...cardStyle,
-                  cursor: hasLink ? 'pointer' : 'default'
+                  height: gridViewConfig.layout.aspectRatio === 'auto' ? 'auto' : '100%',
+                  ...gridViewConfig.layout.cardStyle,
+                  cursor: fields.some(f => f.link) ? 'pointer' : 'default'
                 }}
-                actions={gridViewConfig?.actions?.card ? [
-                  <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
-                    <EllipsisOutlined key="ellipsis" />
-                  </Dropdown>
-                ] : undefined}
+                title={titleFields.length > 0 ? (
+                  <Space>
+                    {titleFields.map(field => renderField(record, field))}
+                    {gridViewConfig.actions?.card && (
+                      <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+                        <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
+                      </Dropdown>
+                    )}
+                  </Space>
+                ) : undefined}
+                extra={
+                  gridViewConfig.actions?.card && !titleFields.find(f => f.cardSection === 'title') ? (
+                    <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+                      <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
+                    </Dropdown>
+                  ) : null
+                }
+                actions={null} // Remove default actions since we're placing them in title or footer
               >
                 <Space direction="vertical" style={{ width: '100%' }}>
-                  {/* {fields.map((fieldConfig) => (
+                  {/* {bodyFields.map((fieldConfig) => (
                     <div key={fieldConfig.fieldName}>
-                    {renderField(record, fieldConfig)}
-                    </div>
-                ))} */}
-                  {fields.map((fieldConfig) => (
-                    <div key={fieldConfig.fieldName}>
-                      {fieldConfig.fieldName === 'details_tags'
-                        ? record.related_data?.details_tags.map(tag => (
-                          <Tag key={tag.id} color="blue">
-                            {tag.category_name}
-                          </Tag>
-                        ))
-                        : renderField(record, fieldConfig)
-                      }
-                    </div>
+                      {renderField(record, fieldConfig)}
+                    </div> */}
+                    {bodyFields.map((fieldConfig) => (
+                        <div key={fieldConfig.fieldName}>
+                          {fieldConfig.fieldName === 'details_tags'
+                            ? record.related_data?.details_tags.map(tag => (
+                              <Tag key={tag.id} color="GREY">
+                                {tag.category_name}
+                              </Tag>
+                            ))
+                            : renderField(record, fieldConfig)
+                          }
+                        </div>
                   ))}
                 </Space>
+                {footerFields.length > 0 && (
+                  <div style={{ marginTop: '10px' }}>
+                    <Space wrap>
+                      {footerFields.map(fieldConfig => (
+                        <div key={fieldConfig.fieldName}>
+                          {/* {renderField(record, fieldConfig)} */}
+                          {fieldConfig.fieldName === 'details_tags'
+                            ? record.related_data?.details_tags.map(tag => (
+                              <Tag key={tag.id} color="GREY">
+                                {tag.category_name}
+                              </Tag>
+                            ))
+                            : renderField(record, fieldConfig)
+                          }
+                        </div>
+                      ))}
+                    </Space>
+                  </div>
+                )}
               </Card>
             </Col>
           );
