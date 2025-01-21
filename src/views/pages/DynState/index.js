@@ -76,33 +76,11 @@ const DynState = () => {
       updated_at: new Date().toISOString(),
     };
   };
-
+  
   useEffect(() => {
     const unsubscribe = networkMonitor.subscribe(setIsOnline);
     return () => unsubscribe();
   }, []);
-
-  // // *************
-  // useEffect(() => {
-  //   const handleNetworkChange = (state) => {
-  //     console.log("A0. Network status changed to:", state);
-  //     if (state !== isOnline) {
-  //       setIsOnline(state);
-  //       // if (state) {
-  //       //   debouncedInvalidate();
-  //       // }
-  //     }
-  //   };
-
-  //   const unsubscribe = networkMonitor.subscribe(handleNetworkChange);
-
-  //   return () => {
-  //     console.log("A0.2. Cleaning up network status listener");
-  //     unsubscribe();
-  //     // debouncedInvalidate.cancel();
-  //   };
-  // }, [isOnline]);
-  // // *************
 
   const onFinish = () => {
     const values = generateRandomData();
@@ -159,28 +137,10 @@ const DynState = () => {
     },
   });
 
-
+  
   useEffect(() => {
     console.log("Data updated:", data);
   }, [data]);
-
-  // const { 
-  //   data, 
-  //   isLoading, 
-  //   fetchNextPage, 
-  //   fetchPreviousPage,
-  // } = useInfiniteQuery({
-  //   queryKey: ['data', storedFilters, storedCurrentPage],
-  //   queryFn: fetchData,
-  //   initialPageParam: storedCurrentPage,
-  //   getNextPageParam: (lastPage, allPages) => {
-  //     const totalPages = Math.ceil(lastPage.total / storedPageSize);
-  //     return lastPage.pageParam < totalPages ? lastPage.pageParam + 1 : undefined;
-  //   },
-  //   getPreviousPageParam: (firstPage) => firstPage.pageParam > 1 ? firstPage.pageParam - 1 : undefined,
-  //   enabled: networkMonitor.isOnline(),
-  // });
-
   useEffect(() => {
     // After mutation success (create/delete), refetch current page
     const currentData = data?.pages?.find(page => page.pageParam === storedCurrentPage);
@@ -352,6 +312,10 @@ const DynState = () => {
     <div style={{ padding: 20 }}>
       {/* Show network status */}
       <div>Network Status: {isOnline ? "Online" : "Offline"}</div>
+
+      <div style={{ padding: 20 }}>
+      <div>{isOnline ? "Online" : "Offline - Data might be out of date"}</div>
+      </div>
       {/* Rest of the component */}
       <Space style={{ marginBottom: 20 }}>
         <RangePicker onChange={onDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear />
