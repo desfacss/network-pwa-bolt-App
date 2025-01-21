@@ -12,6 +12,8 @@ import { setSession } from "store/slices/authSlice";
 import { supabase } from "configs/SupabaseConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
 // import { indexedDB } from "state/services/indexedDB";
 // import { store } from "../store";
 
@@ -75,7 +77,24 @@ function App() {
   // }, [supabase]);
 
   // Create a QueryClient instance
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        networkMode: 'offlineFirst', // Use offline first strategy
+        staleTime: 1000 * 60 * 1, // 1 minutes
+        // The staleTime of 5 minutes might be too long or too short depending on your application's data freshness requirements. If the data changes frequently, you might want a shorter staleTime to ensure users see updates sooner. If data changes less often, this might be fine
+        refetchOnWindowFocus: false,
+        // refetchOnWindowFocus: (query) => query.queryKey[0] === 'data', // Only refetch for 'data' queries - FOR BETTER CONTROL OF WHAT YOU WANT TO LOAD****
+        // Setting refetchOnWindowFocus to false means the app won't automatically refetch data when the user returns to the tab/window. This could lead to users seeing outdated information if they expect real-time or near real-time updates.
+      },
+    },
+  });
+  // Persist the QueryClient state
+  const localStoragePersister = createSyncStoragePersister({ storage: window.localStorage });
+  persistQueryClient({
+    queryClient,
+    persister: localStoragePersister,
+  });
   // const persister = createAsyncStoragePersister({
   //   storage: AsyncStorage,
   // });

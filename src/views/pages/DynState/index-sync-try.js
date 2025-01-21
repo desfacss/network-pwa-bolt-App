@@ -15,7 +15,6 @@ import useTableStore from './useTableStore';
 import { networkMonitor } from '../../../services/networkMonitor';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
-import './style.css';
 
 // Define the logging flag
 let isLoggingEnabled = true;
@@ -86,8 +85,10 @@ const DynState = () => {
   }, []);
 
   const onFinish = () => {
-    const values = generateRandomData();
-    createMutation.mutate(values);
+    const newItem = generateRandomData();
+    newItem.isSynced = false; // Since it's not yet synced
+    newItem.isPendingCreate = true; // Mark as pending creation
+    createMutation.mutate(newItem);
   };
 
   const fetchData = async ({ pageParam = storedCurrentPage }) => {
@@ -168,7 +169,72 @@ const DynState = () => {
   console.log("F8: allItems:", allItems);
   const totalCount = data?.pages?.[0]?.total ?? 0;
 
+  const initialState = {
+    id: 1,
+    name: 'Example',
+    isSynced: false,
+    isPendingCreate: true,
+    isPendingUpdate: false,
+    isPendingDelete: false
+  };
+
+  const handleCreate = async (item) => {
+    try {
+      const { data, error } = await supabase
+        .from('y_state')
+        .insert([{ ...item, isSynced: true, isPendingCreate: false }])
+        .select();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data[0]; // Return the created item
+    } catch (error) {
+      console.error('Error creating item:', error);
+      throw error;
+    }
+  };
+
+  const syncData = async () => {
+    // Fetch all items that need syncing
+    const itemsToSync = queryClient.getQueryData(queryKey).pages.flatMap(page => page.items.filter(item =>
+      item.isPendingCreate || item.isPendingUpdate || item.isPendingDelete
+    ));
+
+    for (const item of itemsToSync) {
+      if (item.isPendingCreate) {
+        await handleCreate(item);
+      } else if (item.isPendingUpdate) {
+        await handleUpdate(item);
+      } else if (item.isPendingDelete) {
+        await handleDelete(item.id);
+      }
+      // Update the item in the cache to reflect it's now synced
+      item.isSynced = true;
+      item.isPendingCreate = false;
+      item.isPendingUpdate = false;
+      item.isPendingDelete = false;
+      queryClient.setQueryData(queryKey, /* ... */); // Update cache accordingly
+    }
+  };
+
+  useEffect(() => {
+    if (isOnline) {
+      syncData();
+    }
+  }, [isOnline]);
+
   const columns = [
+    {
+      title: 'Status',
+      key: 'status',
+      render: (text, record) => {
+        if (record.isPendingCreate) return <Tag color="green">New</Tag>;
+        if (record.isPendingUpdate) return <Tag color="blue">Updated</Tag>;
+        if (record.isPendingDelete) return <Tag color="red">Deleted</Tag>;
+        return <Tag color="default">Synced</Tag>;
+      },
+    },
     { title: 'Name', dataIndex: 'name', key: 'name' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'Phone', dataIndex: 'phone', key: 'phone' },
@@ -228,6 +294,9 @@ const DynState = () => {
       }
     },
     onMutate: async (newItem) => {
+      newItem.isPendingCreate = true;
+      newItem.isSynced = false;
+      // newItem.syncStatus = isOnline ? SYNC_STATUS.SYNCED : SYNC_STATUS.PENDING;
       console.log("A6: Saving new item to cache offline:", newItem);
       await queryClient.cancelQueries(queryKey);
       const previousItems = queryClient.getQueryData(queryKey);
@@ -271,6 +340,9 @@ const DynState = () => {
       }
     },
     onMutate: async (updatedItem) => {
+      updatedItem.isPendingUpdate = true;
+      updatedItem.isSynced = false;
+      // updatedItem.syncStatus = isOnline ? SYNC_STATUS.SYNCED : SYNC_STATUS.PENDING;
       console.log("U6: Updating item in cache offline:", updatedItem);
       await queryClient.cancelQueries(queryKey);
       const previousItems = queryClient.getQueryData(queryKey);
@@ -316,6 +388,12 @@ const DynState = () => {
       }
     },
     onMutate: async (id) => {
+      const item = allItems.find(item => item.id === id);
+      if (item) {
+        item.isPendingDelete = true;
+        item.isSynced = false;
+      }
+      // newItem.syncStatus = isOnline ? SYNC_STATUS.SYNCED : SYNC_STATUS.PENDING;
       console.log("D6: Deleting item from cache offline with id:", id);
       await queryClient.cancelQueries(queryKey);
       const previousItems = queryClient.getQueryData(queryKey);
@@ -353,9 +431,6 @@ const DynState = () => {
     [storedFilters, setFilters]
   );
 
-  // Combine mutation states for simplicity if needed
-  const isMutating = createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading;
-
   return (
     <div style={{ padding: 20 }}>
       {/* Show network status */}
@@ -382,7 +457,6 @@ const DynState = () => {
         columns={columns}
         dataSource={allItems}
         rowKey="id"
-        rowClassName={() => isMutating ? 'optimistic-update' : ''}
         pagination={{
           pageSize: storedPageSize,
           current: storedCurrentPage,
