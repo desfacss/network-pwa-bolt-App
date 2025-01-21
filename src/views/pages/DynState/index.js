@@ -66,8 +66,6 @@ const DynState = () => {
   // // *************
   useSyncQueue();
 
-
- 
   const queryClient = useQueryClient();
 
   const generateRandomData = () => {
@@ -90,7 +88,7 @@ const DynState = () => {
     const unsubscribe = networkMonitor.subscribe(setIsOnline);
     return () => unsubscribe();
   }, []);
-  
+
   // // *************
   // useEffect(() => {
   //   const handleNetworkChange = (state) => {
@@ -170,6 +168,11 @@ const DynState = () => {
     },
   });
 
+
+  useEffect(() => {
+    console.log("Data updated:", data);
+  }, [data]);
+
   // const { 
   //   data, 
   //   isLoading, 
@@ -242,6 +245,9 @@ const DynState = () => {
       queryClient.invalidateQueries(['data', storedFilters]);
     },
     onMutate: async (newItem) => {
+      console.log("Updating cache optimistically for new item:", newItem);
+      // ... existing code
+      console.log("Cache after optimistic update:", queryClient.getQueryData(['data', storedFilters]));
       console.log("Optimistic update for create:", newItem)
       await queryClient.cancelQueries(['data', storedFilters]);
       console.log("Current cache after mutation:", queryClient.getQueryData(['data', storedFilters]));
@@ -280,6 +286,9 @@ const DynState = () => {
       queryClient.invalidateQueries(['data', storedFilters]);
     },
     onMutate: async (updatedItem) => {
+      console.log("Updating cache optimistically for new item:", updatedItem);
+      // ... existing code
+      console.log("Cache after optimistic update:", queryClient.getQueryData(['data', storedFilters]));
       await queryClient.cancelQueries(['data', storedFilters]);
       const previousItems = queryClient.getQueryData(['data', storedFilters]);
       queryClient.setQueryData(['data', storedFilters], (old) => ({
@@ -316,6 +325,9 @@ const DynState = () => {
       queryClient.invalidateQueries(['data', storedFilters]);
     },
     onMutate: async (id) => {
+      console.log("Updating cache optimistically for new item:", id);
+      // ... existing code
+      console.log("Cache after optimistic update:", queryClient.getQueryData(['data', storedFilters]));
       await queryClient.cancelQueries(['data', storedFilters]);
       const previousItems = queryClient.getQueryData(['data', storedFilters]);
       queryClient.setQueryData(['data', storedFilters], (old) => ({
