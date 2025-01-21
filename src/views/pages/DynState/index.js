@@ -55,6 +55,9 @@ const DynState = () => {
     setPagination
   } = useTableStore();
 
+  // const queryKey = ['data', storedFilters, storedCurrentPage, storedPageSize];
+  // const queryKey = useMemo(() => ['data', JSON.stringify(storedFilters), storedCurrentPage, storedPageSize], [storedFilters, storedCurrentPage, storedPageSize]);
+
   const [isOnline, setIsOnline] = useState(networkMonitor.isOnline());
 
   useSyncQueue();
@@ -88,8 +91,8 @@ const DynState = () => {
   };
 
   const fetchData = async ({ pageParam = storedCurrentPage }) => {
-    console.log("Fetching data with pageParam:", pageParam);
-    console.log("Calculated offset:", (pageParam - 1) * storedPageSize);
+    console.log("F1: Fetching data from Supabase with pageParam:", pageParam);
+    console.log("F2: Calculated offset:", (pageParam - 1) * storedPageSize);
 
     let query = supabase
       .from('y_state')
@@ -117,10 +120,11 @@ const DynState = () => {
     const { data, error, count } = await query.range(offset, offset + storedPageSize - 1);
 
     if (error) {
-      console.error('Error fetching data:', error);
+      console.error('F3: Error fetching data:', error);
       return { items: [], total: count || 0, pageParam };
     }
 
+    console.log("F4: Data fetched from Supabase:", data);
     return { items: data || [], total: count || 0, pageParam };
   };
 
@@ -142,16 +146,16 @@ const DynState = () => {
     getPreviousPageParam: (firstPage) => firstPage.pageParam > 1 ? firstPage.pageParam - 1 : undefined,
     enabled: isOnline,
     onSuccess: (data) => {
-      console.log("Query success:", data);
+      console.log("F5: Query success:", data);
     },
     onError: (error) => {
-      console.log("Query error:", error);
+      console.log("F6: Query error:", error);
     },
   });
 
-  
+
   useEffect(() => {
-    console.log("Data updated:", data);
+    console.log("F7: Data updated:", data);
   }, [data]);
   useEffect(() => {
     // After mutation success (create/delete), refetch current page
@@ -163,7 +167,7 @@ const DynState = () => {
   }, [data, storedCurrentPage, storedPageSize, setPagination]);
 
   const allItems = data?.pages?.flatMap(page => page.items) || [];
-  console.log("allItems:", allItems);
+  console.log("F8: allItems:", allItems);
   const totalCount = data?.pages?.[0]?.total ?? 0;
 
   const columns = [
@@ -184,7 +188,7 @@ const DynState = () => {
       ),
     },
   ];
-  
+
   const onDateRangeChange = (dates) => {
     setFilters({ ...storedFilters, dateRange: dates ? dates.map(date => dayjs(date)) : [] });
   };
@@ -207,60 +211,84 @@ const DynState = () => {
 
   const createMutation = useMutation({
     mutationFn: async (item) => {
+      console.log("A1: Attempting to save item to Supabase:", item);
       const { data, error } = await supabase.from('y_state').insert([item]).select('*');
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('A2: Error saving to Supabase:', error);
+        throw new Error(error.message);
+      }
+      console.log("A3: Item saved to Supabase:", data[0]);
       return data[0];
     },
     onSettled: (newItem, error) => {
       if (!error) {
         const page = findPageForItem(newItem.id);
         queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
+        console.log("A4: Query invalidated after item creation");
+      } else {
+        console.log("A5: Error in mutation settled:", error);
       }
     },
     onMutate: async (newItem) => {
-      console.log("Updating cache optimistically for new item:", newItem);
-      // ... existing code
-      console.log("Cache after optimistic update:", queryClient.getQueryData(['data', storedFilters]));
-      console.log("Optimistic update for create:", newItem)
+      console.log("A6: Saving new item to cache offline:", newItem);
       await queryClient.cancelQueries(['data', storedFilters]);
-      console.log("Current cache after mutation:", queryClient.getQueryData(['data', storedFilters]));
       const previousItems = queryClient.getQueryData(['data', storedFilters]);
-      queryClient.setQueryData(['data', storedFilters], (old) => ({
+      // queryClient.setQueryData(['data', storedFilters], (old) => ({
+      queryClient.setQueryData(['data', storedFilters, storedCurrentPage, storedPageSize], (old) => ({
+
         pages: old?.pages?.map(page => ({
           ...page,
           items: [...page.items, newItem]
         })) || [],
         pageParams: old?.pageParams || []
       }));
-      console.log("Optimistic update for create2:", previousItems)
+      console.log("A7: Cache updated with new item:", queryClient.getQueryData(['data', storedFilters]));
       return { previousItems };
     },
     onError: (err, newItem, context) => {
+      console.log("A8: Mutation error for new item creation:", err);
       if (context && context.previousItems) {
         queryClient.setQueryData(['data', storedFilters], context.previousItems);
+        console.log("A9: Cache reverted after mutation error");
       }
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async (item) => {
+      console.log("U1: Attempting to update item in Supabase:", item);
       const { data, error } = await supabase.from('y_state').update({ name: `${item.name}-updated` }).eq('id', item.id).select('*');
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('U2: Error updating in Supabase:', error);
+        throw new Error(error.message);
+      }
+      console.log("U3: Item updated in Supabase:", data[0]);
       return data[0];
     },
     onSettled: (updatedItem, error) => {
       if (!error) {
         const page = findPageForItem(updatedItem.id);
         queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
+        console.log("U4: Query invalidated after item update");
+      } else {
+        console.log("U5: Error in mutation settled for update:", error);
       }
     },
     onMutate: async (updatedItem) => {
-      console.log("Updating cache optimistically for new item:", updatedItem);
-      // ... existing code
-      console.log("Cache after optimistic update:", queryClient.getQueryData(['data', storedFilters]));
+      console.log("U6: Updating item in cache offline:", updatedItem);
       await queryClient.cancelQueries(['data', storedFilters]);
       const previousItems = queryClient.getQueryData(['data', storedFilters]);
-      queryClient.setQueryData(['data', storedFilters], (old) => ({
+      // queryClient.setQueryData(['data', storedFilters], (old) => ({
+      //   pages: old?.pages?.map(page => ({
+      //     ...page,
+      //     items: page.items.map(item =>
+      //       item.id === updatedItem.id ? { ...item, name: `${updatedItem.name}-updated` } : item
+      //     )
+      //   })) || [],
+      //   pageParams: old?.pageParams || []
+      // }));
+
+      queryClient.setQueryData(['data', storedFilters, storedCurrentPage, storedPageSize], (old) => ({
         pages: old?.pages?.map(page => ({
           ...page,
           items: page.items.map(item =>
@@ -269,45 +297,59 @@ const DynState = () => {
         })) || [],
         pageParams: old?.pageParams || []
       }));
+
+      console.log("U7: Cache updated with item update:", queryClient.getQueryData(['data', storedFilters]));
       return { previousItems };
     },
     onError: (err, updatedItem, context) => {
+      console.log("U8: Mutation error for item update:", err);
       if (context && context.previousItems) {
         queryClient.setQueryData(['data', storedFilters], context.previousItems);
+        console.log("U9: Cache reverted after update mutation error");
       }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
+      console.log("D1: Attempting to delete item from Supabase with id:", id);
       const { error } = await supabase.from('y_state').delete().eq('id', id);
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('D2: Error deleting from Supabase:', error);
+        throw new Error(error.message);
+      }
+      console.log("D3: Item deleted from Supabase with id:", id);
       return id;
     },
     onSettled: (deletedId, error) => {
       if (!error) {
         const page = findPageForItem(deletedId);
         queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
+        console.log("D4: Query invalidated after item deletion");
+      } else {
+        console.log("D5: Error in mutation settled for deletion:", error);
       }
     },
     onMutate: async (id) => {
-      console.log("Updating cache optimistically for new item:", id);
-      // ... existing code
-      console.log("Cache after optimistic update:", queryClient.getQueryData(['data', storedFilters]));
+      console.log("D6: Deleting item from cache offline with id:", id);
       await queryClient.cancelQueries(['data', storedFilters]);
       const previousItems = queryClient.getQueryData(['data', storedFilters]);
-      queryClient.setQueryData(['data', storedFilters], (old) => ({
+      // queryClient.setQueryData(['data', storedFilters], (old) => ({
+      queryClient.setQueryData(['data', storedFilters, storedCurrentPage, storedPageSize], (old) => ({
         pages: old?.pages?.map(page => ({
           ...page,
           items: page.items.filter(item => item.id !== id)
         })) || [],
         pageParams: old?.pageParams || []
       }));
+      console.log("D7: Cache updated after item deletion:", queryClient.getQueryData(['data', storedFilters]));
       return { previousItems };
     },
     onError: (err, id, context) => {
+      console.log("D8: Mutation error for item deletion:", err);
       if (context && context.previousItems) {
         queryClient.setQueryData(['data', storedFilters], context.previousItems);
+        console.log("D9: Cache reverted after delete mutation error");
       }
     },
   });
@@ -335,7 +377,7 @@ const DynState = () => {
       <div>Network Status: {isOnline ? "Online" : "Offline"}</div>
 
       <div style={{ padding: 20 }}>
-      <div>{isOnline ? "Online" : "Offline - Data might be out of date"}</div>
+        <div>{isOnline ? "Online" : "Offline - Data might be out of date"}</div>
       </div>
       {/* Rest of the component */}
       <Space style={{ marginBottom: 20 }}>
@@ -370,9 +412,8 @@ const DynState = () => {
 };
 
 const DynStateWithProvider = () => (
-  <QueryClientProvider client={queryClient}>
     <DynState />
-  </QueryClientProvider>
 );
 
 export default DynStateWithProvider;
+// export default React.memo(DynStateWithProvider);
