@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, memo } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import {
   useInfiniteQuery,
@@ -55,8 +55,7 @@ const DynState = () => {
     setPagination
   } = useTableStore();
 
-  // const queryKey = ['data', storedFilters, storedCurrentPage, storedPageSize];
-  // const queryKey = useMemo(() => ['data', JSON.stringify(storedFilters), storedCurrentPage, storedPageSize], [storedFilters, storedCurrentPage, storedPageSize]);
+  const queryKey = ['data', storedFilters, storedCurrentPage, storedPageSize];
 
   const [isOnline, setIsOnline] = useState(networkMonitor.isOnline());
 
@@ -134,8 +133,7 @@ const DynState = () => {
     fetchNextPage,
     fetchPreviousPage,
   } = useInfiniteQuery({
-    // queryKey: ['data', storedFilters, storedCurrentPage],
-    queryKey: ['data', storedFilters, storedCurrentPage, storedPageSize], // Include pageSize in key
+    queryKey,
     queryFn: fetchData,
     initialPageParam: storedCurrentPage,
     refetchOnReconnect: true, // Refetch when reconnecting to network
@@ -152,7 +150,6 @@ const DynState = () => {
       console.log("F6: Query error:", error);
     },
   });
-
 
   useEffect(() => {
     console.log("F7: Data updated:", data);
@@ -223,32 +220,30 @@ const DynState = () => {
     onSettled: (newItem, error) => {
       if (!error) {
         const page = findPageForItem(newItem.id);
-        queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
-        console.log("A4: Query invalidated after item creation");
+        // queryClient.invalidateQueries(queryKey, { exact: true });
+        // console.log("A4: Query invalidated after item creation");
       } else {
         console.log("A5: Error in mutation settled:", error);
       }
     },
     onMutate: async (newItem) => {
       console.log("A6: Saving new item to cache offline:", newItem);
-      await queryClient.cancelQueries(['data', storedFilters]);
-      const previousItems = queryClient.getQueryData(['data', storedFilters]);
-      // queryClient.setQueryData(['data', storedFilters], (old) => ({
-      queryClient.setQueryData(['data', storedFilters, storedCurrentPage, storedPageSize], (old) => ({
-
+      await queryClient.cancelQueries(queryKey);
+      const previousItems = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (old) => ({
         pages: old?.pages?.map(page => ({
           ...page,
-          items: [...page.items, newItem]
+          items: [...(page.items || []), newItem]
         })) || [],
         pageParams: old?.pageParams || []
       }));
-      console.log("A7: Cache updated with new item:", queryClient.getQueryData(['data', storedFilters]));
+      console.log("A7: Cache updated with new item:", queryClient.getQueryData(queryKey));
       return { previousItems };
     },
     onError: (err, newItem, context) => {
       console.log("A8: Mutation error for new item creation:", err);
       if (context && context.previousItems) {
-        queryClient.setQueryData(['data', storedFilters], context.previousItems);
+        queryClient.setQueryData(queryKey, context.previousItems);
         console.log("A9: Cache reverted after mutation error");
       }
     },
@@ -268,27 +263,17 @@ const DynState = () => {
     onSettled: (updatedItem, error) => {
       if (!error) {
         const page = findPageForItem(updatedItem.id);
-        queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
-        console.log("U4: Query invalidated after item update");
+        // queryClient.invalidateQueries(queryKey, { exact: true });
+        // console.log("U4: Query invalidated after item update");
       } else {
         console.log("U5: Error in mutation settled for update:", error);
       }
     },
     onMutate: async (updatedItem) => {
       console.log("U6: Updating item in cache offline:", updatedItem);
-      await queryClient.cancelQueries(['data', storedFilters]);
-      const previousItems = queryClient.getQueryData(['data', storedFilters]);
-      // queryClient.setQueryData(['data', storedFilters], (old) => ({
-      //   pages: old?.pages?.map(page => ({
-      //     ...page,
-      //     items: page.items.map(item =>
-      //       item.id === updatedItem.id ? { ...item, name: `${updatedItem.name}-updated` } : item
-      //     )
-      //   })) || [],
-      //   pageParams: old?.pageParams || []
-      // }));
-
-      queryClient.setQueryData(['data', storedFilters, storedCurrentPage, storedPageSize], (old) => ({
+      await queryClient.cancelQueries(queryKey);
+      const previousItems = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (old) => ({
         pages: old?.pages?.map(page => ({
           ...page,
           items: page.items.map(item =>
@@ -297,14 +282,13 @@ const DynState = () => {
         })) || [],
         pageParams: old?.pageParams || []
       }));
-
-      console.log("U7: Cache updated with item update:", queryClient.getQueryData(['data', storedFilters]));
+      console.log("U7: Cache updated with item update:", queryClient.getQueryData(queryKey));
       return { previousItems };
     },
     onError: (err, updatedItem, context) => {
       console.log("U8: Mutation error for item update:", err);
       if (context && context.previousItems) {
-        queryClient.setQueryData(['data', storedFilters], context.previousItems);
+        queryClient.setQueryData(queryKey, context.previousItems);
         console.log("U9: Cache reverted after update mutation error");
       }
     },
@@ -324,31 +308,30 @@ const DynState = () => {
     onSettled: (deletedId, error) => {
       if (!error) {
         const page = findPageForItem(deletedId);
-        queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
-        console.log("D4: Query invalidated after item deletion");
+        // queryClient.invalidateQueries(queryKey, { exact: true });
+        // console.log("D4: Query invalidated after item deletion");
       } else {
         console.log("D5: Error in mutation settled for deletion:", error);
       }
     },
     onMutate: async (id) => {
       console.log("D6: Deleting item from cache offline with id:", id);
-      await queryClient.cancelQueries(['data', storedFilters]);
-      const previousItems = queryClient.getQueryData(['data', storedFilters]);
-      // queryClient.setQueryData(['data', storedFilters], (old) => ({
-      queryClient.setQueryData(['data', storedFilters, storedCurrentPage, storedPageSize], (old) => ({
+      await queryClient.cancelQueries(queryKey);
+      const previousItems = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (old) => ({
         pages: old?.pages?.map(page => ({
           ...page,
           items: page.items.filter(item => item.id !== id)
         })) || [],
         pageParams: old?.pageParams || []
       }));
-      console.log("D7: Cache updated after item deletion:", queryClient.getQueryData(['data', storedFilters]));
+      console.log("D7: Cache updated after item deletion:", queryClient.getQueryData(queryKey));
       return { previousItems };
     },
     onError: (err, id, context) => {
       console.log("D8: Mutation error for item deletion:", err);
       if (context && context.previousItems) {
-        queryClient.setQueryData(['data', storedFilters], context.previousItems);
+        queryClient.setQueryData(queryKey, context.previousItems);
         console.log("D9: Cache reverted after delete mutation error");
       }
     },
@@ -362,14 +345,12 @@ const DynState = () => {
     deleteMutation.mutate(id);
   };
 
-  // Debounce Date Range Changes: Use debounce from lodash to limit how often onDateRangeChange triggers:
   const debouncedOnDateRangeChange = useCallback(
     debounce((dates) => {
       setFilters({ ...storedFilters, dateRange: dates ? dates.map(date => dayjs(date)) : [] });
     }, 500),
     [storedFilters, setFilters]
   );
-  
 
   return (
     <div style={{ padding: 20 }}>
@@ -384,7 +365,7 @@ const DynState = () => {
         {/* // Use this debounced function in your component */}
         <RangePicker onChange={debouncedOnDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear />
         {/* <RangePicker onChange={onDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear /> */}
-        <Button onClick={() => queryClient.invalidateQueries(['data', storedFilters])}>Apply Filters</Button>
+        <Button onClick={() => queryClient.invalidateQueries(queryKey)}>Apply Filters</Button>
       </Space>
 
       <Form onFinish={onFinish}>
@@ -411,9 +392,10 @@ const DynState = () => {
   );
 };
 
-const DynStateWithProvider = () => (
+const DynStateWithProvider = memo(() => (
+  <QueryClientProvider client={queryClient}>
     <DynState />
-);
+  </QueryClientProvider>
+));
 
 export default DynStateWithProvider;
-// export default React.memo(DynStateWithProvider);
