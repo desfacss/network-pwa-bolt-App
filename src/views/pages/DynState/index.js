@@ -52,18 +52,22 @@ const DynState = () => {
     setPagination
   } = useTableStore();
 
-  // *************
-  const [isOnline, setIsOnline] = useState(true);
-  // const debouncedInvalidate = useCallback(
-  //   debounce(() => {
-  //     console.log("A0.1. Invalidating queries due to network change");
-  //     queryClient.invalidateQueries('data');
-  //   }, 500),
-  //   [queryClient]
-  // );
-  // *************
+  const [isOnline, setIsOnline] = useState(networkMonitor.isOnline());
+
+  // // *************
+  // const [isOnline, setIsOnline] = useState(true);
+  // // const debouncedInvalidate = useCallback(
+  // //   debounce(() => {
+  // //     console.log("A0.1. Invalidating queries due to network change");
+  // //     queryClient.invalidateQueries('data');
+  // //   }, 500),
+  // //   [queryClient]
+  // // );
+  // // *************
   useSyncQueue();
 
+
+ 
   const queryClient = useQueryClient();
 
   const generateRandomData = () => {
@@ -82,27 +86,32 @@ const DynState = () => {
     };
   };
 
-  // *************
   useEffect(() => {
-    const handleNetworkChange = (state) => {
-      console.log("A0. Network status changed to:", state);
-      if (state !== isOnline) {
-        setIsOnline(state);
-        // if (state) {
-        //   debouncedInvalidate();
-        // }
-      }
-    };
+    const unsubscribe = networkMonitor.subscribe(setIsOnline);
+    return () => unsubscribe();
+  }, []);
+  
+  // // *************
+  // useEffect(() => {
+  //   const handleNetworkChange = (state) => {
+  //     console.log("A0. Network status changed to:", state);
+  //     if (state !== isOnline) {
+  //       setIsOnline(state);
+  //       // if (state) {
+  //       //   debouncedInvalidate();
+  //       // }
+  //     }
+  //   };
 
-    const unsubscribe = networkMonitor.subscribe(handleNetworkChange);
+  //   const unsubscribe = networkMonitor.subscribe(handleNetworkChange);
 
-    return () => {
-      console.log("A0.2. Cleaning up network status listener");
-      unsubscribe();
-      // debouncedInvalidate.cancel();
-    };
-  }, [isOnline]);
-  // *************
+  //   return () => {
+  //     console.log("A0.2. Cleaning up network status listener");
+  //     unsubscribe();
+  //     // debouncedInvalidate.cancel();
+  //   };
+  // }, [isOnline]);
+  // // *************
 
   const onFinish = () => {
     const values = generateRandomData();
@@ -149,7 +158,9 @@ const DynState = () => {
       return lastPage.pageParam < totalPages ? lastPage.pageParam + 1 : undefined;
     },
     getPreviousPageParam: (firstPage) => firstPage.pageParam > 1 ? firstPage.pageParam - 1 : undefined,
-    //******  enabled: networkMonitor.isOnline(),
+    // ******  
+    // enabled: networkMonitor.isOnline(),
+    // ******
     enabled: isOnline,
     onSuccess: (data) => {
       console.log("Query success:", data);
@@ -328,6 +339,9 @@ const DynState = () => {
 
   return (
     <div style={{ padding: 20 }}>
+      {/* Show network status */}
+      <div>Network Status: {isOnline ? "Online" : "Offline"}</div>
+      {/* Rest of the component */}
       <Space style={{ marginBottom: 20 }}>
         <RangePicker onChange={onDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear />
         <Button onClick={() => queryClient.invalidateQueries(['data', storedFilters])}>Apply Filters</Button>
