@@ -31,8 +31,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       networkMode: 'offlineFirst', // Use offline first strategy
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 1000 * 60 * 1, // 1 minutes
+      // The staleTime of 5 minutes might be too long or too short depending on your application's data freshness requirements. If the data changes frequently, you might want a shorter staleTime to ensure users see updates sooner. If data changes less often, this might be fine
       refetchOnWindowFocus: false,
+      // refetchOnWindowFocus: (query) => query.queryKey[0] === 'data', // Only refetch for 'data' queries - FOR BETTER CONTROL OF WHAT YOU WANT TO LOAD****
+      // Setting refetchOnWindowFocus to false means the app won't automatically refetch data when the user returns to the tab/window. This could lead to users seeing outdated information if they expect real-time or near real-time updates.
     },
   },
 });
@@ -54,16 +57,6 @@ const DynState = () => {
 
   const [isOnline, setIsOnline] = useState(networkMonitor.isOnline());
 
-  // // *************
-  // const [isOnline, setIsOnline] = useState(true);
-  // // const debouncedInvalidate = useCallback(
-  // //   debounce(() => {
-  // //     console.log("A0.1. Invalidating queries due to network change");
-  // //     queryClient.invalidateQueries('data');
-  // //   }, 500),
-  // //   [queryClient]
-  // // );
-  // // *************
   useSyncQueue();
 
   const queryClient = useQueryClient();
@@ -151,14 +144,12 @@ const DynState = () => {
     queryKey: ['data', storedFilters, storedCurrentPage],
     queryFn: fetchData,
     initialPageParam: storedCurrentPage,
+    refetchOnReconnect: true, // Refetch when reconnecting to network
     getNextPageParam: (lastPage, allPages) => {
       const totalPages = Math.ceil(lastPage.total / storedPageSize);
       return lastPage.pageParam < totalPages ? lastPage.pageParam + 1 : undefined;
     },
     getPreviousPageParam: (firstPage) => firstPage.pageParam > 1 ? firstPage.pageParam - 1 : undefined,
-    // ******  
-    // enabled: networkMonitor.isOnline(),
-    // ******
     enabled: isOnline,
     onSuccess: (data) => {
       console.log("Query success:", data);
@@ -215,6 +206,8 @@ const DynState = () => {
         <Space size="middle" key={record.id}>
           <Button onClick={() => handleUpdate(record)}>Update</Button>
           <Button onClick={() => handleDelete(record.id)}>Delete</Button>
+          {/* <Button disabled={!isOnline} onClick={() => handleUpdate(record)}>Update</Button>
+          <Button disabled={!isOnline} onClick={() => handleDelete(record.id)}>Delete</Button> */}
         </Space>
       ),
     },
@@ -235,14 +228,22 @@ const DynState = () => {
     }
   }, [storedCurrentPage, fetchNextPage, fetchPreviousPage, setPagination]);
 
+  // Helper function to find the page where the item is
+  const findPageForItem = (id) => {
+    return data?.pages?.findIndex(page => page.items.some(item => item.id === id)) + 1 || storedCurrentPage;
+  };
+
   const createMutation = useMutation({
     mutationFn: async (item) => {
       const { data, error } = await supabase.from('y_state').insert([item]).select('*');
       if (error) throw new Error(error.message);
       return data[0];
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(['data', storedFilters]);
+    onSettled: (newItem, error) => {
+      if (!error) {
+        const page = findPageForItem(newItem.id);
+        queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
+      }
     },
     onMutate: async (newItem) => {
       console.log("Updating cache optimistically for new item:", newItem);
@@ -262,19 +263,12 @@ const DynState = () => {
       console.log("Optimistic update for create2:", previousItems)
       return { previousItems };
     },
+    onError: (err, newItem, context) => {
+      if (context && context.previousItems) {
+        queryClient.setQueryData(['data', storedFilters], context.previousItems);
+      }
+    },
   });
-
-
-  // const updateMutation = useMutation({
-  //   mutationFn: async (item) => {
-  //     const { data, error } = await supabase.from('y_state').update({ name: `${item.name}-updated` }).eq('id', item.id).select('*');
-  //     if (error) throw new Error(error.message);
-  //     return data[0];
-  //   },
-  //   onSettled: () => {
-  //     queryClient.invalidateQueries(['data', storedFilters]);
-  //   },
-  // });
 
   const updateMutation = useMutation({
     mutationFn: async (item) => {
@@ -282,8 +276,11 @@ const DynState = () => {
       if (error) throw new Error(error.message);
       return data[0];
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(['data', storedFilters]);
+    onSettled: (updatedItem, error) => {
+      if (!error) {
+        const page = findPageForItem(updatedItem.id);
+        queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
+      }
     },
     onMutate: async (updatedItem) => {
       console.log("Updating cache optimistically for new item:", updatedItem);
@@ -302,18 +299,12 @@ const DynState = () => {
       }));
       return { previousItems };
     },
+    onError: (err, updatedItem, context) => {
+      if (context && context.previousItems) {
+        queryClient.setQueryData(['data', storedFilters], context.previousItems);
+      }
+    },
   });
-
-  // const deleteMutation = useMutation({
-  //   mutationFn: async (id) => {
-  //     const { error } = await supabase.from('y_state').delete().eq('id', id);
-  //     if (error) throw new Error(error.message);
-  //     return id;
-  //   },
-  //   onSettled: () => {
-  //     queryClient.invalidateQueries(['data', storedFilters]);
-  //   },
-  // });
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
@@ -321,8 +312,11 @@ const DynState = () => {
       if (error) throw new Error(error.message);
       return id;
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(['data', storedFilters]);
+    onSettled: (deletedId, error) => {
+      if (!error) {
+        const page = findPageForItem(deletedId);
+        queryClient.invalidateQueries(['data', storedFilters, page], { exact: true });
+      }
     },
     onMutate: async (id) => {
       console.log("Updating cache optimistically for new item:", id);
@@ -338,6 +332,11 @@ const DynState = () => {
         pageParams: old?.pageParams || []
       }));
       return { previousItems };
+    },
+    onError: (err, id, context) => {
+      if (context && context.previousItems) {
+        queryClient.setQueryData(['data', storedFilters], context.previousItems);
+      }
     },
   });
 
