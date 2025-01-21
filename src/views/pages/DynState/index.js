@@ -95,6 +95,17 @@ const DynState = () => {
       .from('y_state')
       .select('*', { count: 'exact' });
 
+      // PERFORMANCE IMPROVEMENTS - CONCEPT
+      // Server-Side Filtering: If your dataset grows, consider implementing server-side filtering. This would mean updating your backend to support more complex queries. For instance, if your backend supports it, you could include more filters in your Supabase query:
+      // javascript
+      // let query = supabase
+      //   .from('y_state')
+      //   .select('*', { count: 'exact' });
+      
+      // if (storedFilters.name) {
+      //   query = query.ilike('name', `%${storedFilters.name}%`);
+      // }
+
     if (storedFilters.dateRange?.length === 2) {
       const [startDate, endDate] = storedFilters.dateRange.map(date => dayjs(date));
       const startIso = startDate.startOf('day').toISOString();
@@ -119,7 +130,8 @@ const DynState = () => {
     fetchNextPage,
     fetchPreviousPage,
   } = useInfiniteQuery({
-    queryKey: ['data', storedFilters, storedCurrentPage],
+    // queryKey: ['data', storedFilters, storedCurrentPage],
+    queryKey: ['data', storedFilters, storedCurrentPage, storedPageSize], // Include pageSize in key
     queryFn: fetchData,
     initialPageParam: storedCurrentPage,
     refetchOnReconnect: true, // Refetch when reconnecting to network
@@ -172,7 +184,7 @@ const DynState = () => {
       ),
     },
   ];
-
+  
   const onDateRangeChange = (dates) => {
     setFilters({ ...storedFilters, dateRange: dates ? dates.map(date => dayjs(date)) : [] });
   };
@@ -308,6 +320,15 @@ const DynState = () => {
     deleteMutation.mutate(id);
   };
 
+  // Debounce Date Range Changes: Use debounce from lodash to limit how often onDateRangeChange triggers:
+  const debouncedOnDateRangeChange = useCallback(
+    debounce((dates) => {
+      setFilters({ ...storedFilters, dateRange: dates ? dates.map(date => dayjs(date)) : [] });
+    }, 500),
+    [storedFilters, setFilters]
+  );
+  
+
   return (
     <div style={{ padding: 20 }}>
       {/* Show network status */}
@@ -318,7 +339,9 @@ const DynState = () => {
       </div>
       {/* Rest of the component */}
       <Space style={{ marginBottom: 20 }}>
-        <RangePicker onChange={onDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear />
+        {/* // Use this debounced function in your component */}
+        <RangePicker onChange={debouncedOnDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear />
+        {/* <RangePicker onChange={onDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear /> */}
         <Button onClick={() => queryClient.invalidateQueries(['data', storedFilters])}>Apply Filters</Button>
       </Space>
 
