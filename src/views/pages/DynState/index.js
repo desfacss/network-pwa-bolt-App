@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useReducer, memo } from 'react';
+import React, { useCallback, useEffect, useState, memo } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form, Tag } from 'antd';
 import {
   useInfiniteQuery,
@@ -84,6 +84,10 @@ const DynState = () => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    console.log('Network status changed to:', isOnline);
+  }, [isOnline]);
+
   const onFinish = () => {
     console.log('Creating new item');
     const newItem = generateRandomData();
@@ -137,7 +141,7 @@ const DynState = () => {
     queryKey,
     queryFn: fetchData,
     initialPageParam: storedCurrentPage,
-    refetchOnReconnect: true, // Refetch when reconnecting to network
+    refetchOnReconnect: true,
     getNextPageParam: (lastPage, allPages) => {
       const totalPages = Math.ceil(lastPage.total / storedPageSize);
       return lastPage.pageParam < totalPages ? lastPage.pageParam + 1 : undefined;
@@ -207,18 +211,15 @@ const DynState = () => {
     return data?.pages?.findIndex(page => page.items.some(item => item.id === id)) + 1 || storedCurrentPage;
   };
 
-  // Forcing rerender when mutatingItems changes
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
-
+  // Mutation for creating an item
   const createMutation = useMutation({
     mutationFn: async (item) => {
-      console.log('A0: Adding to mutatingItems:', item.id);
       setMutatingItems(prev => {
         const newMutatingItems = [...prev, item.id];
+        console.log('A0: Adding to mutatingItems:', item.id);
         console.log('Updated mutatingItems:', newMutatingItems);
         return newMutatingItems;
       });
-      forceUpdate(); // Force a re-render
       console.log("A1: Attempting to save item to Supabase:", item);
       const { data, error } = await supabase.from('y_state').insert([item]).select('*');
       if (error) {
@@ -229,16 +230,14 @@ const DynState = () => {
       return data[0];
     },
     onSettled: (newItem, error) => {
-      console.log('Settling mutation for item:', newItem.id, 'Error:', error);
-      if (!error || isOnline) { // Remove item if no error or if we're now online
+      if (!error || isOnline) {
         setMutatingItems(prev => {
-          const newMutatingItems = prev.filter(id => id !== newItem.id);
-          console.log('Removed from mutatingItems:', newMutatingItems);
-          return newMutatingItems;
+          const removedMutatingItems = prev.filter(id => id !== newItem.id);
+          console.log('Removed from mutatingItems:', removedMutatingItems);
+          return removedMutatingItems;
         });
-        forceUpdate(); // Force a re-render
       }
-      
+      console.log('Settling mutation for item:', newItem.id, 'Error:', error);
       if (!error) {
         const page = findPageForItem(newItem.id);
         // queryClient.invalidateQueries(queryKey, { exact: true });
@@ -270,11 +269,15 @@ const DynState = () => {
     },
   });
 
+  // Mutation for updating an item
   const updateMutation = useMutation({
     mutationFn: async (item) => {
-      console.log('U0: Adding to mutatingItems:', item.id);
-      setMutatingItems(prev => [...prev, item.id]);
-      forceUpdate(); // Force a re-render
+      setMutatingItems(prev => {
+        const newMutatingItems = [...prev, item.id];
+        console.log('U0: Adding to mutatingItems for update:', item.id);
+        console.log('Updated mutatingItems:', newMutatingItems);
+        return newMutatingItems;
+      });
       console.log("U1: Attempting to update item in Supabase:", item);
       const { data, error } = await supabase.from('y_state').update({ name: `${item.name}-updated` }).eq('id', item.id).select('*');
       if (error) {
@@ -285,11 +288,14 @@ const DynState = () => {
       return data[0];
     },
     onSettled: (updatedItem, error) => {
-      console.log('Settling update mutation for item:', updatedItem.id, 'Error:', error);
       if (!error || isOnline) {
-        setMutatingItems(prev => prev.filter(id => id !== updatedItem.id));
-        forceUpdate(); // Force a re-render
+        setMutatingItems(prev => {
+          const removedMutatingItems = prev.filter(id => id !== updatedItem.id);
+          console.log('Removed from mutatingItems:', removedMutatingItems);
+          return removedMutatingItems;
+        });
       }
+      console.log('Settling mutation for update of item:', updatedItem.id, 'Error:', error);
       if (!error) {
         const page = findPageForItem(updatedItem.id);
         // queryClient.invalidateQueries(queryKey, { exact: true });
@@ -323,11 +329,15 @@ const DynState = () => {
     },
   });
 
+  // Mutation for deleting an item
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
-      console.log('D0: Adding to mutatingItems:', id);
-      setMutatingItems(prev => [...prev, id]);
-      forceUpdate(); // Force a re-render
+      setMutatingItems(prev => {
+        const newMutatingItems = [...prev, id];
+        console.log('D0: Adding to mutatingItems for delete:', id);
+        console.log('Updated mutatingItems:', newMutatingItems);
+        return newMutatingItems;
+      });
       console.log("D1: Attempting to delete item from Supabase with id:", id);
       const { error } = await supabase.from('y_state').delete().eq('id', id);
       if (error) {
@@ -338,11 +348,14 @@ const DynState = () => {
       return id;
     },
     onSettled: (deletedId, error) => {
-      console.log('Settling delete mutation for item:', deletedId, 'Error:', error);
       if (!error || isOnline) {
-        setMutatingItems(prev => prev.filter(itemId => itemId !== deletedId));
-        forceUpdate(); // Force a re-render
+        setMutatingItems(prev => {
+          const removedMutatingItems = prev.filter(itemId => itemId !== deletedId);
+          console.log('Removed from mutatingItems:', removedMutatingItems);
+          return removedMutatingItems;
+        });
       }
+      console.log('Settling mutation for deletion of item:', deletedId, 'Error:', error);
       if (!error) {
         const page = findPageForItem(deletedId);
         // queryClient.invalidateQueries(queryKey, { exact: true });
@@ -384,10 +397,6 @@ const DynState = () => {
     deleteMutation.mutate(id);
   };
 
-  useEffect(() => {
-    console.log('mutatingItems updated:', mutatingItems);
-  }, [mutatingItems]);
-
   const debouncedOnDateRangeChange = useCallback(
     debounce((dates) => {
       setFilters({ ...storedFilters, dateRange: dates ? dates.map(date => dayjs(date)) : [] });
@@ -397,13 +406,10 @@ const DynState = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      {/* Show network status */}
       <div>Network Status: {isOnline ? "Online" : "Offline"}</div>
       <div>{isOnline ? "Online" : "Offline - Data might be out of date"}</div>
       <Space style={{ marginBottom: 20 }}>
-        {/* // Use this debounced function in your component */}
         <RangePicker onChange={debouncedOnDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear />
-        {/* <RangePicker onChange={onDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear /> */}
         <Button onClick={() => queryClient.invalidateQueries(queryKey)}>Apply Filters</Button>
       </Space>
 
@@ -418,7 +424,7 @@ const DynState = () => {
         dataSource={allItems}
         rowKey="id"
         rowClassName={(record) => {
-          console.log('Network Status:', isOnline, 'Mutation status for record:', record.id, mutatingItems.includes(record.id));
+          console.log('Network Status:', isOnline, 'Record ID:', record.id, 'In mutatingItems:', mutatingItems.includes(record.id));
           return !isOnline && mutatingItems.includes(record.id) ? 'optimistic-update' : '';
         }}
         pagination={{
