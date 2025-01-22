@@ -85,10 +85,7 @@ const DynState = () => {
     return () => unsubscribe();
   }, []);
 
-  const onFinish = () => {
-    const values = generateRandomData();
-    createMutation.mutate(values);
-  };
+  
 
   const fetchData = async ({ pageParam = storedCurrentPage }) => {
     console.log("F1: Fetching data from Supabase with pageParam:", pageParam);
@@ -207,8 +204,12 @@ const DynState = () => {
     return data?.pages?.findIndex(page => page.items.some(item => item.id === id)) + 1 || storedCurrentPage;
   };
 
+  const [isMutating, setIsMutating] = useState(false);
+
+  // Mutation hooks
   const createMutation = useMutation({
     mutationFn: async (item) => {
+      setIsMutating(true);
       console.log("A1: Attempting to save item to Supabase:", item);
       const { data, error } = await supabase.from('y_state').insert([item]).select('*');
       if (error) {
@@ -219,6 +220,7 @@ const DynState = () => {
       return data[0];
     },
     onSettled: (newItem, error) => {
+      setIsMutating(false);
       if (!error) {
         const page = findPageForItem(newItem.id);
         // queryClient.invalidateQueries(queryKey, { exact: true });
@@ -252,6 +254,7 @@ const DynState = () => {
 
   const updateMutation = useMutation({
     mutationFn: async (item) => {
+      setIsMutating(true);
       console.log("U1: Attempting to update item in Supabase:", item);
       const { data, error } = await supabase.from('y_state').update({ name: `${item.name}-updated` }).eq('id', item.id).select('*');
       if (error) {
@@ -262,6 +265,7 @@ const DynState = () => {
       return data[0];
     },
     onSettled: (updatedItem, error) => {
+      setIsMutating(false);
       if (!error) {
         const page = findPageForItem(updatedItem.id);
         // queryClient.invalidateQueries(queryKey, { exact: true });
@@ -297,6 +301,7 @@ const DynState = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
+      setIsMutating(true);
       console.log("D1: Attempting to delete item from Supabase with id:", id);
       const { error } = await supabase.from('y_state').delete().eq('id', id);
       if (error) {
@@ -307,6 +312,7 @@ const DynState = () => {
       return id;
     },
     onSettled: (deletedId, error) => {
+      setIsMutating(false);
       if (!error) {
         const page = findPageForItem(deletedId);
         // queryClient.invalidateQueries(queryKey, { exact: true });
@@ -339,12 +345,28 @@ const DynState = () => {
   });
 
   const handleUpdate = (record) => {
+    console.log('Updating:', record);
     updateMutation.mutate(record);
   };
 
   const handleDelete = (id) => {
+    console.log('Deleting:', id);
     deleteMutation.mutate(id);
   };
+
+  // const onFinish = () => {
+  //   const values = generateRandomData();
+  //   createMutation.mutate(values);
+  // };
+
+  const onFinish = () => {
+    console.log('Creating new item');
+    createMutation.mutate(generateRandomData());
+  };
+
+  // Combine mutation states for simplicity
+  // const isMutating = createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading;
+ 
 
   const debouncedOnDateRangeChange = useCallback(
     debounce((dates) => {
@@ -353,18 +375,11 @@ const DynState = () => {
     [storedFilters, setFilters]
   );
 
-  // Combine mutation states for simplicity if needed
-  const isMutating = createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading;
-
   return (
     <div style={{ padding: 20 }}>
       {/* Show network status */}
       <div>Network Status: {isOnline ? "Online" : "Offline"}</div>
-
-      <div style={{ padding: 20 }}>
-        <div>{isOnline ? "Online" : "Offline - Data might be out of date"}</div>
-      </div>
-      {/* Rest of the component */}
+      <div>{isOnline ? "Online" : "Offline - Data might be out of date"}</div>
       <Space style={{ marginBottom: 20 }}>
         {/* // Use this debounced function in your component */}
         <RangePicker onChange={debouncedOnDateRangeChange} value={storedFilters.dateRange?.map(date => dayjs(date))} allowClear />
@@ -382,7 +397,10 @@ const DynState = () => {
         columns={columns}
         dataSource={allItems}
         rowKey="id"
-        rowClassName={() => isMutating ? 'optimistic-update' : ''}
+        rowClassName={() => {
+          console.log('Mutation state:', isMutating);
+          return isMutating ? 'optimistic-update' : '';
+        }}
         pagination={{
           pageSize: storedPageSize,
           current: storedCurrentPage,
