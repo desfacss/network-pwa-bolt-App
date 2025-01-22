@@ -197,9 +197,9 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   //   );
 
   const getActionMenu = (record) => {
-    const allowedActions = gridViewConfig?.actions?.card?.filter(action => {
-      if (action === 'edit') return canEditOrDelete(record, gridViewConfig?.canEdit);
-      if (action === 'delete') return canEditOrDelete(record, gridViewConfig?.canDelete);
+    const allowedActions = gridViewConfig?.actions?.row?.filter(action => {
+      if (action === 'edit') return canEditOrDelete(record, viewConfig?.access_config?.canEdit);
+      if (action === 'delete') return canEditOrDelete(record, viewConfig?.access_config?.canDelete);
       return true; // Always allow other actions like 'view'
     });
     console.log("aa", allowedActions)
@@ -286,7 +286,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                   //     <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
                   //   </Dropdown>
                   // ) : null
-                  gridViewConfig?.actions?.card && (
+                  gridViewConfig?.actions?.row && (
                     <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
                       <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
                     </Dropdown>
