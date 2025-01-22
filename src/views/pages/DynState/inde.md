@@ -1,87 +1,148 @@
 Creating new item
-index.js:246 A6: Saving new item to cache offline: {id: 1625, name: 'Name 1625', email: 'email1625
+index.js:251 A6: Saving new item to cache offline: {id: 4330, name: 'Name 4330', email: 'email4330
 @example
-.com', phone: '+91899820751', address: 'Address for 1625', …}
-index.js:256 A7: Cache updated with new item: {pages: Array(1), pageParams: Array(1)}
-index.js:219 A0: Adding to mutatingItems: 1625
-index.js:221 A1: Attempting to save item to Supabase: {id: 1625, name: 'Name 1625', email: 'email1625
+.com', phone: '+91569860093', address: 'Address for 4330', …}
+index.js:261 A7: Cache updated with new item: {pages: Array(1), pageParams: Array(1)}
+index.js:215 A0: Adding to mutatingItems: 4330
+index.js:218 Updated mutatingItems: [4330]
+index.js:222 A1: Attempting to save item to Supabase: {id: 4330, name: 'Name 4330', email: 'email4330
 @example
-.com', phone: '+91899820751', address: 'Address for 1625', …}
-index.js:172 F8: allItems: (2) [{…}, {…}]
-index.js:409 Mutation status for record: 9651 false
-index.js:409 Mutation status for record: 1625 false
-index.js:160 F7: Data updated: {pages: Array(1), pageParams: Array(1)}
-index.js:172 F8: allItems: (2) [{…}, {…}]
-index.js:227 A3: Item saved to Supabase: {id: 1625, name: 'Name 1625', email: 'email1625
+.com', phone: '+91569860093', address: 'Address for 4330', …}
+index.js:168 F8: allItems: (4) [{…}, {…}, {…}, {…}]
+index.js:421 Network Status: true Mutation status for record: 9651 false
+index.js:421 Network Status: true Mutation status for record: 1625 false
+index.js:421 Network Status: true Mutation status for record: 8195 false
+index.js:421 Network Status: true Mutation status for record: 4330 true
+index.js:156 F7: Data updated: {pages: Array(1), pageParams: Array(1)}
+index.js:388 mutatingItems updated: [4330]
+index.js:228 A3: Item saved to Supabase: {id: 4330, name: 'Name 4330', email: 'email4330
 @example
-.com', phone: '+91899820751', address: 'Address for 1625', …}
-index.js:231 Settling mutation for item: 1625 Error: null
-index.js:172 F8: allItems: (2) [{…}, {…}]
-index.js:409 Mutation status for record: 9651 false
-index.js:409 Mutation status for record: 1625 false
-index.js:172 F8: allItems: (2) [{…}, {…}]
+.com', phone: '+91569860093', address: 'Address for 4330', …}
+index.js:232 Settling mutation for item: 4330 Error: null
+index.js:236 Removed from mutatingItems: []
+index.js:168 F8: allItems: (4) [{…}, {…}, {…}, {…}]
+index.js:421 Network Status: true Mutation status for record: 9651 false
+index.js:421 Network Status: true Mutation status for record: 1625 false
+index.js:421 Network Status: true Mutation status for record: 8195 false
+index.js:421 Network Status: true Mutation status for record: 4330 false
+index.js:388 mutatingItems updated: []
+index.js:168 F8: allItems: (4) [{…}, {…}, {…}, {…}]
 
-this one when adding an item offline 
+going offline 
 
-Network status changed to: false
-index.js:92 Creating new item
-index.js:246 A6: Saving new item to cache offline: {id: 8195, name: 'Name 8195', email: 'email8195
+F8: allItems: (4) [{…}, {…}, {…}, {…}]
+index.js:421 Network Status: false Mutation status for record: 9651 false
+index.js:421 Network Status: false Mutation status for record: 1625 false
+index.js:421 Network Status: false Mutation status for record: 8195 false
+index.js:421 Network Status: false Mutation status for record: 4330 false
+
+offline fetching 
+
+fetch.ts:15 
+
+   GET https://iwabkphgxgkrgnntssve.supabase.co/rest/v1/users?select=*%2Clocation%3Alocation_id%28*%29%2Chr%3Ahr_id%28*%29%2Cmanager%3Amanager_id%28*%29%2Corganization%3Aorganization_id%28*%29%2Cfeatures%3Arole_type%28feature%29&id=eq.65f17e0b-8c16-45ad-a347-8bf22ae779e6 net::ERR_INTERNET_DISCONNECTED
+(anonymous) @ fetch.ts:15
+(anonymous) @ fetch.ts:46
+fulfilled @ constants.ts:35
+Promise.then
+step @ constants.ts:35
+(anonymous) @ constants.ts:35
+webpack_modules../node_modules/
+@supabase
+/supabase-js/dist/module/lib/fetch.js.__awaiter @ constants.ts:35
+(anonymous) @ fetch.ts:34
+then @ PostgrestBuilder.ts:81Understand this errorAI
+index.js:43 Error fetching user data: {message: 'TypeError: Failed to fetch', details: 'TypeError: Failed to fetch\n    at http://localhost…tp://localhost:3000/static/js/bundle.js:28465:24)', hint: '', code: ''}
+fetchUserData @ index.js:43
+await in fetchUserData
+(anonymous) @ index.js:76
+(anonymous) @ GoTrueClient.ts:2037
+_notifyAllSubscribers @ GoTrueClient.ts:2035
+_recoverAndRefresh @ GoTrueClient.ts:1957
+await in _recoverAndRefresh
+(anonymous) @ GoTrueClient.ts:2307
+(anonymous) @ GoTrueClient.ts:985
+(anonymous) @ locks.ts:107Understand this errorAI
+fetch.ts:15 
+
+   GET https://iwabkphgxgkrgnntssve.supabase.co/rest/v1/users?select=*%2Clocation%3Alocation_id%28*%29%2Chr%3Ahr_id%28*%29%2Cmanager%3Amanager_id%28*%29%2Corganization%3Aorganization_id%28*%29%2Cfeatures%3Arole_type%28feature%29&id=eq.65f17e0b-8c16-45ad-a347-8bf22ae779e6 net::ERR_INTERNET_DISCONNECTED
+(anonymous) @ fetch.ts:15
+(anonymous) @ fetch.ts:46
+fulfilled @ constants.ts:35
+Promise.then
+step @ constants.ts:35
+(anonymous) @ constants.ts:35
+webpack_modules../node_modules/
+@supabase
+/supabase-js/dist/module/lib/fetch.js.__awaiter @ constants.ts:35
+(anonymous) @ fetch.ts:34
+then @ PostgrestBuilder.ts:81Understand this errorAI
+index.js:43 Error fetching user data: {message: 'TypeError: Failed to fetch', details: 'TypeError: Failed to fetch\n    at http://localhost…tp://localhost:3000/static/js/bundle.js:28465:24)', hint: '', code: ''}
+
+offline adding a item
+
+Creating new item
+index.js:251 A6: Saving new item to cache offline: {id: 8154, name: 'Name 8154', email: 'email8154
 @example
-.com', phone: '+91906536380', address: 'Address for 8195', …}
-index.js:256 A7: Cache updated with new item: {pages: Array(1), pageParams: Array(1)}
-index.js:172 F8: allItems: (3) [{…}, {…}, {…}]
-index.js:409 Mutation status for record: 9651 false
-index.js:409 Mutation status for record: 1625 false
-index.js:409 Mutation status for record: 8195 false
-index.js:160 F7: Data updated: {pages: Array(1), pageParams: Array(1)}
-Given these logs, let's analyze both scenarios:
+.com', phone: '+91418717314', address: 'Address for 8154', …}
+index.js:261 A7: Cache updated with new item: {pages: Array(1), pageParams: Array(1)}
+index.js:168 F8: allItems: (5) [{…}, {…}, {…}, {…}, {…}]
+index.js:421 Network Status: false Mutation status for record: 9651 false
+index.js:421 Network Status: false Mutation status for record: 1625 false
+index.js:421 Network Status: false Mutation status for record: 8195 false
+index.js:421 Network Status: false Mutation status for record: 4330 false
+index.js:421 Network Status: false Mutation status for record: 8154 false
+index.js:156 F7: Data updated: {pages: Array(1), pageParams: Array(1)}
+Let's break down what's happening in these scenarios:
 
-While Online:
-Creating and Saving Item: 
-You see logs for adding to mutatingItems (A0), attempting to save to Supabase (A1), and confirming the save (A3).
-The mutation seems to complete successfully (Settling mutation for item: 1625 Error: null).
-Mutation Status: 
-Despite the item being added and saved, the Mutation status for all records, including the new one, remains false. This suggests:
-The styling (optimistic-update) isn't applied because mutatingItems does not contain the new item's ID when rowClassName is evaluated, or 
-isOnline is true, so !isOnline && mutatingItems.includes(record.id) evaluates to false.
-Potential Issues:
-There might be a delay in mutatingItems update reflecting in the UI, or 
-The check mutatingItems.includes(record.id) might not be working as expected due to asynchronous state updates.
+Online Adding an Item:
+Item Creation and Saving:
+The item is added to the cache (A6, A7), and an attempt is made to save it to Supabase (A1).
+mutatingItems is updated to include the new item's ID, which is confirmed by the log Updated mutatingItems: [4330].
+Mutation Status:
+Initially, when the new item (ID: 4330) is added, its mutation status is true because it's in mutatingItems and isOnline is true. This indicates that the logic in rowClassName is working for the moment the mutation is active.
+After the item is successfully saved to Supabase (A3), the mutation status for this item goes to false because it's removed from mutatingItems in the onSettled callback (Removed from mutatingItems: []).
+Observations:
+The behavior here seems correct; the style is applied to the new item while it's being saved and then removed once the mutation is settled.
 
-While Offline:
-Creating Item:
+Going Offline:
+Network Status:
+isOnline correctly updates to false when going offline.
+Mutation Status:
+All records show false for mutation status, which is expected since there's no ongoing mutation when you go offline.
+
+Offline Adding an Item:
+Item Creation:
 The item is added to the cache (A6, A7), but there's no attempt to save to Supabase since you're offline.
 Mutation Status:
-All records, including the new one, show false for mutation status. 
-This indicates that either isOnline is not correctly set to false at the time of rendering or mutatingItems isn't including the new item's ID for some reason at that moment.
-Network Status: 
-You see the network status change to false, which is good, but it doesn't seem to affect the mutation status check.
+All items, including the newly added one, show false for mutation status. This is unexpected because:
+isOnline is false as per your logs (Network Status: false), which should satisfy the condition !isOnline && mutatingItems.includes(record.id) if mutatingItems includes the new item's ID.
+Potential Issues:
+It appears mutatingItems might not be updating or persisting correctly when offline. The new item's ID should be added to mutatingItems when you attempt to create it offline, but it seems this isn't reflecting in the rowClassName check.
 
-Solutions to Consider:
-Check isOnline Timing:
-Ensure that isOnline is false when you're offline and true when online. A delay here could cause issues.
-Review mutatingItems Update:
-Log mutatingItems right after setting it to confirm the ID is added:
+Solutions and Observations:
+Offline Mutation Handling:
+When offline, ensure that mutatingItems is updated to include the ID of the newly added item. You've seen the ID being added when online, but this doesn't seem to happen or persist when offline.
+State Persistence:
+If you're using react-query, make sure your offline mutations are stored in a way that they'll be attempted once you go online. This includes keeping items in mutatingItems until they are successfully synced.
+Check mutatingItems Update Logic:
+Add more logging to confirm mutatingItems is updated when adding an item offline:
 jsx
-setMutatingItems(prev => {
-  const newMutatingItems = [...prev, item.id];
-  console.log('Updated mutatingItems:', newMutatingItems);
-  return newMutatingItems;
-});
-Force Rerender for Mutation State:
-Use useEffect to log or force a rerender when mutatingItems changes:
+mutationFn: async (item) => {
+  setMutatingItems(prev => {
+    const newMutatingItems = [...prev, item.id];
+    console.log('Offline, updated mutatingItems:', newMutatingItems);
+    return newMutatingItems;
+  });
+  // ... rest of the function
+},
+Ensure isOnline is Correctly Used:
+The combination of !isOnline and mutatingItems.includes(record.id) should work, but it's not reflecting here. You might need to review how isOnline affects your component's render.
+Force Rerender:
+If mutatingItems is updating but not causing a rerender, consider using useEffect with mutatingItems as a dependency to trigger a rerender:
 jsx
 useEffect(() => {
-  console.log('mutatingItems updated:', mutatingItems);
+  console.log('mutatingItems changed:', mutatingItems);
 }, [mutatingItems]);
-Adjust rowClassName Logic:
-Simplify or expand the logic to ensure it's correct:
-jsx
-rowClassName={(record) => {
-  console.log('Network Status:', isOnline, 'Mutation status for record:', record.id, mutatingItems.includes(record.id));
-  return !isOnline && mutatingItems.includes(record.id) ? 'optimistic-update' : '';
-}}
-Check for Asynchronous Updates:
-React's state updates can be asynchronous. If setMutatingItems doesn't immediately reflect in the UI, you might need to manage this with a ref or similar to ensure immediate visual feedback.
-Mutation Lifecycle:
-Ensure that both online and offline states are handled correctly in your mutation hooks. Specifically, make sure onSettled only removes items from mutatingItems when appropriate.
+Review Error Handling for Offline Operations:
+The errors for fetching user data indicate you're handling offline scenarios in other parts of your app. Ensure this error handling extends to your item addition logic.
