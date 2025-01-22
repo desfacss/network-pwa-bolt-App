@@ -48,7 +48,7 @@ const Chat2 = () => {
 
         if (newMessage.trim() === '' || !chatId) return
         const message = await addMessage(chatId, session?.user?.user_name, newMessage, session?.user?.id) // Replace with actual client_id and owner_id
-        setMessages([...messages, { name: session?.user?.user_name, message: newMessage }])
+        // setMessages([...messages, { name: session?.user?.user_name, message: newMessage }])
         setNewMessage('')
     };
 

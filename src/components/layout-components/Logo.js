@@ -9,7 +9,7 @@ import { TEMPLATE } from 'constants/ThemeConstant';
 import { store } from 'store';
 
 const state = store.getState();
-const app_name = state?.auth?.session?.user?.organization?.app_settings?.name;
+const workspace = state?.auth?.session?.user?.organization?.app_settings?.workspace || state?.auth?.defaultOrganization?.app_settings?.workspace || 'dev';
 
 const LogoWrapper = styled.div(({ isCollapsed }) => ({
   height: TEMPLATE.HEADER_HEIGHT,
@@ -47,15 +47,15 @@ export const Logo = ({ mobileLogo, logoType }) => {
   const getLogo = () => {
     if (logoType === 'light') {
       if (navCollapsed) {
-        return `/img/${app_name}/light.png`;
+        return `/img/${workspace}/light.png`;
       }
-      return `/img/${app_name}/logo_light.png`;
+      return `/img/${workspace}/logo_light.png`;
     }
 
     if (navCollapsed) {
-      return `/img/${app_name}/dark.png`;
+      return `/img/${workspace}/dark.png`;
     }
-    return `/img/${app_name}/logo_dark.png`;
+    return `/img/${workspace}/logo_dark.png`;
   };
 
   return (
@@ -64,7 +64,7 @@ export const Logo = ({ mobileLogo, logoType }) => {
       isCollapsed={navCollapsed} // Pass navCollapsed as a prop
       style={{ width: `${getLogoWidthGutter()}` }}
     >
-      <img src={getLogo()} alt={`${app_name} logo`} height={isMobile ? '25px' : '25px'} />
+      <img src={getLogo()} alt={`${workspace} logo`} height={isMobile ? '25px' : '25px'} />
     </LogoWrapper>
   );
 };

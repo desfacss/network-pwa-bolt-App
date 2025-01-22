@@ -17,6 +17,7 @@ export const RegisterForm = (props) => {
   const [signIn, setSignIn] = useState(false)
   const [schema, setSchema] = useState();
   const [roles, setRoles] = useState();
+  const [loading, setLoading] = useState(false);
 
   const getForms = async () => {
     const { data, error } = await supabase.from('forms').select('*').eq('name', "user_admin_registration_form").single()
@@ -63,6 +64,7 @@ export const RegisterForm = (props) => {
   const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
   const onFinish = async (values) => {
+    setLoading(true)
     console.log("payload", values)
 
     // let { data, error } = await supabase.auth.admin.inviteUserByEmail('ganeshmr3003@gmail.com')
@@ -85,8 +87,12 @@ export const RegisterForm = (props) => {
       const { data: data2, error: insertError2 } = await supabase.from('organizations').insert([
         {
           auth_id: user_id,
-          name: values?.orgName || "",
-          details: { name: values?.orgName || "" }
+          name: values?.orgName || "Dev",
+          details: { name: values?.orgName || "" },
+          app_settings: {
+            name: values?.orgName?.toLowerCase().replace(/\s+/g, "_") || "dev",
+            workspace: values?.workspace?.toLowerCase() || "dev"
+          }
         },
       ]).select();
       console.log("orgn", data2, insertError2)
@@ -113,7 +119,8 @@ export const RegisterForm = (props) => {
             role_type: values?.role,
             manager_id: user_id,
             hr_id: user_id,
-            role_id: roles?.find(i => i.role_name === values?.role)?.id
+            role_id: roles?.find(i => i.role_name === values?.role)?.id,
+            password_confirmed: true
             // TODO role_id, location_id
           },
         ]);
@@ -153,6 +160,7 @@ export const RegisterForm = (props) => {
         fetchUserData(session);
       }
     });
+    setLoading(false)
   };
 
   // const signOut = async () => {

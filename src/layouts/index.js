@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, memo, useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ConfigProvider } from "antd";
 import Loading from "components/shared-components/Loading";
 import { lightTheme, darkTheme } from "configs/ThemeConfig";
@@ -12,23 +12,30 @@ import { useLocation } from "react-router-dom";
 
 import enGB from 'antd/lib/locale/en_GB';
 import { store } from "store";
-import { setSession } from "store/slices/authSlice";
+import { fetchDefaultOrganization, setSession } from "store/slices/authSlice";
 
 const currentAppLocale = enGB;
 
 const AppLayout = lazy(() => import("./AppLayout"));
 const AuthLayout = lazy(() => import("./AuthLayout"));
 const SurveyLayout = lazy(() => import("./SurveyLayout"));
-
 const Layouts = () => {
+  const dispatch = useDispatch()
   const location = useLocation();
-  const { session } = useSelector((state) => state?.auth);
 
-  const { selectedOrganization, selectedUser } = useSelector((state) => state.auth);
+  const { session, selectedOrganization, selectedUser, defaultOrganization } = useSelector((state) => state.auth);
+  console.log("default org", defaultOrganization)
+  useEffect(() => {
+    // Fetch default organization if no session exists
+    if (!session) {
+      dispatch(fetchDefaultOrganization());
+    }
+
+  }, [session]);
 
   useEffect(() => {
     // Set the title dynamically
-    document.title = session?.user?.organization?.app_settings?.full_name;
+    document.title = session?.user?.organization?.app_settings?.name || process.env.REACT_APP_WORKSPACE || 'dev';
   }, [session]);
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { supabase } from "api/supabaseClient";
 import service from "auth/FetchInterceptor";
 import { AUTH_TOKEN } from "constants/AuthConstant";
 
@@ -11,7 +12,30 @@ export const initialState = {
   session: null,
   selectedOrganization: null,
   selectedUser: null,
+  defaultOrganization: null,
 };
+
+// Async thunk to fetch the default organization where name === 'dev'
+export const fetchDefaultOrganization = createAsyncThunk(
+  "auth/fetchDefaultOrganization",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data, error } = await supabase
+        .from("organizations")
+        .select("*")
+        .eq("app_settings->>workspace", process.env.REACT_APP_WORKSPACE || 'dev')
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
 export const signIn = createAsyncThunk(
   "auth/signIn",
@@ -112,6 +136,17 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchDefaultOrganization.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDefaultOrganization.fulfilled, (state, action) => {
+        state.loading = false;
+        state.defaultOrganization = action.payload;
+      })
+      .addCase(fetchDefaultOrganization.rejected, (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+      })
       .addCase(signIn.pending, (state) => {
         state.loading = true;
       })
