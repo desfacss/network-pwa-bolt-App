@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox } from 'antd';
+import { Table, Button, Dropdown, Menu, Modal, Input, Space, Checkbox, Tag } from 'antd';
 // import { DownOutlined, PlusOutlined, SearchOutlined,FilterOutlined, GroupOutlined } from '@ant-design/icons';
 import { SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutlined, FilterOutlined, GroupOutlined, ExportOutlined } from '@ant-design/icons';
 import DynamicForm from '../DynamicForm';
@@ -246,10 +246,23 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                 }
 
                 const value = getNestedValue(record, fieldConfig?.fieldPath || fieldConfig?.fieldName);
-                // If value is an array, join values with commas
-                Array.isArray(value) && console.log("vl", value)
-                return Array.isArray(value) ? value.join(', ') : value ?? null;
-                // return value !== undefined ? value : null;
+                // If value is an array, render as Tags
+                if (Array.isArray(value)) {
+                    return (
+                        <div>
+                            {value.map((item, index) => (
+                                <Tag key={index} color="blue">{item}</Tag>
+                            ))}
+                        </div>
+                    );
+                } else {
+                    // If value is not an array, render as is
+                    return value ?? null;
+                }
+                // // If value is an array, join values with commas
+                // Array.isArray(value) ? console.log("vl", value, value.join(', ')) : console.log("vw", value)
+                // return Array.isArray(value) ? value.join(', ') : value ?? null;
+                // // return value !== undefined ? value : null;
             },
             ellipsis: true,
         })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns
