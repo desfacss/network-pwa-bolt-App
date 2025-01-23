@@ -176,6 +176,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/ib_members`,
             component: React.lazy(() => import('views/pages/Members')),
         },
+        module_features?.ibMembers && feature?.ibMembers && {
+            key: 'ib_member',
+            path: `${APP_PREFIX_PATH}/ib_members/:user_name`,
+            component: React.lazy(() => import('views/pages/Profile/index')),
+        },
         module_features?.ibChat && feature?.ibChat && {
             key: 'ib_chat',
             path: `${APP_PREFIX_PATH}/networking/:chatId`,

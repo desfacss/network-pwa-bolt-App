@@ -57,22 +57,50 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     });
   };
 
+  // const getNestedValue = (object, path) => {
+  //   if (!object || !path) return undefined;
+
+  //   const keys = path?.split('-');
+
+  //   return keys.reduce((value, key) => {
+  //     if (!value) return undefined;
+
+  //     // If `value` is an array, map over it and extract the next key
+  //     if (Array.isArray(value)) {
+  //       return value?.map(item => item[key]).filter(Boolean); // Remove undefined values
+  //     }
+
+  //     return value[key];
+  //   }, object);
+  // };
+
   const getNestedValue = (object, path) => {
     if (!object || !path) return undefined;
 
     const keys = path?.split('-');
 
-    return keys.reduce((value, key) => {
-      if (!value) return undefined;
+    return keys.reduce((result, key, index) => {
+      if (!result) return undefined;
 
-      // If `value` is an array, map over it and extract the next key
-      if (Array.isArray(value)) {
-        return value?.map(item => item[key]).filter(Boolean); // Remove undefined values
+      // If `result` is an array, map over it and extract the next key
+      if (Array.isArray(result)) {
+        return result.map(item => ({
+          value: item[key],
+          id: item.id, // Include the id from the object
+        })).filter(Boolean); // Remove undefined values
       }
 
-      return value[key];
+      const value = result[key];
+
+      // Return the value and id if it's the last key
+      if (index === keys.length - 1) {
+        return { value, id: result.id };
+      }
+
+      return value;
     }, object);
   };
+
 
   // Get nested field value
   const getFieldValue = (record, fieldConfig) => {
@@ -88,65 +116,138 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     return value;
   };
 
-  // Render field based on config
-  const renderField = (record, fieldConfig) => {
-    // console.log("Rendering field for record:", record, "with fieldConfig:", fieldConfig);
-    // const value = getFieldValue(record, fieldConfig);
-    const value = getNestedValue(record, fieldConfig?.fieldPath || fieldConfig?.fieldName);
-    const { style = {} } = fieldConfig;
+  // // Render field based on config
+  // const renderField = (record, fieldConfig) => {
+  //   // console.log("Rendering field for record:", record, "with fieldConfig:", fieldConfig);
+  //   // const value = getFieldValue(record, fieldConfig);
+  //   const item = getNestedValue(record, fieldConfig?.fieldPath || fieldConfig?.fieldName);
+  //   const { style = {} } = fieldConfig;
+  //   // console.log("link", item)
+  //   // Handle icon
+  //   const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
 
-    // Handle icon
+  //   // Handle different style renderers
+  //   if (style?.render === 'tag' && Array.isArray(item)) {
+  //     console.log("Rendering tags for item:", item);
+  //     return (
+  //       <Space wrap>
+  //         {item?.map((tag, index) => (
+  //           <Tag
+  //             key={index}
+  //             onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag?.value}`)}
+  //             color={style?.colorMapping?.[tag?.value?.toLowerCase()] || 'default'}
+  //           >
+  //             {tag?.value}
+  //           </Tag>
+  //         ))}
+  //       </Space>
+  //     );
+  //   }
+
+  //   if (style.badge) {
+  //     console.log("Rendering badge for item:", item);
+  //     return (
+  //       <Badge
+  //         status={style.color?.[item?.value?.toLowerCase()] || 'default'}
+  //         text={item?.value}
+  //       />
+  //     );
+  //   }
+
+  //   // Basic text rendering with styles
+  //   const content = (
+  //     <Text
+  //       style={{
+  //         ...style,
+  //         display: 'block',
+  //         whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
+  //         overflow: style?.ellipsis ? 'hidden' : 'visible',
+  //         textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
+  //       }}
+  //     >
+  //       {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
+  //       {fieldConfig?.label && `${fieldConfig?.fieldName}: `}
+  //       {item?.value}
+  //     </Text>
+  //   );
+  //   // const param = fieldConfig?.linkParam ? item.toLowerCase().replace(/\s+/g, '_') : record?.id
+  //   const param = item?.value
+  //   fieldConfig?.link && console.log("link", item)//, `/app${fieldConfig?.link}${param}`)
+  //   // Wrap with link if specified
+  //   return fieldConfig?.link ? (
+  //     <a onClick={() => navigate(`/app${fieldConfig?.link}${param}`)}>{content}</a>
+  //   ) : content;
+  // };
+
+  const renderField = (record, fieldConfig) => {
+    const item = getNestedValue(record, fieldConfig?.fieldPath || fieldConfig?.fieldName);
+    const { style = {} } = fieldConfig;
     const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
 
-    // Handle different style renderers
-    if (style?.render === 'tag' && Array.isArray(value)) {
-      console.log("Rendering tags for value:", value);
+    if (!item) return null; // Handle undefined/null values
+
+    // 🟢 Define a reusable function to wrap content with a link
+    const wrapWithLink = (content, paramValue) => {
+      if (!fieldConfig?.link) return content;
+
+      const param = paramValue[fieldConfig?.linkParam || 'value']//?.toLowerCase().replace(/\s+/g, "_"); // Format for URL
+      console.log("Navigating to:", `/app${fieldConfig?.link}${param}`);
+
+      return <a onClick={() => navigate(`/app${fieldConfig?.link}${param}`)}>{content}</a>;
+    };
+
+    // 🔹 Render tags
+    if (style?.render === "tag" && Array.isArray(item)) {
       return (
         <Space wrap>
-          {value?.map((tag, index) => (
-            <Tag
-              key={index}
-              color={style?.colorMapping?.[tag.toLowerCase()] || 'default'}
-            >
-              {tag}
-            </Tag>
-          ))}
+          {item.map((tag, index) =>
+            wrapWithLink(
+              <Tag
+                key={index}
+                color={style?.colorMapping?.[tag?.value?.toLowerCase()] || "default"}
+                style={{ cursor: fieldConfig?.link ? "pointer" : "default" }}
+              >
+                {tag?.value}
+              </Tag>,
+              tag
+            )
+          )}
         </Space>
       );
     }
 
-    if (style.badge) {
-      console.log("Rendering badge for value:", value);
-      return (
+    // 🔹 Render badges
+    if (style?.badge) {
+      return wrapWithLink(
         <Badge
-          status={style.color?.[value?.toLowerCase()] || 'default'}
-          text={value}
-        />
+          status={style.color?.[item?.value?.toLowerCase()] || "default"}
+          text={item?.value}
+        />,
+        item
       );
     }
 
-    // Basic text rendering with styles
+    // 🔹 Render basic text field
     const content = (
       <Text
         style={{
           ...style,
-          display: 'block',
-          whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
-          overflow: style?.ellipsis ? 'hidden' : 'visible',
-          textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
+          display: "block",
+          whiteSpace: style?.ellipsis ? "nowrap" : "normal",
+          overflow: style?.ellipsis ? "hidden" : "visible",
+          textOverflow: style?.ellipsis ? "ellipsis" : "clip",
+          cursor: fieldConfig?.link ? "pointer" : "default",
         }}
       >
         {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
         {fieldConfig?.label && `${fieldConfig?.fieldName}: `}
-        {value}
+        {item?.value}
       </Text>
     );
 
-    // Wrap with link if specified
-    return fieldConfig?.link ? (
-      <a onClick={() => navigate(`/app${gridViewConfig?.viewLink}${record?.id}`)}>{content}</a>
-    ) : content;
+    return wrapWithLink(content, item);
   };
+
 
   // Filter data based on search
   const filteredData = useMemo(() => {
@@ -159,7 +260,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       gridViewConfig?.fields?.some(field => {
         // const value = getFieldValue(item, field);
         const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
-        const value = Array.isArray(value1) ? value1.join(', ') : value1 ?? null;
+        const value = Array.isArray(value1) ? value1?.map(item => item.value)?.join(', ') : value1 ?? null;
         return String(value).toLowerCase().includes(searchText?.toLowerCase());
       })
     );

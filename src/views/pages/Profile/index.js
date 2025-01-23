@@ -6,19 +6,48 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
 // import FileUpload from './FileUpload';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const Profile = () => {
+    const { user_name } = useParams();
+    const navigate = useNavigate();
+    const { session } = useSelector((state) => state.auth);
+
     const [schema, setSchema] = useState();
     const [formData, setFormData] = useState();
     const [edit, setEdit] = useState(false);
     const [updateId, setUpdateId] = useState();
     const [profileFields, setProfileFields] = useState([]);
+    const [userData, setUserData] = useState(session?.user);
 
-    const navigate = useNavigate();
-    const { session } = useSelector((state) => state.auth);
 
-    const userData = session?.user
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const userName = decodeURIComponent(user_name) || session?.user?.user_name; // Use route ID if available, otherwise use logged-in user
+            if (!userName) return;
+
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('user_name', userName)
+                .single();
+
+            if (error) {
+                console.error("Error fetching user data:", error);
+            } else {
+                setUserData(data);
+            }
+        };
+        if (user_name) {
+            fetchUserData();
+        }
+        // else {
+        //     setUserData(session?.user)
+        // }
+    }, [user_name, session]);
+
+
+    // const userData = session?.user
     const organization = userData?.organization?.app_settings?.workspace || 'dev'
 
 
@@ -43,7 +72,6 @@ const Profile = () => {
         }
     }, [organization]);
 
-    if (!userData) return null;
 
     const { details } = userData;
 
@@ -124,6 +152,8 @@ const Profile = () => {
         ));
     };
 
+    if (!userData) return null;
+
     return (
         <Card>
             {(edit && schema) && <Modal footer={null}
@@ -147,9 +177,13 @@ const Profile = () => {
                     }}
                 >
                     <span className='mr-2'>Personal Info</span>
-                    <Button className='mr-5' icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
-                    </Button>
-                    <ChangePassword />
+                    {session?.user?.id === userData?.id &&
+                        <>
+                            <Button className='mr-5' icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
+                            </Button>
+                            <ChangePassword />
+                        </>
+                    }
                 </div>
             }
             >
