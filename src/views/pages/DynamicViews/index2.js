@@ -117,11 +117,11 @@ const Index = ({ entityType, addEditFunction, setCallFetch }) => {
         setIsDrawerVisible(false);
         setEditItem(null);
     };
-    useEffect(() => {
-        if (setCallFetch && typeof setCallFetch === "function") {
-            setCallFetch(() => fetchData);
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (setCallFetch && typeof setCallFetch === "function") {
+    //         setCallFetch(() => fetchData);
+    //     }
+    // }, []);
     // useEffect(() => {
     //     const handleFullscreenChange = () => {
     //         setIsFullscreen(!!document.fullscreenElement);
@@ -289,6 +289,9 @@ const Index = ({ entityType, addEditFunction, setCallFetch }) => {
     useEffect(() => {
         if (viewConfig) {
             fetchData();
+            if (setCallFetch && typeof setCallFetch === "function") {
+                setCallFetch(() => fetchData);
+            }
         }
     }, [viewConfig]);
 
