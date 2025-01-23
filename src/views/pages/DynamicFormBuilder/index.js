@@ -5,7 +5,7 @@ import { widgetConfigs } from './widgets';
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 import { supabase } from 'api/supabaseClient';
-// import { QueryFilter } from './QueryBuilder';
+import { QueryFilter } from './QueryBuilder';
 // import { QueryFilter } from './QueryBuilderStatic';
 
 const FormBuilder = () => {
@@ -287,7 +287,7 @@ const FormBuilder = () => {
   }, []);
 
   return (<div className="space-y-6">
-    {/* <QueryFilter /> */}
+    <QueryFilter />
     <Row gutter={16}>
       <Col span={8}>
         <Row gutter={4}>

@@ -92,8 +92,8 @@ const GanttChart = ({ data, onFinish, openDrawer, deleteData, viewConfig }) => {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     {/* Bulk Actions */}
                     {[
-                        ...(dynamicBulkActions || []),
-                        ...viewConfig?.tableview?.bulkActions//?.filter(action => !action.includes("add_new_"))
+                        ...viewConfig?.tableview?.actions?.bulk//?.filter(action => !action.includes("add_new_"))
+                        //...(dynamicBulkActions || []),
                     ].map((action) => (
                         <Button
                             key={action}

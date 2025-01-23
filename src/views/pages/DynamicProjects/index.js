@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, notification, Tabs } from 'antd';
+import { Button, Card, Drawer, notification, Tabs } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
@@ -22,6 +22,7 @@ import ExportImportButtons from '../DynamicViews/CSVOptions';
 
 import SchedularView from '../DynamicViews/SchedularView';
 import ScheduleView from '../DynamicViews/ScheduleView';
+import DynamicForm from '../DynamicForm';
 
 const entityType = 'y_projects'
 
@@ -334,6 +335,19 @@ const Index = () => {
                 console.error('Error:', error);
             }
         }
+    };
+
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+    const [editItem, setEditItem] = useState(null);
+
+    const openDrawer = (item = null) => {
+        setEditItem(item);
+        setIsDrawerVisible(true);
+    };
+
+    const closeDrawer = () => {
+        setIsDrawerVisible(false);
+        setEditItem(null);
     };
 
     const tabItems = [];

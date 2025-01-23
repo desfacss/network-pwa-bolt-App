@@ -246,8 +246,8 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     {/* Bulk Actions */}
                     {[
-                        ...(dynamicBulkActions || []),
-                        ...viewConfig?.tableview?.bulkActions//?.filter(action => !action.includes("add_new_"))
+                        ...viewConfig?.tableview?.actions?.bulk//?.filter(action => !action.includes("add_new_"))
+                        // ...(dynamicBulkActions || []), 
                     ].map((action) => (
                         <Button
                             key={action}
@@ -256,9 +256,9 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                             onClick={() => handleBulkAction(action)}
                         >
                             {action
-                                .split('_')
-                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                .join(' ')}
+                                ?.split('_')
+                                ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                ?.join(' ')}
                         </Button>
                     ))}
 

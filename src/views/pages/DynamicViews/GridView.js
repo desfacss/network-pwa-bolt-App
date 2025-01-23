@@ -13,6 +13,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   const { session } = useSelector((state) => state.auth);
   //   console.log('View Config:', viewConfig);
   const gridViewConfig = viewConfig?.gridview;
+  const { showFeatures, exportOptions, globalSearch, groupBy, viewLink } = viewConfig?.gridview;
 
   // Extract layout config
   const {
@@ -333,21 +334,111 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     );
   };
 
+  const handleBulkAction = (action) => {
+    if (action.includes("add_")) {
+      openDrawer();
+    } else {
+      console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
+    }
+  };
+  console.log("blk", viewConfig?.gridview?.actions?.bulk)
+  const dynamicBulkActions = viewConfig?.gridview?.actions?.bulk?.filter(action =>
+    action?.includes("add_")
+  );
 
   return (
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
-      {/* Header with search and actions */}
-      {gridViewConfig.showFeatures?.includes('search') && (
-        <Space style={{ marginBottom: spacing }}>
-          {/* <Space style={{ marginBottom: gridViewConfig.layout.spacing }}> */}
-          <Input
-            placeholder="Search"
-            prefix={<SearchOutlined />}
-            value={searchText}
-            onChange={e => setSearchText(e.target.value)}
-          />
-        </Space>
-      )}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
+
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+          {gridViewConfig.showFeatures?.includes('search') && (
+            <Space style={{ marginBottom: spacing }}>
+              {/* <Space style={{ marginBottom: gridViewConfig.layout.spacing }}> */}
+              <Input
+                placeholder="Search"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={e => setSearchText(e.target.value)}
+              />
+            </Space>
+          )}
+          {/* {showFeatures.includes('columnVisibility') && <Dropdown overlay={columnVisibilityMenu} trigger={['click']}>
+            <Button icon={<FilterOutlined />} style={{ marginRight: 8 }} />
+          </Dropdown>}
+
+          {groupBy?.length > 0 && (
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item key="none" onClick={() => handleGroupByChange(null)}>
+                    None
+                  </Menu.Item>
+                  {viewConfig?.tableview?.groupBy?.map((field) => (
+                    <Menu.Item key={field} onClick={() => handleGroupByChange(field)}>
+                      {`Group by ${field}`}
+                    </Menu.Item>
+                  ))}
+                </Menu>
+              }
+              trigger={['click']}
+            >
+              <Button icon={<GroupOutlined />} style={{ marginLeft: 8 }} />
+            </Dropdown>
+          )}
+
+          {showFeatures.includes('basicSearch') && <Space style={{ marginLeft: 16 }}>
+            <Input
+              placeholder="Search"
+              value={searchText}
+              onChange={handleSearchChange}
+              prefix={<SearchOutlined />}
+              style={{ width: 200 }}
+            />
+          </Space>} */}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {[
+            // ...(dynamicBulkActions || []),
+            ...viewConfig?.gridview?.actions?.bulk//?.filter(action => !action.includes("add_new_")) 
+          ].map((action) => (
+            <Button
+              key={action}
+              type="primary"
+              style={{ marginRight: 8 }}
+              onClick={() => handleBulkAction(action)}
+            >
+              {action
+                ?.split('_')
+                ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                ?.join(' ')}
+            </Button>
+          ))}
+
+          {/* {exportOptions?.length > 0 && (
+            <Dropdown
+              overlay={
+                <Menu>
+                  {exportOptions.includes('csv') && (
+                    <Menu.Item key="csv" onClick={() => handleExport('CSV')}>
+                      Export to CSV
+                    </Menu.Item>
+                  )}
+                  {exportOptions.includes('pdf') && (
+                    <Menu.Item key="pdf" onClick={() => handleExport('PDF')}>
+                      Export to PDF
+                    </Menu.Item>
+                  )}
+                </Menu>
+              }
+              trigger={['click']}
+            >
+              <Button icon={<ExportOutlined />} style={{ marginLeft: 8 }} />
+            </Dropdown>
+          )} */}
+
+        </div>
+      </div>
 
       {/* Grid Layout */}
       <Row gutter={[gridViewConfig?.layout?.spacing, gridViewConfig?.layout?.spacing]}>

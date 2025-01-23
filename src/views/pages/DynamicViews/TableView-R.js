@@ -27,7 +27,7 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     const [visibleColumns, setVisibleColumns] = useState(viewConfig?.tableview?.fields?.map(field => field?.fieldName));
     const [selectedGroupBy, setSelectedGroupBy] = useState(null);
 
-    const { showFeatures, exportOptions, globalSearch, groupBy, viewLink } = viewConfig?.tableview;
+    const { showFeatures, exportOptions, globalSearch, groupBy, viewLink, fields } = viewConfig?.tableview;
 
     const navigate = useNavigate();
 
@@ -95,14 +95,14 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
         setSearchText(e.target.value);
     };
 
-    const filteredData = useMemo(() => {
-        if (!searchText) return data;
-        return data.filter((item) => {
-            return Object.values(item).some((value) =>
-                String(value).toLowerCase().includes(searchText.toLowerCase())
-            );
-        });
-    }, [data, searchText]);
+    // const filteredData = useMemo(() => {
+    //     if (!searchText) return data;
+    //     return data.filter((item) => {
+    //         return Object.values(item).some((value) =>
+    //             String(value).toLowerCase().includes(searchText.toLowerCase())
+    //         );
+    //     });
+    // }, [data, searchText]);
 
     // const columns = useMemo(() => {
     //     return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
@@ -180,17 +180,27 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     const getNestedValue = (object, path) => {
         if (!object || !path) return undefined;
 
-        const keys = path.split('-');
+        const keys = path?.split('-');
 
-        return keys.reduce((value, key) => {
-            if (!value) return undefined;
+        return keys.reduce((result, key, index) => {
+            if (!result) return undefined;
 
-            // If `value` is an array, map over it and extract the next key
-            if (Array.isArray(value)) {
-                return value.map(item => item[key]).filter(Boolean); // Remove undefined values
+            // If `result` is an array, map over it and extract the next key
+            if (Array.isArray(result)) {
+                return result.map(item => ({
+                    value: item[key],
+                    id: item.id, // Include the id from the object
+                })).filter(Boolean); // Remove undefined values
             }
 
-            return value[key];
+            const value = result[key];
+
+            // Return the value and id if it's the last key
+            if (index === keys.length - 1) {
+                return { value, id: result.id };
+            }
+
+            return value;
         }, object);
     };
 
@@ -225,6 +235,24 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
         return snakeCaseToTitleCase(cleanFieldName);
     };
 
+    const filteredData = useMemo(() => {
+        console.log("Filtering data with searchText:", searchText);
+        if (!searchText) {
+            console.log("No searchText, returning full data.");
+            return data;
+        }
+        const filtered = data?.filter(item =>
+            fields?.some(field => {
+                // const value = getFieldValue(item, field);
+                const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
+                const value = Array.isArray(value1) ? value1?.map(item => item.value)?.join(', ') : value1 ?? null;
+                return String(value).toLowerCase().includes(searchText?.toLowerCase());
+            })
+        );
+        console.log("Filtered Data:", filtered);
+        return filtered;
+    }, [data, searchText, fields]);
+
 
     const columns = useMemo(() => {
         return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
@@ -251,13 +279,13 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                     return (
                         <div>
                             {value.map((item, index) => (
-                                <Tag key={index} color="blue">{item}</Tag>
+                                <Tag key={index} color="blue">{item?.value}</Tag>
                             ))}
                         </div>
                     );
                 } else {
                     // If value is not an array, render as is
-                    return value ?? null;
+                    return value?.value ?? null;
                 }
                 // // If value is an array, join values with commas
                 // Array.isArray(value) ? console.log("vl", value, value.join(', ')) : console.log("vw", value)
@@ -383,7 +411,7 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                     )}
 
                     {/* Search Bar */}
-                    {showFeatures.includes('basicSearch') && <Space style={{ marginLeft: 16 }}>
+                    {/* {showFeatures.includes('basicSearch') && <Space style={{ marginLeft: 16 }}>
                         <Input
                             placeholder="Search"
                             value={searchText}
@@ -391,15 +419,26 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                             prefix={<SearchOutlined />}
                             style={{ width: 200 }}
                         />
-                    </Space>}
+                    </Space>} */}
+                    {viewConfig?.tableview.showFeatures?.includes('search') && (
+                        <Space >
+                            {/* <Space style={{ marginBottom: gridViewConfig.layout.spacing }}> */}
+                            <Input
+                                placeholder="Search"
+                                prefix={<SearchOutlined />}
+                                value={searchText}
+                                onChange={e => setSearchText(e.target.value)}
+                            />
+                        </Space>
+                    )}
                 </div>
 
                 {/* Right Section */}
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     {/* Bulk Actions */}
                     {[
-                        ...(dynamicBulkActions || []),
-                        ...viewConfig?.tableview?.bulkActions//?.filter(action => !action.includes("add_new_"))
+                        ...viewConfig?.tableview?.actions?.bulk//?.filter(action => !action.includes("add_new_"))
+                        // ...(dynamicBulkActions || []), 
                     ].map((action) => (
                         <Button
                             key={action}
