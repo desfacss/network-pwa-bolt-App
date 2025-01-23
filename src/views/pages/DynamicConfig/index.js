@@ -7,8 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from 'configs/SupabaseConfig'; // Import Supabase client
 import TableViewConfig from './TableViewConfig'; // Import the TableViewConfig component
 // import CrudTableConfig from './FormSchema';
-import Status from './Status';
+// import Status from './Status';
 import CrudTableConfig from './Forms';
+import MasterObject from './MasterObject';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -18,7 +19,7 @@ const YViewConfigManager = () => {
   const [selectedConfig, setSelectedConfig] = useState(null); // Current row to edit or add
   const [workflowConfigurations, setWorkflowConfigurations] = useState([]);
   const [selectedWorkflowConfiguration, setSelectedWorkflowConfiguration] = useState(null);
-  const [activeTab, setActiveTab] = useState('tableview'); // Active tab
+  const [activeTab, setActiveTab] = useState('master_object'); // Active tab
   const [dropdownOptions, setDropdownOptions] = useState([]); // Dropdown options for entity_type
   const [selectedRow, setSelectedRow] = useState(null); // Selected row from dropdown
   const [availableColumns, setAvailableColumns] = useState([]); // Available columns for the selected table
@@ -155,6 +156,7 @@ const YViewConfigManager = () => {
       columnname: fieldName,
     }))
 
+
     if (viewName === 'tableview') {
       return (
         <TableViewConfig
@@ -180,10 +182,42 @@ const YViewConfigManager = () => {
     );
   };
 
+  const handleFetchTable = async () => {
+    try {
+      const { data, error } = await supabase.from('y_view_config').select('*').eq('entity_type', selectedRow);
+      if (error) {
+        message.error(error?.message || 'Failed to fetch configurations');
+      } else {
+        if (data.length > 0) {
+          setSelectedConfig(data[0]);
+          setSelectedWorkflowConfiguration(workflowConfigurations.find(config => config.name === data[0].entity_type) || null);
+        } else {
+          setSelectedConfig({ entity_type: selectedRow }); // New configuration for a new table
+          setSelectedWorkflowConfiguration(null);
+        }
+      }
+    } catch (err) {
+      console.error("Error Fetching Config:", err);
+      message.error('An error occurred while fetching the configuration');
+    }
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>View Config Manager</h1>
       <div style={{ marginBottom: '20px' }}>
+        <Input
+          placeholder="Enter table name"
+          style={{ width: '60%', marginRight: '10px' }}
+          value={selectedRow}
+          onChange={(e) => setSelectedRow(e.target.value)}
+        />
+        <Button
+          type="primary"
+          onClick={handleFetchTable}
+        >
+          Fetch
+        </Button>
         <Select
           placeholder="Select existing row"
           style={{ width: '60%', marginRight: '10px' }}
@@ -241,7 +275,7 @@ const YViewConfigManager = () => {
           value={selectedRow}
         >
           {configs.map((config) => (
-            <Option key={config.id} value={config.id}>
+            <Option key={config.id} value={config.entity_type}>
               {config.entity_type}
             </Option>
           ))}
@@ -261,21 +295,18 @@ const YViewConfigManager = () => {
       </div>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
-        <TabPane tab="Fields" key="fields">
+        <TabPane tab="Master object" key="master_object">
+          <MasterObject entityType={selectedRow} />
+        </TabPane>
+        {/* <TabPane tab="Fields" key="fields">
           <CrudTableConfig jsonSchema={selectedConfig?.master_data_schema || {}} onSave={handleSave} />
-          {/* <CrudTableConfig initialData={selectedConfig?.form_schema || {}}
+          <CrudTableConfig initialData={selectedConfig?.form_schema || {}}
             onSave={(updatedData) => {
               const updatedConfig = { ...selectedConfig, form_schema: updatedData };
               handleSave('form_schema', updatedData);
-            }} /> */}
-        </TabPane>
-        <TabPane tab="Type" key="type">
-          {/* <Status /> */}
-        </TabPane>
-        <TabPane tab="Status rules" key="status_rules">
-          <Status />
-        </TabPane>
-        <TabPane tab="Kanban View" key="kanbanview">
+            }} />
+        </TabPane> */}
+        {/* <TabPane tab="Kanban View" key="kanbanview">
           {renderTabContent('kanbanview')}
         </TabPane>
         <TabPane tab="Table View" key="tableview">
@@ -289,7 +320,13 @@ const YViewConfigManager = () => {
         </TabPane>
         <TabPane tab="Form View" key="formview">
           {renderTabContent('formview')}
-        </TabPane>
+        </TabPane> */}
+        {/* <TabPane tab="Type" key="type">
+          <Status />
+        </TabPane> */}
+        {/* <TabPane tab="Status rules" key="status_rules">
+          <Status />
+        </TabPane> */}
       </Tabs>
     </div>
   );
