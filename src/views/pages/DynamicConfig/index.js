@@ -10,6 +10,7 @@ import TableViewConfig from './TableViewConfig'; // Import the TableViewConfig c
 // import Status from './Status';
 import CrudTableConfig from './Forms';
 import MasterObject from './MasterObject';
+import QueryBuilderComponent from './QueryBuilder';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -297,6 +298,9 @@ const YViewConfigManager = () => {
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="Master object" key="master_object">
           <MasterObject entityType={selectedRow} />
+        </TabPane>
+        <TabPane tab="Query Builder" key="query_builder">
+          <QueryBuilderComponent entityType={selectedRow} />
         </TabPane>
         {/* <TabPane tab="Fields" key="fields">
           <CrudTableConfig jsonSchema={selectedConfig?.master_data_schema || {}} onSave={handleSave} />
