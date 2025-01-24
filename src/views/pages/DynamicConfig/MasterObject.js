@@ -108,12 +108,12 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             dataIndex: 'key',
             key: 'key',
             render: (text, record) => {
-                const isUpdated = masterObject[record.key] && masterObject[record.key].type !== record.type;
-                const isNew = !masterObject[record.key];
+                const isUpdated = masterObject && masterObject[record?.key] && masterObject[record?.key]?.type !== record?.type;
+                const isNew = masterObject && !masterObject[record?.key];
                 const rowStyle = isUpdated ? { backgroundColor: 'lightgreen' } : isNew ? { backgroundColor: 'lightpink' } : {};
                 return (
                     <span style={rowStyle}>
-                        {text} ({record.type})
+                        {text} ({record?.type})
                     </span>
                 );
             },
@@ -123,8 +123,8 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             dataIndex: ['type'],
             key: 'type',
             render: (_, record) => {
-                const isUpdated = masterObject[record.key] && masterObject[record.key].type !== record.type;
-                const isNew = !masterObject[record.key];
+                const isUpdated = masterObject && masterObject[record.key] && masterObject[record?.key]?.type !== record?.type;
+                const isNew = masterObject && !masterObject[record.key];
                 const rowStyle = isUpdated ? { backgroundColor: 'lightgreen' } : isNew ? { backgroundColor: 'lightpink' } : {};
 
                 return (
@@ -140,8 +140,8 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                             </Tooltip>
                         )}
                         <Form.Item name={[record.key, 'type']} noStyle>
-                            <Select style={{ width: '100%' }} defaultValue={masterObject[record.key]?.type || record.type}>
-                                {dataTypeOptions.map(type => (
+                            <Select style={{ width: '100%' }} defaultValue={masterObject && masterObject[record?.key]?.type || record?.type}>
+                                {dataTypeOptions?.map(type => (
                                     <Option key={type} value={type}>{type}</Option>
                                 ))}
                             </Select>
@@ -156,7 +156,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             key: 'source_table',
             render: (_, record) => (
                 <Form.Item name={[record.key, 'source_table']} noStyle>
-                    <Input placeholder="Source Table" defaultValue={masterObject[record.key]?.foreign_key?.source_table || record.foreign_key?.source_table || record.potential_fk?.source_table || ''} />
+                    <Input placeholder="Source Table" defaultValue={masterObject && masterObject[record?.key]?.foreign_key?.source_table || record?.foreign_key?.source_table || record?.potential_fk?.source_table || ''} />
                 </Form.Item>
             )
         },
@@ -166,7 +166,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             key: 'source_column',
             render: (_, record) => (
                 <Form.Item name={[record.key, 'source_column']} noStyle>
-                    <Input placeholder="Source Column" defaultValue={masterObject[record.key]?.foreign_key?.source_column || record.foreign_key?.source_column || record.potential_fk?.source_column || ''} />
+                    <Input placeholder="Source Column" defaultValue={masterObject && masterObject[record?.key]?.foreign_key?.source_column || record?.foreign_key?.source_column || record?.potential_fk?.source_column || ''} />
                 </Form.Item>
             )
         },
@@ -176,7 +176,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             key: 'display_column',
             render: (_, record) => (
                 <Form.Item name={[record.key, 'display_column']} noStyle>
-                    <Input placeholder="Display Column" defaultValue={masterObject[record.key]?.foreign_key?.display_column || record.foreign_key?.display_column || record.potential_fk?.display_column || ''} />
+                    <Input placeholder="Display Column" defaultValue={masterObject && masterObject[record.key]?.foreign_key?.display_column || record?.foreign_key?.display_column || record?.potential_fk?.display_column || ''} />
                 </Form.Item>
             )
         }
