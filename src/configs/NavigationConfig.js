@@ -101,6 +101,14 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
+      module_features?.survey && feature?.survey && {
+        key: 'survey',
+        path: `${APP_PREFIX_PATH}/survey`,
+        title: 'Survey',
+        icon: UserOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
       {
         key: 'blank',
         path: `#`,

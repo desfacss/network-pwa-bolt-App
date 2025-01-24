@@ -89,6 +89,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/settings`,
             component: React.lazy(() => import('views/pages/Settings')),
         },
+        module_features?.survey && feature?.survey && {
+            key: 'survey',
+            path: `${APP_PREFIX_PATH}/survey`,
+            component: React.lazy(() => import('views/pages/Survey')),
+        },
         {
             key: 'profile',
             path: `${APP_PREFIX_PATH}/profile`,

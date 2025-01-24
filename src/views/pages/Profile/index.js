@@ -76,7 +76,8 @@ const Profile = () => {
     const { details } = userData;
 
     const getForms = async (formName) => {
-        const { data, error } = await supabase.from('forms').select('*').eq('name', formName).single()
+        const { data, error } = await supabase.from('forms').select('*').eq('name', formName)
+            .eq('organization_id', session?.user?.organization_id).single()
         if (data) {
             // console.log(data)
             setSchema(data)
@@ -92,18 +93,38 @@ const Profile = () => {
 
     const onFinish = async (values) => {
         // console.log("payload", values, formData);
-        const { data, error } = await supabase.from('users')
+        const user_name = values?.firstName + " " + values?.lastName;
+
+        // Update users table
+        const { data: userData, error: userError } = await supabase.from('users')
             .update({
                 role_type: values?.role_type,
-                user_name: values?.firstName + " " + values?.lastName,
-                details: { ...values, user_name: values?.firstName + " " + values?.lastName },
+                user_name: user_name,
+                details: { ...values, user_name: user_name },
             })
             .eq('id', session?.user?.id);
 
-        if (error) {
-            console.log("Error", error.message);
+        if (userError) {
+            console.log("Error updating users table:", userError.message);
             return;
         }
+
+        // Update ib_members table
+        const { data: memberData, error: memberError } = await supabase.from('ib_members')
+            .update({
+                // Assuming 'user_id' is the foreign key to match with 'users.id'
+                user_id: session?.user?.id,
+                short_name: user_name, // Assuming you want to set short_name similar to user_name
+                details: { ...values, user_name: user_name }, // Adjust fields as per ib_members schema
+                // Add other fields from 'values' that should be in ib_members if applicable
+            })
+            .eq('user_id', session?.user?.id);
+
+        if (memberError) {
+            console.log("Error updating ib_members table:", memberError.message);
+            // Optionally, you might want to handle or rollback if this update fails
+        }
+
         setEdit(false);
 
         navigate(0);
