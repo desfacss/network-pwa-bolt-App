@@ -5,9 +5,9 @@ import { supabase } from 'api/supabaseClient';
 
 const { Option } = Select;
 
-const MasterObject = ({ entityType }) => {
+const MasterObject = ({ entityType, masterObjectInit }) => {
     const [columns, setColumns] = useState([]);
-    const [masterObject, setMasterObject] = useState({});
+    const [masterObject, setMasterObject] = useState(masterObjectInit);
     const [loading, setLoading] = useState(true);
     const [form] = Form.useForm();
 
@@ -16,18 +16,18 @@ const MasterObject = ({ entityType }) => {
             try {
                 const columnsResponse = await supabase.rpc('get_columns_v17', { tablename: entityType });
                 console.log('Data from get_columns_v17:', columnsResponse.data);
-                const masterObjectResponse = await supabase
-                    .from('y_view_config')
-                    .select('master_object')
-                    .eq('entity_type', entityType)
-                    .single();
-                console.log('Data from master_object:', masterObjectResponse.data);
+                // const masterObjectResponse = await supabase
+                //     .from('y_view_config')
+                //     .select('master_object')
+                //     .eq('entity_type', entityType)
+                //     .single();
+                // console.log('Data from master_object:', masterObjectResponse.data);
+                // if (masterObjectResponse.error) throw masterObjectResponse.error;
 
                 if (columnsResponse.error) throw columnsResponse.error;
-                if (masterObjectResponse.error) throw masterObjectResponse.error;
 
                 setColumns(columnsResponse.data || []);
-                setMasterObject(masterObjectResponse.data?.master_object || {});
+                // setMasterObject(masterObjectResponse.data?.master_object || {});
 
                 // Set form initial values based on existing data
                 const initialValues = columnsResponse.data.reduce((acc, col) => {
@@ -87,7 +87,7 @@ const MasterObject = ({ entityType }) => {
             }
 
             message.success('Configuration saved successfully!');
-            setMasterObject(masterObjectData.reduce((acc, obj) => ({...acc, [obj.key]: obj}), {}));
+            setMasterObject(masterObjectData.reduce((acc, obj) => ({ ...acc, [obj.key]: obj }), {}));
         } catch (error) {
             console.error('Error in onFinish:', error);
             message.error('Failed to save configuration: ' + error.message);
@@ -126,7 +126,7 @@ const MasterObject = ({ entityType }) => {
                 const isUpdated = masterObject[record.key] && masterObject[record.key].type !== record.type;
                 const isNew = !masterObject[record.key];
                 const rowStyle = isUpdated ? { backgroundColor: 'lightgreen' } : isNew ? { backgroundColor: 'lightpink' } : {};
-                
+
                 return (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         {isUpdated && (

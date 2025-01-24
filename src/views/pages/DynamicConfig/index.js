@@ -111,6 +111,14 @@ const YViewConfigManager = () => {
     }
   }, [selectedConfig]); // Re-run when selectedConfig changes
 
+  useEffect(() => {
+    // console.log("Selected config:", selectedConfig);
+    handleFetchTable()
+  }, [selectedRow])
+  useEffect(() => {
+    console.log("Selected config t:", selectedConfig?.master_object);
+  }, [selectedConfig])
+
   const handleSave = async (viewName, formData) => {
     try {
       const updatedConfig = {
@@ -297,10 +305,10 @@ const YViewConfigManager = () => {
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="Master object" key="master_object">
-          <MasterObject entityType={selectedRow} />
+          <MasterObject entityType={selectedRow} masterObjectInit={selectedConfig?.master_object} />
         </TabPane>
         <TabPane tab="Query Builder" key="query_builder">
-          <QueryBuilderComponent entityType={selectedRow} />
+          <QueryBuilderComponent entityType={selectedRow} masterObject={selectedConfig?.master_object} />
         </TabPane>
         {/* <TabPane tab="Fields" key="fields">
           <CrudTableConfig jsonSchema={selectedConfig?.master_data_schema || {}} onSave={handleSave} />

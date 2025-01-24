@@ -6,7 +6,7 @@ import 'react-querybuilder/dist/query-builder.css';
 // Developer Note: This component expects 'entityType' as a prop to fetch 
 // the appropriate table's columns for query building.
 
-const QueryBuilderComponent = ({ entityType }) => {
+const QueryBuilderComponent = ({ entityType, masterObject }) => {
   // State for managing query, data, SQL filter, loading state, error, and fields
   const [query, setQuery] = useState({ combinator: 'and', rules: [] });
   const [data, setData] = useState([]);
@@ -23,7 +23,7 @@ const QueryBuilderComponent = ({ entityType }) => {
       console.log('Starting to load fields for entityType:', entityType);
 
       try {
-        const columns = await fetchFields(entityType);
+        const columns = await fetchFields(entityType);//masterObject//await fetchFields(entityType);
         console.log('Columns fetched:', columns);
 
         const formattedFields = columns.map(col => ({
@@ -53,14 +53,14 @@ const QueryBuilderComponent = ({ entityType }) => {
   const fetchFields = async (tableName) => {
     console.log('Fetching fields for table:', tableName);
     const { data, error } = await supabase.rpc('get_columns', {
-      tablename: tableName 
+      tablename: tableName
     });
-  
+
     if (error) {
       console.error('Error fetching columns:', error);
       return [];
     }
-  
+
     console.log('Fields data:', data);
     return data;
   };
@@ -68,23 +68,23 @@ const QueryBuilderComponent = ({ entityType }) => {
   // Developer Note: Maps database types to QueryBuilder compatible types
   const mapType = (dbType) => {
     console.log('Mapping database type:', dbType);
-    switch(dbType) {
-      case 'character varying': 
-      case 'text': 
+    switch (dbType) {
+      case 'character varying':
+      case 'text':
         return 'string';
-      case 'timestamp with time zone': 
+      case 'timestamp with time zone':
         return 'datetime';
-      case 'boolean': 
+      case 'boolean':
         return 'boolean';
-      case 'integer': 
+      case 'integer':
         return 'number';
-      case 'uuid': 
-        return 'string'; 
-      case 'jsonb': 
-        return 'json'; 
-      default: 
+      case 'uuid':
+        return 'string';
+      case 'jsonb':
+        return 'json';
+      default:
         console.log('Defaulting to string for unknown type:', dbType);
-        return 'string'; 
+        return 'string';
     }
   };
 
@@ -97,7 +97,7 @@ const QueryBuilderComponent = ({ entityType }) => {
       return null;
     }
     const [, field, operator, value] = match;
-  
+
     const operatorMap = {
       '=': 'eq',
       '!=': 'neq',
@@ -108,7 +108,7 @@ const QueryBuilderComponent = ({ entityType }) => {
       'like': 'ilike',
       'not like': 'not.ilike',
     };
-  
+
     console.log('Parsed condition:', [field, operatorMap[operator], value]);
     return [field, operatorMap[operator], value];
   };
@@ -117,7 +117,7 @@ const QueryBuilderComponent = ({ entityType }) => {
   const handleFetch = async () => {
     setLoading(true);
     setError(null);
-  
+
     try {
       const sqlFilter = formatQuery(query, {
         format: 'sql',
@@ -126,13 +126,13 @@ const QueryBuilderComponent = ({ entityType }) => {
 
       console.log('Generated SQL filter:', sqlFilter);
       setSqlFilter(sqlFilter);
-  
+
       let queryBuilder = supabase.from(entityType).select('*');
-  
+
       const applyFilters = (filter) => {
         if (filter.includes(' AND ')) {
           const andParts = filter.split(' AND ').map((part) => applyFilters(part.trim()));
-          return andParts.filter(Boolean).join(','); 
+          return andParts.filter(Boolean).join(',');
         } else if (filter.includes(' OR ')) {
           const orParts = filter.split(' OR ').map((part) => applyFilters(part.trim()));
           return orParts.filter(Boolean).join(' or ');
@@ -141,15 +141,15 @@ const QueryBuilderComponent = ({ entityType }) => {
           return parsed ? `${parsed[0]}.${parsed[1]}.${parsed[2]}` : null;
         }
       };
-  
+
       const filterConditions = applyFilters(sqlFilter);
-  
+
       if (filterConditions) {
         queryBuilder = queryBuilder.or(filterConditions);
       }
-  
+
       const { data, error } = await queryBuilder;
-  
+
       if (error) {
         console.error('Error fetching data:', error);
         setError(error.message);
@@ -168,7 +168,7 @@ const QueryBuilderComponent = ({ entityType }) => {
   // Developer Note: Custom value editor for different field types
   const valueEditor = (props) => {
     const { fieldData, field, value, handleOnChange } = props;
-  
+
     const handleLocalChange = (e) => {
       if (fieldData?.type === 'boolean') {
         handleOnChange(e.target.value === 'true');
@@ -176,7 +176,7 @@ const QueryBuilderComponent = ({ entityType }) => {
         handleOnChange(e.target.value);
       }
     };
-  
+
     if (fieldData?.type === 'boolean') {
       return (
         <select value={value === true ? 'true' : 'false'} onChange={handleLocalChange}>
@@ -187,7 +187,7 @@ const QueryBuilderComponent = ({ entityType }) => {
     } else if (fieldData?.type === 'datetime') {
       return <input type="datetime-local" value={value || ''} onChange={handleLocalChange} />;
     }
-  
+
     return <input type="text" value={value || ''} onChange={handleLocalChange} />;
   };
 
