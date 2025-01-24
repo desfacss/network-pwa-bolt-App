@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from 'api/supabaseClient'; // Ensure this path is correct in your project
+import { supabase } from 'api/supabaseClient'; // Ensure this path is correct
 import { QueryBuilder, formatQuery } from 'react-querybuilder';
 import 'react-querybuilder/dist/query-builder.css';
 
-// Developer Note: This component expects 'entityType' as a prop to fetch 
-// the appropriate table's columns for query building.
+// Developer Note: This component uses foreign key configurations from masterObject 
+// to dynamically fetch and display related data for dropdowns.
 
 const QueryBuilderComponent = ({ entityType, masterObject }) => {
-  // State for managing query, data, SQL filter, loading state, error, and fields
   const [query, setQuery] = useState({ combinator: 'and', rules: [] });
   const [data, setData] = useState([]);
   const [sqlFilter, setSqlFilter] = useState('');
@@ -15,21 +14,22 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
   const [error, setError] = useState(null);
   const [fields, setFields] = useState([]);
 
-  // Developer Note: This effect runs whenever entityType changes, fetching 
-  // the fields for the new table.
+  // Developer Note: This effect initializes fields based on masterObject data
   useEffect(() => {
     const loadFields = async () => {
       setLoading(true);
       console.log('Starting to load fields for entityType:', entityType);
 
       try {
-        const columns = await fetchFields(entityType);//masterObject//await fetchFields(entityType);
-        console.log('Columns fetched:', columns);
+        const columns = masterObject;
+        console.log('masterObject-MAIN:', columns);
 
         const formattedFields = columns.map(col => ({
-          name: col.column_name,
-          label: col.column_name.replace('_', ' ').toUpperCase(),
-          type: mapType(col.data_type)
+          name: col.key,
+          label: col.key.replace('_', ' ').toUpperCase(),
+          type: mapType(col.type, col),
+          values: col.foreign_key ? [] : undefined,
+          inputType: col.foreign_key ? 'select' : undefined
         }));
         console.log('Formatted fields:', formattedFields);
         setFields(formattedFields);
@@ -41,54 +41,43 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       }
     };
 
-    if (entityType) { // Only fetch if entityType is provided
+    if (entityType) { 
       console.log('Entity type provided, fetching fields...');
       loadFields();
     } else {
       console.log('No entity type provided, skipping field fetch.');
     }
-  }, [entityType]);
+  }, [entityType, masterObject]);
 
-  // Developer Note: Helper function to fetch column metadata from Supabase
-  const fetchFields = async (tableName) => {
-    console.log('Fetching fields for table:', tableName);
-    const { data, error } = await supabase.rpc('get_columns', {
-      tablename: tableName
-    });
-
-    if (error) {
-      console.error('Error fetching columns:', error);
-      return [];
-    }
-
-    console.log('Fields data:', data);
-    return data;
-  };
-
-  // Developer Note: Maps database types to QueryBuilder compatible types
-  const mapType = (dbType) => {
+  // Developer Note: Maps database types and handles foreign keys
+  const mapType = (dbType, item) => {
     console.log('Mapping database type:', dbType);
-    switch (dbType) {
-      case 'character varying':
-      case 'text':
-        return 'string';
-      case 'timestamp with time zone':
-        return 'datetime';
-      case 'boolean':
-        return 'boolean';
-      case 'integer':
+    if (item && item.foreign_key) {
+      return 'select'; 
+    }
+    switch(dbType) {
+      case 'bigint': 
+      case 'integer': 
         return 'number';
-      case 'uuid':
+      case 'character varying': 
+      case 'text': 
+      case 'uuid': 
         return 'string';
-      case 'jsonb':
+      case 'timestamp with time zone': 
+        return 'datetime';
+      case 'boolean': 
+        return 'boolean';
+      case 'jsonb': 
         return 'json';
-      default:
+      case 'ARRAY': 
+        return 'array'; 
+      default: 
         console.log('Defaulting to string for unknown type:', dbType);
         return 'string';
     }
   };
 
-  // Developer Note: Converts SQL-like query to Supabase filter conditions
+  // Developer Note: Parses SQL-like conditions to Supabase filter syntax
   const parseSqlToSupabase = (sql) => {
     console.log('Parsing SQL to Supabase format:', sql);
     const match = sql.match(/(\w+)\s*(=|!=|<|>|<=|>=|like|not like)\s*'([^']+)'/);
@@ -97,7 +86,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       return null;
     }
     const [, field, operator, value] = match;
-
+  
     const operatorMap = {
       '=': 'eq',
       '!=': 'neq',
@@ -108,7 +97,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       'like': 'ilike',
       'not like': 'not.ilike',
     };
-
+  
     console.log('Parsed condition:', [field, operatorMap[operator], value]);
     return [field, operatorMap[operator], value];
   };
@@ -117,7 +106,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
   const handleFetch = async () => {
     setLoading(true);
     setError(null);
-
+  
     try {
       const sqlFilter = formatQuery(query, {
         format: 'sql',
@@ -126,30 +115,34 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
 
       console.log('Generated SQL filter:', sqlFilter);
       setSqlFilter(sqlFilter);
-
+  
       let queryBuilder = supabase.from(entityType).select('*');
-
+  
       const applyFilters = (filter) => {
         if (filter.includes(' AND ')) {
           const andParts = filter.split(' AND ').map((part) => applyFilters(part.trim()));
-          return andParts.filter(Boolean).join(',');
+          return andParts.filter(Boolean).join(','); 
         } else if (filter.includes(' OR ')) {
           const orParts = filter.split(' OR ').map((part) => applyFilters(part.trim()));
           return orParts.filter(Boolean).join(' or ');
         } else {
           const parsed = parseSqlToSupabase(filter);
+          if (parsed && masterObject.find(f => f.key === parsed[0] && f.foreign_key)) {
+            console.log('Applying foreign key filter:', parsed);
+            return `${parsed[0]}.${parsed[1]}.${parsed[2]}`;
+          }
           return parsed ? `${parsed[0]}.${parsed[1]}.${parsed[2]}` : null;
         }
       };
-
+  
       const filterConditions = applyFilters(sqlFilter);
-
+  
       if (filterConditions) {
         queryBuilder = queryBuilder.or(filterConditions);
       }
-
+  
       const { data, error } = await queryBuilder;
-
+  
       if (error) {
         console.error('Error fetching data:', error);
         setError(error.message);
@@ -165,33 +158,73 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
     }
   };
 
-  // Developer Note: Custom value editor for different field types
+  // Developer Note: Custom value editor with dynamic dropdown for foreign keys
+  const DynamicSelect = ({ foreignKeyConfig, value, onChange }) => {
+    const [options, setOptions] = useState([]);
+
+    useEffect(() => {
+      const fetchOptions = async () => {
+        try {
+          console.log('Fetching options for:', foreignKeyConfig.source_table);
+          const { data, error } = await supabase
+            .from(foreignKeyConfig.source_table)
+            .select(`${foreignKeyConfig.source_column}, ${foreignKeyConfig.display_column}`)
+            .order(foreignKeyConfig.display_column, { ascending: true });
+
+          if (error) throw error;
+          
+          setOptions(data.map(item => ({
+            value: item[foreignKeyConfig.source_column],
+            label: item[foreignKeyConfig.display_column]
+          })));
+        } catch (err) {
+          console.error('Failed to fetch options:', err);
+        }
+      };
+      fetchOptions();
+    }, [foreignKeyConfig]);
+
+    return (
+      <select value={value || ''} onChange={(e) => onChange(e.target.value)}>
+        <option value="">Select...</option>
+        {options.map(option => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    );
+  };
+
+  // Developer Note: Main value editor function
   const valueEditor = (props) => {
     const { fieldData, field, value, handleOnChange } = props;
+    const item = masterObject.find(item => item.key === fieldData.name);
 
-    const handleLocalChange = (e) => {
-      if (fieldData?.type === 'boolean') {
-        handleOnChange(e.target.value === 'true');
-      } else {
-        handleOnChange(e.target.value);
-      }
-    };
-
-    if (fieldData?.type === 'boolean') {
+    if (item && item.foreign_key) {
+      console.log('Rendering dynamic select for:', item.key);
       return (
-        <select value={value === true ? 'true' : 'false'} onChange={handleLocalChange}>
+        <DynamicSelect 
+          foreignKeyConfig={item.foreign_key} 
+          value={value} 
+          onChange={handleOnChange} 
+        />
+      );
+    } else if (fieldData.type === 'boolean') {
+      return (
+        <select value={value === true ? 'true' : 'false'} onChange={(e) => handleOnChange(e.target.value === 'true')}>
           <option value="true">True</option>
           <option value="false">False</option>
         </select>
       );
-    } else if (fieldData?.type === 'datetime') {
-      return <input type="datetime-local" value={value || ''} onChange={handleLocalChange} />;
+    } else if (fieldData.type === 'datetime') {
+      return <input type="datetime-local" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} />;
+    } else if (fieldData.type === 'array') {
+      return <input type="text" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} placeholder="Array input" />;
     }
-
-    return <input type="text" value={value || ''} onChange={handleLocalChange} />;
+  
+    return <input type="text" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} />;
   };
 
-  // Developer Note: Render method, shows QueryBuilder when fields are loaded
+  // Developer Note: Render method
   return (
     <div>
       <h2>Query Builder for Table: {entityType || 'Select a table'}</h2>
@@ -229,5 +262,14 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
     </div>
   );
 };
+
+// Future Enhancements:
+// - Implement caching for foreign key dropdown options to reduce API calls.
+// - Add debounce for dropdown selection to reduce API calls on frequent changes.
+// - Support for more complex query conditions like nested fields or array elements.
+
+// Performance Issues:
+// - Frequent API calls for each foreign key dropdown might lead to performance issues in large applications. Consider memoizing or caching results.
+// - If `masterObject` changes often, consider optimizing the useEffect dependency array or splitting out the field setup logic.
 
 export default QueryBuilderComponent;
