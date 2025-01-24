@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Button, Form, Table, message, Tooltip } from 'antd';
+import { Select, Button, Form, Table, message, Tooltip, Input } from 'antd';
 import { CheckCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import { supabase } from 'api/supabaseClient';
 
@@ -15,11 +15,13 @@ const MasterObject = ({ entityType }) => {
         async function fetchData() {
             try {
                 const columnsResponse = await supabase.rpc('get_columns_v17', { tablename: entityType });
+                console.log('Data from get_columns_v17:', columnsResponse.data);
                 const masterObjectResponse = await supabase
                     .from('y_view_config')
                     .select('master_object')
                     .eq('entity_type', entityType)
                     .single();
+                console.log('Data from master_object:', masterObjectResponse.data);
 
                 if (columnsResponse.error) throw columnsResponse.error;
                 if (masterObjectResponse.error) throw masterObjectResponse.error;
@@ -29,7 +31,13 @@ const MasterObject = ({ entityType }) => {
 
                 // Set form initial values based on existing data
                 const initialValues = columnsResponse.data.reduce((acc, col) => {
-                    acc[col.key] = masterObjectResponse.data?.master_object[col.key] || col.type;
+                    const masterObjEntry = masterObject[col.key] || {};
+                    acc[col.key] = {
+                        type: masterObjEntry.type || col.type,
+                        source_table: masterObjEntry.foreign_key?.source_table || col.foreign_key?.source_table || col.potential_fk?.source_table || '',
+                        source_column: masterObjEntry.foreign_key?.source_column || col.foreign_key?.source_column || col.potential_fk?.source_column || '',
+                        display_column: masterObjEntry.foreign_key?.display_column || col.foreign_key?.display_column || col.potential_fk?.display_column || ''
+                    };
                     return acc;
                 }, {});
                 form.setFieldsValue(initialValues);
@@ -47,20 +55,27 @@ const MasterObject = ({ entityType }) => {
 
     const onFinish = async (values) => {
         try {
-            const masterObjectData = Object.entries(values).map(([key, type]) => {
-                const column = columns.find(col => col.key === key);
-                return {
-                    key: key,
-                    type: type,
-                    ...(column?.foreign_key ? { foreign_key: column.foreign_key } : {})
+            const masterObjectData = Object.entries(values).map(([key, field]) => {
+                const foreignKey = {
+                    source_table: field.source_table.trim() || undefined,
+                    source_column: field.source_column.trim() || undefined,
+                    display_column: field.display_column.trim() || undefined
                 };
+
+                const entry = {
+                    key: key,
+                    type: field.type,
+                    foreign_key: Object.values(foreignKey).every(v => v === undefined) ? undefined : foreignKey
+                };
+
+                return entry;
             });
 
             const { error } = await supabase
                 .from('y_view_config')
                 .upsert({
                     entity_type: entityType,
-                    master_object: masterObjectData
+                    master_object: masterObjectData.filter(item => item.foreign_key || item.type !== item.key)
                 }, {
                     onConflict: 'entity_type',
                     ignoreDuplicates: false
@@ -72,7 +87,7 @@ const MasterObject = ({ entityType }) => {
             }
 
             message.success('Configuration saved successfully!');
-            setMasterObject(masterObjectData.reduce((acc, obj) => ({...acc, [obj.key]: obj.type}), {}));
+            setMasterObject(masterObjectData.reduce((acc, obj) => ({...acc, [obj.key]: obj}), {}));
         } catch (error) {
             console.error('Error in onFinish:', error);
             message.error('Failed to save configuration: ' + error.message);
@@ -93,8 +108,8 @@ const MasterObject = ({ entityType }) => {
             dataIndex: 'key',
             key: 'key',
             render: (text, record) => {
-                const isUpdated = masterObject[record.key] && masterObject[record.key] !== record.type;
-                const isNew = !masterObject[record.key] && record.type;
+                const isUpdated = masterObject[record.key] && masterObject[record.key].type !== record.type;
+                const isNew = !masterObject[record.key];
                 const rowStyle = isUpdated ? { backgroundColor: 'lightgreen' } : isNew ? { backgroundColor: 'lightpink' } : {};
                 return (
                     <span style={rowStyle}>
@@ -105,11 +120,11 @@ const MasterObject = ({ entityType }) => {
         },
         {
             title: 'Data Type (Select)',
-            dataIndex: 'type',
+            dataIndex: ['type'],
             key: 'type',
             render: (_, record) => {
-                const isUpdated = masterObject[record.key] && masterObject[record.key] !== record.type;
-                const isNew = !masterObject[record.key] && record.type;
+                const isUpdated = masterObject[record.key] && masterObject[record.key].type !== record.type;
+                const isNew = !masterObject[record.key];
                 const rowStyle = isUpdated ? { backgroundColor: 'lightgreen' } : isNew ? { backgroundColor: 'lightpink' } : {};
                 
                 return (
@@ -120,13 +135,12 @@ const MasterObject = ({ entityType }) => {
                             </Tooltip>
                         )}
                         {isNew && (
-                            <Tooltip title="New from get_columns_v15">
+                            <Tooltip title="New from get_columns_v17">
                                 <ExclamationCircleFilled style={{ color: 'red', marginRight: '5px' }} />
                             </Tooltip>
                         )}
-                        <Form.Item name={record.key} noStyle>
-                            <Select style={{ width: '100%' }} 
-                                defaultValue={masterObject[record.key] || record.type}>
+                        <Form.Item name={[record.key, 'type']} noStyle>
+                            <Select style={{ width: '100%' }} defaultValue={masterObject[record.key]?.type || record.type}>
                                 {dataTypeOptions.map(type => (
                                     <Option key={type} value={type}>{type}</Option>
                                 ))}
@@ -138,21 +152,33 @@ const MasterObject = ({ entityType }) => {
         },
         {
             title: 'Source Table',
-            dataIndex: 'foreign_key.source_table',
+            dataIndex: ['source_table'],
             key: 'source_table',
-            render: sourceTable => sourceTable || '-'
+            render: (_, record) => (
+                <Form.Item name={[record.key, 'source_table']} noStyle>
+                    <Input placeholder="Source Table" defaultValue={masterObject[record.key]?.foreign_key?.source_table || record.foreign_key?.source_table || record.potential_fk?.source_table || ''} />
+                </Form.Item>
+            )
         },
         {
             title: 'Source Column',
-            dataIndex: 'foreign_key.source_column',
+            dataIndex: ['source_column'],
             key: 'source_column',
-            render: sourceColumn => sourceColumn || '-'
+            render: (_, record) => (
+                <Form.Item name={[record.key, 'source_column']} noStyle>
+                    <Input placeholder="Source Column" defaultValue={masterObject[record.key]?.foreign_key?.source_column || record.foreign_key?.source_column || record.potential_fk?.source_column || ''} />
+                </Form.Item>
+            )
         },
         {
             title: 'Display Column',
-            dataIndex: 'foreign_key.display_column',
+            dataIndex: ['display_column'],
             key: 'display_column',
-            render: displayColumn => displayColumn || '-'
+            render: (_, record) => (
+                <Form.Item name={[record.key, 'display_column']} noStyle>
+                    <Input placeholder="Display Column" defaultValue={masterObject[record.key]?.foreign_key?.display_column || record.foreign_key?.display_column || record.potential_fk?.display_column || ''} />
+                </Form.Item>
+            )
         }
     ];
 
@@ -160,7 +186,8 @@ const MasterObject = ({ entityType }) => {
         key: col.key,
         ...col,
         type: col.type,
-        foreign_key: col.foreign_key || {}
+        foreign_key: col.foreign_key || {},
+        potential_fk: col.potential_fk || {}
     }));
 
     return (
