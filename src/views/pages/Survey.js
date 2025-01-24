@@ -1,49 +1,63 @@
-import { useNavigate } from 'react-router-dom'
 import React, { useEffect, useState } from "react";
-import { Button, Card, Divider } from "antd";
-import IBCNLayout from 'components/layout-components/IBCNLayout';
-// import { update } from 'lodash';
+import { Button, Card, Drawer, message } from "antd";
 import { supabase } from 'configs/SupabaseConfig';
+import { useSelector } from "react-redux";
+import DynamicForm from "./DynamicForm";
 
-const Survey = (props) => {
-    const [loggedin, setLoggedin] = useState(false)
-    const navigate = useNavigate();
-
-    const handleNavigate = () => {
-        if (loggedin) {
-            navigate('/survey/update_survey');
-        } else {
-            navigate('/survey/register');
-        }
-    };
-
-    const getUser = async () => {
-        supabase.auth.getSession().then(async ({ data: { session } }) => {
-            if (session?.user?.id) {
-                setLoggedin(true)
-            }
-            let { data, error } = await supabase.from('members').select('*').eq('user_id', session?.user?.id)
-            if (data.length === 0) {
-                console.log("first")
-                navigate('/survey/register2');
-            }
-        });
-    };
-
-    const signOut = () => {
-        supabase.auth.signOut()
-        // window.location.reload()
-        navigate('/survey/register')
-
-    }
-    const signIn = () => {
-        supabase.auth.signOut()
-        navigate('/survey/login')
-    }
+const Survey = () => {
+    const [visible, setVisible] = useState(false);
+    const [schema, setSchema] = useState(null);
+    const { session } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        getUser()
-    }, [])
+        const fetchFormSchema = async () => {
+            console.log("ud", session?.user?.organization?.id);
+            if (session?.user?.organization?.id) {
+                const { data, error } = await supabase
+                    .from('forms')
+                    .select('data_schema, ui_schema')
+                    .eq('name', 'business_survey_form')
+                    .eq('organization_id', session.user.organization.id);
+
+                if (error) {
+                    console.error('Error fetching schema:', error);
+                } else if (data && data.length > 0) {
+                    console.log("ui", data);
+                    setSchema({
+                        data_schema: data[0].data_schema,
+                        ui_schema: data[0].ui_schema
+                    });
+                }
+            }
+        };
+
+        fetchFormSchema();
+    }, [session]);
+
+    const showDrawer = () => {
+        setVisible(true);
+    };
+
+    const onClose = () => {
+        setVisible(false);
+    };
+
+    const onFinish = async (values) => {
+        const { error } = await supabase
+            .from('ib_survey')
+            .insert({
+                details: values,
+                created_by: session?.user?.id
+            });
+
+        if (error) {
+            console.error('Error inserting data:', error);
+        } else {
+            message.success("Survey data submitted successfully")
+            console.log('Survey data submitted successfully');
+            onClose();  // Close the drawer after submission
+        }
+    };
 
     return (
         <Card>
@@ -66,22 +80,19 @@ const Survey = (props) => {
             </ul>
 
             <div className="mt-4">
-                <Button onClick={handleNavigate} type='primary'>
-                    {loggedin ? 'Update' : 'Start'} Survey
+                <Button type='primary' onClick={showDrawer}>
+                    Enter Survey
                 </Button>
-                {!loggedin ?
-                    <p className='pt-2'>
-                        If you are already registered, <a onClick={signIn} >Login here...</a>
-                    </p>
-                    :
-                    <p className='pt-2'>
-                        New User, click here to <a onClick={signOut}>Register Here...</a>
-                    </p>
-                }
-                {/* <br></br> */}
             </div>
-            <Divider />
-            <footer>Developed by Claritiz Innovations</footer>
+            <Drawer
+                title="Business Survey"
+                placement="right"
+                width={520}
+                onClose={onClose}
+                visible={visible}
+            >
+                {schema && <DynamicForm schemas={schema} onFinish={onFinish} />}
+            </Drawer>
         </Card>
     );
 };
