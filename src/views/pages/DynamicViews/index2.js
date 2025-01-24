@@ -94,7 +94,7 @@ const structureData = (flatData, config) => {
 };
 
 
-const Index = ({ entityType, addEditFunction, setCallFetch }) => {
+const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters }) => {
 
     const defaultStartDate = dayjs().subtract(30, 'days');
     // const defaultStartDate = dayjs().subtract(30, 'days');
@@ -164,7 +164,28 @@ const Index = ({ entityType, addEditFunction, setCallFetch }) => {
     const [viewConfig, setViewConfig] = useState()
     const [workflowConfig, setWorkflowConfig] = useState()
     const [data, setData] = useState()
+    const [allData, setAllData] = useState()
     const [users, setUsers] = useState();
+
+    useEffect(() => {
+        const filterData = () => {
+            if (!uiFilters || uiFilters.length === 0) return allData; // If no filters, return all data
+
+            return allData?.filter(item => {
+                const tags = item.details_tags || [];
+                // Check if any tag in the item matches any value in the filter
+                return uiFilters?.some(filter =>
+                    filter.column === 'details_tags' &&
+                    filter.value.some(value => tags.includes(value))
+                );
+            });
+        }
+        if (allData) {
+            const filteredData = filterData()
+            console.log("fd", uiFilters, filteredData)
+            setData(filteredData)
+        }
+    }, [uiFilters])
 
     const fetchConfig = {
         // assignee: { table: 'users', column: 'user_name' },
@@ -200,7 +221,25 @@ const Index = ({ entityType, addEditFunction, setCallFetch }) => {
 
     const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
         console.log("viewConfig", viewConfig)
-        let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+        // let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+
+        let query = supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+
+        // Apply multiple filters
+        fetchFilters?.forEach(filter => {
+            const { column, value } = filter;
+            if (column && value !== undefined) {
+                if (column.includes('.')) {
+                    const [jsonField, jsonKey] = column.split('.');
+                    query = query.eq(`${jsonField}->>${jsonKey}`, value);
+                } else {
+                    query = query.eq(column, value);
+                }
+            }
+        });
+        console.log("QR", fetchFilters, query)
+        let { data, error } = await query;
+
         data = data.map(obj => flattenData(obj, viewConfig?.data_config?.mainTable));
         if (error) throw error;
         if (data) {
@@ -249,7 +288,8 @@ const Index = ({ entityType, addEditFunction, setCallFetch }) => {
                     }
                 }
             }
-            console.log("Da", data)
+            console.log("Dtr", data)
+            setAllData(data)
             setData(data)
             // console.log("Data", sales, data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
             // setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));

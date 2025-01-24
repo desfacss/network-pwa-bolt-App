@@ -71,7 +71,7 @@ const navigationConfig = [
       },
       module_features?.ibNetworking && feature?.ibNetworking && {
         key: 'ib_networking',
-        path: `${APP_PREFIX_PATH}/ib_networking`,
+        path: `${APP_PREFIX_PATH}/networking`,
         title: 'Networking',
         icon: UserOutlined,
         breadcrumb: false,
@@ -79,7 +79,7 @@ const navigationConfig = [
       },
       module_features?.ibNetworking && feature?.ibNetworking && {
         key: 'ib_heirarchy',
-        path: `${APP_PREFIX_PATH}/ib_heirarchy`,
+        path: `${APP_PREFIX_PATH}/heirarchy`,
         title: 'Categories',
         icon: UserOutlined,
         breadcrumb: false,
@@ -87,7 +87,7 @@ const navigationConfig = [
       },
       module_features?.ibBusinesses && feature?.ibBusinesses && {
         key: 'ib_businesses',
-        path: `${APP_PREFIX_PATH}/ib_businesses`,
+        path: `${APP_PREFIX_PATH}/businesses`,
         title: 'Businesses',
         icon: UserOutlined,
         breadcrumb: false,
@@ -95,7 +95,7 @@ const navigationConfig = [
       },
       module_features?.ibMembers && feature?.ibMembers && {
         key: 'ib_members',
-        path: `${APP_PREFIX_PATH}/ib_members`,
+        path: `${APP_PREFIX_PATH}/members`,
         title: 'Members',
         icon: UserOutlined,
         breadcrumb: false,

@@ -7,7 +7,7 @@ import { useLocation, Link } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
 // import App from "views/pages/Market/Steps";
 // import { registrationType } from 'constants/registrationType';
-import { APP_PREFIX_PATH, SURVEY_PREFIX_PATH } from "configs/AppConfig";
+import { APP_PREFIX_PATH, REACT_APP_WORKSPACE, SURVEY_PREFIX_PATH } from "configs/AppConfig";
 import DynamicForm from "views/pages/DynamicForm";
 import { store } from "store";
 
@@ -20,7 +20,7 @@ export const OpenRegisterForm = (props) => {
   const [roles, setRoles] = useState();
 
   const getOrganization = async () => {
-    const { data, error } = await supabase.from('organizations').select('*').eq('name', process.env.REACT_APP_ORGANIZATION_APP || 'dev').single()
+    const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE || 'dev').single()
     if (data) {
       setOrganization(data)
     }
@@ -94,12 +94,19 @@ export const OpenRegisterForm = (props) => {
     }
     if (data) {
       console.log("reg data", data)
-      delete values?.retypePassword
+      // Remove password fields before inserting into details
+      const { password, retypePassword, ...detailsWithoutPassword } = values;
+      const userDetails = {
+        ...detailsWithoutPassword,
+        user_name
+      };
+
+      // Insert into users table
       const { data: data2, error: error2 } = await supabase.from('users').insert([
         {
           id: data?.user?.id,
           organization_id: organization?.id,
-          details: { ...values, user_name },
+          details: userDetails,
           user_name,
           // role_type: values?.role,
           // manager_id: user_id,
@@ -108,11 +115,26 @@ export const OpenRegisterForm = (props) => {
           // TODO role_id, location_id
         },
       ]);
+
       if (error2) {
         console.log("Error2", error2);
         return notification.error({ message: error2.message || "Error" })
       }
 
+      // Insert into ib_members table
+      const { data: data3, error: error3 } = await supabase.from('ib_members').insert([
+        {
+          user_id: data?.user?.id,
+          reg_info: userDetails, // Assuming reg_info is for registration data
+          details: userDetails, // Assuming details here is for additional user info
+          short_name: user_name // You might want to adjust this based on your table structure
+        }
+      ]);
+
+      if (error3) {
+        console.log("Error3", error3);
+        return notification.error({ message: error3.message || "Error inserting into ib_members" })
+      }
     }
 
     const fetchUserData = async (session) => {

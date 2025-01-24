@@ -13,6 +13,7 @@ import { useLocation } from "react-router-dom";
 import enGB from 'antd/lib/locale/en_GB';
 import { store } from "store";
 import { fetchDefaultOrganization, setSession } from "store/slices/authSlice";
+import { REACT_APP_WORKSPACE } from "configs/AppConfig";
 
 const currentAppLocale = enGB;
 
@@ -35,7 +36,7 @@ const Layouts = () => {
 
   useEffect(() => {
     // Set the title dynamically
-    document.title = session?.user?.organization?.app_settings?.name || process.env.REACT_APP_WORKSPACE || 'dev';
+    document.title = session?.user?.organization?.app_settings?.name || REACT_APP_WORKSPACE || 'dev';
   }, [session]);
 
   useEffect(() => {

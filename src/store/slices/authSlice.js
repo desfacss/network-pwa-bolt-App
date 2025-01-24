@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { supabase } from "api/supabaseClient";
 import service from "auth/FetchInterceptor";
+import { REACT_APP_WORKSPACE } from "configs/AppConfig";
 import { AUTH_TOKEN } from "constants/AuthConstant";
 
 export const initialState = {
@@ -23,7 +24,7 @@ export const fetchDefaultOrganization = createAsyncThunk(
       const { data, error } = await supabase
         .from("organizations")
         .select("*")
-        .eq("app_settings->>workspace", process.env.REACT_APP_WORKSPACE || 'dev')
+        .eq("app_settings->>workspace", REACT_APP_WORKSPACE || 'dev')
         .single();
 
       if (error) {

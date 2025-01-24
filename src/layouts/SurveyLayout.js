@@ -16,6 +16,7 @@ const SurveyLayout = ({ children }) => {
 	const theme = useSelector((state) => state.theme.currentTheme);
 	const { session, selectedOrganization, selectedUser, defaultOrganization } = useSelector((state) => state.auth);
 	const workspace = session?.user?.organization?.app_settings?.workspace || defaultOrganization?.app_settings?.workspace || 'dev';
+	const name = session?.user?.organization?.app_settings?.name || defaultOrganization?.app_settings?.name || 'dev';
 
 	return (
 		<div className={`h-100 ${theme === "light" ? "bg-white" : ""}`}>
@@ -61,10 +62,20 @@ const SurveyLayout = ({ children }) => {
 										alt=""
 									/>
 									<div>
-										<img
+										{/* <img
 											// src="/img/ukpe_logo.png"
 											src={`/img/${workspace}/logo_light.png`}
-											alt="logo" style={{ height: '30px' }} />
+											alt={`${workspace}`} style={{ height: '30px' }} /> */}
+										<img
+											src={`/img/${workspace}/logo_light.png`}
+											alt={`${workspace}`}
+											style={{ height: '30px' }}
+											onError={(e) => {
+												e.target.style.display = 'none'; // Hide the image
+												e.target.nextSibling.style.display = 'block'; // Show the h1 element
+											}}
+										/>
+										<h1 style={{ display: 'none', fontSize: '20px', margin: 0 }}>{name}</h1>
 									</div>
 									<br /><br /><br /><br />
 									<h3 className="text-white">

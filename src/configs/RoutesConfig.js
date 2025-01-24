@@ -173,17 +173,17 @@ export const protectedRoutes = (feature, module_features) => {
         },
         module_features?.ibBusinesses && feature?.ibBusinesses && {
             key: 'ib_businesses',
-            path: `${APP_PREFIX_PATH}/ib_businesses`,
+            path: `${APP_PREFIX_PATH}/businesses`,
             component: React.lazy(() => import('views/pages/Businesses')),
         },
         module_features?.ibMembers && feature?.ibMembers && {
             key: 'ib_members',
-            path: `${APP_PREFIX_PATH}/ib_members`,
+            path: `${APP_PREFIX_PATH}/members`,
             component: React.lazy(() => import('views/pages/Members')),
         },
         module_features?.ibMembers && feature?.ibMembers && {
             key: 'ib_member',
-            path: `${APP_PREFIX_PATH}/ib_members/:user_name`,
+            path: `${APP_PREFIX_PATH}/members/:user_name`,
             component: React.lazy(() => import('views/pages/Profile/index')),
         },
         module_features?.ibChat && feature?.ibChat && {
@@ -193,12 +193,12 @@ export const protectedRoutes = (feature, module_features) => {
         },
         module_features?.ibNetworking && feature?.ibNetworking && {
             key: 'ib_networking',
-            path: `${APP_PREFIX_PATH}/ib_networking`,
+            path: `${APP_PREFIX_PATH}/networking`,
             component: React.lazy(() => import('views/pages/ib/Networking')),
         },
         module_features?.ibNetworking && feature?.ibNetworking && {
             key: 'ib_heirarchy',
-            path: `${APP_PREFIX_PATH}/ib_heirarchy`,
+            path: `${APP_PREFIX_PATH}/heirarchy`,
             component: React.lazy(() => import('views/pages/ib/Heirarchy')),
         },
         module_features?.ibPoll && feature?.ibPoll && {

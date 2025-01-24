@@ -10,6 +10,7 @@ import { store } from 'store';
 
 const state = store.getState();
 const workspace = state?.auth?.session?.user?.organization?.app_settings?.workspace || state?.auth?.defaultOrganization?.app_settings?.workspace || 'dev';
+const name = state?.auth?.session?.user?.organization?.app_settings?.name || state?.auth?.defaultOrganization?.app_settings?.name || 'dev';
 
 const LogoWrapper = styled.div(({ isCollapsed }) => ({
   height: TEMPLATE.HEADER_HEIGHT,
@@ -57,14 +58,25 @@ export const Logo = ({ mobileLogo, logoType }) => {
     }
     return `/img/${workspace}/logo_dark.png`;
   };
-
+  console.log("logo", workspace)
   return (
     <LogoWrapper
       className={isMobile && !mobileLogo ? 'd-none' : 'logo'}
       isCollapsed={navCollapsed} // Pass navCollapsed as a prop
       style={{ width: `${getLogoWidthGutter()}` }}
     >
-      <img src={getLogo()} alt={`${workspace} logo`} height={isMobile ? '25px' : '25px'} />
+      {/* <img src={getLogo()} alt={`${workspace} logo`} height={isMobile ? '25px' : '25px'} /> */}
+      <img
+        // src={`/img/${workspace}/logo_light.png`}
+        // alt={`${workspace}`}
+        src={getLogo()} alt={`${workspace} logo`} height={isMobile ? '25px' : '25px'}
+        style={{ height: '30px' }}
+        onError={(e) => {
+          e.target.style.display = 'none'; // Hide the image
+          e.target.nextSibling.style.display = 'block'; // Show the h1 element
+        }}
+      />
+      <h1 style={{ display: 'none', fontSize: '20px', margin: 0 }}>{name}</h1>
     </LogoWrapper>
   );
 };
