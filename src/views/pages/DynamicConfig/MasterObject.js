@@ -51,8 +51,11 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
         if (entityType) {
             fetchData();
         }
-    }, [entityType, form]);
-
+    }, [entityType, masterObject, form]);
+    useEffect(() => {
+        console.log("mo", masterObjectInit)
+        setMasterObject(masterObjectInit)
+    }, [masterObjectInit])
     const onFinish = async (values) => {
         try {
             const masterObjectData = Object.entries(values).map(([key, field]) => {
