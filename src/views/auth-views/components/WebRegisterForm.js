@@ -169,7 +169,8 @@ export const RegisterForm = (props) => {
   // };
 
   return (
-    <div style={{ width: '50%', margin: '0 auto' }}> {/* Container with 50% width at the topmost level */}
+    <div> 
+      {/* style={{ width: '50%', margin: '0 auto' }}> Container with 50% width at the topmost level */}
       {/* <Button onClick={signOut}>
         Sign Out
       </Button> */}

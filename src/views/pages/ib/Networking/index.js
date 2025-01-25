@@ -73,7 +73,7 @@ const Networking = () => {
 	const filters2 = [{ column: 'details.category_id', value: "cbc79eb6-20a1-42d3-8876-5a3ecf4909da" }]
 
 	return (
-		<Card>
+		<>
 			{/* <YStateComponent /> */}
 			{modalVisible && <CategorySelector visible={modalVisible} chatId={editChatId}
 				onClose={() => { setModalVisible(false); setEditChatId(); callFetch() }}
@@ -82,12 +82,12 @@ const Networking = () => {
 			<Tabs defaultActiveKey="looking" //onChange={onTabChange}
 				tabBarExtraContent={
 					<>
-						<Switch className={'mr-2'}
+						{/* <Switch className={'mr-2'}
 							checked={showMyInterests}
 							onChange={onToggleChange}
 							checkedChildren="My Interests"
 							unCheckedChildren="All Posts"
-						/>
+						/> */}
 						<Interests />
 					</>
 				}
@@ -100,7 +100,7 @@ const Networking = () => {
 				</Tabs.TabPane>
 			</Tabs>
 			<Interests />
-		</Card>
+		</>
 	)
 }
 

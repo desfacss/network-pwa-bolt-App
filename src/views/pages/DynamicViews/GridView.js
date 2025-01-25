@@ -405,7 +405,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
             <Button
               key={action}
               type="primary"
-              style={{ marginRight: 8 }}
+              style={{ marginRight: 0, marginTop: 0 }}
               onClick={() => handleBulkAction(action)}
             >
               {action
@@ -459,6 +459,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                 size={gridViewConfig?.layout?.size || 'default'} // default to 'default' if size not provided
                 style={{
                   height: gridViewConfig?.layout?.aspectRatio === 'auto' ? 'auto' : '100%',
+                  boxShadow: "none",
                   ...gridViewConfig?.layout?.cardStyle,
                   // cursor: fields.some(f => f.link) ? 'pointer' : 'default'
                 }}

@@ -10,7 +10,7 @@ const Dashboaard = () => {
     const workspace = session?.user?.organization?.app_settings?.workspace || REACT_APP_WORKSPACE || 'dev'
     // console.log("workspace", workspace)
     return (
-        <Card>
+        <>
             {workspace === "ukpe" ? (
                 <DashboaardUKPE />
             ) : workspace === "ibcn" ? (
@@ -18,7 +18,7 @@ const Dashboaard = () => {
             ) : (
                 <DefaultDashboard />
             )}
-        </Card>
+        </>
     );
 };
 
