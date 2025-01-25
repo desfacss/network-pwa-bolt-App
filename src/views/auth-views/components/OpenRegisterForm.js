@@ -193,7 +193,9 @@ export const OpenRegisterForm = (props) => {
             <h2 className="mb-4">User Registration</h2>
             <p>
               Alredy Registered ? {" "}
-              <Link to={`${APP_PREFIX_PATH}/login`}>Login here...</Link>
+              <Link to={`${APP_PREFIX_PATH}/login`}>Login here  </Link>
+              or
+              <Link to={`${APP_PREFIX_PATH}/landing`}>  Home</Link>
             </p>
             {/* {schema &&  */}
             <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />

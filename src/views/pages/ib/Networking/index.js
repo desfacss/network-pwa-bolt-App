@@ -99,7 +99,6 @@ const Networking = () => {
 					<DynamicViews entityType={'ib_posts'} addEditFunction={openModal} setCallFetch={setCallFetch} fetchFilters={filters2} uiFilters={filters?.offering} />
 				</Tabs.TabPane>
 			</Tabs>
-			<Interests />
 		</>
 	)
 }

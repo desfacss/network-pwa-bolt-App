@@ -48,7 +48,7 @@ const Profile = () => {
 
 
     // const userData = session?.user
-    const organization = userData?.organization?.app_settings?.workspace || 'dev'
+    const organization = "ibcn" || userData?.organization?.app_settings?.workspace || 'dev'
 
 
     useEffect(() => {
@@ -143,13 +143,55 @@ const Profile = () => {
     //     return value ? <Descriptions.Item label={label}>{value}</Descriptions.Item> : null;
     // };
 
+    // const getValueByPath = (obj, path) => {
+    //     return path?.reduce((current, key) =>
+    //         current && current[key] !== undefined ? current[key] : undefined, obj);
+    // };
+
+    // const formatCustomValue = (obj, custom_path, custom_format) => {
+    //     const values = custom_path?.map(path => getValueByPath(obj, path));
+    //     return custom_format?.replace(/{(\d+)}/g, (_, index) => values[index] || '');
+    // };
+
+    // const renderDynamicDescriptionItems = () => {
+    //     const groups = profileFields?.groups?.sort((a, b) => a.order - b.order);
+
+    //     return groups?.map((group, idx) => (
+    //         <React.Fragment key={group.name}>
+    //             {group.show_group_name && <Descriptions title={group.name} column={1} />}
+    //             <Descriptions column={1}>
+    //                 {group.fields.sort((a, b) => a.order - b.order).map(field => (
+    //                     <Descriptions.Item key={field.value} label={field.label}>
+    //                         {field.custom_format
+    //                             ? formatCustomValue(userData, field.custom_path, field.custom_format)
+    //                             : getValueByPath(userData, field.path) || 'N/A'}
+    //                     </Descriptions.Item>
+    //                 ))}
+    //             </Descriptions>
+    //             {profileFields?.dividers?.includes(group.name) && idx < groups.length - 1 && <Divider />}
+    //         </React.Fragment>
+    //     ));
+    // };
+
+
     const getValueByPath = (obj, path) => {
-        return path?.reduce((current, key) =>
-            current && current[key] !== undefined ? current[key] : undefined, obj);
+        return path?.reduce((current, key) => {
+            if (current && current[key] !== undefined) {
+                return current[key];
+            }
+            return undefined;
+        }, obj);
     };
 
     const formatCustomValue = (obj, custom_path, custom_format) => {
-        const values = custom_path?.map(path => getValueByPath(obj, path));
+        const values = custom_path?.map(path => {
+            const value = getValueByPath(obj, path);
+            // If the value is an array, join it with commas
+            if (Array.isArray(value)) {
+                return value.join(', ');
+            }
+            return value;
+        });
         return custom_format?.replace(/{(\d+)}/g, (_, index) => values[index] || '');
     };
 
@@ -164,7 +206,9 @@ const Profile = () => {
                         <Descriptions.Item key={field.value} label={field.label}>
                             {field.custom_format
                                 ? formatCustomValue(userData, field.custom_path, field.custom_format)
-                                : getValueByPath(userData, field.path) || 'N/A'}
+                                : (Array.isArray(getValueByPath(userData, field.path))
+                                    ? getValueByPath(userData, field.path).join(' , ')
+                                    : getValueByPath(userData, field.path) || 'N/A')}
                         </Descriptions.Item>
                     ))}
                 </Descriptions>

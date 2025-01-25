@@ -10,13 +10,15 @@ const LoginTwo = (props) => {
 
   const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
   return (
-    
+
     <Row justify="center">
       <Col offest={6} xs={24} sm={24} md={24} lg={24} xl={24}>
         <h2 className="mb-4">Sign In</h2>
         <p>
           New User ? {" "}
-          <Link to={`${APP_PREFIX_PATH}/register`}>Register here...</Link>
+          <Link to={`${APP_PREFIX_PATH}/register`}>Register here  </Link>
+          or
+          <Link to={`${APP_PREFIX_PATH}/landing`}>  Home</Link>
         </p>
         <div className="mt-4">
           <LoginForm {...props} />

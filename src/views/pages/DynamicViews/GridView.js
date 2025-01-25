@@ -261,7 +261,8 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       gridViewConfig?.fields?.some(field => {
         // const value = getFieldValue(item, field);
         const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
-        const value = Array.isArray(value1) ? value1?.map(item => item.value)?.join(', ') : value1 ?? null;
+        const value = Array.isArray(value1) ? value1?.map(item => item.value)?.join(', ') : value1?.value ?? null;
+        // console.log("dy", value);
         return String(value).toLowerCase().includes(searchText?.toLowerCase());
       })
     );
