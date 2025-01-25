@@ -181,7 +181,7 @@ export const HeaderNav = (props) => {
           <NavEdge right>
             <div className="border-bottom d-flex justify-content-between align-items-center py-2 px-1">
               {session?.user?.role_type === 'superadmin' && <OrganiztionSelect />}
-              <Notifications />
+              {session?.user?.features?.feature?.notifications && session?.user?.organization?.module_features?.notifications && <Notifications />}
               {/* <Button onClick={onLogOut}>LogOut</Button> */}
             </div>
             {/* <div className="border-bottom d-flex justify-content-between align-items-center px-3 py-2">

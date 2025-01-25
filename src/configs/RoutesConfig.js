@@ -7,6 +7,11 @@ export const publicRoutes = [
         path: `${APP_PREFIX_PATH}/login`,
         component: React.lazy(() => import('views/auth-views/authentication/login')),
     },
+    {
+        key: 'landing',
+        path: `${APP_PREFIX_PATH}`,
+        component: React.lazy(() => import('views/auth-views/authentication/landing')),
+    },
     //ONLY APPLICABLE ON A SAAS WEBSITE(FOR NEW COMPANY REGISTRATION)
     {
         key: 'web-register',

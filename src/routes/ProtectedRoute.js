@@ -16,7 +16,7 @@ const ProtectedRoute = () => {
 	if (!session) {
 		// return <Navigate to={`${AUTH_PREFIX_PATH}${UNAUTHENTICATED_ENTRY}?${REDIRECT_URL_KEY}=${location.pathname}`} replace />;
 		// return <Navigate to={`${AUTH_PREFIX_PATH}/register`} replace />;
-		return <Navigate to={`${APP_PREFIX_PATH}/login`} replace />;
+		return <Navigate to={`${APP_PREFIX_PATH}`} replace />;
 	}
 
 	return <Outlet />
