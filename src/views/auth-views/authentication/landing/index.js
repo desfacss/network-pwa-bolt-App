@@ -16,23 +16,23 @@ const Survey = () => {
   useEffect(() => {
     const fetchFormSchema = async () => {
       // console.log("ud", session?.user?.organization?.id);
-      if (session?.user?.organization?.id) {
-        const { data, error } = await supabase
-          .from('forms')
-          .select('data_schema, ui_schema')
-          .eq('name', 'business_survey_form')
-        // .eq('organization_id', session.user.organization.id);
+      // if (session?.user?.organization?.id) {
+      const { data, error } = await supabase
+        .from('forms')
+        .select('data_schema, ui_schema')
+        .eq('name', 'business_survey_form')
+      // .eq('organization_id', session.user.organization.id);
 
-        if (error) {
-          console.error('Error fetching schema:', error);
-        } else if (data && data.length > 0) {
-          console.log("ui", data);
-          setSchema({
-            data_schema: data[0].data_schema,
-            ui_schema: data[0].ui_schema
-          });
-        }
+      if (error) {
+        console.error('Error fetching schema:', error);
+      } else if (data && data.length > 0) {
+        console.log("ui", data);
+        setSchema({
+          data_schema: data[0].data_schema,
+          ui_schema: data[0].ui_schema
+        });
       }
+      // }
     };
 
     fetchFormSchema();

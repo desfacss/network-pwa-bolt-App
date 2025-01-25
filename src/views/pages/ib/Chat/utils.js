@@ -31,6 +31,12 @@ async function addMessage(chat_id, name, message, user_id) {
         return null
     }
 
+    const { updateError } = await supabase.rpc('increment_chat_count', { chat_id });
+
+    if (updateError) {
+        console.error('Error updating count in ib_posts:', updateError);
+    }
+
     return data
 }
 
