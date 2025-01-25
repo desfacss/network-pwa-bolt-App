@@ -4,7 +4,7 @@ import {
   DIR_LTR,
 } from "constants/ThemeConstant";
 
-export const APP_NAME = "";
+export const APP_NAME = "IBCN2025 NetworkX";
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 export const REACT_APP_WORKSPACE = process.env.REACT_APP_WORKSPACE;
 export const APP_PREFIX_PATH = "/app";

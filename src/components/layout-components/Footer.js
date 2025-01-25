@@ -10,7 +10,11 @@ export default function Footer() {
 	const currentTheme = useSelector(state => state.theme.currentTheme)
 
 	return (
-		<footer css={css`
+		<footer>
+{/* 			
+		</footer>
+		<footer 
+		css={css`
 			height: ${TEMPLATE.FOOTER_HEIGHT}px;
 			display: flex;
 			margin: 0 ${TEMPLATE.LAYOUT_CONTENT_GUTTER}px;
@@ -22,11 +26,11 @@ export default function Footer() {
 				justify-content: center;
        			flex-direction: column;
 			}
-		`}>
-			<span>
+		`}> */}
+			{/* <span>
 				Copyright © Claritiz 2024. All rights reserved.
-			</span>
-			<span>
+			</span> */}
+			{/* <span>
 				Developed by{' '}
 				<a
 					href="https://www.claritiz.com"
@@ -36,7 +40,7 @@ export default function Footer() {
 				>
 					www.claritiz.com
 				</a>
-			</span>
+			</span> */}
 		</footer>
 	)
 }

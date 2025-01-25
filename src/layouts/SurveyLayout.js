@@ -99,7 +99,7 @@ const SurveyLayout = ({ children }) => {
 							}}
 						>
 							<div>
-								<span
+								{/* <span
 									className="d-block"
 									style={{
 										color: 'white',
@@ -107,7 +107,7 @@ const SurveyLayout = ({ children }) => {
 									}}
 								>
 									Copyright © Claritiz 2024. All rights reserved.
-								</span>
+								</span> */}
 								<span
 									className="d-block"
 									style={{
