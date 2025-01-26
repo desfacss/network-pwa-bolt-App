@@ -11,7 +11,7 @@ import "./lang";
 import { setSession } from "store/slices/authSlice";
 import { supabase } from "configs/SupabaseConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 // import { indexedDB } from "state/services/indexedDB";
@@ -109,7 +109,7 @@ function App() {
               // persistOptions={{ persister }}
               >
                 <Layouts />
-                <ReactQueryDevtools initialIsOpen={false} />
+                {/* <ReactQueryDevtools initialIsOpen={false} /> */}
               </QueryClientProvider>
             </ThemeSwitcherProvider>
           </BrowserRouter>
