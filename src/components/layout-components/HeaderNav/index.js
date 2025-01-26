@@ -20,12 +20,14 @@ import utils from "utils";
 import { Button, Col, Form, Input, Modal, notification, Row, Select, Tooltip, Typography } from "antd";
 import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
 
+
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from "configs/SupabaseConfig";
 import { setSession } from "store/slices/authSlice";
 import { store } from "store";
 import Notifications from "components/common/Notifications";
 import OrganiztionSelect from "./OrganiztionSelect";
+// import lightIcon from 'img/ibcn/light.png'; // 
 
 export const HeaderNav = (props) => {
   const { Option } = Select;
@@ -67,6 +69,9 @@ export const HeaderNav = (props) => {
   const { session } = useSelector((state) => state.auth);
 
   const brokerAccounts = brokerAccountsList?.filter((account) => account?.broker_login_status === true)
+
+  // const workspace = state?.auth?.session?.user?.organization?.app_settings?.workspace || state?.auth?.defaultOrganization?.app_settings?.workspace || 'dev';
+
 
   const onToggle = () => {
     if (!isMobile) {
@@ -126,7 +131,8 @@ export const HeaderNav = (props) => {
                   <>
 
                     {navCollapsed && <CaretRightOutlined className="nav-icon" style={{ fontSize: '90%', color: '#999' }} />}
-                    {isMobile && <MenuUnfoldOutlined className="nav-icon" />}
+                    {/* {isMobile && <MenuUnfoldOutlined className="nav-icon" />} */}
+                    {isMobile && <img src={`/img/ibcn/light.png`} alt="Unfold Menu" className="nav-icon" style={{ width: '24px', height: '24px' }} />}
                     {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
