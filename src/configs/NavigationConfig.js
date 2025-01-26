@@ -77,14 +77,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.ibNetworking && feature?.ibNetworking && {
-        key: 'ib_heirarchy',
-        path: `${APP_PREFIX_PATH}/heirarchy`,
-        title: 'Categories',
-        icon: UserOutlined,
-        breadcrumb: false,
-        submenu: [],
-      },
+      
       module_features?.ibBusinesses && feature?.ibBusinesses && {
         key: 'ib_businesses',
         path: `${APP_PREFIX_PATH}/businesses`,
@@ -97,6 +90,14 @@ const navigationConfig = [
         key: 'ib_members',
         path: `${APP_PREFIX_PATH}/members`,
         title: 'Members',
+        icon: UserOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibNetworking && feature?.ibNetworking && {
+        key: 'ib_heirarchy',
+        path: `${APP_PREFIX_PATH}/heirarchy`,
+        title: 'Categories',
         icon: UserOutlined,
         breadcrumb: false,
         submenu: [],
