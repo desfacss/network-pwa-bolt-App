@@ -1,7 +1,12 @@
 {
-  "short_name": "Networking",
-  "name": "Networking",
+  "short_name": "IBCN NetworkX",
+  "name": "IBCN NetworkX",
   "icons": [
+    {
+      "src": "img/ibcn.png",
+      "sizes": "192x192",  
+      "type": "image/png"
+    },
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
