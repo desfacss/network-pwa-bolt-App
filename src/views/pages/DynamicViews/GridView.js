@@ -7,18 +7,18 @@ import { useSelector } from 'react-redux';
 
 const { Title, Text } = Typography;
 
-// Helper function to trim whitespace
-const trimValue = (value) => {
-  return typeof value === 'string' ? value.trim() : value;
-};
+// // Helper function to trim whitespace - try removing empty white rows - if no value is available
+// const trimValue = (value) => {
+//   return typeof value === 'string' ? value.trim() : value;
+// };
 
-// Helper function to format array values
-const formatArrayValue = (value) => {
-  if (Array.isArray(value)) {
-    return value.map(trimValue).filter(Boolean).join(', ');
-  }
-  return trimValue(value);
-};
+// // Helper function to format array values - adding comma if we have array value - looking like tags (with grey background)
+// const formatArrayValue = (value) => {
+//   if (Array.isArray(value)) {
+//     return value.map(trimValue).filter(Boolean).join(', ');
+//   }
+//   return trimValue(value);
+// };
 
 const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openDrawer }) => {
   const [searchText, setSearchText] = useState('');
@@ -71,40 +71,42 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   // Function to get field value, now with whitespace and array handling
   const getFieldValue = (record, fieldConfig) => {
     console.log("ft-Getting field value for record:", record);
-    if (!fieldConfig) return '';
+    if (!fieldConfig) return null;
+    // if (!fieldConfig) return '';
 
     let value = fieldConfig?.fieldPath
       ? getNestedValue(record, fieldConfig?.fieldPath)
       : record[fieldConfig?.fieldName];
 
-    // Handle comma-separated display for subfields or array fields
-    if ((fieldConfig?.display === "comma_separated" && fieldConfig.subFields) || Array.isArray(value)) {
-      value = formatArrayValue(value);
-    } else if (value) {
-      value = trimValue(value);
+    // Handle comma-separated display for subfields
+    if (fieldConfig?.display === "comma_separated" && fieldConfig.subFields) {
+      value = fieldConfig.subFields
+        .map(subField => getNestedValue(record, subField.fieldPath))
+        .filter(Boolean) // Remove any undefined or null values
+        .join(', ');
     }
 
-    return value || ''; // Return an empty string if value is undefined or null
+    return value;
   };
 
-  // Render field based on config, now handling empty or whitespace-only values and arrays
+  
+
+  // Render field based on config
   const renderField = (record, fieldConfig) => {
     const value = getFieldValue(record, fieldConfig);
     const { style = {} } = fieldConfig;
     const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
 
-    if (!value && !fieldConfig.label) return null; // Skip rendering if there's no value and no label
-
     if (style?.render === 'tag' && Array.isArray(value)) {
       return (
         <Space wrap>
-          {value.split(', ').map((tag, index) => (
+          {value.map((tag, index) => (
             <Tag
               key={index}
-              onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag}`)}
-              color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
+              onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag?.value}`)}
+              color={style?.colorMapping?.[tag?.value?.toLowerCase()] || 'default'}
             >
-              {tag}
+              {tag?.value}
             </Tag>
           ))}
         </Space>
@@ -126,10 +128,78 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         }}
       >
         {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-        {fieldConfig?.label && `${fieldConfig?.label} `}
+        {fieldConfig?.label && `${fieldConfig?.fieldName}: `}
         {value}
       </Text>
     );
+
+  //   //****
+  //   // // Function to get field value, now with whitespace and array handling
+  // const getFieldValue = (record, fieldConfig) => {
+  //   console.log("ft-Getting field value for record:", record);
+  //   if (!fieldConfig) return '';
+
+  //   let value = fieldConfig?.fieldPath
+  //     ? getNestedValue(record, fieldConfig?.fieldPath)
+  //     : record[fieldConfig?.fieldName];
+
+  //   // Handle comma-separated display for subfields or array fields
+  //   if ((fieldConfig?.display === "comma_separated" && fieldConfig.subFields) || Array.isArray(value)) {
+  //     value = formatArrayValue(value);
+  //   } else if (value) {
+  //     value = trimValue(value);
+  //   }
+
+  //   return value || ''; // Return an empty string if value is undefined or null
+  // };
+
+  // // Render field based on config, now handling empty or whitespace-only values and arrays
+  // const renderField = (record, fieldConfig) => {
+  //   const value = getFieldValue(record, fieldConfig);
+  //   const { style = {} } = fieldConfig;
+  //   const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
+
+  //   if (!value && !fieldConfig.label) return null; // Skip rendering if there's no value and no label
+
+  //   if (style?.render === 'tag' && Array.isArray(value)) {
+  //     return (
+  //       <Space wrap>
+  //         {value.split(', ').map((tag, index) => (
+  //           <Tag
+  //             key={index}
+  //             onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag}`)}
+  //             color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
+  //           >
+  //             {tag}
+  //           </Tag>
+  //         ))}
+  //       </Space>
+  //     );
+  //   }
+
+  //   if (style.badge) {
+  //     return <Badge status={style.color?.[value?.toLowerCase()] || 'default'} text={value} />;
+  //   }
+
+  //   const content = (
+  //     <Text
+  //       style={{
+  //         ...style,
+  //         display: 'block',
+  //         whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
+  //         overflow: style?.ellipsis ? 'hidden' : 'visible',
+  //         textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
+  //       }}
+  //     >
+  //       {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
+  //       {fieldConfig?.label && `${fieldConfig?.label} `}
+  //       {value}
+  //     </Text>
+  //   );
+
+  //   //******* */ */
+    
+    
 
     return fieldConfig?.link ? (
       <a onClick={() => navigate(`/app${fieldConfig?.link}${value}`)}>{content}</a>
