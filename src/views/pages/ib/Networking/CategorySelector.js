@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Select, Input, Button, message } from "antd";
+import { Modal, Select, Input, Button, message, Drawer } from "antd";
 import { supabase } from "api/supabaseClient";
 import { useSelector } from "react-redux";
 
@@ -22,20 +22,24 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
     const [description, setDescription] = useState("");
     const { session } = useSelector((state) => state.auth);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            const { data, error } = await supabase
-                .from("ib_categories")
-                .select("*")
-                .order("category_name", { ascending: true });
+    const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [newCategoryDescription, setNewCategoryDescription] = useState('');
 
-            if (error) {
-                message.error("Failed to load categories");
-            } else {
-                setCategories(data);
-                setTreeData(buildTree(data)); // Transform categories into a tree
-            }
-        };
+    const fetchCategories = async () => {
+        const { data, error } = await supabase
+            .from("ib_categories")
+            .select("*")
+            .order("category_name", { ascending: true });
+
+        if (error) {
+            message.error("Failed to load categories");
+        } else {
+            setCategories(data);
+            setTreeData(buildTree(data)); // Transform categories into a tree
+        }
+    };
+    useEffect(() => {
 
         fetchCategories();
     }, []);
@@ -64,6 +68,10 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
     }, [chatId]);
 
     const handleSelectChange = (value, level) => {
+        if (value === 'add') {
+            setIsAddCategoryModalVisible(true);
+            return;
+        }
         const newSelected = [...selectedCategories];
         newSelected[level] = value;
         setSelectedCategories(newSelected.slice(0, level + 1)); // Remove extra selections
@@ -125,75 +133,131 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
         }
     };
 
+    const clearModal = () => {
+        setIsAddCategoryModalVisible(false);
+        setNewCategoryName('');
+        setNewCategoryDescription('');
+        setSelectedCategories(selectedCategories.slice(0, -1)); // Remove 'add' if it was selected
+    }
+
+    const handleAddCategory = async () => {
+        if (!newCategoryName || !newCategoryDescription) {
+            message.error("Please fill in all fields");
+            return;
+        }
+
+        const parentId = selectedCategories[selectedCategories.length - 1] || null;
+
+        const { data, error } = await supabase
+            .from('ib_categories')
+            .insert({
+                category_name: newCategoryName,
+                description: newCategoryDescription,
+                is_main_category: false,
+                parent_category_id: parentId,
+                is_approved: false
+            });
+
+        if (error) {
+            message.error('Failed to add new category');
+        } else {
+            message.success('Category added successfully');
+            fetchCategories();
+            clearModal()
+            // setIsAddCategoryModalVisible(false);
+        }
+    };
+
     return (
-        <Modal
-            title={chatId ? "Edit Post" : "Create Post"}
-            open={visible}
-            onCancel={onClose}
-            footer={[
-                <Button key="cancel" onClick={onClose}>
-                    Cancel
-                </Button>,
-                <Button key="submit" type="primary" onClick={handleSubmit}>
-                    {chatId ? "Update" : "Submit"}
-                </Button>,
-            ]}
-        >
-
-
-            {/* <h3>Select Categories</h3> */}
-
-            <Select
-                style={{ width: "100%", marginBottom: 10 }}
-                onChange={(value) => handleSelectChange(value, 0)}
-                placeholder="Select category"
-                value={selectedCategories[0] || undefined}
+        <>
+            <Modal maskClosable={false}
+                title="Add New Category"
+                visible={isAddCategoryModalVisible}
+                onOk={handleAddCategory}
+                onCancel={() => clearModal()}
             >
-                {treeData?.map((opt) => (
-                    <Option key={opt.id} value={opt.id}>
-                        {opt.category_name}
-                    </Option>
-                ))}
-            </Select>
+                <Input
+                    placeholder="Category Name"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                />
+                <Input.TextArea
+                    placeholder="Description"
+                    value={newCategoryDescription}
+                    onChange={(e) => setNewCategoryDescription(e.target.value)}
+                    rows={4}
+                />
+            </Modal>
+            <Drawer
+                title={chatId ? "Edit Post" : "Create Post"}
+                open={visible}
+                onClose={onClose}
+                footer={[
+                    <Button key="cancel" onClick={onClose}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleSubmit}>
+                        {chatId ? "Update" : "Submit"}
+                    </Button>,
+                ]}
+            >
 
-            {/* Render cascading selects for child categories */}
-            {selectedCategories?.map((selected, index) => {
-                const options = getChildren(selected);
-                if (options.length > 0) {
-                    return (
-                        <Select
-                            key={index + 1}
-                            style={{ width: "100%", marginBottom: 10 }}
-                            value={selectedCategories[index + 1] || undefined}
-                            onChange={(value) => handleSelectChange(value, index + 1)}
-                            placeholder="Select sub-category"
-                        >
-                            {options?.map((opt) => (
-                                <Option key={opt.id} value={opt.id}>
-                                    {opt.category_name}
-                                </Option>
-                            ))}
-                        </Select>
-                    );
-                }
-                return null;
-            })}
 
-            <Input
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                style={{ marginBottom: 10 }}
-            />
-            <Input.TextArea
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                style={{ marginBottom: 10 }}
-            />
+                {/* <h3>Select Categories</h3> */}
 
-        </Modal>
+                <Select
+                    style={{ width: "100%", marginBottom: 10 }}
+                    onChange={(value) => handleSelectChange(value, 0)}
+                    placeholder="Select category"
+                    value={selectedCategories[0] || undefined}
+                >
+                    {treeData?.map((opt) => (
+                        <Option key={opt.id} value={opt.id}>
+                            {opt.category_name}
+                        </Option>
+                    ))}
+                </Select>
+
+                {/* Render cascading selects for child categories */}
+                {selectedCategories?.map((selected, index) => {
+                    const options = getChildren(selected);
+                    if (options.length > 0) {
+                        return (
+                            <Select
+                                key={index + 1}
+                                style={{ width: "100%", marginBottom: 10 }}
+                                value={selectedCategories[index + 1] || undefined}
+                                onChange={(value) => handleSelectChange(value, index + 1)}
+                                placeholder="Select sub-category"
+                            >
+                                {options?.map((opt) => (
+                                    <Option key={opt.id} value={opt.id}>
+                                        {opt.category_name}
+                                    </Option>
+                                ))}
+                                <Option value="add">{'+ Add'}</Option>
+                            </Select>
+                        );
+                    }
+                    return null;
+                })}
+
+                <Input
+                    placeholder="Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    style={{ marginBottom: 10 }}
+                />
+                <Input.TextArea
+                    placeholder="Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={4}
+                    style={{ marginBottom: 10 }}
+                />
+
+            </Drawer>
+        </>
     );
 };
 

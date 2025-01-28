@@ -55,7 +55,55 @@ export const widgetConfigs = {
         },
         requiresOptions: true
     },
-    "Select-Filters": {
+    "SelectMulti": {
+        dataSchema: {
+            type: "string",
+            enum: []
+        },
+        uiSchema: {
+            "ui:widget": "SelectWidget",
+            "ui:placeholder": "Select an option",
+            "ui:options": {
+                "allowClear": true,
+                "mode": "multiple",
+                "showSearch": true
+            }
+        },
+        requiresLookup: true
+    },
+    "SelectMultiTags": {
+        dataSchema: {
+            type: "string",
+            enum: []
+        },
+        uiSchema: {
+            "ui:widget": "SelectWidget",
+            "ui:placeholder": "Select an option",
+            "ui:options": {
+                "allowClear": true,
+                "mode": "tags",
+                "showSearch": true
+            }
+        },
+        requiresLookup: true
+    },
+    "SelectSingle": {
+        dataSchema: {
+            type: "string",
+            enum: []
+        },
+        uiSchema: {
+            "ui:widget": "SelectWidget",
+            "ui:options": {
+                "allowClear": false,
+                "showSearch": false,
+                "mode": "single"
+            },
+            "ui:placeholder": "Select an option"
+        },
+        requiresLookup: true
+    },
+    "Select-Filters": {//This is Static for now,need to make filters addable to any select widget
         dataSchema: {
             "enum": {
                 "table": "users",
@@ -84,19 +132,24 @@ export const widgetConfigs = {
         },
         requiresOptions: true
     },
-    "Multi-Select": {
-        dataSchema: {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "title": "Tags",
-        },
-        uiSchema: {
-            "ui:widget": "TagsWidget"
-        },
-        requiresOptions: true,
-    },
+    // "Multi-Select": {
+    //     dataSchema: {
+    //         "type": "array",
+    //         "items": {
+    //             "type": "string"
+    //         },
+    //         "title": "Tags",
+    //         "options": [
+    //             "option1",
+    //             "option2",
+    //             "option3"
+    //         ]
+    //     },
+    //     uiSchema: {
+    //         "ui:widget": "TagsWidget"
+    //     },
+    //     requiresOptions: true,
+    // },
     "radio": {
         dataSchema: {
             "type": "boolean",
@@ -122,6 +175,19 @@ export const widgetConfigs = {
         },
         uiSchema: {
             "ui:widget": "range"
+        },
+    },
+    "Web Widget": {
+        dataSchema: {
+            "type": "string",
+            "title": "Website"
+
+        },
+        uiSchema: {
+            "website": {
+                "ui:widget": "WebWidget"
+            }
+
         },
     },
     "date": {

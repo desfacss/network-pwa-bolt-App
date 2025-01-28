@@ -18,7 +18,7 @@ const Profile = () => {
     const [edit, setEdit] = useState(false);
     const [updateId, setUpdateId] = useState();
     const [profileFields, setProfileFields] = useState([]);
-    const [userData, setUserData] = useState(session?.user);
+    const [userData, setUserData] = useState();//session?.user
 
 
     useEffect(() => {
@@ -41,9 +41,9 @@ const Profile = () => {
         if (user_name) {
             fetchUserData();
         }
-        // else {
-        //     setUserData(session?.user)
-        // }
+        else {
+            setUserData(session?.user)
+        }
     }, [user_name, session]);
 
 
@@ -73,7 +73,7 @@ const Profile = () => {
     }, [organization]);
 
 
-    const { details } = userData;
+    const details = userData?.details;
 
     const getForms = async (formName) => {
         const { data, error } = await supabase.from('forms').select('*').eq('name', formName)
@@ -242,7 +242,7 @@ const Profile = () => {
                     }}
                 >
                     <span className='mr-2'>Personal Info</span>
-                    {session?.user?.id === userData?.id &&
+                    {userData && session?.user?.id === userData?.id &&
                         <>
                             <Button className='mr-5' icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
                             </Button>

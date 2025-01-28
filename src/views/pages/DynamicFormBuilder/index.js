@@ -257,7 +257,7 @@ const FormBuilder = () => {
     updateSchemas(fields);
   }, [fields]);
 
-  const onFinish = () => { setIsDrawerVisible(false) }
+  const onFinish = (values) => { console.log("Payload", values);; setIsDrawerVisible(false) }
 
   // Fetch forms from Supabase
   const fetchForms = async () => {

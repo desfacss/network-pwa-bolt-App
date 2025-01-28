@@ -49,8 +49,26 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   };
 
   // Helper function to access deep values using dot notation
+  // const getNestedValue = (obj, path) => {
+  //   console.log("ptr", path?.split('-').reduce((acc, key) => acc && acc[key], obj));
+  //   return path?.split('-').reduce((acc, key) => acc && acc[key], obj);
+  // };
+
   const getNestedValue = (obj, path) => {
-    return path?.split('-').reduce((acc, key) => acc && acc[key], obj);
+    if (!obj || !path) return undefined;
+
+    const keys = path.split('-');
+
+    return keys.reduce((result, key) => {
+      if (!result) return undefined;
+
+      // If result is an array, map over it and extract the next key
+      if (Array.isArray(result)) {
+        return result.map(item => item[key]).filter(Boolean); // Remove undefined values
+      }
+
+      return result[key];
+    }, obj);
   };
 
   const canEditOrDelete = (item, rules) => {
@@ -85,6 +103,11 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         .filter(Boolean) // Remove any undefined or null values
         .join(', ');
     }
+    // Array.isArray(value) && console.log("tyu", value);
+    // // If value is an array of objects, map to get the category_name
+    // if (Array.isArray(value) && value[0][fieldConfig?.fieldValue]) {
+    //   value = value.map(item => item[fieldConfig?.fieldValue]);
+    // }
 
     return value;
   };
@@ -100,10 +123,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     if (style?.render === 'tag' && Array.isArray(value)) {
       return (
         <Space wrap>
-          {value.map((tag, index) => (
+          {value?.map((tag, index) => (
             <Tag
               key={index}
-              onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag?.value}`)}
+              onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${fieldConfig?.linkParam ? record[fieldConfig?.linkParam] : tag}`)}
               color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
             >
               {tag}
@@ -128,8 +151,8 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         }}
       >
         {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-        {value && fieldConfig?.label && `${fieldConfig?.fieldName}: `}
-        {value}
+        {(value && fieldConfig?.label) && `${fieldConfig?.fieldName}: ` || null}
+        {value || null}
       </Text>
     );
 
@@ -215,7 +238,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     }
 
     return fieldConfig?.link ? (
-      <a onClick={() => navigate(`/app${fieldConfig?.link}${fieldConfig?.link ? record[fieldConfig?.linkParam] : value}`)}>{content}</a>
+      <a onClick={() => navigate(`/app${fieldConfig?.link}${fieldConfig?.linkParam ? record[fieldConfig?.linkParam] : value}`)}>{content}</a>
     ) : content;
   };
 
@@ -229,7 +252,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     return data?.filter(item =>
       gridViewConfig?.fields?.some(field => {
         const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
-        const value = Array.isArray(value1) ? value1?.map(item => item.value)?.join(', ') : value1?.value ?? null;
+        const value = Array.isArray(value1) ? value1?.map(item => item)?.join(', ') : value1 ?? null;
         return String(value).toLowerCase().includes(searchText?.toLowerCase());
       })
     );
@@ -320,7 +343,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       {/* Grid Layout */}
       <Row gutter={[gridViewConfig?.layout?.spacing, gridViewConfig?.layout?.spacing]}>
         {filteredData.map((record, index) => {
-          const fields = gridViewConfig?.fields || [];
+          const fields = gridViewConfig?.fields?.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0)) || [];
           const titleFields = fields?.filter(f => f.cardSection === 'title');
           const footerFields = fields?.filter(f => f.cardSection === 'footer');
           const bodyFields = fields?.filter(f => !f.cardSection || f.cardSection === 'body');

@@ -1,5 +1,5 @@
-import React from "react";
-import { DatePicker, Select } from "antd";
+import React, { useState } from "react";
+import { DatePicker, Input, Select } from "antd";
 import dayjs from "dayjs";
 // import EditableTableWidget from "./EditableTable";
 // import EditableTableWidget2 from "./Table";
@@ -41,39 +41,88 @@ const DateTimeRangePickerWidget = (props) => {
 };
 
 
-const TagsWidget = ({ value, onChange, id, schema }) => {
-    const options = React.useMemo(() => schema?.options || [], [schema]);
+// const TagsWidget = ({ value, onChange, id, schema }) => {
+//     const options = React.useMemo(() => schema?.options || [], [schema]);
 
-    const handleChange = (selectedValues) => {
-        console.log("Selected Values:", selectedValues);
-        onChange(selectedValues);
-        // // Optional: Validate against schema.enum if needed
-        // const validValues = selectedValues.filter((val) =>
-        //     options.includes(val)
-        // );
-        // onChange(validValues); // Pass validated values
-    };
+//     const handleChange = (selectedValues) => {
+//         console.log("Selected Values:", selectedValues);
+//         onChange(selectedValues);
+//         // // Optional: Validate against schema.enum if needed
+//         // const validValues = selectedValues.filter((val) =>
+//         //     options.includes(val)
+//         // );
+//         // onChange(validValues); // Pass validated values
+//     };
+
+//     return (
+//         <Select
+//             id={id}
+//             showSearch
+//             mode="tags"
+//             style={{ width: "100%" }}
+//             value={value || []} // Ensure it's always an array
+//             onChange={handleChange}
+//             tokenSeparators={[","]}
+//             options={options.map((option) => ({
+//                 value: option,
+//                 label: option,
+//             }))}
+//         />
+//     );
+// };
+
+const SelectWidget = ({ options, value, onChange, onBlur, onFocus }) => {
+    const { enumOptions, placeholder, allowClear, mode, showSearch, optionFilterProp } = options;
 
     return (
         <Select
-            id={id}
-            mode="tags"
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+            onFocus={onFocus}
+            placeholder={placeholder}
+            allowClear={allowClear || true}
+            mode={mode || "multiple"} // Supports "multiple" and "tags"
+            showSearch={showSearch || true}
+            optionFilterProp={optionFilterProp || "children"} // Ensure filtering works
             style={{ width: "100%" }}
-            value={value || []} // Ensure it's always an array
+        >
+            {enumOptions.map(({ value, label }) => (
+                <Select.Option key={value} value={value}>
+                    {label}
+                </Select.Option>
+            ))}
+        </Select>
+    );
+};
+
+
+const WebWidget = ({ value, onChange }) => {
+    const [inputValue, setInputValue] = useState(value || '');
+
+    const handleChange = (e) => {
+        const newValue = e.target.value;
+        setInputValue(newValue);
+        onChange('https://' + newValue + '.com');
+    };
+
+    return (
+        <Input
+            addonBefore="https://"
+            addonAfter=".com"
+            value={inputValue}
             onChange={handleChange}
-            tokenSeparators={[","]}
-            options={options.map((option) => ({
-                value: option,
-                label: option,
-            }))}
+            placeholder="example"
         />
     );
 };
 
 export default {
-    TagsWidget,
+    // TagsWidget,
+    WebWidget,
     DateRangePickerWidget,
     DateTimeRangePickerWidget,
     // EditableTableWidget,
     EditableTableWidget,
+    SelectWidget
 };
