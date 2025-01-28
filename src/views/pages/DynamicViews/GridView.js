@@ -41,10 +41,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   const getResponsiveSpans = (cardsPerRow) => {
     console.log("Calculating responsive spans for cardsPerRow:", cardsPerRow);
     return {
-      xs: 24, 
-      sm: cardsPerRow === 1 ? 24 : 12, 
-      md: cardsPerRow === 1 ? 24 : Math.floor(24 / Math.min(cardsPerRow, 3)), 
-      lg: cardsPerRow === 1 ? 24 : Math.floor(24 / cardsPerRow), 
+      xs: 24,
+      sm: cardsPerRow === 1 ? 24 : 12,
+      md: cardsPerRow === 1 ? 24 : Math.floor(24 / Math.min(cardsPerRow, 3)),
+      lg: cardsPerRow === 1 ? 24 : Math.floor(24 / cardsPerRow),
     };
   };
 
@@ -89,7 +89,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     return value;
   };
 
-  
+
 
   // Render field based on config
   const renderField = (record, fieldConfig) => {
@@ -104,9 +104,9 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
             <Tag
               key={index}
               onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag?.value}`)}
-              color={style?.colorMapping?.[tag?.value?.toLowerCase()] || 'default'}
+              color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
             >
-              {tag?.value}
+              {tag}
             </Tag>
           ))}
         </Space>
@@ -128,81 +128,94 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         }}
       >
         {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-        {fieldConfig?.label && `${fieldConfig?.fieldName}: `}
+        {value && fieldConfig?.label && `${fieldConfig?.fieldName}: `}
         {value}
       </Text>
     );
 
-  //   //****
-  //   // // Function to get field value, now with whitespace and array handling
-  // const getFieldValue = (record, fieldConfig) => {
-  //   console.log("ft-Getting field value for record:", record);
-  //   if (!fieldConfig) return '';
+    //   //****
+    //   // // Function to get field value, now with whitespace and array handling
+    // const getFieldValue = (record, fieldConfig) => {
+    //   console.log("ft-Getting field value for record:", record);
+    //   if (!fieldConfig) return '';
 
-  //   let value = fieldConfig?.fieldPath
-  //     ? getNestedValue(record, fieldConfig?.fieldPath)
-  //     : record[fieldConfig?.fieldName];
+    //   let value = fieldConfig?.fieldPath
+    //     ? getNestedValue(record, fieldConfig?.fieldPath)
+    //     : record[fieldConfig?.fieldName];
 
-  //   // Handle comma-separated display for subfields or array fields
-  //   if ((fieldConfig?.display === "comma_separated" && fieldConfig.subFields) || Array.isArray(value)) {
-  //     value = formatArrayValue(value);
-  //   } else if (value) {
-  //     value = trimValue(value);
-  //   }
+    //   // Handle comma-separated display for subfields or array fields
+    //   if ((fieldConfig?.display === "comma_separated" && fieldConfig.subFields) || Array.isArray(value)) {
+    //     value = formatArrayValue(value);
+    //   } else if (value) {
+    //     value = trimValue(value);
+    //   }
 
-  //   return value || ''; // Return an empty string if value is undefined or null
-  // };
+    //   return value || ''; // Return an empty string if value is undefined or null
+    // };
 
-  // // Render field based on config, now handling empty or whitespace-only values and arrays
-  // const renderField = (record, fieldConfig) => {
-  //   const value = getFieldValue(record, fieldConfig);
-  //   const { style = {} } = fieldConfig;
-  //   const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
+    // // Render field based on config, now handling empty or whitespace-only values and arrays
+    // const renderField = (record, fieldConfig) => {
+    //   const value = getFieldValue(record, fieldConfig);
+    //   const { style = {} } = fieldConfig;
+    //   const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
 
-  //   if (!value && !fieldConfig.label) return null; // Skip rendering if there's no value and no label
+    //   if (!value && !fieldConfig.label) return null; // Skip rendering if there's no value and no label
 
-  //   if (style?.render === 'tag' && Array.isArray(value)) {
-  //     return (
-  //       <Space wrap>
-  //         {value.split(', ').map((tag, index) => (
-  //           <Tag
-  //             key={index}
-  //             onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag}`)}
-  //             color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
-  //           >
-  //             {tag}
-  //           </Tag>
-  //         ))}
-  //       </Space>
-  //     );
-  //   }
+    //   if (style?.render === 'tag' && Array.isArray(value)) {
+    //     return (
+    //       <Space wrap>
+    //         {value.split(', ').map((tag, index) => (
+    //           <Tag
+    //             key={index}
+    //             onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag}`)}
+    //             color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
+    //           >
+    //             {tag}
+    //           </Tag>
+    //         ))}
+    //       </Space>
+    //     );
+    //   }
 
-  //   if (style.badge) {
-  //     return <Badge status={style.color?.[value?.toLowerCase()] || 'default'} text={value} />;
-  //   }
+    //   if (style.badge) {
+    //     return <Badge status={style.color?.[value?.toLowerCase()] || 'default'} text={value} />;
+    //   }
 
-  //   const content = (
-  //     <Text
-  //       style={{
-  //         ...style,
-  //         display: 'block',
-  //         whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
-  //         overflow: style?.ellipsis ? 'hidden' : 'visible',
-  //         textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
-  //       }}
-  //     >
-  //       {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-  //       {fieldConfig?.label && `${fieldConfig?.label} `}
-  //       {value}
-  //     </Text>
-  //   );
+    //   const content = (
+    //     <Text
+    //       style={{
+    //         ...style,
+    //         display: 'block',
+    //         whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
+    //         overflow: style?.ellipsis ? 'hidden' : 'visible',
+    //         textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
+    //       }}
+    //     >
+    //       {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
+    //       {fieldConfig?.label && `${fieldConfig?.label} `}
+    //       {value}
+    //     </Text>
+    //   );
 
-  //   //******* */ */
-    
-    
+    //   //******* */ */
+
+    // Check if webLink is true to open link in a new tab
+    if (fieldConfig?.webLink) {
+      // Ensure the value is a full URL or prepend 'http://' if it's not
+      const fullUrl = value.startsWith('https') ? value : `https://${value}`;
+      return (
+        <a
+          href={fullUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {content}
+        </a>
+      );
+    }
 
     return fieldConfig?.link ? (
-      <a onClick={() => navigate(`/app${fieldConfig?.link}${value}`)}>{content}</a>
+      <a onClick={() => navigate(`/app${fieldConfig?.link}${fieldConfig?.link ? record[fieldConfig?.linkParam] : value}`)}>{content}</a>
     ) : content;
   };
 
