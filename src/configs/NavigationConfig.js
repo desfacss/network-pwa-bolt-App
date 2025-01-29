@@ -1,15 +1,18 @@
 import {
   DashboardOutlined,
-  ReadOutlined,
   UserOutlined,
   FundOutlined,
   IdcardOutlined,
   ContainerOutlined,
   RadarChartOutlined,
-  HeatMapOutlined,
   WalletOutlined,
   ClockCircleOutlined,
   CalendarOutlined,
+  TeamOutlined,
+  ShopOutlined,
+  UsergroupAddOutlined,
+  ApartmentOutlined,
+  FormOutlined
 } from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig';
 import { store } from 'store';
@@ -73,16 +76,16 @@ const navigationConfig = [
         key: 'ib_networking',
         path: `${APP_PREFIX_PATH}/networking`,
         title: 'Networking',
-        icon: UserOutlined,
+        icon: TeamOutlined,
         breadcrumb: false,
         submenu: [],
       },
-      
+
       module_features?.ibBusinesses && feature?.ibBusinesses && {
         key: 'ib_businesses',
         path: `${APP_PREFIX_PATH}/businesses`,
         title: 'Businesses',
-        icon: UserOutlined,
+        icon: ShopOutlined,
         breadcrumb: false,
         submenu: [],
       },
@@ -90,15 +93,15 @@ const navigationConfig = [
         key: 'ib_members',
         path: `${APP_PREFIX_PATH}/members`,
         title: 'Members',
-        icon: UserOutlined,
+        icon: UsergroupAddOutlined,
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.ibNetworking && feature?.ibNetworking && {
+      module_features?.ibCategories && feature?.ibCategories && {
         key: 'ib_heirarchy',
         path: `${APP_PREFIX_PATH}/heirarchy`,
         title: 'Categories',
-        icon: UserOutlined,
+        icon: ApartmentOutlined,
         breadcrumb: false,
         submenu: [],
       },
@@ -106,7 +109,7 @@ const navigationConfig = [
         key: 'survey',
         path: `${APP_PREFIX_PATH}/survey`,
         title: 'Survey',
-        icon: UserOutlined,
+        icon: FormOutlined,
         breadcrumb: false,
         submenu: [],
       },

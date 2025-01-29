@@ -41,35 +41,35 @@ const DateTimeRangePickerWidget = (props) => {
 };
 
 
-// const TagsWidget = ({ value, onChange, id, schema }) => {
-//     const options = React.useMemo(() => schema?.options || [], [schema]);
+const TagsWidget = ({ value, onChange, id, schema }) => {
+    const options = React.useMemo(() => schema?.options || [], [schema]);
 
-//     const handleChange = (selectedValues) => {
-//         console.log("Selected Values:", selectedValues);
-//         onChange(selectedValues);
-//         // // Optional: Validate against schema.enum if needed
-//         // const validValues = selectedValues.filter((val) =>
-//         //     options.includes(val)
-//         // );
-//         // onChange(validValues); // Pass validated values
-//     };
+    const handleChange = (selectedValues) => {
+        console.log("Selected Values:", selectedValues);
+        onChange(selectedValues);
+        // // Optional: Validate against schema.enum if needed
+        // const validValues = selectedValues.filter((val) =>
+        //     options.includes(val)
+        // );
+        // onChange(validValues); // Pass validated values
+    };
 
-//     return (
-//         <Select
-//             id={id}
-//             showSearch
-//             mode="tags"
-//             style={{ width: "100%" }}
-//             value={value || []} // Ensure it's always an array
-//             onChange={handleChange}
-//             tokenSeparators={[","]}
-//             options={options.map((option) => ({
-//                 value: option,
-//                 label: option,
-//             }))}
-//         />
-//     );
-// };
+    return (
+        <Select
+            id={id}
+            showSearch
+            mode="tags"
+            style={{ width: "100%" }}
+            value={value || []} // Ensure it's always an array
+            onChange={handleChange}
+            tokenSeparators={[","]}
+            options={options.map((option) => ({
+                value: option,
+                label: option,
+            }))}
+        />
+    );
+};
 
 const SelectWidget = ({ options, value, onChange, onBlur, onFocus }) => {
     const { enumOptions, placeholder, allowClear, mode, showSearch, optionFilterProp } = options;
@@ -87,7 +87,7 @@ const SelectWidget = ({ options, value, onChange, onBlur, onFocus }) => {
             optionFilterProp={optionFilterProp || "children"} // Ensure filtering works
             style={{ width: "100%" }}
         >
-            {enumOptions.map(({ value, label }) => (
+            {enumOptions?.map(({ value, label }) => (
                 <Select.Option key={value} value={value}>
                     {label}
                 </Select.Option>
@@ -118,7 +118,7 @@ const WebWidget = ({ value, onChange }) => {
 };
 
 export default {
-    // TagsWidget,
+    TagsWidget,
     WebWidget,
     DateRangePickerWidget,
     DateTimeRangePickerWidget,

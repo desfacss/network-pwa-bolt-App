@@ -16,13 +16,36 @@ const Routes = () => {
     setFilteredProtectedRoutes(protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features))
   }, [session])
 
-  // Determine the fallback path
+  // // Determine the fallback path
+  // const fallbackPath = useMemo(() => {
+  //   console.log("bnm2", session?.user?.features?.feature, session?.user?.organization?.module_features);
+  //   const isValidPath = protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.some(
+  //     (route) => route?.path === location?.pathname
+  //   );
+  //   return isValidPath ? location?.pathname : "/app/dashboard";
+  // }, [location?.pathname]);
+
   const fallbackPath = useMemo(() => {
     const isValidPath = protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.some(
-      (route) => route?.path === location?.pathname
+      route => {
+        // Here we need to check if the pathname matches the route path, 
+        // even if it's a dynamic route with parameters
+        const routeSegments = route.path.split('/');
+        const pathSegments = location.pathname.split('/');
+
+        if (routeSegments.length !== pathSegments.length) return false;
+
+        for (let i = 0; i < routeSegments.length; i++) {
+          if (routeSegments[i].startsWith(':') || routeSegments[i] === pathSegments[i]) {
+            continue;
+          }
+          return false;
+        }
+        return true;
+      }
     );
-    return isValidPath ? location?.pathname : "/app/dashboard";
-  }, [location?.pathname]);
+    return isValidPath ? location.pathname : "/app/dashboard";
+  }, [location.pathname, session]);
 
   return (
     <RouterRoutes>
