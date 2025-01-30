@@ -1,7 +1,7 @@
 import Form from "@rjsf/antd";
 // import { RJSFSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-import { Spin, Slider } from "antd";
+import { Spin, Slider, Button } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -9,6 +9,7 @@ import Widgets from "./Widgets";
 // import { ReactElement } from "react";
 // import schema from "./FormSchema.json";
 import ObjectFieldTemplate from "./ObjectFieldTemplate.tsx";
+import ButtonGroup from "antd/es/button/button-group";
 
 const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     // State variables for managing dynamic form data and user context
@@ -26,6 +27,8 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
         const { data, error } = await supabase.from('organizations').select('*').eq('name', process.env.REACT_APP_ORGANIZATION_APP || 'Dev').single();
         if (data) {
             setOrganization(data);
+        } else {
+            console.error('Failed to fetch organization:', error);
         }
     };
 
@@ -34,6 +37,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
         const getUser = async () => {
             supabase.auth.getSession().then(async ({ data: { session } }) => {
                 setUserId(session?.user?.id);
+                console.log('User ID set:', session?.user?.id);
             });
         };
         getUser();
@@ -44,9 +48,11 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     useEffect(() => {
         const getEnums = async () => {
             let { data, error } = await supabase.from('enums').select('*');
-            console.log("Enums", error, data);
+            console.log("Enums fetched:", error, data);
             if (data) {
                 setEnums(data);
+            } else {
+                console.error('Failed to fetch enums:', error);
             }
         };
         getEnums();
@@ -212,6 +218,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
                 await replaceEnums(schemaCopy);
                 // console.log("Updated schema", schemaCopy);
                 setSchema(schemaCopy);
+                console.log('Schema updated:', schemaCopy);
                 // Reset to first slide when schema updates
                 setCurrentSlide(0);
             }
@@ -222,12 +229,32 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
     // Helper function to filter schema properties for the current slide
     const getSchemaForSlide = (schema, slideIndex) => {
-        if (!schema?.ui_schema?.['ui:slider']) return schema; // Return full schema if no slider config
+        // if (!schema?.ui_schema?.['ui:slider']) {
+        //     console.warn('No slider configuration found in ui_schema');
+        //     return schema; // Return full schema if no slider config
+        // }
 
+        // const slides = schema.ui_schema['ui:slider'];
+        // if (slideIndex >= slides.length) {
+        //     console.warn('Slide index out of range, returning full schema');
+        //     return schema; // Default to full schema if slide out of range
+        // }
+
+        // const fieldsForSlide = slides[slideIndex];
+
+        if (!schema?.ui_schema?.['ui:slider']) {
+            console.warn('No slider configuration found in ui_schema');
+            return schema; // Return the full schema or handle this case appropriately
+        }
+    
         const slides = schema.ui_schema['ui:slider'];
-        if (slideIndex >= slides.length) return schema; // Default to full schema if slide out of range
-
+        if (slideIndex < 0 || slideIndex >= slides.length) {
+            console.warn('Slide index out of range');
+            return schema; // Handle edge cases by returning full schema or another default
+        }
+    
         const fieldsForSlide = slides[slideIndex];
+        console.log('Fields for current slide:', fieldsForSlide);
         return {
             ...schema,
             data_schema: {
@@ -251,41 +278,69 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
     // Submission handler
     const onSubmit = async (e) => {
+        console.log('Form submitted with data:', e?.formData);
         onFinish(e?.formData);
     };
 
     // Logging helper
     const log = (type) => console.log.bind(console, type);
 
-    // Filter schema for the current slide
+    // Filter schema for the current slide, but pass all formData
     let dynamicSchema = schema && getSchemaForSlide(schema, currentSlide);
+    console.log('Dynamic schema for current slide:', dynamicSchema);
 
+    // Navigation functions
+    const nextSlide = () => {
+        if (currentSlide < (schema.ui_schema['ui:slider'].length - 1)) {
+            setCurrentSlide(currentSlide + 1);
+            console.log('Moved to next slide:', currentSlide + 1);
+        } else {
+            console.log('Already on the last slide');
+        }
+    };
+
+    const prevSlide = () => {
+        if (currentSlide > 0) {
+            setCurrentSlide(currentSlide - 1);
+            console.log('Moved to previous slide:', currentSlide - 1);
+        } else {
+            console.log('Already on the first slide');
+        }
+    };
+
+    // Render logic
     return (
         <>
             {dynamicSchema ? (
                 <div>
+                {schema ? (
                     <Form
-                        schema={dynamicSchema.data_schema}
+                        schema={dynamicSchema?.data_schema}
                         widgets={Widgets}
                         validator={validator}
                         templates={{ ObjectFieldTemplate }}
-                        uiSchema={dynamicSchema.ui_schema}
                         formData={formData}
+                        uiSchema={dynamicSchema?.ui_schema}
                         onSubmit={onSubmit}
                         onError={log('errors')}
                     />
-                    {/* Render slider if 'ui:slider' is defined in the schema */}
-                    {schema.ui_schema['ui:slider'] && (
-                        <Slider 
-                            min={0} 
-                            max={schema.ui_schema['ui:slider'].length - 1} 
-                            onChange={setCurrentSlide} 
-                            value={currentSlide}
-                            marks={schema.ui_schema['ui:slider'].reduce((acc, _, index) => ({ ...acc, [index]: `Slide ${index + 1}` }), {})}
-                            step={null}
-                        />
+                ) : (
+                    <Spin spinning={true}></Spin> // Or some loading indicator
+                )}
+                
+                <div style={{ marginTop: 20, textAlign: 'center' }}>
+                    {schema?.ui_schema?.['ui:slider'] && currentSlide > 0 && (
+                        <Button onClick={prevSlide} style={{ marginRight: 10 }}>Previous</Button>
+                    )}
+                    {schema?.ui_schema?.['ui:slider'] && (
+                        currentSlide < schema.ui_schema['ui:slider'].length - 1 ? (
+                            <Button onClick={nextSlide}>Next</Button>
+                        ) : (
+                            <Button type="primary" htmlType="submit">Submit</Button>
+                        )
                     )}
                 </div>
+            </div>
             ) : (
                 <Spin spinning={true}></Spin>
             )}
