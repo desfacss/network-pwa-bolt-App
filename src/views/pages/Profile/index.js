@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
 // import FileUpload from './FileUpload';
 import { useNavigate, useParams } from 'react-router-dom';
+import ProfilePic from './ProfilePic';
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -253,6 +254,7 @@ const Profile = () => {
             }
             >
                 <div className='ml-3'>
+                    <ProfilePic />
                     {/* <Descriptions column={1}>
                         {renderDescriptionItem("Name", details?.user_name)}
                         {renderDescriptionItem("Designation", details?.designation)}

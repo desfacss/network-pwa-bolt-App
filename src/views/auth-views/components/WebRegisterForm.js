@@ -20,7 +20,7 @@ export const RegisterForm = (props) => {
   const [loading, setLoading] = useState(false);
 
   const getForms = async () => {
-    const { data, error } = await supabase.from('forms').select('*').eq('name', "user_admin_registration_form").single()
+    const { data, error } = await supabase.from('forms').select('*').eq('name', "web_admin_registration_form").single()
     console.log("hy", data)
     if (data) {
       setSchema(data)
@@ -71,9 +71,16 @@ export const RegisterForm = (props) => {
     // console.log(data, error)
 
     const { data, error } = await supabase.auth.signUp({
+      // phone: String(values?.mobile),
       email: values?.email,
       password: values?.password,
-      options: { data: { email_confirmed_at: new Date().toISOString() } }
+      options: {
+        data: {
+          display_name: values?.orgName,
+          phone: String(values?.mobile),
+          email_confirmed_at: new Date().toISOString()
+        }
+      }
     });
 
     if (error) {
@@ -169,7 +176,7 @@ export const RegisterForm = (props) => {
   // };
 
   return (
-    <div> 
+    <div>
       {/* style={{ width: '50%', margin: '0 auto' }}> Container with 50% width at the topmost level */}
       {/* <Button onClick={signOut}>
         Sign Out

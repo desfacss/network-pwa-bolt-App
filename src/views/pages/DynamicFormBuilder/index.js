@@ -12,6 +12,7 @@ const FormBuilder = () => {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+  const [dataConfig, setDataConfig] = useState({})
   const [dataSchema, setDataSchema] = useState({
     type: "object",
     properties: {},
@@ -264,7 +265,7 @@ const FormBuilder = () => {
     try {
       const { data, error } = await supabase
         .from('forms')
-        .select('id, name, data_schema, ui_schema');
+        .select('id, name, data_schema, ui_schema, data_config');
       if (error) throw error;
       setForms(data);
     } catch (error) {
@@ -274,11 +275,13 @@ const FormBuilder = () => {
 
   // Handle form selection
   const handleFormChange = (formId) => {
-    const form = forms.find((form) => form.id === formId);
+    const form = forms?.find((form) => form?.id === formId);
     if (form) {
       setSelectedForm(formId);
-      setDataSchema(form.data_schema);
-      setUiSchema(form.ui_schema);
+      setDataSchema(form?.data_schema);
+      setDataConfig(form?.data_config);
+      setUiSchema(form?.ui_schema);
+      console.log("ccc", form);
     }
   };
 
@@ -442,7 +445,7 @@ const FormBuilder = () => {
     </Row>
 
     <Drawer width="50%" title={'Form Fields'} visible={isDrawerVisible} onClose={() => setIsDrawerVisible(false)} footer={null} >
-      <DynamicForm schemas={{ data_schema: dataSchema, ui_schema: uiSchema }} onFinish={onFinish}
+      <DynamicForm schemas={{ data_schema: dataSchema, ui_schema: uiSchema, data_config: dataConfig }} onFinish={onFinish}
       // schemas={schemas}
       />
     </Drawer>

@@ -7,7 +7,8 @@ import { resources } from "lang";
 import useBodyClass from "utils/hooks/useBodyClass";
 import Routes from "routes";
 import { supabase } from "configs/SupabaseConfig";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { APP_PREFIX_PATH } from 'configs/AppConfig'
 // import { supabase } from "configs/SupabaseConfig";
 
 import enGB from 'antd/lib/locale/en_GB';
@@ -23,6 +24,7 @@ const SurveyLayout = lazy(() => import("./SurveyLayout"));
 const Layouts = () => {
   const dispatch = useDispatch()
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { session, selectedOrganization, selectedUser, defaultOrganization } = useSelector((state) => state.auth);
   console.log("default org", defaultOrganization)
@@ -45,9 +47,16 @@ const Layouts = () => {
       if (!session || !session.user) return;
 
       // Fetch user data from the users table
-      const { data: userData, error: userError } = await supabase.from('users').select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)').eq('id', selectedUser?.id || session.user.id).single();
+      const { data: userData, error: userError } = await supabase.from('users')
+        // .select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)')
+        .select('*, hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)')
+        .eq('id', selectedUser?.id || session.user.id).single();
 
       if (userError) {
+        if (userError?.code === "PGRST116") {
+          store.dispatch(setSession())
+          navigate(`${APP_PREFIX_PATH}/login`)
+        }
         console.error('Error fetching user data:', userError);
         return;
       }

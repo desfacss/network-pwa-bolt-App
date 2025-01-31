@@ -13,14 +13,17 @@ import { store } from "store";
 
 export const OpenRegisterForm = (props) => {
   // const [isSubmitted, setIsSubmitted] = useState(false);
-  const [enums, setEnums] = useState();
+  // const [enums, setEnums] = useState();
   const [organization, setOrganization] = useState();
   const [signIn, setSignIn] = useState(false)
   const [schema, setSchema] = useState();
-  const [roles, setRoles] = useState();
+  // const [roles, setRoles] = useState();
 
   const getOrganization = async () => {
-    const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE || 'dev').single()
+    const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE).single()
+    if (error) {
+      return message.error("Organization does not exist") //TODO : Error Message in web page 
+    }
     if (data) {
       setOrganization(data)
     }
@@ -32,12 +35,12 @@ export const OpenRegisterForm = (props) => {
     }
   }
 
-  const getRoles = async () => {
-    const { data, error } = await supabase.from('roles').select('*')
-    if (data) {
-      setRoles(data)
-    }
-  }
+  // const getRoles = async () => {
+  //   const { data, error } = await supabase.from('roles').select('*')
+  //   if (data) {
+  //     setRoles(data)
+  //   }
+  // }
 
   const formData = {
     // "role": "Admin",
@@ -52,17 +55,17 @@ export const OpenRegisterForm = (props) => {
   const location = useLocation();
 
   useEffect(() => {
-    const getEnums = async () => {
-      let { data, error } = await supabase.from('enums').select('*');
-      if (data) {
-        console.log(data)
-        setEnums(data);
-      }
-    };
+    // const getEnums = async () => {
+    //   let { data, error } = await supabase.from('enums').select('*');
+    //   if (data) {
+    //     console.log(data)
+    //     setEnums(data);
+    //   }
+    // };
     getOrganization()
     // getUserType();
-    getRoles()
-    getEnums();
+    // getRoles()
+    // getEnums();
   }, []);
 
   useEffect(() => {
@@ -84,7 +87,12 @@ export const OpenRegisterForm = (props) => {
     const { data, error } = await supabase.auth.signUp({
       email: values?.email,
       password: values?.password,
-      options: { data: { email_confirmed_at: new Date().toISOString() } }
+      options: {
+        data: {
+          display_name: user_name,
+          email_confirmed_at: new Date().toISOString()
+        }
+      }
     });
 
     if (error) {
@@ -183,30 +191,30 @@ export const OpenRegisterForm = (props) => {
         <App formType={formType} />
       ) : ( */}
       <>
-        {!enums ?
+        {/* {!enums ?
           <Row>
             <Col offset={10}>
               <Spin size="large" className="center" />
             </Col>
-          </Row> :
-          <>
-            <h2 className="mb-4">User Registration</h2>
-            <p>
-              Alredy Registered ? {" "}
-              <Link to={`${APP_PREFIX_PATH}/login`}>Login here  </Link>
-              or
-              <Link to={`${APP_PREFIX_PATH}/landing`}>  Home</Link>
-            </p>
-            {/* {schema &&  */}
-            <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />
-            {signIn && <>
-              User email already added!,Please
-              <a href="/auth/login"> Login and Continue</a><br /><br />
-              {/* For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a> */}
-            </>
-            }
+          </Row> : */}
+        <>
+          <h2 className="mb-4">User Registration</h2>
+          <p>
+            Alredy Registered ? {" "}
+            <Link to={`${APP_PREFIX_PATH}/login`}>Login here  </Link>
+            or
+            <Link to={`${APP_PREFIX_PATH}/landing`}>  Home</Link>
+          </p>
+          {/* {schema &&  */}
+          <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />
+          {signIn && <>
+            User email already added!,Please
+            <a href="/auth/login"> Login and Continue</a><br /><br />
+            {/* For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a> */}
           </>
-        }
+          }
+        </>
+        {/* } */}
       </>
       {/* )} */}
     </div>
