@@ -5,26 +5,26 @@ import { PlusOutlined, UpOutlined, DownOutlined, DeleteOutlined } from '@ant-des
 const { Option } = Select;
 
 const TableViewConfig = ({ configData, onSave, availableColumns }) => {
-    const [fields, setFields] = useState(configData.fields || []);
-    const [actions, setActions] = useState(configData.actions || {});
-    const [groupBy, setGroupBy] = useState(configData.groupBy || []);
-    const [exportOptions, setExportOptions] = useState(configData.exportOptions || []);
-    const [showFeatures, setShowFeatures] = useState(configData.showFeatures || []);
-    const [bulkActions, setBulkActions] = useState(configData.bulkActions || []);
+    const [fields, setFields] = useState(configData?.fields || []);
+    const [actions, setActions] = useState(configData?.actions || {});
+    const [groupBy, setGroupBy] = useState(configData?.groupBy || []);
+    const [exportOptions, setExportOptions] = useState(configData?.exportOptions || []);
+    const [showFeatures, setShowFeatures] = useState(configData?.showFeatures || []);
+    const [bulkActions, setBulkActions] = useState(configData?.bulkActions || []);
 
     useEffect(() => {
         if (configData) {
-            setFields(configData.fields || []);
-            setActions(configData.actions || {});
-            setGroupBy(configData.groupBy || []);
-            setExportOptions(configData.exportOptions || []);
-            setShowFeatures(configData.showFeatures || []);
-            setBulkActions(configData.bulkActions || []);
+            setFields(configData?.fields || []);
+            setActions(configData?.actions || {});
+            setGroupBy(configData?.groupBy || []);
+            setExportOptions(configData?.exportOptions || []);
+            setShowFeatures(configData?.showFeatures || []);
+            setBulkActions(configData?.bulkActions || []);
         }
     }, [configData]);
 
     // Transform availableColumns to an array of column names (strings)
-    const transformedColumns = availableColumns.map(col => col.columnname);
+    const transformedColumns = availableColumns?.map(col => col.columnname);
 
     const handleAddField = () => {
         setFields([...fields, { order: fields.length + 1, fieldName: '' }]);
@@ -191,6 +191,7 @@ const TableViewConfig = ({ configData, onSave, availableColumns }) => {
                     { label: 'Group By', value: 'groupBy' },
                     { label: 'Basic Search', value: 'basicSearch' },
                     { label: 'Sorting', value: 'sorting' },
+                    { label: 'ENABLE VIEW', value: 'enable_view' },
                 ]}
                 value={showFeatures}
                 onChange={setShowFeatures}

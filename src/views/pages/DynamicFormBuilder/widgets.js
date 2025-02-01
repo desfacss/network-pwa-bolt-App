@@ -103,6 +103,84 @@ export const widgetConfigs = {
         },
         requiresLookup: true
     },
+    "multipleChoicesList": {
+        dataSchema: {
+            "type": "array",
+            "title": "A multiple choices list",
+            "items": {
+                "type": "string",
+                // enum: []
+                "enum": [
+                    "f2427a1e-9a2e-47c0-8bdd-26168a237490",
+                    "a23481a8-bd96-4dff-b59a-5e5b1216af8e",
+                    "ba3a518b-b8e7-4cf7-b32f-ea7bb00f4202",
+                    "8162d716-2c44-4bf4-8ff6-9a509b64c09a",
+                    "8ecc7ede-b694-4b4e-b59e-f84083facc9b",
+                    "ef002980-f878-4fb0-8675-e27b1e4c8769",
+                    "23f7aa36-d889-41a9-8b1a-3f8c0867eb01",
+                    "5b88f0d8-ae94-487b-83c3-d595e12cccd3",
+                    "deae1015-7b7c-41c0-93ae-7c42a8b6295b"
+                ],
+                "enumNames": [
+                    "IBCN",
+                    "Arvind Alagappan Rajkumar",
+                    "Meena Sevugen",
+                    "Meena Ravi",
+                    "Deivarayan S",
+                    "Palaniappan Cho",
+                    "Ramanathan L",
+                    "Vayeravan vairavan",
+                    "Ganesh Raikar"
+                ]
+            },
+            "uniqueItems": true,
+        },
+        uiSchema: {
+            "ui:widget": "SelectableTags"
+        },
+        // requiresLookup: true
+    },
+    "multipleChoices2": {
+        dataSchema: {
+            "type": "array",
+            "title": "Selectable Tags",
+            "items": {
+                "type": "string"
+            },
+            "uniqueItems": true,
+            "options": {
+                "enumOptions": [
+                    { "value": "tag1", "label": "Tag 1" },
+                    { "value": "tag2", "label": "Tag 2" },
+                    { "value": "tag3", "label": "Tag 3" },
+                    { "value": "tag4", "label": "Tag 4" },
+                    { "value": "tag5", "label": "Tag 5" }
+                    // ... more tags
+                ],
+                "maxItems": 3, // Example: Maximum 3 tags can be selected
+                "title": "Select your tags" // Example: Title for the widget
+            }
+        },
+        uiSchema: {
+            "ui:widget": "selectableTags", // Use the registered name
+            "ui:options": {
+                enumOptions: [ /* ... your enumOptions ...*/], // Important!
+                maxItems: 3,
+                title: "Select your tags"
+            }
+        },
+        // requiresLookup: true
+    },
+    "SelectableTags": {
+        dataSchema: {
+            type: "string",
+            enum: []
+        },
+        uiSchema: {
+            "ui:widget": "SelectableTags"
+        },
+        requiresLookup: true
+    },
     "Select-Filters": {//This is Static for now,need to make filters addable to any select widget
         dataSchema: {
             "enum": {

@@ -2,17 +2,23 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Card, Button, Input, Select, Switch, Drawer, Row, Col, message } from 'antd';
 import DynamicForm from '../DynamicForm';
 import { widgetConfigs } from './widgets';
-import JSONInput from 'react-json-editor-ajrm';
-import locale from 'react-json-editor-ajrm/locale/en';
+// import JSONInput from 'react-json-editor-ajrm';
+// import locale from 'react-json-editor-ajrm/locale/en';
 import { supabase } from 'api/supabaseClient';
-import { QueryFilter } from './QueryBuilder';
+// import { QueryFilter } from './QueryBuilder';
 // import { QueryFilter } from './QueryBuilderStatic';
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-monokai'; // Choose your preferred theme
+import 'ace-builds/src-noconflict/mode-json'; // For JSON mode
+import 'ace-builds/src-noconflict/worker-json'; // Import the JSON worker
 
 const FormBuilder = () => {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [dataConfig, setDataConfig] = useState({})
+  const [editItem, setEditItem] = useState({})
   const [dataSchema, setDataSchema] = useState({
     type: "object",
     properties: {},
@@ -48,7 +54,8 @@ const FormBuilder = () => {
       message.error("Enter Field Name");
       return;
     }
-
+    fieldInput.fieldTitle = fieldInput?.fieldName
+    fieldInput.fieldName = fieldInput?.fieldName?.trim()?.replaceAll(" ", "_")?.toLowerCase();
     const newField = {
       ...fieldInput,
       uiOrder: parseInt(fieldInput.uiOrder),
@@ -177,7 +184,7 @@ const FormBuilder = () => {
       if (!config) return;
 
       // Handle enums and lookups
-      const fieldDataSchema = { ...config.dataSchema, title: field.fieldName };
+      const fieldDataSchema = { ...config.dataSchema, title: field.fieldTitle };
 
       if (config.requiresOptions && field.options?.length) {
         fieldDataSchema.enum = field.options;
@@ -258,7 +265,20 @@ const FormBuilder = () => {
     updateSchemas(fields);
   }, [fields]);
 
-  const onFinish = (values) => { console.log("Payload", values);; setIsDrawerVisible(false) }
+  const onFinish = (values) => {
+    console.log("Form Data", values);
+    //  setIsDrawerVisible(false)
+    const payload = {
+      data_schema: dataSchema,
+      ui_schema: uiSchema,
+      data_config: dataConfig,
+    }
+    if (editItem) {
+      console.log("Update Schema Payload", payload);
+    } else {
+      console.log("Create Schema Payload", payload);
+    }
+  }
 
   // Fetch forms from Supabase
   const fetchForms = async () => {
@@ -278,6 +298,7 @@ const FormBuilder = () => {
     const form = forms?.find((form) => form?.id === formId);
     if (form) {
       setSelectedForm(formId);
+      setEditItem(form)
       setDataSchema(form?.data_schema);
       setDataConfig(form?.data_config);
       setUiSchema(form?.ui_schema);
@@ -290,7 +311,7 @@ const FormBuilder = () => {
   }, []);
 
   return (<div className="space-y-6">
-    <QueryFilter />
+    {/* <QueryFilter /> */}
     <Row gutter={16}>
       <Col span={8}>
         <Row gutter={4}>
@@ -425,8 +446,27 @@ const FormBuilder = () => {
               <h3 className="font-medium mb-1">Data Schema:</h3>
               <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
                 {/* {JSON.stringify(schemas?.data_schema, null, 2)} */}
-                <JSONInput waitAfterKeyPress={5000} style={{ body: { fontSize: '14px' } }} id="data_schema_editor" locale={locale} height="600px" width="100%"
+                {/* <JSONInput waitAfterKeyPress={5000} style={{ body: { fontSize: '14px' } }} id="data_schema_editor" locale={locale} height="600px" width="100%"
                   onChange={(e) => e.jsObject && setDataSchema(e.jsObject)} placeholder={dataSchema} // placeholder={schemas?.data_schema}
+                /> */}
+                <AceEditor
+                  mode="json"
+                  theme="monokai"
+                  value={JSON.stringify(dataSchema, null, 2)} // Use stringified schema
+                  onChange={(value) => {
+                    try {
+                      const parsedSchema = JSON.parse(value);
+                      setDataSchema(parsedSchema);
+                    } catch (error) {
+                      message.error("Invalid JSON in Data Schema");
+                    }
+                  }}
+                  editorProps={{ $blockScrolling: true }} // Prevents console error
+                  setOptions={{
+                    tabSize: 2,
+                    useSoftTabs: true,
+                  }}
+                  style={{ width: "100%", height: "600px" }} // Set width and height
                 />
               </pre>
             </div>
@@ -434,8 +474,27 @@ const FormBuilder = () => {
               <h3 className="font-medium mb-1">UI Schema:</h3>
               <pre className="bg-slate-50 p-2 rounded overflow-auto max-h-96">
                 {/* {JSON.stringify(schemas?.ui_schema, null, 2)} */}
-                <JSONInput waitAfterKeyPress={5000} style={{ body: { fontSize: '14px' } }} id="ui_schema_editor" locale={locale} height="600px" width="100%"
+                {/* <JSONInput waitAfterKeyPress={5000} style={{ body: { fontSize: '14px' } }} id="ui_schema_editor" locale={locale} height="600px" width="100%"
                   onChange={(e) => e.jsObject && setUiSchema(e.jsObject)} placeholder={uiSchema} // placeholder={schemas?.ui_schema}
+                /> */}
+                <AceEditor
+                  mode="json"
+                  theme="monokai"
+                  value={JSON.stringify(uiSchema, null, 2)} // Use stringified schema
+                  onChange={(value) => {
+                    try {
+                      const parsedSchema = JSON.parse(value);
+                      setUiSchema(parsedSchema);
+                    } catch (error) {
+                      message.error("Invalid JSON in UI Schema");
+                    }
+                  }}
+                  editorProps={{ $blockScrolling: true }} // Prevents console error
+                  setOptions={{
+                    tabSize: 2,
+                    useSoftTabs: true,
+                  }}
+                  style={{ width: "100%", height: "600px" }} // Set width and height
                 />
               </pre>
             </div>
