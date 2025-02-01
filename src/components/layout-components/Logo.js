@@ -70,7 +70,7 @@ export const Logo = ({ mobileLogo, logoType }) => {
         // src={`/img/${workspace}/logo_light.png`}
         // alt={`${workspace}`}
         src={getLogo()} alt={`${workspace} logo`} height={isMobile ? '25px' : '25px'}
-        style={{ height: '30px' }}
+        style={{ height: '25px' }}
         onError={(e) => {
           e.target.style.display = 'none'; // Hide the image
           e.target.nextSibling.style.display = 'block'; // Show the h1 element

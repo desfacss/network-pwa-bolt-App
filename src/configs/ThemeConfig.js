@@ -22,11 +22,11 @@ export function rgba(hex, opacity = 1) {
 
 export const baseTheme = {
     borderRadius: 10,
-    colorPrimary: THEME_COLOR.ORANGE,
+    colorPrimary: THEME_COLOR.BLUE,
     colorSuccess: THEME_COLOR.CYAN,
     colorWarning: THEME_COLOR.GOLD,
     colorError: THEME_COLOR.VOLCANO,
-    colorInfo: THEME_COLOR.ORANGE,
+    colorInfo: THEME_COLOR.BLUE,
     colorText: GRAY_SCALE.GRAY,
     colorBorder: BORDER.BASE_COLOR,
     bodyBg: BODY_BACKGROUND,
@@ -184,22 +184,49 @@ export const darkTheme = {
             colorBorder: DARK_MODE.BORDER_BASE_COLOR,
             colorText: DARK_MODE.TEXT_COLOR,
         },
+
+        // Button: {
+        //     controlOutline: 'transparent',
+        //     colorBorder: THEME_COLOR.GOLD, // Gold borders
+        //     colorText: THEME_COLOR.GOLD, // Gold text
+        //     colorPrimaryHover: rgba(THEME_COLOR.GOLD, 0.1),
+        //     colorPrimaryActive: rgba(THEME_COLOR.GOLD, 0.2),
+        //   },
+        
         Card: {
             colorTextHeading: DARK_MODE.HEADING_COLOR,
         },
+        // Layout: {
+        //     bodyBg: '#1b2531',
+        //     headerBg: DARK_MODE.BG_COLOR
+        // },
+
         Layout: {
-            bodyBg: '#1b2531',
-            headerBg: DARK_MODE.BG_COLOR
-        },
+            bodyBg: DARK_MODE.BG_COLOR, // Use new darker background
+            headerBg: '#141824', // Even darker header
+            headerPadding: '0 24px',
+            headerColor: DARK_MODE.TEXT_COLOR
+          },
+
+        // Menu: {
+        //     itemSelectedBg: 'transparent',
+        //     horizontalItemSelectedColor: GRAY_SCALE.WHITE,
+        //     itemHoverColor: GRAY_SCALE.WHITE,
+        //     itemSelectedColor: GRAY_SCALE.WHITE,
+        //     colorItemText: DARK_MODE.TEXT_COLOR,
+        //     activeBarWidth: 0,
+        //     boxShadowSecondary: DARK_MODE.DROP_DOWN_SHADOW
+        // },
+
         Menu: {
-            itemSelectedBg: 'transparent',
-            horizontalItemSelectedColor: GRAY_SCALE.WHITE,
-            itemHoverColor: GRAY_SCALE.WHITE,
-            itemSelectedColor: GRAY_SCALE.WHITE,
-            colorItemText: DARK_MODE.TEXT_COLOR,
-            activeBarWidth: 0,
-            boxShadowSecondary: DARK_MODE.DROP_DOWN_SHADOW
-        },
+            itemSelectedBg: rgba(baseTheme.colorPrimary, 0.15), // Gold accent
+            horizontalItemSelectedColor: THEME_COLOR.GOLD, // Use gold for selected
+            itemHoverColor: THEME_COLOR.GOLD + '!important', // Gold hover
+            itemSelectedColor: THEME_COLOR.GOLD + '!important', // Gold selected
+            groupTitleColor: DARK_MODE.TEXT_COLOR + '!important',
+          },
+
+
         Dropdown: {
             boxShadowSecondary: DARK_MODE.DROP_DOWN_SHADOW
         },
