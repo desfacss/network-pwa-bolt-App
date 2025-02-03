@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Card, Row, Col, Space, Button, Input, Dropdown, Menu, Badge, Tag, Typography } from 'antd';
+import { Card, Row, Col, Space, Button, Input, Dropdown, Menu, Badge, Tag, Typography, FloatButton } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import * as Icons from '@ant-design/icons';
 import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
+import { ResponsiveButton } from 'views/pages/Trial/ResponsiveButton';
 
 const { Title, Text } = Typography;
 
@@ -20,7 +21,7 @@ const { Title, Text } = Typography;
 //   return trimValue(value);
 // };
 
-const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openDrawer }) => {
+const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openDrawer, setCurrentPage, totalItems }) => {
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
   const { session } = useSelector((state) => state.auth);
@@ -307,6 +308,28 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     action?.includes("add_")
   );
 
+
+  // const ResponsiveButton = ({ ...props }) => {
+  //   const ButtonComponent = isMobile ? FloatButton : Button;
+  //   return <ButtonComponent {...props} />;
+  // };
+
+  // const ResponsiveButton = ({ ...props }) => {
+  //   const isMobile = window.innerWidth < 768
+  //   const IconComponent = Icons[props.floatIcon || 'FileOutlined']
+  //   if (isMobile) {
+  //     return (
+  //       <FloatButton
+  //         {...props}
+  //         icon={<IconComponent />} // Default icon, you might want to make this dynamic based on action
+  //         tooltip={props.children || 'Action'} // Use children as tooltip if available, otherwise a default string
+  //       />
+  //     );
+  //   }
+
+  //   return <Button {...props} />;
+  // }
+
   return (
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
@@ -321,21 +344,24 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
               />
             </Space>
           )}
+          {totalItems > data.length && (
+            <Button onClick={() => setCurrentPage(prev => prev + 1)}>Load More</Button>
+          )}
         </div>
-
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          {[...viewConfig?.gridview?.actions?.bulk].map((action) => (
-            <Button
+          {[...(viewConfig?.gridview?.actions?.bulk || [])]?.map((action) => (
+            <ResponsiveButton
               key={action}
               type="primary"
               style={{ marginRight: 0, marginTop: 0 }}
               onClick={() => handleBulkAction(action)}
+            // floatIcon={'SearchOutlined'}
             >
               {action
                 ?.split('_')
                 ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 ?.join(' ')}
-            </Button>
+            </ResponsiveButton>
           ))}
         </div>
       </div>

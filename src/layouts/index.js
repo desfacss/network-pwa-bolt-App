@@ -49,7 +49,7 @@ const Layouts = () => {
       // Fetch user data from the users table
       const { data: userData, error: userError } = await supabase.from('users')
         // .select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)')
-        .select('*, hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)')
+        .select('*,organization:organization_id (*)')
         .eq('id', selectedUser?.id || session.user.id).single();
 
       if (userError) {
@@ -88,7 +88,7 @@ const Layouts = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      // console.log('Supabase Event', _event);
+      console.log('Supabase Event', _event, session);
       if (session) {
         fetchUserData(session);
       }

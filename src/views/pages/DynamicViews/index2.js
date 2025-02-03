@@ -17,6 +17,7 @@ import useTabWithHistory from 'components/common/TabHistory';
 import Dashboard from './Dashboard';
 import ExportImportButtons from './CSVOptions';
 import DynamicForm from '../DynamicForm';
+import DetailsView from './DetailsView';
 // import SchedularView from './SchedularView';
 
 // const entityType = 'y_sales'
@@ -108,9 +109,10 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
 
-    const openDrawer = addEditFunction || ((item = null) => {
+    const openDrawer = addEditFunction || ((item = null, view = false) => {
         setEditItem(item);
         setIsDrawerVisible(true);
+        setViewMode(view)
     });
 
     const closeDrawer = () => {
@@ -166,6 +168,11 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [data, setData] = useState()
     const [allData, setAllData] = useState()
     const [users, setUsers] = useState();
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [viewMode, setViewMode] = useState(false);
+
 
     useEffect(() => {
         const filterData = () => {
@@ -251,7 +258,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 // Loop through each foreign key in the details and fetch related data based on config
                 for (const key in details) {
                     const foreignKey = details[key];
-                    if (viewConfig?.data_config?.fetchConfig[key]) {
+                    if (viewConfig?.data_config?.fetchConfig && viewConfig?.data_config?.fetchConfig[key]) {
                         // console.log("kd", foreignKey, viewConfig?.data_config?.fetchConfig[key])
                         if (foreignKey) {
                             const { table, column } = viewConfig?.data_config?.fetchConfig[key];
@@ -333,7 +340,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 setCallFetch(() => fetchData);
             }
         }
-    }, [viewConfig]);
+    }, [currentPage, viewConfig]);
 
 
     const updateData = async (updatedRow) => {
@@ -507,7 +514,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         tabItems.push({
             label: 'Grid',
             key: '2',
-            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />
+            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />
         })
     }
     if (viewConfig?.views_config?.timelineview && viewConfig?.timelineview) {
@@ -592,20 +599,21 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 data={vd}  // Pass the response data (vd) to the modal
             />}
             <Drawer
-                width="50%"
+                width={viewMode ? "100%" : "50%"}
                 title={editItem ? 'Edit Task' : 'Add New Task'}
                 open={isDrawerVisible}
                 onClose={closeDrawer}
                 footer={null}
             >
-                <DynamicForm
-                    schemas={viewConfig} // Replace with actual schemas
-                    formData={editItem || {}}
-                    onFinish={(formData) => {
-                        handleAddOrEdit(formData, editItem);
-                        closeDrawer();
-                    }}
-                />
+                {viewMode ? <DetailsView />
+                    : <DynamicForm
+                        schemas={viewConfig} // Replace with actual schemas
+                        formData={editItem || {}}
+                        onFinish={(formData) => {
+                            handleAddOrEdit(formData, editItem);
+                            closeDrawer();
+                        }}
+                    />}
             </Drawer>
         </Card>
     );

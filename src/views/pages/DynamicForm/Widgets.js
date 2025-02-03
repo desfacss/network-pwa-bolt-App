@@ -65,7 +65,7 @@ const TagsWidget = ({ options, value, onChange, id, schema }) => {
             value={value || []} // Ensure it's always an array
             onChange={handleChange}
             tokenSeparators={[","]}
-            options={enumOptions.map((option) => ({
+            options={enumOptions?.map((option) => ({
                 value: option?.value,
                 label: option?.label,
             }))}
@@ -73,7 +73,7 @@ const TagsWidget = ({ options, value, onChange, id, schema }) => {
     );
 };
 
-const SelectWidget = ({ options, value, onChange, onBlur, onFocus }) => {
+const SelectCustomWidget = ({ options, value, onChange, onBlur, onFocus }) => {
     const { enumOptions, placeholder, allowClear, mode, showSearch, optionFilterProp } = options;
 
     return (
@@ -186,11 +186,11 @@ const SelectableTags = ({ options, value, onChange }) => {
 
 export default {
     TagsWidget,
+    SelectCustomWidget,
     WebWidget,
     DateRangePickerWidget,
     DateTimeRangePickerWidget,
     // EditableTableWidget,
     EditableTableWidget,
-    SelectWidget,
     SelectableTags
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 // import { LockOutlined, MailOutlined, UserOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber } from "antd";
+import { notification, Row, Col, Spin, message } from "antd";
 import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
 import { useLocation, Link } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
@@ -64,116 +64,145 @@ export const RegisterForm = (props) => {
   const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
   const onFinish = async (values) => {
-    setLoading(true)
-    console.log("payload", values)
-
-    // let { data, error } = await supabase.auth.admin.inviteUserByEmail('ganeshmr3003@gmail.com')
-    // console.log(data, error)
-
-    const { data, error } = await supabase.auth.signUp({
-      // phone: String(values?.mobile),
-      email: values?.email,
-      password: values?.password,
-      options: {
-        data: {
-          display_name: values?.orgName,
-          phone: String(values?.mobile),
-          email_confirmed_at: new Date().toISOString()
-        }
-      }
-    });
-
-    if (error) {
-      console.log("Error reg", error)
-      setSignIn(true)
-      return notification.error({ message: error.message || "Registration Error" })
+    if (values?.password !== values?.retypePassword) {
+      return message.error("Password doesn't match")
     }
-    if (data) {
-      console.log("reg data", data)
-      const user_id = data?.user?.id;
-      const { data: data2, error: insertError2 } = await supabase.from('organizations').insert([
-        {
-          auth_id: user_id,
-          name: values?.orgName || "Dev",
-          details: { name: values?.orgName || "" },
-          app_settings: {
-            name: values?.orgName?.toLowerCase().replace(/\s+/g, "_") || "dev",
-            workspace: values?.workspace?.toLowerCase() || "dev"
+    setLoading(true);
+    console.log("payload", values);
+
+    let user_id = null;
+    let org_id = null;
+    const orgName = values?.orgName;
+    const userName = orgName + " " + values?.role
+    try {
+      // Step 1: Sign up the user
+      const { data, error } = await supabase.auth.signUp({
+        email: values?.email,
+        password: values?.password,
+        options: {
+          data: {
+            display_name: userName,
+            phone: String(values?.mobile),
+            email_confirmed_at: new Date().toISOString()
           }
-        },
-      ]).select();
-      console.log("orgn", data2, insertError2)
-      if (insertError2) {
-        console.log("Error org", insertError2);
-        return notification.error({ message: insertError2.message || "Error" })
-      }
-      if (data2?.length > 0) {
-        const user_id = data?.user?.id;
-        delete values?.password;
-        console.log("org", {
-          user_id: user_id,
-          organization_id: data2[0]?.id,
-          details: values,
-          role_type: values?.role
-        })
-
-        const { data: data3, error: insertError3 } = await supabase.from('users').insert([
-          {
-            id: user_id,
-            organization_id: data2[0]?.id,
-            details: { ...values, user_name: values?.orgName },
-            user_name: values?.orgName,
-            role_type: values?.role,
-            manager_id: user_id,
-            hr_id: user_id,
-            role_id: roles?.find(i => i.role_name === values?.role)?.id,
-            password_confirmed: true
-            // TODO role_id, location_id
-          },
-        ]);
-        if (insertError3) {
-          console.log("Error", insertError3);
-          return notification.error({ message: insertError3.message || "Error" })
         }
-
-      }
-    }
-    const fetchUserData = async (session) => {
-      if (!session || !session.user) return;
-
-      // Fetch user data from the users table
-      const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+      });
 
       if (error) {
-        console.error('Error fetching user data:', error);
-        return;
+        console.log("Error reg", error);
+        setSignIn(true);
+        return notification.error({ message: error.message || "Registration Error" });
       }
 
-      // Update session.user with the fetched user data
-      const updatedSession = {
-        ...session,
-        user: {
-          ...session.user,
-          ...data, // Add the fetched user data here
-        },
+      if (data) {
+        console.log("reg data", data);
+        user_id = data?.user?.id;
+
+        // Step 2: Insert organization
+        const { data: data2, error: insertError2 } = await supabase.from('organizations').insert([
+          {
+            auth_id: user_id,
+            name: orgName || "Dev",
+            details: { name: orgName || "" },
+            app_settings: {
+              name: orgName?.toLowerCase().replace(/\s+/g, "_") || "dev",
+              workspace: values?.workspace?.toLowerCase() || "dev"
+            }
+          },
+        ]).select();
+
+        if (insertError2) {
+          console.log("Error org", insertError2);
+          throw new Error(insertError2.message || "Error inserting organization");
+        }
+
+        if (data2?.length > 0) {
+          org_id = data2[0]?.id;
+
+          // Step 3: Insert user
+          delete values?.password;
+          const { data: data3, error: insertError3 } = await supabase.from('users').insert([
+            {
+              id: user_id,
+              organization_id: org_id,
+              details: { ...values, user_name: orgName },
+              user_name: userName,
+              role_type: values?.role,
+              role_id: roles?.find(i => i.role_name === values?.role)?.id,
+              password_confirmed: true
+            },
+          ]);
+
+          if (insertError3) {
+            console.log("Error", insertError3);
+            throw new Error(insertError3.message || "Error inserting user");
+          }
+        }
+      }
+
+      // Fetch user data and update session
+      const fetchUserData = async (session) => {
+        if (!session || !session.user) return;
+
+        const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+
+        if (error) {
+          console.error('Error fetching user data:', error);
+          return;
+        }
+
+        const updatedSession = {
+          ...session,
+          user: {
+            ...session.user,
+            ...data,
+          },
+        };
+        console.log("Session load", updatedSession);
+        store.dispatch(setSession(updatedSession));
       };
-      console.log("Session", updatedSession)
-      // Dispatch the updated session to Redux
-      store.dispatch(setSession(updatedSession));
-    };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        fetchUserData(session);
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          fetchUserData(session);
+        }
+      });
+
+    } catch (error) {
+      console.error("Error during registration:", error);
+
+      // Rollback logic
+      if (user_id) {
+        // Delete the authenticated user
+        await supabase.rpc('auth_user_rollback', { user_id });
+        console.log("rollback auth");
+
+        // Delete the organization if it was created
+        if (org_id) {
+          console.log("rollback org");
+          await supabase.from('organizations').delete().eq('id', org_id);
+        }
+
+        console.log("rollback user");
+        // Delete the user if it was created
+        const { error } = await supabase.auth.signOut({ scope: 'local' });
+        if (error) {
+          console.error('Error signing out:', error.message);
+          notification.error({ message: 'Error signing out' })
+          return
+        }
+        // store.dispatch(setSelectedOrganization())
+        // store.dispatch(setSelectedUser())
+        store.dispatch(setSession())
+        await supabase.from('users').delete().eq('id', user_id);
       }
-    });
-    setLoading(false)
+
+      notification.error({ message: error.message || "Registration Error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // const signOut = async () => {
-  //   supabase.auth.signOut();
-  //   navigate('/');
-  // };
 
   return (
     <div>

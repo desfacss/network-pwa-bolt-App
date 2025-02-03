@@ -50,7 +50,9 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
 
     const handleRowAction = (action, record) => {
         // console.log("dr", record)
-        if (action === 'view') {
+        if (action === 'details') {
+            openDrawer(record, true);
+        } else if (action === 'view') {
             navigate(`/app${viewLink}${record?.id}`)
         } else if (action === 'edit') {
             openDrawer(record);
@@ -437,7 +439,7 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     {/* Bulk Actions */}
                     {[
-                        ...viewConfig?.tableview?.actions?.bulk//?.filter(action => !action.includes("add_new_"))
+                        ...(viewConfig?.tableview?.actions?.bulk || [])//?.filter(action => !action.includes("add_new_"))
                         // ...(dynamicBulkActions || []), 
                     ].map((action) => (
                         <Button
