@@ -166,6 +166,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [viewConfig, setViewConfig] = useState()
     const [workflowConfig, setWorkflowConfig] = useState()
     const [data, setData] = useState()
+    const [rawData, setRawData] = useState()
     const [allData, setAllData] = useState()
     const [users, setUsers] = useState();
 
@@ -247,6 +248,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         console.log("QR", fetchFilters, query)
         let { data, error } = await query;
 
+        setRawData(data)
         data = data?.map(obj => flattenData(obj, viewConfig?.data_config?.mainTable));
         if (error) throw error;
         if (data) {
@@ -607,7 +609,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 footer={null}
             >
                 {viewMode ?
-                    <DetailsView entityType={entityType} viewConfig={viewConfig} editItem={editItem}
+                    <DetailsView entityType={entityType} viewConfig={viewConfig} editItem={editItem} rawData={rawData}
                         DetailsCard={<GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />}
                     />
                     : <DynamicForm

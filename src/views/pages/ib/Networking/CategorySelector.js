@@ -21,6 +21,7 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const { session } = useSelector((state) => state.auth);
+    const roleType = session?.user?.role_type
 
     const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
@@ -237,6 +238,14 @@ const CategorySelector = ({ visible, onClose, chatId }) => {
                                 ))}
                                 <Option value="add">{'+ Add'}</Option>
                             </Select>
+                        );
+                    } else if (index === 1 && (roleType === 'admin' || roleType === 'superadmin')) { // Check if it's a subcategory and has no children
+                        return (
+                            <div key={index + 1} style={{ marginBottom: 10 }}> {/* Added a div for styling */}
+                                <Button type="dashed" onClick={() => setIsAddCategoryModalVisible(true)}>
+                                    Add Subcategory
+                                </Button>
+                            </div>
                         );
                     }
                     return null;

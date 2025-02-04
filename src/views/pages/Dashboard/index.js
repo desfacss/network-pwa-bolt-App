@@ -1,6 +1,7 @@
 import { Card } from "antd";
 import { REACT_APP_WORKSPACE } from "configs/AppConfig";
 import { useSelector } from "react-redux";
+import Events from "../ib/Events";
 import Networking from "../ib/Networking";
 import DefaultDashboard from "./DefaultDashboard";
 import DashboaardUKPE from "./ukpe";
@@ -14,7 +15,7 @@ const Dashboaard = () => {
             {workspace === "ukpe" ? (
                 <DashboaardUKPE />
             ) : workspace === "ibcn" ? (
-                <Networking />
+                <Events />//<Networking /> 
             ) : (
                 <DefaultDashboard />
             )}

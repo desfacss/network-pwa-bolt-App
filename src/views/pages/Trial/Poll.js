@@ -128,7 +128,7 @@ function LivePoll() {
 
     return (
         <div style={{ padding: '20px', textAlign: 'center' }}>
-            {roleType === 'admin' ? ( // Conditionally render based on role
+            {(roleType === 'admin' || roleType === 'superadmin') ? ( // Conditionally render based on role
                 !activeSession ? (
                     <Button onClick={startPoll}>Start Live Poll</Button>
                 ) : isAdmin ? ( // Check isAdmin explicitly
@@ -142,7 +142,7 @@ function LivePoll() {
 
             {activeSession ? (
                 <>
-                    {roleType === 'admin' ?
+                    {(roleType === 'admin' || roleType === 'superadmin') ?
                         <>
                             <h2>Current Slide: {currentSlide}</h2>
                             {isAdmin && (
@@ -160,8 +160,8 @@ function LivePoll() {
                     {/* <Input value={sessionId} readOnly style={{ marginTop: '20px' }} /> */}
                 </>
             ) :
-                roleType === 'admin' ? <p>No active sessions yet. Start one!</p>
-                    : roleType !== 'admin' && <p>No active sessions.</p>
+                (roleType === 'admin' || roleType === 'superadmin') ? <p>No active sessions yet. Start one!</p>
+                    : (roleType !== 'admin' || roleType !== 'superadmin') && <p>No active sessions.</p>
             }
         </div>
     );
