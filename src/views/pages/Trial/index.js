@@ -8,9 +8,9 @@ import { SelectableTags } from './SelectableTags'
 const index = () => {
     return (
         <Card>
-            {/* <MobileView />
+            <LivePoll />
+            <MobileView />
             <SurveyForm />
-            <LivePoll /> */}
             <SelectableTags />
         </Card>
     )

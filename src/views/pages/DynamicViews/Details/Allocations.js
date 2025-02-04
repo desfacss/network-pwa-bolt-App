@@ -1,11 +1,14 @@
 // AllocationsTab.js
 import React from 'react';
+import DynamicForm from 'views/pages/DynamicForm';
+import { handleAllocations } from '../utils';
 
-const AllocationsTab = () => {
+const AllocationsTab = ({ entityType, viewConfig, editItem }) => {
+
+    console.log(viewConfig, editItem);
     return (
         <div>
-            {/* Add your allocations component here */}
-            <p>Allocations content will go here.</p> {/* Placeholder */}
+            <DynamicForm schemas={viewConfig?.allocations} onFinish={(formData) => handleAllocations(formData, viewConfig?.data_config?.allocationsTable, editItem?.id)} />
         </div>
     );
 };

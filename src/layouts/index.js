@@ -49,7 +49,7 @@ const Layouts = () => {
       // Fetch user data from the users table
       const { data: userData, error: userError } = await supabase.from('users')
         // .select('*,location:location_id (*), hr:hr_id (*), manager:manager_id (*),organization:organization_id (*),features:role_type (feature)')
-        .select('*,organization:organization_id (*)')
+        .select('*,organization:organization_id (*),features:role_id (feature)')
         .eq('id', selectedUser?.id || session.user.id).single();
 
       if (userError) {

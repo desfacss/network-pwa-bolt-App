@@ -113,6 +113,14 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
+      module_features?.trial && feature?.trial && {
+        key: 'trial',
+        path: `${APP_PREFIX_PATH}/trial`,
+        title: 'Trial',
+        icon: FormOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
       {
         key: 'blank',
         path: `#`,

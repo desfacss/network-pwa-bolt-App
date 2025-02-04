@@ -8,7 +8,7 @@ import GridView from './GridView';
 import KanbanView from './KanbanView';
 import GanttView from './GanttView';
 import CalendarView from './CalendarView';
-import { renderFilters } from 'components/util-components/utils';
+import { renderFilters, snakeCaseToTitleCase } from 'components/util-components/utils';
 import Schedule from './TimelineView';
 import { useSelector } from 'react-redux';
 import WorkflowStageModal from './WorkflowStageModal';
@@ -247,7 +247,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         console.log("QR", fetchFilters, query)
         let { data, error } = await query;
 
-        data = data.map(obj => flattenData(obj, viewConfig?.data_config?.mainTable));
+        data = data?.map(obj => flattenData(obj, viewConfig?.data_config?.mainTable));
         if (error) throw error;
         if (data) {
             let sales = []
@@ -502,6 +502,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     //         }
     //     }
     // };
+    console.log("GTD", data);
     const tabItems = [];
     if (viewConfig?.views_config?.tableview && viewConfig?.tableview) {
         tabItems.push({
@@ -600,12 +601,15 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             />}
             <Drawer
                 width={viewMode ? "100%" : "50%"}
-                title={editItem ? 'Edit Task' : 'Add New Task'}
+                title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit Task' : 'Add New Task')}
                 open={isDrawerVisible}
                 onClose={closeDrawer}
                 footer={null}
             >
-                {viewMode ? <DetailsView />
+                {viewMode ?
+                    <DetailsView entityType={entityType} viewConfig={viewConfig} editItem={editItem}
+                        DetailsCard={<GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />}
+                    />
                     : <DynamicForm
                         schemas={viewConfig} // Replace with actual schemas
                         formData={editItem || {}}

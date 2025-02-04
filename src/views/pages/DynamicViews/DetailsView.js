@@ -6,7 +6,7 @@ import NotesTab from './Details/Notes';
 import FilesTab from './Details/Files';
 import AllocationsTab from './Details/Allocations';
 
-const DetailsView = () => {
+const DetailsView = ({ entityType, viewConfig, editItem, DetailsCard }) => {
     const [activeKey, setActiveKey] = useState('1'); // Initialize active tab
 
     const onChange = (key) => {
@@ -15,6 +15,7 @@ const DetailsView = () => {
 
     return (
         <div style={{ padding: '20px' }}> {/* Added padding for better visuals */}
+            {/* <DetailsCard /> */}
             <Tabs
                 activeKey={activeKey}
                 onChange={onChange}
@@ -37,7 +38,7 @@ const DetailsView = () => {
                     {
                         key: '4',
                         label: 'Allocations',
-                        children: <AllocationsTab />,
+                        children: <AllocationsTab entityType={entityType} viewConfig={viewConfig} editItem={editItem} />,
                     },
                 ]}
             />
