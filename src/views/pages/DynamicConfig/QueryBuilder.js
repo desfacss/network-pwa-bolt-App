@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from 'api/supabaseClient'; // Ensure this path is correct
+import { supabase } from 'api/supabaseClient'; 
 import { QueryBuilder, formatQuery } from 'react-querybuilder';
 import 'react-querybuilder/dist/query-builder.css';
 
-// Developer Note: This component uses foreign key configurations from masterObject 
-// to dynamically fetch and display related data for dropdowns.
-
+// Developer Note: Dynamic QueryBuilder component for flexible data filtering
 const QueryBuilderComponent = ({ entityType, masterObject }) => {
   const [query, setQuery] = useState({ combinator: 'and', rules: [] });
   const [data, setData] = useState([]);
@@ -14,47 +12,95 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
   const [error, setError] = useState(null);
   const [fields, setFields] = useState([]);
 
-  // Developer Note: This effect initializes fields based on masterObject data
-  useEffect(() => {
-    const loadFields = async () => {
-      setLoading(true);
-      console.log('Starting to load fields for entityType:', entityType);
+  // Developer Note: Advanced Supabase filtering function
+  const buildSupabaseFilter = (query, fields) => {
+    console.log('Building Supabase filter for query:', JSON.stringify(query, null, 2));
 
-      try {
-        const columns = masterObject;
-        console.log('masterObject-MAIN:', columns);
-
-        const formattedFields = columns.map(col => ({
-          name: col.key,
-          label: col.key.replace('_', ' ').toUpperCase(),
-          type: mapType(col.type, col),
-          values: col.foreign_key ? [] : undefined,
-          inputType: col.foreign_key ? 'select' : undefined
-        }));
-        console.log('Formatted fields:', formattedFields);
-        setFields(formattedFields);
-      } catch (err) {
-        console.error('Error loading fields:', err);
-        setError("Error loading fields: " + err.message);
-      } finally {
-        setLoading(false);
-      }
+    const operatorMap = {
+      '=': 'eq',
+      '!=': 'neq',
+      '<': 'lt',
+      '>': 'gt',
+      '<=': 'lte',
+      '>=': 'gte',
+      'like': 'ilike',
+      'ILIKE': 'ilike',
+      'not like': 'not.ilike',
     };
 
-    if (entityType) { 
-      console.log('Entity type provided, fetching fields...');
-      loadFields();
-    } else {
-      console.log('No entity type provided, skipping field fetch.');
-    }
-  }, [entityType, masterObject]);
+    const processRule = (rule) => {
+      console.log('Processing individual rule:', JSON.stringify(rule, null, 2));
 
-  // Developer Note: Maps database types and handles foreign keys
+      const field = rule.field;
+      const operator = rule.operator;
+      const value = rule.value;
+
+      // Find the field configuration
+      const fieldConfig = fields.find(f => f.name === field);
+      console.log('Field configuration:', fieldConfig);
+
+      // Handle nested JSONB fields
+      const parseFieldName = (fieldName) => {
+        const parts = fieldName.split('.');
+        if (parts.length > 1) {
+          const baseField = parts[0];
+          const nestedPath = parts.slice(1).join('->');
+          return { baseField, nestedPath };
+        }
+        return { baseField: fieldName };
+      };
+
+      const { baseField, nestedPath } = parseFieldName(field);
+      console.log('Parsed field:', { baseField, nestedPath });
+
+      // Map the operator
+      const mappedOperator = operatorMap[operator] || operator;
+      console.log('Mapped operator:', mappedOperator);
+
+      // Handle different field types
+      if (nestedPath) {
+        // JSONB nested field handling
+        return nestedPath 
+          ? `${baseField}->>${nestedPath}.${mappedOperator}.${JSON.stringify(value)}`
+          : `${baseField}.${mappedOperator}.${JSON.stringify(value)}`;
+      }
+
+      // Regular field handling
+      return `${field}.${mappedOperator}.${JSON.stringify(value)}`;
+    };
+
+    const processGroup = (group) => {
+      console.log('Processing query group:', JSON.stringify(group, null, 2));
+
+      const conditions = group.rules.map(rule => {
+        if (rule.rules) {
+          // Recursive processing for nested groups
+          return processGroup(rule);
+        }
+        return processRule(rule);
+      });
+
+      // Join conditions based on the group combinator
+      const combinator = group.combinator === 'and' 
+        ? '(' + conditions.join(',') + ')' 
+        : conditions.join(',');
+
+      console.log('Processed group conditions:', combinator);
+      return combinator;
+    };
+
+    // Process the entire query
+    return processGroup(query);
+  };
+
+  // Developer Note: Map database types and handle foreign keys
   const mapType = (dbType, item) => {
-    console.log('Mapping database type:', dbType);
+    console.log('Mapping database type:', dbType, 'Item:', item);
+
     if (item && item.foreign_key) {
       return 'select'; 
     }
+
     switch(dbType) {
       case 'bigint': 
       case 'integer': 
@@ -77,72 +123,62 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
     }
   };
 
-  // Developer Note: Parses SQL-like conditions to Supabase filter syntax
-  const parseSqlToSupabase = (sql) => {
-    console.log('Parsing SQL to Supabase format:', sql);
-    const match = sql.match(/(\w+)\s*(=|!=|<|>|<=|>=|like|not like)\s*'([^']+)'/);
-    if (!match) {
-      console.warn('No match found for SQL condition:', sql);
-      return null;
-    }
-    const [, field, operator, value] = match;
-  
-    const operatorMap = {
-      '=': 'eq',
-      '!=': 'neq',
-      '<': 'lt',
-      '>': 'gt',
-      '<=': 'lte',
-      '>=': 'gte',
-      'like': 'ilike',
-      'not like': 'not.ilike',
-    };
-  
-    console.log('Parsed condition:', [field, operatorMap[operator], value]);
-    return [field, operatorMap[operator], value];
-  };
+  // Developer Note: Initialize fields based on master object
+  useEffect(() => {
+    const loadFields = async () => {
+      console.log('Starting to load fields for entityType:', entityType);
+      setLoading(true);
 
-  // Developer Note: Handles data fetching based on the built query
+      try {
+        const columns = masterObject;
+        console.log('Master Object:', columns);
+
+        const formattedFields = columns.map(col => ({
+          name: col.key,
+          label: col.key.replace('_', ' ').toUpperCase(),
+          type: mapType(col.type, col),
+          values: col.foreign_key ? [] : undefined,
+          inputType: col.foreign_key ? 'select' : undefined
+        }));
+
+        console.log('Formatted fields:', formattedFields);
+        setFields(formattedFields);
+      } catch (err) {
+        console.error('Error loading fields:', err);
+        setError("Error loading fields: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (entityType) { 
+      console.log('Entity type provided, fetching fields...');
+      loadFields();
+    } else {
+      console.log('No entity type provided, skipping field fetch.');
+    }
+  }, [entityType, masterObject]);
+
+  // Developer Note: Fetch data based on constructed query
   const handleFetch = async () => {
+    console.log('Starting data fetch with query:', JSON.stringify(query, null, 2));
     setLoading(true);
     setError(null);
-  
-    try {
-      const sqlFilter = formatQuery(query, {
-        format: 'sql',
-        fields,
-      });
 
-      console.log('Generated SQL filter:', sqlFilter);
-      setSqlFilter(sqlFilter);
-  
+    try {
+      // Generate the Supabase filter string
+      const filterConditions = buildSupabaseFilter(query, fields);
+      console.log('Generated Supabase filter conditions:', filterConditions);
+
+      // Construct the query
       let queryBuilder = supabase.from(entityType).select('*');
-  
-      const applyFilters = (filter) => {
-        if (filter.includes(' AND ')) {
-          const andParts = filter.split(' AND ').map((part) => applyFilters(part.trim()));
-          return andParts.filter(Boolean).join(','); 
-        } else if (filter.includes(' OR ')) {
-          const orParts = filter.split(' OR ').map((part) => applyFilters(part.trim()));
-          return orParts.filter(Boolean).join(' or ');
-        } else {
-          const parsed = parseSqlToSupabase(filter);
-          if (parsed && masterObject.find(f => f.key === parsed[0] && f.foreign_key)) {
-            console.log('Applying foreign key filter:', parsed);
-            return `${parsed[0]}.${parsed[1]}.${parsed[2]}`;
-          }
-          return parsed ? `${parsed[0]}.${parsed[1]}.${parsed[2]}` : null;
-        }
-      };
-  
-      const filterConditions = applyFilters(sqlFilter);
-  
+
       if (filterConditions) {
         queryBuilder = queryBuilder.or(filterConditions);
       }
-  
+
       const { data, error } = await queryBuilder;
-  
+
       if (error) {
         console.error('Error fetching data:', error);
         setError(error.message);
@@ -158,7 +194,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
     }
   };
 
-  // Developer Note: Custom value editor with dynamic dropdown for foreign keys
+  // Developer Note: Custom value editor for dynamic dropdowns
   const DynamicSelect = ({ foreignKeyConfig, value, onChange }) => {
     const [options, setOptions] = useState([]);
 
@@ -194,13 +230,14 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
     );
   };
 
-  // Developer Note: Main value editor function
+  // Developer Note: Generic value editor with type-based rendering
   const valueEditor = (props) => {
     const { fieldData, field, value, handleOnChange } = props;
     const item = masterObject.find(item => item.key === fieldData.name);
 
+    console.log('Rendering value editor for:', fieldData, 'Item:', item);
+
     if (item && item.foreign_key) {
-      console.log('Rendering dynamic select for:', item.key);
       return (
         <DynamicSelect 
           foreignKeyConfig={item.foreign_key} 
@@ -217,14 +254,12 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       );
     } else if (fieldData.type === 'datetime') {
       return <input type="datetime-local" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} />;
-    } else if (fieldData.type === 'array') {
-      return <input type="text" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} placeholder="Array input" />;
     }
   
     return <input type="text" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} />;
   };
 
-  // Developer Note: Render method
+  // Developer Note: Main render method
   return (
     <div>
       <h2>Query Builder for Table: {entityType || 'Select a table'}</h2>
@@ -254,10 +289,8 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       <button onClick={handleFetch} disabled={loading || fields.length === 0}>
         {loading ? 'Loading...' : 'Fetch Data'}
       </button>
-      <h3>SQL Filter:</h3>
-      <pre>{sqlFilter}</pre>
       {error && <div style={{ color: 'red' }}>{error}</div>}
-      <h3>Results:</h3>
+      <h3>Fetched Results:</h3>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
