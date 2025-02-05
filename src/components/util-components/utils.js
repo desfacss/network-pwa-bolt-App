@@ -18,6 +18,26 @@ export function snakeCaseToTitleCase(str) {
         ?.join(' '); // Join the words with spaces
 }
 
+export function toSnakeCase(str) {
+    console.log("stt", str);
+    // Ensure the input is a string
+    if (typeof str !== 'string') {
+        throw new TypeError('Input must be a string');
+    }
+
+    // Step 1: Replace any non-alphanumeric characters (except underscores) with spaces
+    str = str?.replace(/[^a-zA-Z0-9_]/g, ' ');
+
+    // Step 2: Insert underscores before capital letters (for camelCase or PascalCase)
+    str = str?.replace(/([a-z])([A-Z])/g, '$1_$2');
+
+    // Step 3: Convert the string to lowercase and replace multiple spaces with a single underscore
+    str = str?.toLowerCase().replace(/\s+/g, '_');
+
+    // Step 4: Trim leading/trailing underscores (if any)
+    return str?.replace(/^_+|_+$/g, '');
+}
+
 export const renderFilters = (config, data) => {
     return config?.map((filter, index) => {
         switch (filter?.type) {

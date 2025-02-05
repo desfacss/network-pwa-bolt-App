@@ -1,25 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Select, Table, Space, Checkbox, Row, Col } from 'antd';
 import { PlusOutlined, UpOutlined, DownOutlined, DeleteOutlined } from '@ant-design/icons';
+import { snakeCaseToTitleCase, toSnakeCase } from 'components/util-components/utils';
 
 const { Option } = Select;
 
 const TableViewConfig = ({ configData, onSave, availableColumns }) => {
     const [fields, setFields] = useState(configData?.fields || []);
-    const [actions, setActions] = useState(configData?.actions || {});
+    const [actions, setActions] = useState({
+        row: configData?.actions?.row || [],
+        bulk: configData?.actions?.bulk || [],
+    });
     const [groupBy, setGroupBy] = useState(configData?.groupBy || []);
     const [exportOptions, setExportOptions] = useState(configData?.exportOptions || []);
     const [showFeatures, setShowFeatures] = useState(configData?.showFeatures || []);
-    const [bulkActions, setBulkActions] = useState(configData?.bulkActions || []);
 
     useEffect(() => {
         if (configData) {
+            setActions({
+                row: configData?.actions?.row || [],
+                bulk: configData?.actions?.bulk || [],
+            });
             setFields(configData?.fields || []);
-            setActions(configData?.actions || {});
             setGroupBy(configData?.groupBy || []);
             setExportOptions(configData?.exportOptions || []);
             setShowFeatures(configData?.showFeatures || []);
-            setBulkActions(configData?.bulkActions || []);
         }
     }, [configData]);
 
@@ -49,11 +54,14 @@ const TableViewConfig = ({ configData, onSave, availableColumns }) => {
     };
 
     const handleSaveConfig = () => {
-        onSave({ fields, actions, groupBy, exportOptions, showFeatures, bulkActions });
+        onSave({ fields, actions, groupBy, exportOptions, showFeatures });
     };
 
     const handleChangeActions = (actionType, value) => {
-        setActions({ ...actions, [actionType]: value });
+        setActions((prevActions) => ({
+            ...prevActions,
+            [actionType]: value,
+        }));
     };
 
     const columns = [
@@ -146,8 +154,8 @@ const TableViewConfig = ({ configData, onSave, availableColumns }) => {
                     <p>Bulk Actions:</p>
                     <Select
                         mode="tags"
-                        value={bulkActions}
-                        onChange={(value) => setBulkActions(value)}
+                        value={actions.bulk.map(item => snakeCaseToTitleCase(item))}
+                        onChange={(value) => handleChangeActions('bulk', value?.map(item => toSnakeCase(item)))}
                         style={{ width: '100%' }}
                         placeholder="Select bulk actions"
                     >

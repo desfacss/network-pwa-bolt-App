@@ -11,6 +11,7 @@ import TableViewConfig from './TableViewConfig'; // Import the TableViewConfig c
 import CrudTableConfig from './Forms';
 import MasterObject from './MasterObject';
 import QueryBuilderComponent from './QueryBuilder';
+import FormBuilder from '../DynamicFormBuilder';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -124,6 +125,7 @@ const YViewConfigManager = () => {
       const updatedConfig = {
         ...selectedConfig,
         [viewName]: formData,
+
         id: selectedConfig?.id || uuidv4(),
       };
 
@@ -159,12 +161,17 @@ const YViewConfigManager = () => {
     const schema: RJSFSchema = selectedConfig?.master_data_schema || {};
     const uiSchema = selectedConfig?.ui_schema || {};
     const formData = selectedConfig?.[viewName] || {};
-    // console.log("ij", configs[0])
-    const config = selectedConfig ? selectedConfig : configs && configs[0]
-    const data = config && Object.entries(config?.master_data_schema?.properties).map(([fieldName, fieldData], index) => ({
-      columnname: fieldName,
-    }))
+    // // console.log("ij", configs[0])
+    // const config = selectedConfig ? selectedConfig : configs && configs[0]
+    // const data = config && Object.entries(config?.data_schema?.properties)?.map(([fieldName, fieldData], index) => ({
+    //   columnname: fieldName,
+    // }))
+    // Improved null/undefined handling:
+    const configDataSchemaProperties = selectedConfig?.data_schema?.properties;
 
+    const data = configDataSchemaProperties && Object.entries(configDataSchemaProperties)?.map(([fieldName, fieldData], index) => ({
+      columnname: fieldName,
+    })) || []; // Provide a default empty array
 
     if (viewName === 'tableview') {
       return (
@@ -310,6 +317,9 @@ const YViewConfigManager = () => {
         <TabPane tab="Query Builder" key="query_builder">
           <QueryBuilderComponent entityType={selectedRow} masterObject={selectedConfig?.master_object} />
         </TabPane>
+        <TabPane tab="Form Builder" key="form_builder">
+          <FormBuilder />
+        </TabPane>
         {/* <TabPane tab="Fields" key="fields">
           <CrudTableConfig jsonSchema={selectedConfig?.master_data_schema || {}} onSave={handleSave} />
           <CrudTableConfig initialData={selectedConfig?.form_schema || {}}
@@ -318,11 +328,11 @@ const YViewConfigManager = () => {
               handleSave('form_schema', updatedData);
             }} />
         </TabPane> */}
+        {selectedConfig && <TabPane tab="Table View" key="tableview">
+          {renderTabContent('tableview')}
+        </TabPane>}
         {/* <TabPane tab="Kanban View" key="kanbanview">
           {renderTabContent('kanbanview')}
-        </TabPane>
-        <TabPane tab="Table View" key="tableview">
-          {renderTabContent('tableview')}
         </TabPane>
         <TabPane tab="Grid View" key="gridview">
           {renderTabContent('gridview')}

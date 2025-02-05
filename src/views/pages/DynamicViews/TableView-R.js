@@ -71,7 +71,7 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     };
 
     const handleBulkAction = (action) => {
-        if (action === "add_new_task") {
+        if (action?.startsWith('add_')) {
             openDrawer();
         } else {
             console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
