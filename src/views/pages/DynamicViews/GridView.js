@@ -226,7 +226,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     // Check if webLink is true to open link in a new tab
     if (fieldConfig?.webLink) {
       // Ensure the value is a full URL or prepend 'http://' if it's not
-      const fullUrl = value.startsWith('https') ? value : `https://${value}`;
+      const fullUrl = value?.startsWith('https') ? value : `https://${value}`;
       return (
         <a
           href={fullUrl}

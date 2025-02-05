@@ -179,6 +179,7 @@ const YViewConfigManager = () => {
           configData={formData}
           availableColumns={data || availableColumns} // Pass dynamically fetched columns
           onSave={(updatedData) => handleSave(viewName, updatedData)}
+          masterObject={selectedConfig?.master_object}
         />
       );
     }

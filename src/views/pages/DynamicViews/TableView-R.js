@@ -5,6 +5,7 @@ import { SearchOutlined, EditOutlined, DeleteOutlined, CopyOutlined, PlusOutline
 import DynamicForm from '../DynamicForm';
 import { snakeCaseToTitleCase } from 'components/util-components/utils';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const actionIcons = {
     edit: <EditOutlined />,
@@ -29,24 +30,11 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
 
     const { showFeatures, exportOptions, globalSearch, groupBy, viewLink, fields } = viewConfig?.tableview;
 
+
+    const { session } = useSelector((state) => state.auth);
     const navigate = useNavigate();
 
-    // Grouping data by the selected field
-    const groupedTableData = useMemo(() => {
-        if (!selectedGroupBy) return data; // If no selectedGroupBy selected, return flat data
 
-        const groups = {};
-        data.forEach((item) => {
-            const groupKey = item[selectedGroupBy] || 'Ungrouped';
-            if (!groups[groupKey]) {
-                groups[groupKey] = [];
-            }
-            groups[groupKey].push(item);
-        });
-
-        setGroupedData(groups);
-        return groups;
-    }, [data, selectedGroupBy]);
 
     const handleRowAction = (action, record) => {
         // console.log("dr", record)
@@ -179,31 +167,48 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     //     return path.split('-').reduce((value, key) => (value ? value[key] : undefined), object);
     // };
 
-    const getNestedValue = (object, path) => {
-        if (!object || !path) return undefined;
+    // const getNestedValue = (object, path) => {
+    //     if (!object || !path) return undefined;
 
-        const keys = path?.split('-');
+    //     const keys = path?.split('-');
 
-        return keys.reduce((result, key, index) => {
+    //     return keys.reduce((result, key, index) => {
+    //         if (!result) return undefined;
+
+    //         // If `result` is an array, map over it and extract the next key
+    //         if (Array.isArray(result)) {
+    //             return result.map(item => ({
+    //                 value: item[key],
+    //                 id: item.id, // Include the id from the object
+    //             })).filter(Boolean); // Remove undefined values
+    //         }
+
+    //         const value = result[key];
+
+    //         // Return the value and id if it's the last key
+    //         if (index === keys.length - 1) {
+    //             return { value, id: result.id };
+    //         }
+
+    //         return value;
+    //     }, object);
+    // };
+
+    const getNestedValue = (obj, path) => {
+        if (!obj || !path) return undefined;
+
+        const keys = path.split('-');
+
+        return keys.reduce((result, key) => {
             if (!result) return undefined;
 
-            // If `result` is an array, map over it and extract the next key
+            // If result is an array, map over it and extract the next key
             if (Array.isArray(result)) {
-                return result.map(item => ({
-                    value: item[key],
-                    id: item.id, // Include the id from the object
-                })).filter(Boolean); // Remove undefined values
+                return result.map(item => item[key]).filter(Boolean); // Remove undefined values
             }
 
-            const value = result[key];
-
-            // Return the value and id if it's the last key
-            if (index === keys.length - 1) {
-                return { value, id: result.id };
-            }
-
-            return value;
-        }, object);
+            return result[key];
+        }, obj);
     };
 
     // const getNestedValue = (object, path) => {
@@ -236,24 +241,8 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
 
         return snakeCaseToTitleCase(cleanFieldName);
     };
+    console.log("tyu", data);
 
-    const filteredData = useMemo(() => {
-        console.log("Filtering data with searchText:", searchText);
-        if (!searchText) {
-            console.log("No searchText, returning full data.");
-            return data;
-        }
-        const filtered = data?.filter(item =>
-            fields?.some(field => {
-                // const value = getFieldValue(item, field);
-                const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
-                const value = Array.isArray(value1) ? value1?.map(item => item.value)?.join(', ') : value1 ?? null;
-                return String(value).toLowerCase().includes(searchText?.toLowerCase());
-            })
-        );
-        console.log("Filtered Data:", filtered);
-        return filtered;
-    }, [data, searchText, fields]);
 
 
     const columns = useMemo(() => {
@@ -281,13 +270,13 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                     return (
                         <div>
                             {value.map((item, index) => (
-                                <Tag key={index} color="blue">{item?.value}</Tag>
+                                <Tag key={index} color="blue">{item}</Tag>
                             ))}
                         </div>
                     );
                 } else {
                     // If value is not an array, render as is
-                    return value?.value ?? null;
+                    return value ?? null;
                 }
                 // // If value is an array, join values with commas
                 // Array.isArray(value) ? console.log("vl", value, value.join(', ')) : console.log("vw", value)
@@ -298,13 +287,66 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
         })).filter((column) => visibleColumns?.includes(column?.key)); // Filter out invisible columns
     }, [viewConfig, visibleColumns, fetchConfig]);
 
+    const filteredData = useMemo(() => {
+        console.log("Filtering data with searchText:", searchText);
+        if (!searchText) {
+            console.log("No searchText, returning full data.");
+            return data;
+        }
+        const filtered = data?.filter(item =>
+            fields?.some(field => {
+                // const value = getFieldValue(item, field);
+                const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
+                const value = Array.isArray(value1) ? value1?.map(item => item.value)?.join(', ') : value1 ?? null;
+                return String(value).toLowerCase().includes(searchText?.toLowerCase());
+            })
+        );
+        console.log("Filtered Data:", filtered);
+        return filtered;
+    }, [data, searchText, fields]);
+
+    // Grouping data by the selected field
+    const groupedTableData = useMemo(() => {
+        if (!selectedGroupBy) return filteredData; // If no selectedGroupBy selected, return flat data
+
+        const groups = {};
+        filteredData?.forEach((item) => {
+            const groupKey = item[selectedGroupBy] || 'Ungrouped';
+            if (!groups[groupKey]) {
+                groups[groupKey] = [];
+            }
+            groups[groupKey].push(item);
+        });
+
+        setGroupedData(groups);
+        return groups;
+    }, [filteredData, selectedGroupBy]);
+
+    const canEditOrDelete = (item, rules) => {
+        return rules?.some(rule => {
+            const sessionValue = getNestedValue(session?.user, rule?.a);
+            const itemValue = Array.isArray(rule.b) ? rule?.b : getNestedValue(item, rule?.b);
+
+            if (rule?.op === "eq") {
+                return sessionValue === itemValue;
+            }
+            if (rule?.op === "in") {
+                return rule?.b?.includes(sessionValue);
+            }
+            return false;
+        });
+    };
+
 
     const actionMenu = (record) => (
         <Menu>
             {viewConfig?.tableview?.actions?.row?.map((action) => (
-                <Menu.Item key={action} onClick={() => handleRowAction(action, record)}>
-                    {action.charAt(0).toUpperCase() + action.slice(1)}
-                </Menu.Item>
+                <>
+                    {!canEditOrDelete(record, viewConfig?.access_config?.[action === 'edit' ? 'canEdit' : 'canDelete']) &&
+                        <Menu.Item key={action} onClick={() => handleRowAction(action, record)}>
+                            {action.charAt(0).toUpperCase() + action.slice(1)}
+                        </Menu.Item>}
+                </>
             ))}
         </Menu>
     );
@@ -422,7 +464,7 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                             style={{ width: 200 }}
                         />
                     </Space>} */}
-                    {viewConfig?.tableview.showFeatures?.includes('search') && (
+                    {viewConfig?.tableview.showFeatures?.includes('basicSearch') && (
                         <Space >
                             {/* <Space style={{ marginBottom: gridViewConfig.layout.spacing }}> */}
                             <Input

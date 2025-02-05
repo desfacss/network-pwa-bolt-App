@@ -5,7 +5,7 @@ import { snakeCaseToTitleCase, toSnakeCase } from 'components/util-components/ut
 
 const { Option } = Select;
 
-const TableViewConfig = ({ configData, onSave, availableColumns }) => {
+const TableViewConfig = ({ configData, onSave, availableColumns, masterObject }) => {
     const [fields, setFields] = useState(configData?.fields || []);
     const [actions, setActions] = useState({
         row: configData?.actions?.row || [],
@@ -29,15 +29,17 @@ const TableViewConfig = ({ configData, onSave, availableColumns }) => {
     }, [configData]);
 
     // Transform availableColumns to an array of column names (strings)
-    const transformedColumns = availableColumns?.map(col => col.columnname);
-
+    // const transformedColumns = availableColumns?.map(col => col.columnname);
+    const transformedColumns = masterObject?.map(col => col.key);
+    console.log("tre", availableColumns, transformedColumns, masterObject);
     const handleAddField = () => {
-        setFields([...fields, { order: fields.length + 1, fieldName: '' }]);
+        setFields([...fields, { order: fields.length + 1, fieldName: '', fieldPath: '' }]);
     };
 
     const handleFieldChange = (index, key, value) => {
         const updatedFields = [...fields];
         updatedFields[index][key] = value;
+        updatedFields[index]['fieldPath'] = value;
         setFields(updatedFields);
     };
 
@@ -71,7 +73,7 @@ const TableViewConfig = ({ configData, onSave, availableColumns }) => {
             key: 'order',
         },
         {
-            title: 'Field Name',
+            title: 'Field',
             dataIndex: 'fieldName',
             key: 'fieldName',
             render: (text, record, index) => (
@@ -88,6 +90,24 @@ const TableViewConfig = ({ configData, onSave, availableColumns }) => {
                 </Select>
             ),
         },
+        // {
+        //     title: 'Display Name',
+        //     dataIndex: 'displayName',
+        //     key: 'displayName',
+        //     render: (text, record, index) => (
+        //         <Select
+        //             value={record.displayName || record.fieldName || ''}  // Ensure that the value passed is a string
+        //             onChange={(value) => handleFieldChange(index, 'displayName', value)}
+        //             style={{ width: '100%' }}
+        //         >
+        //             {transformedColumns.map((col) => (
+        //                 <Option key={col} value={col}>
+        //                     {col}
+        //                 </Option>
+        //             ))}
+        //         </Select>
+        //     ),
+        // },
         {
             title: 'Actions',
             key: 'actions',

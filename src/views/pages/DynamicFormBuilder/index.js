@@ -8,6 +8,7 @@ import { supabase } from 'api/supabaseClient';
 // import { QueryFilter } from './QueryBuilder';
 // import { QueryFilter } from './QueryBuilderStatic';
 import AceEditor from 'react-ace';
+import "ace-builds/webpack-resolver";
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-monokai'; // Choose your preferred theme
 import 'ace-builds/src-noconflict/mode-json'; // For JSON mode

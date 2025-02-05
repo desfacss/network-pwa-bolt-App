@@ -61,16 +61,40 @@ const dataConfig = {
     },
 };
 
-const flattenData = (data, config) => {
+// const flattenData = (data, config) => {
+//     let flatData = {};
+
+//     Object.keys(config).forEach(key => {
+//         if (config[key].type === 'object' && config[key].flatten) {
+//             Object.keys(config[key].fields).forEach(subKey => {
+//                 flatData[`${key}_${subKey}`] = data[key]?.[subKey] || null;
+//             });
+//         } else {
+//             flatData[key] = data[key];
+//         }
+//     });
+
+//     return flatData;
+// };
+
+const flattenData = (data, masterObject) => {
     let flatData = {};
 
-    Object.keys(config).forEach(key => {
-        if (config[key].type === 'object' && config[key].flatten) {
-            Object.keys(config[key].fields).forEach(subKey => {
-                flatData[`${key}_${subKey}`] = data[key]?.[subKey] || null;
-            });
+    masterObject.forEach(field => {
+        const keys = field.key.split('.');
+        let value = data;
+
+        // Traverse the nested structure to get the value
+        for (const key of keys) {
+            value = value?.[key];
+            if (value === undefined) break;
+        }
+
+        // If the field has a foreign_key, we need to fetch related data
+        if (field.foreign_key) {
+            flatData[field.key] = value; // Store the foreign key value
         } else {
-            flatData[key] = data[key];
+            flatData[field.key] = value || null;
         }
     });
 
@@ -227,9 +251,9 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     //     }
     // };
 
-    const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
-        console.log("viewConfig", viewConfig)
-        // let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+
+    const fetchData = async () => {
+        console.log("viewConfig", viewConfig);
 
         let query = supabase.from(entityType).select('*').order('details->>name', { ascending: true });
 
@@ -245,68 +269,146 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 }
             }
         });
-        console.log("QR", fetchFilters, query)
+
+        console.log("QR", fetchFilters, query);
         let { data, error } = await query;
 
-        setRawData(data)
-        data = data?.map(obj => flattenData(obj, viewConfig?.data_config?.mainTable));
+        setRawData(data);
+        data = data?.map(obj => flattenData(obj, viewConfig?.master_object));
+
         if (error) throw error;
+
         if (data) {
-            let sales = []
-            // Loop through each sale and process foreign keys from the details field
+            let sales = [];
+
+            // Loop through each sale and process foreign keys
             for (let sale of data) {
-                const details = sale;
+                // Loop through each field in master_object to check for foreign_key
+                for (const field of viewConfig?.master_object) {
+                    if (field.foreign_key) {
+                        const foreignKeyValue = sale[field.key];
 
-                // Loop through each foreign key in the details and fetch related data based on config
-                for (const key in details) {
-                    const foreignKey = details[key];
-                    if (viewConfig?.data_config?.fetchConfig && viewConfig?.data_config?.fetchConfig[key]) {
-                        // console.log("kd", foreignKey, viewConfig?.data_config?.fetchConfig[key])
-                        if (foreignKey) {
-                            const { table, column } = viewConfig?.data_config?.fetchConfig[key];
+                        if (foreignKeyValue) {
+                            const { source_table, source_column, display_column } = field.foreign_key;
 
-                            // // Fetch data from the related table
-                            // const { data: relatedData, error: relatedError } = await supabase
-                            //     .from(table)
-                            //     .select('*') // Use * to fetch all columns if no specific column is mentioned
-                            //     .eq('id', foreignKey);
+                            // Fetch data from the related table
                             let relatedData;
                             let relatedError;
-                            // If `foreignKey` is an array, use `in` query
-                            if (Array.isArray(foreignKey)) {
+
+                            if (Array.isArray(foreignKeyValue)) {
                                 ({ data: relatedData, error: relatedError } = await supabase
-                                    .from(table)
+                                    .from(source_table)
                                     .select('*')
-                                    .in('id', foreignKey));
+                                    .in(source_column, foreignKeyValue));
                             } else {
                                 ({ data: relatedData, error: relatedError } = await supabase
-                                    .from(table)
+                                    .from(source_table)
                                     .select('*')
-                                    .eq('id', foreignKey));
+                                    .eq(source_column, foreignKeyValue));
                             }
-
 
                             if (relatedError) throw relatedError;
 
-                            // Store the related data in a separate object for now
+                            // Store the related data in a separate object
                             sale.related_data = sale.related_data || {};
-                            // sale.related_data[key] = relatedData[0]; // Store by key
-                            sale.related_data[key] = Array.isArray(foreignKey) ? relatedData : relatedData?.[0];
-
+                            sale.related_data[field.key] = Array.isArray(foreignKeyValue) ? relatedData : relatedData?.[0];
                         }
                     }
                 }
             }
-            console.log("Dtr", data)
-            setAllData(data)
-            setData(data)
-            // console.log("Data", sales, data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
-            // setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));
+            // const key = 'details-annualTurnoverRange'
+            console.log("Dtr", data)//[0][key], data[0]?.detailsannualTurnoverRange);
+            setAllData(data);
+            setData(data);
         }
+
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch Data" });
         }
     };
+
+
+    // From data_config methos
+    // const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
+    //     console.log("viewConfig", viewConfig)
+    //     // let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+
+    //     let query = supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+
+    //     // Apply multiple filters
+    //     fetchFilters?.forEach(filter => {
+    //         const { column, value } = filter;
+    //         if (column && value !== undefined) {
+    //             if (column.includes('.')) {
+    //                 const [jsonField, jsonKey] = column.split('.');
+    //                 query = query.eq(`${jsonField}->>${jsonKey}`, value);
+    //             } else {
+    //                 query = query.eq(column, value);
+    //             }
+    //         }
+    //     });
+    //     console.log("QR", fetchFilters, query)
+    //     let { data, error } = await query;
+
+    //     setRawData(data)
+    //     data = data?.map(obj => flattenData(obj, viewConfig?.data_config?.mainTable));
+    //     if (error) throw error;
+    //     if (data) {
+    //         let sales = []
+    //         // Loop through each sale and process foreign keys from the details field
+    //         for (let sale of data) {
+    //             const details = sale;
+
+    //             // Loop through each foreign key in the details and fetch related data based on config
+    //             for (const key in details) {
+    //                 const foreignKey = details[key];
+    //                 if (viewConfig?.data_config?.fetchConfig && viewConfig?.data_config?.fetchConfig[key]) {
+    //                     // console.log("kd", foreignKey, viewConfig?.data_config?.fetchConfig[key])
+    //                     if (foreignKey) {
+    //                         const { table, column } = viewConfig?.data_config?.fetchConfig[key];
+
+    //                         // // Fetch data from the related table
+    //                         // const { data: relatedData, error: relatedError } = await supabase
+    //                         //     .from(table)
+    //                         //     .select('*') // Use * to fetch all columns if no specific column is mentioned
+    //                         //     .eq('id', foreignKey);
+    //                         let relatedData;
+    //                         let relatedError;
+    //                         // If `foreignKey` is an array, use `in` query
+    //                         if (Array.isArray(foreignKey)) {
+    //                             ({ data: relatedData, error: relatedError } = await supabase
+    //                                 .from(table)
+    //                                 .select('*')
+    //                                 .in('id', foreignKey));
+    //                         } else {
+    //                             ({ data: relatedData, error: relatedError } = await supabase
+    //                                 .from(table)
+    //                                 .select('*')
+    //                                 .eq('id', foreignKey));
+    //                         }
+
+
+    //                         if (relatedError) throw relatedError;
+
+    //                         // Store the related data in a separate object for now
+    //                         sale.related_data = sale.related_data || {};
+    //                         // sale.related_data[key] = relatedData[0]; // Store by key
+    //                         sale.related_data[key] = Array.isArray(foreignKey) ? relatedData : relatedData?.[0];
+
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         console.log("Dtr", data)
+    //         setAllData(data)
+    //         setData(data)
+    //         // console.log("Data", sales, data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
+    //         // setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));
+    //     }
+    //     if (error) {
+    //         notification.error({ message: error?.message || "Failed to fetch Data" });
+    //     }
+    // };
     const fetchWorkflowConfiguration = async () => {
         const { data, error } = await supabase.from('workflow_configurations').select('*').eq('entity_type', entityType)
             .eq('organization_id', session?.user?.organization?.id);

@@ -44,7 +44,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                 // }, {});
 
                 // Process the new format of masterObject
-                const initialValues = columnsResponse.data.reduce((acc, col) => {
+                const initialValues = columnsResponse?.data?.reduce((acc, col) => {
                     const masterObjEntry = masterObject?.find(item => item.key === col.key) || {};
                     acc[col.key] = {
                         type: masterObjEntry.type || col.type,
@@ -105,7 +105,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             }
 
             message.success('Configuration saved successfully!');
-            setMasterObject(masterObjectData.reduce((acc, obj) => ({ ...acc, [obj.key]: obj }), {}));
+            setMasterObject(masterObjectData?.reduce((acc, obj) => ({ ...acc, [obj.key]: obj }), {}));
         } catch (error) {
             console.error('Error in onFinish:', error);
             message.error('Failed to save configuration: ' + error.message);
@@ -142,6 +142,16 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                 );
             },
         },
+        // {
+        //     title: 'Display Names',
+        //     dataIndex: 'key',
+        //     key: 'key',
+        // },
+        // {
+        //     title: 'UI Field type',
+        //     dataIndex: 'key',
+        //     key: 'key',
+        // },
         {
             title: 'Data Type (Select)',
             dataIndex: ['type'],
@@ -152,9 +162,9 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                     acc[item.key] = item; // Use the key as the property name and the entire item as the value
                     return acc;
                 }, {});
-                if (record?.key === 'details2.web') {
-                    console.log("tw1", masterObjectTemp[record?.key]?.type, record?.type, masterObjectTemp, masterObject);
-                }
+                // if (record?.key === 'details2.web') {
+                //     console.log("tw1", masterObjectTemp[record?.key]?.type, record?.type, masterObjectTemp, masterObject);
+                // }
 
                 const isUpdated = masterObjectTemp && masterObjectTemp[record?.key] && masterObjectTemp[record?.key]?.type === record?.type;
                 const isNew = masterObjectTemp && (!masterObjectTemp[record?.key] || masterObjectTemp[record?.key]?.type !== record?.type);
@@ -228,11 +238,11 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
     const data = columns?.map(col => {
         const masterObjEntry = masterObject && Object.entries(masterObject)?.find(item => item.key === col.key) || {};
         return {
-            key: col.key,
+            key: col?.key,
             ...col,
-            type: masterObjEntry.type || col.type,
-            foreign_key: masterObjEntry.foreign_key || col.foreign_key || {},
-            potential_fk: col.potential_fk || {}
+            type: masterObjEntry?.type || col?.type,
+            foreign_key: masterObjEntry?.foreign_key || col?.foreign_key || {},
+            potential_fk: col?.potential_fk || {}
         };
     });
     console.log("dat1", data)
