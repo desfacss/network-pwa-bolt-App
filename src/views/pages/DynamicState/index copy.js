@@ -3,7 +3,7 @@ import { Button, Card, notification, Tabs } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
-import TableView from '../DynamicViews/TableView-R';
+import TableView from '../DynamicViews/TableView';
 import GridView from '../DynamicViews/GridView';
 import KanbanView from '../DynamicViews/KanbanView';
 import GanttView from '../DynamicViews/GanttView';

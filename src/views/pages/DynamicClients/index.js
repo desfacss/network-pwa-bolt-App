@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
 import KanbanView from '../DynamicViews/KanbanView';
-import TableView from '../DynamicViews/TableView-R';
+import TableView from '../DynamicViews/TableView';
 import Schedule from '../DynamicViews/TimelineView';
 
 const entityType = 'clients'

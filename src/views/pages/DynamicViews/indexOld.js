@@ -3,12 +3,12 @@ import { Button, Card, Drawer, notification, Tabs } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
-import TableView from './TableView-R';
+import TableView from './TableView';
 import GridView from './GridView';
 import KanbanView from './KanbanView';
 import GanttView from './GanttView';
 import CalendarView from './CalendarView';
-import { renderFilters, snakeCaseToTitleCase } from 'components/util-components/utils';
+import { renderFilters } from 'components/util-components/utils';
 import Schedule from './TimelineView';
 import { useSelector } from 'react-redux';
 import WorkflowStageModal from './WorkflowStageModal';
@@ -17,109 +17,11 @@ import useTabWithHistory from 'components/common/TabHistory';
 import Dashboard from './Dashboard';
 import ExportImportButtons from './CSVOptions';
 import DynamicForm from '../DynamicForm';
-import DetailsView from './DetailsView';
 // import SchedularView from './SchedularView';
 
 // const entityType = 'y_sales'
 
-const dataConfig = {
-    mainTable: {
-        id: { type: 'number' },
-        title: { type: 'string' },
-        users: { type: 'array', nullable: true }, // Since "users" is null, it can be an array or nullable
-        details: {
-            type: 'object',
-            flatten: true, // Indicates that nested fields should be flattened
-            fields: {
-                tags: { type: 'array' }, // Array of tag IDs
-                category_id: { type: 'string' }, // UUID string
-                description: { type: 'string' } // Description text
-            }
-        },
-        created_by: { type: 'string' } // UUID of creator
-    },
-    fetchConfig: {
-        created_by: { table: 'users', column: 'user_name' },
-        details_tags: { table: 'ib_categories', column: 'category_name' },
-        // foreignKey2: { table: 'table2', column: 'uuid', fields: ['title'] },
-        // foreignKey3: { table: 'table3', column: 'key', fields: ['value'] },
-    },
-    allocationsTable: {
-        table: 'alloc_duplicate',
-        rows: 'userList', // Field in `formData` that contains the array for allocations
-        mapping: {
-            user_name: 'name',
-            day: 'day'
-        },
-        additionalFields: { // Additional fields to include in each row
-            // mainEntityId: 'project_id', // Adding the mainEntityId to allocations rows
-            project_id: 'mainEntityId', // `project_id` in allocations table will map to `formData.id`
-            name: '10dad5b9-43c2-45c4-b7fa-d876323f52fz', // `project_id` in allocations table will map to `formData.id`
-            // fixedField: 'fixedValue' // Can also use a fixed value if needed
-        },
-        wholeRowColumn: 'details' // Optional: Specify if the entire row should be stored in one column (set to column name or `null`)
-    },
-};
-
-// const flattenData = (data, config) => {
-//     let flatData = {};
-
-//     Object.keys(config).forEach(key => {
-//         if (config[key].type === 'object' && config[key].flatten) {
-//             Object.keys(config[key].fields).forEach(subKey => {
-//                 flatData[`${key}_${subKey}`] = data[key]?.[subKey] || null;
-//             });
-//         } else {
-//             flatData[key] = data[key];
-//         }
-//     });
-
-//     return flatData;
-// };
-
-const flattenData = (data, masterObject) => {
-    let flatData = {};
-
-    masterObject.forEach(field => {
-        const keys = field.key.split('.');
-        let value = data;
-
-        // Traverse the nested structure to get the value
-        for (const key of keys) {
-            value = value?.[key];
-            if (value === undefined) break;
-        }
-
-        // If the field has a foreign_key, we need to fetch related data
-        if (field.foreign_key) {
-            flatData[field.key] = value; // Store the foreign key value
-        } else {
-            flatData[field.key] = value || null;
-        }
-    });
-
-    return flatData;
-};
-
-const structureData = (flatData, config) => {
-    let structuredData = {};
-
-    Object.keys(config).forEach(key => {
-        if (config[key].type === 'object' && config[key].flatten) {
-            structuredData[key] = {};
-            Object.keys(config[key].fields).forEach(subKey => {
-                structuredData[key][subKey] = flatData[`${key}_${subKey}`] || null;
-            });
-        } else {
-            structuredData[key] = flatData[key];
-        }
-    });
-
-    return structuredData;
-};
-
-
-const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters }) => {
+const Index = ({ entityType }) => {
 
     const defaultStartDate = dayjs().subtract(30, 'days');
     // const defaultStartDate = dayjs().subtract(30, 'days');
@@ -133,21 +35,16 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
 
-    const openDrawer = addEditFunction || ((item = null, view = false) => {
+    const openDrawer = (item = null) => {
         setEditItem(item);
         setIsDrawerVisible(true);
-        setViewMode(view)
-    });
+    };
 
     const closeDrawer = () => {
         setIsDrawerVisible(false);
         setEditItem(null);
     };
-    // useEffect(() => {
-    //     if (setCallFetch && typeof setCallFetch === "function") {
-    //         setCallFetch(() => fetchData);
-    //     }
-    // }, []);
+
     // useEffect(() => {
     //     const handleFullscreenChange = () => {
     //         setIsFullscreen(!!document.fullscreenElement);
@@ -190,34 +87,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [viewConfig, setViewConfig] = useState()
     const [workflowConfig, setWorkflowConfig] = useState()
     const [data, setData] = useState()
-    const [rawData, setRawData] = useState()
-    const [allData, setAllData] = useState()
     const [users, setUsers] = useState();
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalItems, setTotalItems] = useState(0);
-    const [viewMode, setViewMode] = useState(false);
-
-
-    useEffect(() => {
-        const filterData = () => {
-            if (!uiFilters || uiFilters.length === 0) return allData; // If no filters, return all data
-
-            return allData?.filter(item => {
-                const tags = item.details_tags || [];
-                // Check if any tag in the item matches any value in the filter
-                return uiFilters?.some(filter =>
-                    filter.column === 'details_tags' &&
-                    filter.value.some(value => tags.includes(value))
-                );
-            });
-        }
-        if (allData) {
-            const filteredData = filterData()
-            console.log("fd", uiFilters, filteredData)
-            setData(filteredData)
-        }
-    }, [uiFilters])
 
     const fetchConfig = {
         // assignee: { table: 'users', column: 'user_name' },
@@ -251,164 +121,43 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     //     }
     // };
 
-
-    const fetchData = async () => {
-        console.log("viewConfig", viewConfig);
-
-        let query = supabase.from(entityType).select('*').order('details->>name', { ascending: true });
-
-        // Apply multiple filters
-        fetchFilters?.forEach(filter => {
-            const { column, value } = filter;
-            if (column && value !== undefined) {
-                if (column.includes('.')) {
-                    const [jsonField, jsonKey] = column.split('.');
-                    query = query.eq(`${jsonField}->>${jsonKey}`, value);
-                } else {
-                    query = query.eq(column, value);
-                }
-            }
-        });
-
-        console.log("QR", fetchFilters, query);
-        let { data, error } = await query;
-
-        setRawData(data);
-        data = data?.map(obj => flattenData(obj, viewConfig?.master_object));
-
+    const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
+        let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+        console.log("Da", data)
         if (error) throw error;
-
         if (data) {
-            let sales = [];
-
-            // Loop through each sale and process foreign keys
+            let sales = []
+            // Loop through each sale and process foreign keys from the details field
             for (let sale of data) {
-                // Loop through each field in master_object to check for foreign_key
-                for (const field of viewConfig?.master_object) {
-                    if (field.foreign_key) {
-                        const foreignKeyValue = sale[field.key];
+                const details = sale.details;
 
-                        if (foreignKeyValue) {
-                            const { source_table, source_column, display_column } = field.foreign_key;
+                // Loop through each foreign key in the details and fetch related data based on config
+                for (const key in details) {
+                    const foreignKey = details[key];
+                    if (fetchConfig[key]) {
+                        const { table, column } = fetchConfig[key];
 
-                            // Fetch data from the related table
-                            let relatedData;
-                            let relatedError;
+                        // Fetch data from the related table
+                        const { data: relatedData, error: relatedError } = await supabase
+                            .from(table)
+                            .select('*') // Use * to fetch all columns if no specific column is mentioned
+                            .eq('id', foreignKey);
 
-                            if (Array.isArray(foreignKeyValue)) {
-                                ({ data: relatedData, error: relatedError } = await supabase
-                                    .from(source_table)
-                                    .select('*')
-                                    .in(source_column, foreignKeyValue));
-                            } else {
-                                ({ data: relatedData, error: relatedError } = await supabase
-                                    .from(source_table)
-                                    .select('*')
-                                    .eq(source_column, foreignKeyValue));
-                            }
+                        if (relatedError) throw relatedError;
 
-                            if (relatedError) throw relatedError;
-
-                            // Store the related data in a separate object
-                            sale.related_data = sale.related_data || {};
-                            sale.related_data[field.key] = Array.isArray(foreignKeyValue) ? relatedData : relatedData?.[0];
-                        }
+                        // Store the related data in a separate object for now
+                        sale.related_data = sale.related_data || {};
+                        sale.related_data[key] = relatedData[0]; // Store by key
                     }
                 }
             }
-            // const key = 'details-annualTurnoverRange'
-            console.log("Dtr", data)//[0][key], data[0]?.detailsannualTurnoverRange);
-            setAllData(data);
-            setData(data);
+            console.log("Data", sales, data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
+            setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));
         }
-
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch Data" });
         }
     };
-
-
-    // From data_config methos
-    // const fetchData = async () => {  //TODO: revisit direct status views with instance or merge tables later
-    //     console.log("viewConfig", viewConfig)
-    //     // let { data, error } = await supabase.from(entityType).select('*').order('details->>name', { ascending: true });
-
-    //     let query = supabase.from(entityType).select('*').order('details->>name', { ascending: true });
-
-    //     // Apply multiple filters
-    //     fetchFilters?.forEach(filter => {
-    //         const { column, value } = filter;
-    //         if (column && value !== undefined) {
-    //             if (column.includes('.')) {
-    //                 const [jsonField, jsonKey] = column.split('.');
-    //                 query = query.eq(`${jsonField}->>${jsonKey}`, value);
-    //             } else {
-    //                 query = query.eq(column, value);
-    //             }
-    //         }
-    //     });
-    //     console.log("QR", fetchFilters, query)
-    //     let { data, error } = await query;
-
-    //     setRawData(data)
-    //     data = data?.map(obj => flattenData(obj, viewConfig?.data_config?.mainTable));
-    //     if (error) throw error;
-    //     if (data) {
-    //         let sales = []
-    //         // Loop through each sale and process foreign keys from the details field
-    //         for (let sale of data) {
-    //             const details = sale;
-
-    //             // Loop through each foreign key in the details and fetch related data based on config
-    //             for (const key in details) {
-    //                 const foreignKey = details[key];
-    //                 if (viewConfig?.data_config?.fetchConfig && viewConfig?.data_config?.fetchConfig[key]) {
-    //                     // console.log("kd", foreignKey, viewConfig?.data_config?.fetchConfig[key])
-    //                     if (foreignKey) {
-    //                         const { table, column } = viewConfig?.data_config?.fetchConfig[key];
-
-    //                         // // Fetch data from the related table
-    //                         // const { data: relatedData, error: relatedError } = await supabase
-    //                         //     .from(table)
-    //                         //     .select('*') // Use * to fetch all columns if no specific column is mentioned
-    //                         //     .eq('id', foreignKey);
-    //                         let relatedData;
-    //                         let relatedError;
-    //                         // If `foreignKey` is an array, use `in` query
-    //                         if (Array.isArray(foreignKey)) {
-    //                             ({ data: relatedData, error: relatedError } = await supabase
-    //                                 .from(table)
-    //                                 .select('*')
-    //                                 .in('id', foreignKey));
-    //                         } else {
-    //                             ({ data: relatedData, error: relatedError } = await supabase
-    //                                 .from(table)
-    //                                 .select('*')
-    //                                 .eq('id', foreignKey));
-    //                         }
-
-
-    //                         if (relatedError) throw relatedError;
-
-    //                         // Store the related data in a separate object for now
-    //                         sale.related_data = sale.related_data || {};
-    //                         // sale.related_data[key] = relatedData[0]; // Store by key
-    //                         sale.related_data[key] = Array.isArray(foreignKey) ? relatedData : relatedData?.[0];
-
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         console.log("Dtr", data)
-    //         setAllData(data)
-    //         setData(data)
-    //         // console.log("Data", sales, data, data.map(item => ({ ...item.details, id: item?.id })))// data.map(task => ({ ...task.details, id: task?.id })))
-    //         // setData(data.map(item => ({ ...item.details, id: item?.id, related_data: item?.related_data })));
-    //     }
-    //     if (error) {
-    //         notification.error({ message: error?.message || "Failed to fetch Data" });
-    //     }
-    // };
     const fetchWorkflowConfiguration = async () => {
         const { data, error } = await supabase.from('workflow_configurations').select('*').eq('entity_type', entityType)
             .eq('organization_id', session?.user?.organization?.id);
@@ -424,7 +173,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const fetchViewConfigs = async () => {
         let { data, error } = await supabase.from('y_view_config').select('*').eq('entity_type', entityType);
         if (data) {
-            console.log("viewConfigT", data[0])
+            console.log("viewConfig", data[0]?.tableview)
             setViewConfig(data && data[0]);
         }
         if (error) {
@@ -434,17 +183,10 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
     useEffect(() => {
         fetchViewConfigs();
+        fetchData();
         fetchWorkflowConfiguration()
         fetchUsers()
     }, []);
-    useEffect(() => {
-        if (viewConfig) {
-            fetchData();
-            if (setCallFetch && typeof setCallFetch === "function") {
-                setCallFetch(() => fetchData);
-            }
-        }
-    }, [currentPage, viewConfig]);
 
 
     const updateData = async (updatedRow) => {
@@ -606,7 +348,6 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     //         }
     //     }
     // };
-    console.log("GTD", data);
     const tabItems = [];
     if (viewConfig?.views_config?.tableview && viewConfig?.tableview) {
         tabItems.push({
@@ -619,7 +360,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         tabItems.push({
             label: 'Grid',
             key: '2',
-            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />
+            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />
         })
     }
     if (viewConfig?.views_config?.timelineview && viewConfig?.timelineview) {
@@ -704,24 +445,20 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 data={vd}  // Pass the response data (vd) to the modal
             />}
             <Drawer
-                width={viewMode ? "100%" : "50%"}
-                title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit Task' : 'Add New Task')}
+                width="50%"
+                title={editItem ? 'Edit Task' : 'Add New Task'}
                 open={isDrawerVisible}
                 onClose={closeDrawer}
                 footer={null}
             >
-                {viewMode ?
-                    <DetailsView entityType={entityType} viewConfig={viewConfig} editItem={editItem} rawData={rawData}
-                        DetailsCard={<GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />}
-                    />
-                    : <DynamicForm
-                        schemas={viewConfig} // Replace with actual schemas
-                        formData={editItem || {}}
-                        onFinish={(formData) => {
-                            handleAddOrEdit(formData, editItem);
-                            closeDrawer();
-                        }}
-                    />}
+                <DynamicForm
+                    schemas={viewConfig} // Replace with actual schemas
+                    formData={editItem || {}}
+                    onFinish={(formData) => {
+                        handleAddOrEdit(formData, editItem);
+                        closeDrawer();
+                    }}
+                />
             </Drawer>
         </Card>
     );

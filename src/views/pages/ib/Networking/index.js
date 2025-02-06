@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import DynamicViews from '../../DynamicViews/index2';
+import DynamicViews from '../../DynamicViews';
 import Interests from './Interests';
 import CategorySelector from './CategorySelector';
 import { Card, Switch, Tabs } from 'antd';

@@ -3,7 +3,7 @@ import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useState } from 'react';
 import DynamicForm from '../DynamicForm';
 import GridView from '../DynamicViews/GridView';
-import TableView from '../DynamicViews/TableView-R';
+import TableView from '../DynamicViews/TableView';
 import dayjs from 'dayjs';
 import { renderFilters } from 'components/util-components/utils';
 import Schedule from '../DynamicViews/TimelineView';

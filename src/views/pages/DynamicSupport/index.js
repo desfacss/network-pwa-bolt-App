@@ -2,7 +2,7 @@ import { Button, Card, notification, Tabs } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import React, { useEffect, useRef, useState } from 'react';
 import GridView from '../DynamicViews/GridView';
-import TableView from '../DynamicViews/TableView-R';
+import TableView from '../DynamicViews/TableView';
 import dayjs from 'dayjs';
 import { renderFilters } from 'components/util-components/utils';
 import Schedule from '../DynamicViews/TimelineView';
