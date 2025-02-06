@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, Checkbox, Button, message, Drawer, Row, Col } from "antd";
 import { supabase } from "api/supabaseClient";
 import { useSelector } from "react-redux";
+// import { ResponsiveButton } from "views/pages/Trial/ResponsiveButton";
 
 const Interests = ({ open, onClose }) => {
     const [categories, setCategories] = useState([]);
@@ -118,6 +119,7 @@ const InterestsDrawer = () => {
     return (
         <>
             <Button type="primary" onClick={() => setIsDrawerOpen(true)}>Interests</Button>
+            {/* <ResponsiveButton type="primary" onClick={() => setIsDrawerOpen(true)}>Interests</ResponsiveButton> */}
             <Interests open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
         </>
     );

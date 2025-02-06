@@ -216,7 +216,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/ib_poll`,
             component: React.lazy(() => import('views/pages/ib/Poll')),
         },
-
+        module_features?.trial && feature?.trial && {
+            key: 'trial',
+            path: `${APP_PREFIX_PATH}/trial`,
+            component: React.lazy(() => import('views/pages/Trial')),
+        },
 
         // // module_features?.dynamicViews && feature?.dynamicViews && {
         // module_features?.a && feature?.rnd && {

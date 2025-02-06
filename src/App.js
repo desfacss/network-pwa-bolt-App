@@ -16,6 +16,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 // import { indexedDB } from "state/services/indexedDB";
 // import { store } from "../store";
+import { StyleProvider } from '@ant-design/cssinjs';
 
 const themes = {
   dark: `${process.env.PUBLIC_URL}/css/dark-theme.css`,
@@ -101,20 +102,22 @@ function App() {
 
   return (
     <div className="App">
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <BrowserRouter history={history}>
-            <ThemeSwitcherProvider themeMap={themes} defaultTheme={THEME_CONFIG.currentTheme} insertionPoint="styles-insertion-point" >
-              <QueryClientProvider client={queryClient}
-              // persistOptions={{ persister }}
-              >
-                <Layouts />
-                {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-              </QueryClientProvider>
-            </ThemeSwitcherProvider>
-          </BrowserRouter>
-        </PersistGate>
-      </Provider>
+      <StyleProvider>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <BrowserRouter history={history}>
+              <ThemeSwitcherProvider themeMap={themes} defaultTheme={THEME_CONFIG.currentTheme} insertionPoint="styles-insertion-point" >
+                <QueryClientProvider client={queryClient}
+                // persistOptions={{ persister }}
+                >
+                  <Layouts />
+                  {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+                </QueryClientProvider>
+              </ThemeSwitcherProvider>
+            </BrowserRouter>
+          </PersistGate>
+        </Provider>
+      </StyleProvider>
     </div>
   );
 }
