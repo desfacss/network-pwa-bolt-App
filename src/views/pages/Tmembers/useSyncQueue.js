@@ -14,7 +14,7 @@
 
 import { useMemo, useEffect } from 'react';
 import { syncQueue } from './syncQueue';
-import { networkMonitor } from './../../../services/networkMonitor';
+import { networkMonitor } from '../../../services/networkMonitor';
 
 export function useSyncQueue() {
   const processQueue = useMemo(() => {

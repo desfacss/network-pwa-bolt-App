@@ -1,4 +1,4 @@
-import { networkMonitor } from './../../../services/networkMonitor';
+import { networkMonitor } from '../../../services/networkMonitor';
 
 export class SyncQueue {
   constructor() {
@@ -15,17 +15,17 @@ export class SyncQueue {
 
   async process() {
     if (this.queue.length === 0 || !networkMonitor.isOnline()) return;
-    
+
     this.processing = true;
     const operation = this.queue.shift();
-    
+
     try {
       await operation();
     } catch (error) {
       console.error('Sync failed:', error);
       this.queue.unshift(operation); // requeue if failed
     }
-    
+
     this.processing = false;
     await this.process(); // process next operation if any
   }

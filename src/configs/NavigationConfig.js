@@ -80,7 +80,6 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-
       module_features?.ibBusinesses && feature?.ibBusinesses && {
         key: 'ib_businesses',
         path: `${APP_PREFIX_PATH}/businesses`,
@@ -118,6 +117,22 @@ const navigationConfig = [
         path: `${APP_PREFIX_PATH}/trial`,
         title: 'Trial',
         icon: FormOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.tmembers && feature?.tmembers && {
+        key: 'tmembers',
+        path: `${APP_PREFIX_PATH}/tmembers`,
+        title: 'T Members',
+        icon: TeamOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibIdeas && feature?.ibIdeas && {
+        key: 'ib_ideas',
+        path: `${APP_PREFIX_PATH}/ideas`,
+        title: 'Ideas',
+        icon: ApartmentOutlined,
         breadcrumb: false,
         submenu: [],
       },

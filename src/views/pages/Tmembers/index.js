@@ -19,7 +19,7 @@ import './style.css';
 
 // Define the logging flag
 let isLoggingEnabled = true;
-
+const entity = 't_members'
 // Override console.log based on the logging flag
 if (!isLoggingEnabled) {
   console.log = () => { };
@@ -99,14 +99,14 @@ const DynState = () => {
     console.log("F2: Calculated offset:", (pageParam - 1) * storedPageSize);
 
     let query = supabase
-      .from('y_state')
+      .from(entity)
       .select('*', { count: 'exact' });
 
     // PERFORMANCE IMPROVEMENTS - CONCEPT
     // Server-Side Filtering: If your dataset grows, consider implementing server-side filtering. This would mean updating your backend to support more complex queries. For instance, if your backend supports it, you could include more filters in your Supabase query:
     // javascript
     // let query = supabase
-    //   .from('y_state')
+    //   .from(entity)
     //   .select('*', { count: 'exact' });
 
     // if (storedFilters.name) {
@@ -221,7 +221,7 @@ const DynState = () => {
         return newMutatingItems;
       });
       console.log("A1: Attempting to save item to Supabase:", item);
-      const { data, error } = await supabase.from('y_state').insert([item]).select('*');
+      const { data, error } = await supabase.from(entity).insert([item]).select('*');
       if (error) {
         console.error('A2: Error saving to Supabase:', error);
         throw new Error(error.message);
@@ -279,7 +279,7 @@ const DynState = () => {
         return newMutatingItems;
       });
       console.log("U1: Attempting to update item in Supabase:", item);
-      const { data, error } = await supabase.from('y_state').update({ name: `${item.name}-updated` }).eq('id', item.id).select('*');
+      const { data, error } = await supabase.from(entity).update({ name: `${item.name}-updated` }).eq('id', item.id).select('*');
       if (error) {
         console.error('U2: Error updating in Supabase:', error);
         throw new Error(error.message);
@@ -339,7 +339,7 @@ const DynState = () => {
         return newMutatingItems;
       });
       console.log("D1: Attempting to delete item from Supabase with id:", id);
-      const { error } = await supabase.from('y_state').delete().eq('id', id);
+      const { error } = await supabase.from(entity).delete().eq('id', id);
       if (error) {
         console.error('D2: Error deleting from Supabase:', error);
         throw new Error(error.message);

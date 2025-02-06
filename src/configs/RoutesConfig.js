@@ -131,56 +131,56 @@ export const protectedRoutes = (feature, module_features) => {
         //     component: React.lazy(() => import('views/pages/Jobs')),
         // },
 
-        module_features?.ytasks && feature?.ytasks && {
-            key: 'ytasks',
-            path: `${APP_PREFIX_PATH}/ytasks`,
-            component: React.lazy(() => import('views/pages/DynamicTasks')),
+        // module_features?.ytasks && feature?.ytasks && {
+        //     key: 'ytasks',
+        //     path: `${APP_PREFIX_PATH}/ytasks`,
+        //     component: React.lazy(() => import('views/pages/DynamicTasks')),
+        // },
+        // module_features?.ysales && feature?.ysales && {
+        //     key: 'ysales',
+        //     path: `${APP_PREFIX_PATH}/ysales`,
+        //     component: React.lazy(() => import('views/pages/DynamicSales')),
+        // },
+        // module_features?.yprojects && feature?.yprojects && {
+        //     key: 'yprojects',
+        //     path: `${APP_PREFIX_PATH}/yprojects`,
+        //     component: React.lazy(() => import('views/pages/DynamicProjects')),
+        // },
+        module_features?.ibIdeas && feature?.ibIdeas && {
+            key: 'ib_ideas',
+            path: `${APP_PREFIX_PATH}/ideas`,
+            component: React.lazy(() => import('views/pages/Ideas')),
         },
-        module_features?.ysales && feature?.ysales && {
-            key: 'ysales',
-            path: `${APP_PREFIX_PATH}/ysales`,
-            component: React.lazy(() => import('views/pages/DynamicSales')),
+        // module_features?.ystate && feature?.ystate && {
+        //     key: 'ystate',
+        //     path: `${APP_PREFIX_PATH}/ystate`,
+        //     component: React.lazy(() => import('views/pages/DynamicState')),
+        // },
+        module_features?.tmembers && feature?.tmembers && {
+            key: 'tmembers',
+            path: `${APP_PREFIX_PATH}/tmembers`,
+            component: React.lazy(() => import('views/pages/Tmembers')),
         },
-        module_features?.yprojects && feature?.yprojects && {
-            key: 'yprojects',
-            path: `${APP_PREFIX_PATH}/yprojects`,
-            component: React.lazy(() => import('views/pages/DynamicProjects')),
-        },
-        module_features?.yprojects && feature?.yprojects && {
-            key: 'yproj',
-            path: `${APP_PREFIX_PATH}/yproj`,
-            component: React.lazy(() => import('views/pages/DynamicProj')),
-        },
-        module_features?.ystate && feature?.ystate && {
-            key: 'ystate',
-            path: `${APP_PREFIX_PATH}/ystate`,
-            component: React.lazy(() => import('views/pages/DynamicState')),
-        },
-        module_features?.yst && feature?.yst && {
-            key: 'yst',
-            path: `${APP_PREFIX_PATH}/yst`,
-            component: React.lazy(() => import('views/pages/DynState')),
-        },
-        module_features?.ysupport && feature?.ysupport && {
-            key: 'ysupport',
-            path: `${APP_PREFIX_PATH}/ysupport`,
-            component: React.lazy(() => import('views/pages/DynamicSupport')),
-        },
-        module_features?.yclients && feature?.yclients && {
-            key: 'yclients',
-            path: `${APP_PREFIX_PATH}/yclients`,
-            component: React.lazy(() => import('views/pages/DynamicClients')),
-        },
+        // module_features?.ysupport && feature?.ysupport && {
+        //     key: 'ysupport',
+        //     path: `${APP_PREFIX_PATH}/ysupport`,
+        //     component: React.lazy(() => import('views/pages/DynamicSupport')),
+        // },
+        // module_features?.yclients && feature?.yclients && {
+        //     key: 'yclients',
+        //     path: `${APP_PREFIX_PATH}/yclients`,
+        //     component: React.lazy(() => import('views/pages/DynamicClients')),
+        // },
         module_features?.yconfig && feature?.yconfig && {
             key: 'yconfig',
             path: `${APP_PREFIX_PATH}/yconfig`,
             component: React.lazy(() => import('views/pages/DynamicConfig')),
         },
-        module_features?.yform && feature?.yform && {
-            key: 'yform',
-            path: `${APP_PREFIX_PATH}/yform`,
-            component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
-        },
+        // module_features?.yform && feature?.yform && {
+        //     key: 'yform',
+        //     path: `${APP_PREFIX_PATH}/yform`,
+        //     component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
+        // },
         module_features?.ibBusinesses && feature?.ibBusinesses && {
             key: 'ib_businesses',
             path: `${APP_PREFIX_PATH}/businesses`,
@@ -191,36 +191,36 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/members`,
             component: React.lazy(() => import('views/pages/Members')),
         },
-        module_features?.ibMembers && feature?.ibMembers && {
-            key: 'ib_member',
-            path: `${APP_PREFIX_PATH}/members/:user_name`,
-            component: React.lazy(() => import('views/pages/Profile/index')),
-        },
-        module_features?.ibChat && feature?.ibChat && {
-            key: 'ib_chat',
-            path: `${APP_PREFIX_PATH}/networking/:chatId`,
-            component: React.lazy(() => import('views/pages/ib/Chat')),
-        },
-        module_features?.ibNetworking && feature?.ibNetworking && {
-            key: 'ib_networking',
-            path: `${APP_PREFIX_PATH}/networking`,
-            component: React.lazy(() => import('views/pages/ib/Networking')),
-        },
-        module_features?.ibNetworking && feature?.ibNetworking && {
-            key: 'ib_heirarchy',
-            path: `${APP_PREFIX_PATH}/heirarchy`,
-            component: React.lazy(() => import('views/pages/ib/Heirarchy')),
-        },
-        module_features?.ibPoll && feature?.ibPoll && {
-            key: 'ib_poll',
-            path: `${APP_PREFIX_PATH}/ib_poll`,
-            component: React.lazy(() => import('views/pages/ib/Poll')),
-        },
-        module_features?.trial && feature?.trial && {
-            key: 'trial',
-            path: `${APP_PREFIX_PATH}/trial`,
-            component: React.lazy(() => import('views/pages/Trial')),
-        },
+        // module_features?.ibMembers && feature?.ibMembers && {
+        //     key: 'ib_member',
+        //     path: `${APP_PREFIX_PATH}/members/:user_name`,
+        //     component: React.lazy(() => import('views/pages/Profile/index')),
+        // },
+        // module_features?.ibChat && feature?.ibChat && {
+        //     key: 'ib_chat',
+        //     path: `${APP_PREFIX_PATH}/networking/:chatId`,
+        //     component: React.lazy(() => import('views/pages/ib/Chat')),
+        // },
+        // module_features?.ibNetworking && feature?.ibNetworking && {
+        //     key: 'ib_networking',
+        //     path: `${APP_PREFIX_PATH}/networking`,
+        //     component: React.lazy(() => import('views/pages/ib/Networking')),
+        // },
+        // module_features?.ibNetworking && feature?.ibNetworking && {
+        //     key: 'ib_heirarchy',
+        //     path: `${APP_PREFIX_PATH}/heirarchy`,
+        //     component: React.lazy(() => import('views/pages/ib/Heirarchy')),
+        // },
+        // module_features?.ibPoll && feature?.ibPoll && {
+        //     key: 'ib_poll',
+        //     path: `${APP_PREFIX_PATH}/ib_poll`,
+        //     component: React.lazy(() => import('views/pages/ib/Poll')),
+        // },
+        // module_features?.trial && feature?.trial && {
+        //     key: 'trial',
+        //     path: `${APP_PREFIX_PATH}/trial`,
+        //     component: React.lazy(() => import('views/pages/Trial')),
+        // },
 
         // // module_features?.dynamicViews && feature?.dynamicViews && {
         // module_features?.a && feature?.rnd && {
