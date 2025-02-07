@@ -319,7 +319,7 @@ const YViewConfigManager = () => {
           <QueryBuilderComponent entityType={selectedRow} masterObject={selectedConfig?.master_object} />
         </TabPane>
         <TabPane tab="Form Builder" key="form_builder">
-          <FormBuilder />
+          <FormBuilder masterObjectInit={selectedConfig?.master_object} />
         </TabPane>
         {/* <TabPane tab="Fields" key="fields">
           <CrudTableConfig jsonSchema={selectedConfig?.master_data_schema || {}} onSave={handleSave} />

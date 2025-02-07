@@ -105,7 +105,8 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             }
 
             message.success('Configuration saved successfully!');
-            setMasterObject(masterObjectData?.reduce((acc, obj) => ({ ...acc, [obj.key]: obj }), {}));
+            setMasterObject(masterObjectData);
+            // setMasterObject(masterObjectData?.reduce((acc, obj) => ({ ...acc, [obj.key]: obj }), {}));
         } catch (error) {
             console.error('Error in onFinish:', error);
             message.error('Failed to save configuration: ' + error.message);
@@ -126,6 +127,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             dataIndex: 'key',
             key: 'key',
             render: (text, record) => {
+                console.log("trd", masterObject);
                 const masterObjectTemp = masterObject?.reduce((acc, item) => {
                     acc[item.key] = item; // Use the key as the property name and the entire item as the value
                     return acc;

@@ -14,11 +14,14 @@ import 'ace-builds/src-noconflict/theme-monokai'; // Choose your preferred theme
 import 'ace-builds/src-noconflict/mode-json'; // For JSON mode
 import 'ace-builds/src-noconflict/worker-json'; // Import the JSON worker
 
-const FormBuilder = () => {
+const FormBuilder = ({ masterObjectInit }) => {
+
+
+  console.log("mod", masterObjectInit);
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-  const [dataConfig, setDataConfig] = useState({})
+  const [dataConfig, setDataConfig] = useState([])
   const [editItem, setEditItem] = useState({})
   const [dataSchema, setDataSchema] = useState({
     type: "object",
@@ -42,6 +45,11 @@ const FormBuilder = () => {
     lookupColumn: '',
     acceptedFileTypes: '.pdf'
   });
+  const currentConfig = widgetConfigs[fieldInput.fieldType];
+  const showOptions = currentConfig?.requiresOptions;
+  const showFileOptions = currentConfig?.hasFileOptions;
+  // let showLookup = currentConfig?.requiresLookup;
+  const [showLookup, setShowLookup] = useState(currentConfig?.requiresLookup)
 
   const handleFieldChange = (key, value) => {
     setFieldInput(prev => ({
@@ -50,9 +58,51 @@ const FormBuilder = () => {
     }));
   };
 
+  const handleFieldNameChange = (value) => {
+    // setFieldInput(prev => ({
+    //   ...prev,
+    //   fieldName: value
+    // }));
+
+    if (masterObjectInit) {
+      const selectedField = masterObjectInit?.find(item => item.key === value);
+      console.log("sfd", selectedField);
+      setDataConfig(prevConfig => {
+        const updatedConfig = prevConfig?.filter(item => item.key !== fieldInput.fieldName); // Use fieldInput.fieldName
+        if (selectedField) {
+          return [...updatedConfig, selectedField];
+        }
+        return updatedConfig; // Return the filtered array if no selected field is found
+      });
+      // Update lookup table and column based on selected field
+      if (selectedField && selectedField?.foreign_key) {
+        setFieldInput(prev => ({
+          ...prev,
+          fieldName: value,
+          fieldType: "SelectMulti",
+          lookupTable: selectedField?.foreign_key?.source_table,
+          lookupColumn: selectedField?.foreign_key?.display_column
+        }));
+        setShowLookup(true)
+      } else {
+        setFieldInput(prev => ({
+          ...prev,
+          fieldName: value,
+          lookupTable: '',
+          lookupColumn: ''
+        }));
+        setShowLookup(false)
+      }
+    }
+  };
+
   const handleAddField = () => {
     if (!fieldInput.fieldName.trim()) {
       message.error("Enter Field Name");
+      return;
+    }
+    if (showLookup && !(fieldInput.lookupTable && fieldInput.lookupColumn)) {
+      message.error("Enter LookUp Details");
       return;
     }
     fieldInput.fieldTitle = fieldInput?.fieldName
@@ -145,11 +195,6 @@ const FormBuilder = () => {
 
   //   return { data_schema: dataSchema, ui_schema: uiSchema };
   // };
-
-  const currentConfig = widgetConfigs[fieldInput.fieldType];
-  const showOptions = currentConfig?.requiresOptions;
-  const showLookup = currentConfig?.requiresLookup;
-  const showFileOptions = currentConfig?.hasFileOptions;
 
   // const schemas = generateSchemas();
 
@@ -330,8 +375,30 @@ const FormBuilder = () => {
             <div className="grid grid-cols-2 gap-4">
               <Row gutter={4}>
                 <Col span={12}>
-                  <Input placeholder="Field Name" value={fieldInput?.fieldName}
-                    onChange={(e) => handleFieldChange('fieldName', e.target.value)} />
+                  {/* <Input placeholder="Field Name" value={fieldInput?.fieldName}
+                    onChange={(e) => handleFieldChange('fieldName', e.target.value)} /> */}
+                  {masterObjectInit ? ( // Conditional rendering for fieldName input
+                    <Select
+                      showSearch
+                      style={{ width: '100%' }}
+                      placeholder="Select Field Name"
+                      optionFilterProp="children"
+                      onChange={handleFieldNameChange}
+                      value={fieldInput.fieldName}
+                    >
+                      {masterObjectInit?.map(item => (
+                        <Select.Option key={item.key} value={item.key}>
+                          {item.key}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder="Field Name"
+                      value={fieldInput?.fieldName}
+                      onChange={(e) => handleFieldChange('fieldName', e.target.value)}
+                    />
+                  )}
                 </Col>
                 <Col span={12}>
                   <Select style={{ width: "100%" }} value={fieldInput?.fieldType} placeholder="Select type"
@@ -438,6 +505,25 @@ const FormBuilder = () => {
             ))}
           </div>
         </Card>
+        <AceEditor
+          mode="json"
+          theme="monokai"
+          value={JSON.stringify(dataConfig, null, 2)}
+          onChange={(value) => {
+            try {
+              const parsedSchema = JSON.parse(value);
+              setDataConfig(parsedSchema);
+            } catch (error) {
+              message.error("Invalid JSON in Data Config");
+            }
+          }}
+          editorProps={{ $blockScrolling: true }} // Prevents console error
+          setOptions={{
+            tabSize: 2,
+            useSoftTabs: true,
+          }}
+          style={{ width: "100%", height: "200px" }}
+        />
       </Col>
       <Col span={16}>
 

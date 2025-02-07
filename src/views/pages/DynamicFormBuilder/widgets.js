@@ -61,7 +61,7 @@ export const widgetConfigs = {
             enum: []
         },
         uiSchema: {
-            "ui:widget": "SelectWidget",
+            "ui:widget": "SelectCustomWidget",
             "ui:placeholder": "Select an option",
             "ui:options": {
                 "allowClear": true,
@@ -77,7 +77,7 @@ export const widgetConfigs = {
             enum: []
         },
         uiSchema: {
-            "ui:widget": "SelectWidget",
+            "ui:widget": "SelectCustomWidget",
             "ui:placeholder": "Select an option",
             "ui:options": {
                 "allowClear": true,
@@ -93,7 +93,7 @@ export const widgetConfigs = {
             enum: []
         },
         uiSchema: {
-            "ui:widget": "SelectWidget",
+            "ui:widget": "SelectCustomWidget",
             "ui:options": {
                 "allowClear": false,
                 "showSearch": false,
@@ -140,37 +140,37 @@ export const widgetConfigs = {
         },
         // requiresLookup: true
     },
-    "multipleChoices2": {
-        dataSchema: {
-            "type": "array",
-            "title": "Selectable Tags",
-            "items": {
-                "type": "string"
-            },
-            "uniqueItems": true,
-            "options": {
-                "enumOptions": [
-                    { "value": "tag1", "label": "Tag 1" },
-                    { "value": "tag2", "label": "Tag 2" },
-                    { "value": "tag3", "label": "Tag 3" },
-                    { "value": "tag4", "label": "Tag 4" },
-                    { "value": "tag5", "label": "Tag 5" }
-                    // ... more tags
-                ],
-                "maxItems": 3, // Example: Maximum 3 tags can be selected
-                "title": "Select your tags" // Example: Title for the widget
-            }
-        },
-        uiSchema: {
-            "ui:widget": "selectableTags", // Use the registered name
-            "ui:options": {
-                enumOptions: [ /* ... your enumOptions ...*/], // Important!
-                maxItems: 3,
-                title: "Select your tags"
-            }
-        },
-        // requiresLookup: true
-    },
+    // "multipleChoices2": {
+    //     dataSchema: {
+    //         "type": "array",
+    //         "title": "Selectable Tags",
+    //         "items": {
+    //             "type": "string"
+    //         },
+    //         "uniqueItems": true,
+    //         "options": {
+    //             "enumOptions": [
+    //                 { "value": "tag1", "label": "Tag 1" },
+    //                 { "value": "tag2", "label": "Tag 2" },
+    //                 { "value": "tag3", "label": "Tag 3" },
+    //                 { "value": "tag4", "label": "Tag 4" },
+    //                 { "value": "tag5", "label": "Tag 5" }
+    //                 // ... more tags
+    //             ],
+    //             "maxItems": 3, // Example: Maximum 3 tags can be selected
+    //             "title": "Select your tags" // Example: Title for the widget
+    //         }
+    //     },
+    //     uiSchema: {
+    //         "ui:widget": "selectableTags", // Use the registered name
+    //         "ui:options": {
+    //             enumOptions: [ /* ... your enumOptions ...*/], // Important!
+    //             maxItems: 3,
+    //             title: "Select your tags"
+    //         }
+    //     },
+    //     // requiresLookup: true
+    // },
     "SelectableTags": {
         dataSchema: {
             type: "string",
