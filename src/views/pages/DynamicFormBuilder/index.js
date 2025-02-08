@@ -106,7 +106,7 @@ const FormBuilder = ({ masterObjectInit }) => {
       return;
     }
     fieldInput.fieldTitle = fieldInput?.fieldName
-    fieldInput.fieldName = fieldInput?.fieldName?.trim()?.replaceAll(" ", "_")?.toLowerCase();
+    fieldInput.fieldName = fieldInput?.fieldName?.trim()?.replaceAll(" ", "_")//?.toLowerCase();
     const newField = {
       ...fieldInput,
       uiOrder: parseInt(fieldInput.uiOrder),
@@ -356,6 +356,11 @@ const FormBuilder = ({ masterObjectInit }) => {
     fetchForms();
   }, []);
 
+  const initData = {
+    "details2.companyname": "TDD",
+    "details2.web": "gdgdgdrgd"
+  }
+
   return (<div className="space-y-6">
     {/* <QueryFilter /> */}
     <Row gutter={16}>
@@ -591,7 +596,7 @@ const FormBuilder = ({ masterObjectInit }) => {
     </Row>
 
     <Drawer width="50%" title={'Form Fields'} visible={isDrawerVisible} onClose={() => setIsDrawerVisible(false)} footer={null} >
-      <DynamicForm schemas={{ data_schema: dataSchema, ui_schema: uiSchema, data_config: dataConfig }} onFinish={onFinish}
+      <DynamicForm initialFormData={initData} schemas={{ data_schema: dataSchema, ui_schema: uiSchema, data_config: dataConfig }} onFinish={onFinish}
       // schemas={schemas}
       />
     </Drawer>

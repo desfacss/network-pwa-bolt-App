@@ -18,6 +18,7 @@ import Dashboard from './Dashboard';
 import ExportImportButtons from './CSVOptions';
 import DynamicForm from '../DynamicForm';
 import DetailsView from './DetailsView';
+import { transformData } from './utils';
 // import SchedularView from './SchedularView';
 
 // const entityType = 'y_sales'
@@ -127,17 +128,46 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
     const [visible, setVisible] = useState(false);
     const [vd, setVd] = useState();
+    const [schemas, setSchemas] = useState();
     const [isFullscreen, setIsFullscreen] = useState(false);
     const { activeTab, onTabChange } = useTabWithHistory("1");
 
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
 
-    const openDrawer = addEditFunction || ((item = null, view = false) => {
+    const openDrawer = addEditFunction || ((item = null, view = false, form = "") => {
         setEditItem(item);
         setIsDrawerVisible(true);
         setViewMode(view)
+        if (form) {
+            fetchFormSchema(form, item);
+        }
     });
+
+    const fetchFormSchema = async (formName, formData) => {
+        try {
+            const { data, error } = await supabase
+                .from('forms')
+                .select('*') // Select the 8th column (counting from 1)
+                .eq('name', formName)
+                .single();
+
+            if (error) {
+                console.error("Error fetching form schema:", error);
+                return;
+            }
+            if (data) {
+                console.log("Data fetched:", data);
+                setSchemas(data)
+                console.log("ttr", formData, data?.data_config, transformData(formData, data?.data_config))
+            } else {
+                console.warn("No form found with name:", formName);
+            }
+
+        } catch (err) {
+            console.error("Error in fetchFormSchema:", err);
+        }
+    };
 
     const closeDrawer = () => {
         setIsDrawerVisible(false);
@@ -715,7 +745,8 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                         DetailsCard={<GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />}
                     />
                     : <DynamicForm
-                        schemas={viewConfig} // Replace with actual schemas
+                        // schemas={viewConfig} // Replace with actual schemas
+                        schemas={schemas} // Replace with actual schemas
                         formData={editItem || {}}
                         onFinish={(formData) => {
                             handleAddOrEdit(formData, editItem);

@@ -56,3 +56,50 @@ export const handleAllocations = async (formData, allocationsTable, mainEntityId
         }
     }
 };
+
+export function transformData(data, data_config) {
+    const details2 = data["details2"] || {};
+    const details = data["details"] || {};
+
+    const mergedDetails = { ...details2, ...details }; // Merge with priority
+
+    const formData = {};
+
+    data_config.forEach(config => {
+        const key = config.key;
+        const value = getValueByKey(data, key);
+
+        if (value !== undefined) {
+            const finalKey = key.substring(key.lastIndexOf(".") + 1); // Extract key
+            formData[finalKey] = value;
+        }
+    });
+
+    // Add the rest of the mergedDetails not already covered.
+    for (const key in mergedDetails) {
+        if (!(key in formData)) { // Only add if not already in formData
+            formData[key] = mergedDetails[key];
+        }
+    }
+
+    return formData;
+}
+
+function getValueByKey(obj, key) {
+    if (!obj || typeof obj !== 'object' || !key) {
+        return undefined;
+    }
+
+    const keys = key.split('.');
+    let current = obj;
+
+    for (const k of keys) {
+        if (current && typeof current === 'object' && k in current) {
+            current = current[k];
+        } else {
+            return undefined;
+        }
+    }
+
+    return current;
+}

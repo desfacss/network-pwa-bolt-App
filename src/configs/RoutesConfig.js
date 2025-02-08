@@ -141,11 +141,18 @@ export const protectedRoutes = (feature, module_features) => {
         //     path: `${APP_PREFIX_PATH}/ysales`,
         //     component: React.lazy(() => import('views/pages/DynamicSales')),
         // },
-        // module_features?.yprojects && feature?.yprojects && {
-        //     key: 'yprojects',
-        //     path: `${APP_PREFIX_PATH}/yprojects`,
-        //     component: React.lazy(() => import('views/pages/DynamicProjects')),
-        // },
+        // module_features?.yprojects && feature?.yprojects && 
+        {
+            key: 'yprojects',
+            path: `${APP_PREFIX_PATH}/yprojects`,
+            component: React.lazy(() => import('views/pages/DynamicProjects')),
+        },
+        // module_features?.yprojects && feature?.yprojects && 
+        {
+            key: 'yprojects',
+            path: `${APP_PREFIX_PATH}/yprojects`,
+            component: React.lazy(() => import('views/pages/DynamicProjects')),
+        },
         module_features?.ibIdeas && feature?.ibIdeas && {
             key: 'ib_ideas',
             path: `${APP_PREFIX_PATH}/ideas`,
@@ -176,11 +183,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/yconfig`,
             component: React.lazy(() => import('views/pages/DynamicConfig')),
         },
-        // module_features?.yform && feature?.yform && {
-        //     key: 'yform',
-        //     path: `${APP_PREFIX_PATH}/yform`,
-        //     component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
-        // },
+        module_features?.yform && feature?.yform && {
+            key: 'yform',
+            path: `${APP_PREFIX_PATH}/yform`,
+            component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
+        },
         module_features?.ibBusinesses && feature?.ibBusinesses && {
             key: 'ib_businesses',
             path: `${APP_PREFIX_PATH}/businesses`,

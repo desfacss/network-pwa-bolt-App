@@ -38,13 +38,13 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
 
     const handleRowAction = (action, record) => {
         // console.log("dr", record)
-        if (action === 'details') {
+        if (action?.name === 'details') {
             openDrawer(record, true);
-        } else if (action === 'view') {
+        } else if (action?.name === 'view') {
             navigate(`/app${viewLink}${record?.id}`)
-        } else if (action === 'edit') {
-            openDrawer(record);
-        } else if (action === 'delete') {
+        } else if (action?.name === 'edit') {
+            openDrawer(record, false, action?.form);
+        } else if (action?.name === 'delete') {
             Modal.confirm({
                 title: 'Are you sure you want to delete this record?',
                 content: `This action cannot be undone. Record: ${record?.name}`,
@@ -59,10 +59,10 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     };
 
     const handleBulkAction = (action) => {
-        if (action?.startsWith('add_')) {
-            openDrawer();
+        if (action?.name?.startsWith('add_')) {
+            openDrawer(null, false, action?.form);
         } else {
-            console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
+            console.log(`Bulk action "${action?.name}" triggered. Placeholder for now.`);
         }
     };
 
@@ -342,9 +342,9 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
         <Menu>
             {viewConfig?.tableview?.actions?.row?.map((action) => (
                 <>
-                    {!canEditOrDelete(record, viewConfig?.access_config?.[action === 'edit' ? 'canEdit' : 'canDelete']) &&
-                        <Menu.Item key={action} onClick={() => handleRowAction(action, record)}>
-                            {action.charAt(0).toUpperCase() + action.slice(1)}
+                    {!canEditOrDelete(record, viewConfig?.access_config?.[action?.name === 'edit' ? 'canEdit' : 'canDelete']) &&
+                        <Menu.Item key={action?.name} onClick={() => handleRowAction(action, record)}>
+                            {action?.name?.charAt(0).toUpperCase() + action?.name?.slice(1)}
                         </Menu.Item>}
                 </>
             ))}
@@ -398,7 +398,7 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
     );
 
     const dynamicBulkActions = viewConfig?.tableview?.actions?.bulk?.filter(action =>
-        action?.includes("add_new_")
+        action?.name?.includes("add_new_")
     );
 
     // Always include action column, regardless of column visibility
@@ -485,15 +485,15 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
                         // ...(dynamicBulkActions || []), 
                     ].map((action) => (
                         <Button
-                            key={action}
+                            key={action?.name}
                             type="primary"
                             style={{ marginRight: 8 }}
                             onClick={() => handleBulkAction(action)}
                         >
-                            {action
-                                .split('_')
-                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                .join(' ')}
+                            {action?.name
+                                ?.split('_')
+                                ?.map(word => word?.charAt(0)?.toUpperCase() + word?.slice(1))
+                                ?.join(' ')}
                         </Button>
                     ))}
 

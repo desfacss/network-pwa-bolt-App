@@ -271,25 +271,25 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       <Menu>
         {allowedActions?.map(action => (
           <Menu.Item
-            key={action}
+            key={action?.name}
             onClick={() => {
-              console.log(`Executing action '${action}' for record:`, record);
-              switch (action) {
+              console.log(`Executing action '${action?.name}' for record:`, record);
+              switch (action?.name) {
                 case 'view':
                   navigate(`/app${gridViewConfig?.viewLink}${record?.id}`);
                   break;
                 case 'edit':
-                  openDrawer(record);
+                  openDrawer(record, false, action?.form);
                   break;
                 case 'delete':
                   deleteData(record);
                   break;
                 default:
-                  console.log(`Action ${action} not implemented`);
+                  console.log(`Action ${action?.name} not implemented`);
               }
             }}
           >
-            {action.charAt(0).toUpperCase() + action.slice(1)}
+            {action?.name?.charAt(0).toUpperCase() + action?.name?.slice(1)}
           </Menu.Item>
         ))}
       </Menu>
@@ -297,15 +297,15 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
   };
 
   const handleBulkAction = (action) => {
-    if (action.includes("add_")) {
-      openDrawer();
+    if (action?.name?.includes("add_")) {
+      openDrawer(null, false, action?.form);
     } else {
-      console.log(`Bulk action "${action}" triggered. Placeholder for now.`);
+      console.log(`Bulk action "${action?.name}" triggered. Placeholder for now.`);
     }
   };
 
   const dynamicBulkActions = viewConfig?.gridview?.actions?.bulk?.filter(action =>
-    action?.includes("add_")
+    action?.name?.includes("add_")
   );
 
 
@@ -351,13 +351,13 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {[...(viewConfig?.gridview?.actions?.bulk || [])]?.map((action) => (
             <ResponsiveButton
-              key={action}
+              key={action?.name}
               type="primary"
               style={{ marginRight: 0, marginTop: 0 }}
               onClick={() => handleBulkAction(action)}
             // floatIcon={'SearchOutlined'}
             >
-              {action
+              {action?.name
                 ?.split('_')
                 ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 ?.join(' ')}
