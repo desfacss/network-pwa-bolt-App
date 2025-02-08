@@ -138,8 +138,10 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
 
     const openDrawer = addEditFunction || ((item = null, view = false, form = "") => {
-        const formData = removeNullFields(item);
-        setEditItem(formData);
+        if (item) {
+            const formData = removeNullFields(item);
+            setEditItem(formData);
+        }
         setIsDrawerVisible(true);
         setViewMode(view)
         if (form) {
