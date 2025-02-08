@@ -178,7 +178,8 @@ export const protectedRoutes = (feature, module_features) => {
         //     path: `${APP_PREFIX_PATH}/yclients`,
         //     component: React.lazy(() => import('views/pages/DynamicClients')),
         // },
-        module_features?.yconfig && feature?.yconfig && {
+        // module_features?.yconfig && feature?.yconfig && 
+        {
             key: 'yconfig',
             path: `${APP_PREFIX_PATH}/yconfig`,
             component: React.lazy(() => import('views/pages/DynamicConfig')),

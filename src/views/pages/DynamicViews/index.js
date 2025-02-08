@@ -18,7 +18,7 @@ import Dashboard from './Dashboard';
 import ExportImportButtons from './CSVOptions';
 import DynamicForm from '../DynamicForm';
 import DetailsView from './DetailsView';
-import { transformData } from './utils';
+import { removeNullFields, transformData } from './utils';
 // import SchedularView from './SchedularView';
 
 // const entityType = 'y_sales'
@@ -135,8 +135,11 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
 
+
+
     const openDrawer = addEditFunction || ((item = null, view = false, form = "") => {
-        setEditItem(item);
+        const formData = removeNullFields(item);
+        setEditItem(formData);
         setIsDrawerVisible(true);
         setViewMode(view)
         if (form) {
@@ -534,7 +537,19 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
     const handleAddOrEdit = async (formData, editItem) => {
         console.log("ei", formData, editItem)
-        let { status, related_data, date_time_range, id, ...details } = formData
+        let { status, related_data, date_time_range, id, ...rest } = formData
+        const details = {};
+
+        // Transform nested form data
+        for (const key in rest) {
+            if (key.startsWith("details.")) {
+                const nestedKey = key.substring("details.".length);
+                details[nestedKey] = rest[key];
+            } else {
+                // Handle other top-level fields like status, related_data, etc. if needed
+                //  details[key] = rest[key];  // If you want to include them in the details object
+            }
+        }
         if (date_time_range && date_time_range.length === 2) {
             details.start_date = new Date(date_time_range[0]).toISOString();
             details.due_date = new Date(date_time_range[1]).toISOString();
@@ -553,35 +568,35 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             if (error) {
                 notification.error({ message: 'Failed to update' });
             } else {
-                if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
-                    await handleWorkflowTransition(editItem.id, formData);
-                } else {
-                    fetchData()
-                }
+                // if (status !== editItem?.status) {   //TODO: can ui know the sequence to avoid transition down rpc call
+                //     await handleWorkflowTransition(editItem.id, formData);
+                // } else {
+                fetchData()
+                // }
             }
         } else {
             // Add logic
             const { data, error } = await supabase
                 .from(entityType)
-                .insert([{ details: details, organization_id: session?.user?.organization?.id }])
+                .insert([{ details: details, organization_id: session?.user?.organization?.id, user_id: session?.user?.id }])
                 .select('*');
 
             if (error) {
                 notification.error({ message: 'Failed to add' });
             } else {
-                const newEntityId = data[0]?.id;
-                const { data: vd, error } = await supabase.rpc('initialize_workflow_instance_v4', {
-                    entitytype: entityType,
-                    entityid: newEntityId,
-                });
+                // const newEntityId = data[0]?.id;
+                // const { data: vd, error } = await supabase.rpc('initialize_workflow_instance_v4', {
+                //     entitytype: entityType,
+                //     entityid: newEntityId,
+                // });
 
-                if (error) {
-                    notification.error({ message: 'Failed to initialize workflow instance' });
-                } else {
-                    notification.success({ message: 'Added successfully' });
-                    fetchData()
-                    // await handleWorkflowTransition(newEntityId, formData);
-                }
+                // if (error) {
+                //     notification.error({ message: 'Failed to initialize workflow instance' });
+                // } else {
+                //     notification.success({ message: 'Added successfully' });
+                fetchData()
+                // await handleWorkflowTransition(newEntityId, formData);
+                // }
             }
         }
     };

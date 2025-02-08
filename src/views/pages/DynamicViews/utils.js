@@ -103,3 +103,24 @@ function getValueByKey(obj, key) {
 
     return current;
 }
+
+export function removeNullFields(obj) {
+    const newObj = {};
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            const value = obj[key];
+
+            if (value !== null) {
+                if (typeof value === 'object' && value !== null) {  // Recurse for nested objects
+                    const nestedObj = removeNullFields(value);
+                    if (Object.keys(nestedObj).length > 0) { // Only add if nested object is not empty after null removal
+                        newObj[key] = nestedObj;
+                    }
+                } else {
+                    newObj[key] = value;
+                }
+            }
+        }
+    }
+    return newObj;
+}

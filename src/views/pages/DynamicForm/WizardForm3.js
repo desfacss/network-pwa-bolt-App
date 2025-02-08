@@ -17,7 +17,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     const { session } = useSelector((state) => state.auth);
 
     const getOrganization = async () => {
-        const { data, error } = await supabase.from('organizations').select('*').eq('name', process.env.REACT_APP_ORGANIZATION_APP || 'Dev').single();
+        const { data, error } = await supabase.from('organizations').select('*').eq('name', process.env.REACT_APP_ORGANIZATION_APP || 'dev').single();
         if (data) {
             setOrganization(data);
         }
