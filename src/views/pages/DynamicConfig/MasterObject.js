@@ -16,8 +16,8 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
     useEffect(() => {
         async function fetchData() {
             try {
-                const columnsResponse = await supabase.rpc('get_columns_v17', { tablename: entityType });
-                console.log('Data from get_columns_v17:', columnsResponse.data);
+                const columnsResponse = await supabase.rpc('get_domain_columns_v1', { tablename: entityType });
+                console.log('Data from get_domain_columns_v1:', columnsResponse.data);
                 // const masterObjectResponse = await supabase
                 //     .from('y_view_config')
                 //     .select('master_object')
@@ -127,7 +127,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             dataIndex: 'key',
             key: 'key',
             render: (text, record) => {
-                console.log("trd", masterObject);
+                // console.log("trd", masterObject);
                 const masterObjectTemp = masterObject?.reduce((acc, item) => {
                     acc[item.key] = item; // Use the key as the property name and the entire item as the value
                     return acc;
@@ -182,7 +182,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                             </Tooltip>
                         )}
                         {isNew && (
-                            <Tooltip title="New from get_columns_v17">
+                            <Tooltip title="New from get_domain_columns_v1">
                                 <ExclamationCircleFilled style={{ color: 'red', marginRight: '5px' }} />
                             </Tooltip>
                         )}

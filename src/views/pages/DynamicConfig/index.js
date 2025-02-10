@@ -121,12 +121,18 @@ const YViewConfigManager = () => {
   }, [selectedConfig])
 
   const handleSave = async (viewName, formData) => {
+    // console.log("grt", formData);
+    // const enable_view = formData?.showFeatures?.includes('enable_view')
+    // formData.showFeatures = formData?.showFeatures?.filter(e => e !== 'enable_view')
     try {
       const updatedConfig = {
         ...selectedConfig,
         [viewName]: formData,
-
-        id: selectedConfig?.id || uuidv4(),
+        // views_config: {
+        //   ...selectedConfig.views_config,
+        //   [viewName]: enable_view
+        // },
+        // id: selectedConfig?.id || uuidv4(),
       };
 
       if (selectedConfig?.id) {

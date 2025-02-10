@@ -655,7 +655,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     // };
     console.log("GTD", data);
     const tabItems = [];
-    if (viewConfig?.views_config?.tableview && viewConfig?.tableview) {
+    if (viewConfig?.tableview && viewConfig?.tableview?.showFeatures?.includes('enable_view')) {
         tabItems.push({
             label: 'Table',
             key: '1',

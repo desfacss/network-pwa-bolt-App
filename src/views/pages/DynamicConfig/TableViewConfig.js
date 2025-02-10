@@ -174,7 +174,7 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
                     <p>Bulk Actions:</p>
                     <Select
                         mode="tags"
-                        value={actions.bulk.map(item => snakeCaseToTitleCase(item))}
+                        value={actions?.bulk?.map(item => snakeCaseToTitleCase(item?.name))}
                         onChange={(value) => handleChangeActions('bulk', value?.map(item => toSnakeCase(item)))}
                         style={{ width: '100%' }}
                         placeholder="Select bulk actions"

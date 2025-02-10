@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, Button, Input, Select, Switch, Drawer, Row, Col, message } from 'antd';
+import { Card, Button, Input, Select, Switch, Drawer, Row, Col, message, Modal } from 'antd';
 import DynamicForm from '../DynamicForm';
 import { widgetConfigs } from './widgets';
 // import JSONInput from 'react-json-editor-ajrm';
@@ -45,6 +45,9 @@ const FormBuilder = ({ masterObjectInit }) => {
     lookupColumn: '',
     acceptedFileTypes: '.pdf'
   });
+  const [isSaveModalVisible, setIsSaveModalVisible] = useState(false);
+  const [saveFormName, setSaveFormName] = useState('');
+  const [formToSave, setFormToSave] = useState(null);
   const currentConfig = widgetConfigs[fieldInput.fieldType];
   const showOptions = currentConfig?.requiresOptions;
   const showFileOptions = currentConfig?.hasFileOptions;
@@ -313,18 +316,53 @@ const FormBuilder = ({ masterObjectInit }) => {
 
   const onFinish = (values) => {
     console.log("Form Data", values);
-    //  setIsDrawerVisible(false)
+
     const payload = {
       data_schema: dataSchema,
       ui_schema: uiSchema,
       data_config: dataConfig,
+    };
+
+    setFormToSave(payload); // Store payload for saving
+    // Pre-fill name if a form is selected
+    setSaveFormName(selectedForm ? editItem?.name : "");
+    setIsSaveModalVisible(true); // Show the modal
+  };
+
+  const handleSaveForm = async () => {
+    try {
+      let upsertData = {
+        name: saveFormName,
+        data_schema: formToSave?.data_schema,
+        ui_schema: formToSave?.ui_schema,
+        data_config: formToSave?.data_config,
+      };
+      if (selectedForm && selectedForm?.name === saveFormName) { // If updating
+        upsertData.id = selectedForm?.id; // Include ID for update
+      }
+      const { data, error } = await supabase
+        .from('forms')
+        .upsert([upsertData]);
+
+      if (error) throw error;
+
+      message.success(selectedForm && selectedForm?.name === saveFormName ? 'Form updated successfully!' : 'Form saved successfully!');
+      setIsSaveModalVisible(false);
+      fetchForms(); // Refresh form list
+      setSelectedForm(null)
+      setEditItem(null)
+      setFields([])
+      setDataSchema({
+        type: "object",
+        properties: {},
+        required: [],
+      })
+      setUiSchema({})
+      setDataConfig([])
+    } catch (error) {
+      message.error(`Error saving/updating form: ${error.message}`);
     }
-    if (editItem) {
-      console.log("Update Schema Payload", payload);
-    } else {
-      console.log("Create Schema Payload", payload);
-    }
-  }
+  };
 
   // Fetch forms from Supabase
   const fetchForms = async () => {
@@ -343,7 +381,7 @@ const FormBuilder = ({ masterObjectInit }) => {
   const handleFormChange = (formId) => {
     const form = forms?.find((form) => form?.id === formId);
     if (form) {
-      setSelectedForm(formId);
+      setSelectedForm(form);
       setEditItem(form)
       setDataSchema(form?.data_schema);
       setDataConfig(form?.data_config);
@@ -484,7 +522,7 @@ const FormBuilder = ({ masterObjectInit }) => {
               style={{ width: '100%' }}
               placeholder="Select a form"
               onChange={handleFormChange}
-              value={selectedForm}
+              value={selectedForm?.id}
             >
               {forms.map((form) => (
                 <Select.Option key={form.id} value={form.id}>
@@ -600,6 +638,18 @@ const FormBuilder = ({ masterObjectInit }) => {
       // schemas={schemas}
       />
     </Drawer>
+    <Modal
+      title={selectedForm ? "Update Form Name" : "Save Form As"}
+      visible={isSaveModalVisible}
+      onOk={handleSaveForm}
+      onCancel={() => setIsSaveModalVisible(false)}
+    >
+      <Input
+        placeholder="Form Name"
+        value={saveFormName}
+        onChange={(e) => setSaveFormName(e.target.value)}
+      />
+    </Modal>
   </div>
   )
 };
