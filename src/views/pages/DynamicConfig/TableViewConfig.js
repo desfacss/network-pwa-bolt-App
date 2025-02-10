@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Select, Table, Space, Checkbox, Row, Col } from 'antd';
+import { Button, Select, Table, Space, Checkbox, Row, Col, Input } from 'antd';
 import { PlusOutlined, UpOutlined, DownOutlined, DeleteOutlined } from '@ant-design/icons';
 import { snakeCaseToTitleCase, toSnakeCase } from 'components/util-components/utils';
 
@@ -88,6 +88,27 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
                         </Option>
                     ))}
                 </Select>
+            ),
+        },
+        {
+            title: 'Name',
+            dataIndex: 'display_name',
+            key: 'display_name',
+            render: (text, record, index) => (
+                // <Select
+                //     value={record.fieldName || ''}  // Ensure that the value passed is a string
+                //     onChange={(value) => handleFieldChange(index, 'fieldName', value)}
+                //     style={{ width: '100%' }}
+                // >
+                //     {transformedColumns.map((col) => (
+                //         <Option key={col} value={col}>
+                //             {col}
+                //         </Option>
+                //     ))}
+                // </Select>
+                <Input placeholder="Display Name" defaultValue={record.display_name || ''}
+                    onChange={(value) => handleFieldChange(index, 'display_name', value)}
+                />
             ),
         },
         // {

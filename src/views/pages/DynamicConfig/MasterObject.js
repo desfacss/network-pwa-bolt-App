@@ -48,6 +48,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                     const masterObjEntry = masterObject?.find(item => item.key === col.key) || {};
                     acc[col.key] = {
                         type: masterObjEntry.type || col.type,
+                        display_name: masterObjEntry.display_name || col.display_name,
                         source_table: masterObjEntry.foreign_key?.source_table || col.foreign_key?.source_table || col.potential_fk?.source_table || '',
                         source_column: masterObjEntry.foreign_key?.source_column || col.foreign_key?.source_column || col.potential_fk?.source_column || '',
                         display_column: masterObjEntry.foreign_key?.display_column || col.foreign_key?.display_column || col.potential_fk?.display_column || ''
@@ -83,6 +84,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                 const entry = {
                     key: key,
                     type: field.type,
+                    display_name: field.display_name,
                     foreign_key: Object.values(foreignKey).every(v => v === undefined) ? undefined : foreignKey
                 };
 
@@ -144,11 +146,16 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
                 );
             },
         },
-        // {
-        //     title: 'Display Names',
-        //     dataIndex: 'key',
-        //     key: 'key',
-        // },
+        {
+            title: 'Display Name',
+            dataIndex: ['display_name'],
+            key: 'display_name',
+            render: (_, record) => (
+                <Form.Item name={[record.key, 'display_name']} noStyle>
+                    <Input placeholder="Display Name" defaultValue={masterObject && masterObject[record?.key]?.display_name || record?.display_name || ''} />
+                </Form.Item>
+            )
+        },
         // {
         //     title: 'UI Field type',
         //     dataIndex: 'key',
@@ -243,6 +250,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
             key: col?.key,
             ...col,
             type: masterObjEntry?.type || col?.type,
+            display_name: masterObjEntry?.display_name || col?.display_name,
             foreign_key: masterObjEntry?.foreign_key || col?.foreign_key || {},
             potential_fk: col?.potential_fk || {}
         };
