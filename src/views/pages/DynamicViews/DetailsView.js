@@ -1,9 +1,9 @@
 // App.js
 import React, { useState, lazy, Suspense } from 'react';
 import { Tabs } from 'antd';
-import StatusTab from './Details/Status';
-import NotesTab from './Details/Notes';
-import FilesTab from './Details/Files';
+import StatusTab from '../Details/Status';
+import NotesTab from '../Details/Notes';
+import FilesTab from '../Details/Files';
 // import AllocationsTab from './Details/Allocations';
 
 // Lazy load dynamic components.  This is crucial for performance.

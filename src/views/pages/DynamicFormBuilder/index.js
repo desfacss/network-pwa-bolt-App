@@ -330,6 +330,9 @@ const FormBuilder = ({ masterObjectInit }) => {
   };
 
   const handleSaveForm = async () => {
+    if (saveFormName) {
+      return message.error('Enter Form Name');
+    }
     try {
       let upsertData = {
         name: saveFormName,
