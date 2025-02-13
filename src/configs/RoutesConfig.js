@@ -199,6 +199,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/members`,
             component: React.lazy(() => import('views/pages/Members')),
         },
+        {
+            key: 'channels',
+            path: `${APP_PREFIX_PATH}/channels`,
+            component: React.lazy(() => import('views/pages/Channels')),
+        },
         // module_features?.ibMembers && feature?.ibMembers && {
         //     key: 'ib_member',
         //     path: `${APP_PREFIX_PATH}/members/:user_name`,
