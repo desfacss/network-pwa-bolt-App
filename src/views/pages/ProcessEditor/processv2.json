@@ -1,0 +1,378 @@
+{
+    "id": "tensile_leads_v1",
+    "process_id": "pro_tensile_lead_conversion",
+    "version": "1.0",
+    "estimatedVolume": {
+      "value": 100,
+      "timeUnit": "weeks"
+    },
+    "blueprint": {
+      "workflows": [
+        {
+          "id": "wf_lead_to_order",
+          "name": "Tensile Lead Conversion",
+          "steps": [
+            {
+              "id": "step_1_lead_intake",
+              "name": "Lead Intake",
+              "tasks": [
+                {
+                  "id": "task_1_1_capture_lead",
+                  "name": "Capture Lead Information",
+                  "description": "Log lead details from email, call, or WhatsApp.",
+                "raci": {
+                  "responsible": ["res_team_sales"],
+                  "accountable": ["user_sales_manager"],
+                  "consulted": ["leadership"],
+                  "informed": ["customer"]
+                },
+                "dependencies": [],
+                "parallelizable": true,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "reasons": ["Unresponsive client", "CRM system downtime"]
+                },
+                "pert_cost": {
+                  "optimistic": 60,
+                  "likely": 1440,
+                  "pessimistic": 2880,
+                  "costUnit": "INR",
+                  "reasons": ["Overtime work", "Third-party API costs"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_sales",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 30,
+                      "likely": 720,
+                      "pessimistic": 1440,
+                      "costUnit": "INR",
+                      "reasons": ["Travel expenses", "CRM software costs"]
+                    }
+                  }
+                ],
+                "tools": ["crm_system", "communication_platforms"],
+                "checklist": [
+                  "Record lead source (email, call, WhatsApp)",
+                  "Capture customer name and contact information",
+                  "Note initial inquiry details"
+                ],
+                  "risk": [
+                      {
+                        "description": "Unresponsive client",
+                        "probability": { "optimistic": 0.1, "likely": 0.2, "pessimistic": 0.5 },
+                        "impact": { "optimistic": 1, "likely": 2, "pessimistic": 4 },
+                        "impactUnit": "hours"
+                      },
+                      {
+                        "description": "CRM system downtime",
+                        "probability": { "optimistic": 0.01, "likely": 0.05, "pessimistic": 0.2 },
+                        "impact": { "optimistic": 4, "likely": 8, "pessimistic": 24 },
+                        "impactUnit": "hours"
+                      }
+                    ],
+                  "quality_metrics": [
+                      {
+                        "name": "Lead completeness",
+                        "parameters": [
+                          { "name": "Contact info", "weight": 0.6 },
+                          { "name": "Inquiry details", "weight": 0.4 }
+                        ],
+                        "target": { "optimistic": 0.98, "likely": 0.95, "pessimistic": 0.9 }
+                      }
+                    ]
+                }
+              ]
+            },
+            {
+              "id": "step_2_client_meeting",
+              "name": "Client Interaction",
+              "tasks": [
+                {
+                  "id": "task_2_1_information_gathering",
+                  "name": "Gather Client Requirements",
+                  // ... (existing fields)
+                  "risk": {
+                    "reasons": [
+                      {
+                        "description": "Calendar conflicts",
+                        "probability": { "optimistic": 0.2, "likely": 0.4, "pessimistic": 0.7 },
+                        "impact": { "optimistic": 2, "likely": 4, "pessimistic": 8 },
+                        "impactUnit": "hours"
+                      },
+                      {
+                        "description": "Client unavailability",
+                        "probability": { "optimistic": 0.1, "likely": 0.3, "pessimistic": 0.6 },
+                        "impact": { "optimistic": 4, "likely": 8, "pessimistic": 24 },
+                        "impactUnit": "hours"
+                      }
+                    ]
+                  },
+                  "quality": {
+                    "metrics": [
+                      {
+                        "name": "Requirements clarity",
+                        "parameters": [
+                          { "name": "Number of ambiguous requirements", "weight": -1.0 }, // Negative weight for minimizing
+                          { "name": "Completeness of requirements documentation", "weight": 1.0 }
+                        ],
+                        "target": { "optimistic": 0.95, "likely": 0.90, "pessimistic": 0.85 }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "id": "step_3_design_and_costing",
+              "name": "Design & Costing",
+              "tasks": [
+                {
+                  "id": "task_3_1_design_creation",
+                  "name": "Create Design/SSR",
+                  // ... (existing fields)
+                  "risk": {
+                    "reasons": [
+                      {
+                        "description": "Resource unavailability",
+                        "probability": { "optimistic": 0.1, "likely": 0.2, "pessimistic": 0.4 },
+                        "impact": { "optimistic": 1, "likely": 2, "pessimistic": 4 },
+                        "impactUnit": "days"
+                      },
+                      {
+                        "description": "Tool malfunctions",
+                        "probability": { "optimistic": 0.05, "likely": 0.1, "pessimistic": 0.2 },
+                        "impact": { "optimistic": 0.5, "likely": 1, "pessimistic": 2 },
+                        "impactUnit": "days"
+                      }
+                    ]
+                  },
+                  "quality": {
+                    "metrics": [
+                      {
+                        "name": "Design accuracy",
+                        "parameters": [
+                          { "name": "Number of design errors", "weight": -1.0 },
+                          { "name": "Compliance with specifications", "weight": 1.0 }
+                        ],
+                        "target": { "optimistic": 0.98, "likely": 0.95, "pessimistic": 0.90 }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "task_3_2_cost_estimation",
+                  "name": "Prepare Cost Sheet/BOQ",
+                  // ... (existing fields)
+                  "risk": {
+                    "reasons": [
+                      {
+                        "description": "Incomplete design data",
+                        "probability": { "optimistic": 0.15, "likely": 0.3, "pessimistic": 0.5 },
+                        "impact": { "optimistic": 1, "likely": 2, "pessimistic": 3 },
+                        "impactUnit": "days"
+                      },
+                      {
+                        "description": "Material cost fluctuations",
+                        "probability": { "optimistic": 0.2, "likely": 0.4, "pessimistic": 0.6 },
+                        "impact": { "optimistic": 0.5, "likely": 1, "pessimistic": 2 },
+                        "impactUnit": "days"
+                      }
+                    ]
+                  },
+                  "quality": {
+                    "metrics": [
+                      {
+                        "name": "Cost estimation accuracy",
+                        "parameters": [
+                          { "name": "Percentage deviation from actual costs", "weight": -1.0 }
+                        ],
+                        "target": { "optimistic": 0.05, "likely": 0.10, "pessimistic": 0.15 } // 5%, 10%, 15% deviation
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "task_3_3_gm_approval",
+                  "name": "GM/MD Approval",
+                  "risk": {
+                    "reasons": [
+                      {
+                        "description": "GM/MD availability",
+                        "probability": {
+                          "optimistic": 0.1,
+                          "likely": 0.2,
+                          "pessimistic": 0.4
+                        },
+                        "impact": {
+                          "optimistic": 1,
+                          "likely": 2,
+                          "pessimistic": 4
+                        },
+                        "impactUnit": "days"
+                      },
+                      {
+                        "description": "Approval delays",
+                        "probability": {
+                          "optimistic": 0.05,
+                          "likely": 0.15,
+                          "pessimistic": 0.3
+                        },
+                        "impact": {
+                          "optimistic": 0.5,
+                          "likely": 1.5,
+                          "pessimistic": 3
+                        },
+                        "impactUnit": "days"
+                      }
+                    ]
+                  },
+                  "quality": {
+                    "metrics": [
+                      {
+                        "name": "Approval process efficiency",
+                        "parameters": [
+                          {
+                            "name": "Time taken for approval",
+                            "weight": -1
+                          }
+                        ],
+                        "target": {
+                          "optimistic": 1,
+                          "likely": 2,
+                          "pessimistic": 4
+                        },
+                        "unit": "days"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "id": "step_4_proposal_and_negotiation",
+              "name": "Proposal & Negotiation",
+              "tasks": [
+                {
+                  "id": "task_4_1_proposal_creation",
+                  "name": "Create Proposal",
+                  // ... (existing fields)
+                  "risk": {
+                    "reasons": [
+                      {
+                        "description": "Pricing errors",
+                        "probability": { "optimistic": 0.1, "likely": 0.2, "pessimistic": 0.4 },
+                        "impact": { "optimistic": 1, "likely": 2, "pessimistic": 4 },
+                        "impactUnit": "days"
+                      },
+                      {
+                        "description": "Technical inaccuracies",
+                        "probability": { "optimistic": 0.05, "likely": 0.15, "pessimistic": 0.3 },
+                        "impact": { "optimistic": 0.5, "likely": 1.5, "pessimistic": 3 },
+                        "impactUnit": "days"
+                      }
+                    ]
+                  },
+                  "quality": {
+                    "metrics": [
+                      {
+                        "name": "Proposal completeness",
+                        "parameters": [
+                          { "name": "Inclusion of all required sections", "weight": 1.0 }
+                        ],
+                        "target": { "optimistic": 0.98, "likely": 0.95, "pessimistic": 0.90 }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "task_4_2_negotiation",
+                  "name": "Negotiate with Client",
+                  // ... (existing fields)
+                  "risk": {
+                    "reasons": [
+                      {
+                        "description": "Stalemate on terms",
+                        "probability": { "optimistic": 0.2, "likely": 0.4, "pessimistic": 0.6 },
+                        "impact": { "optimistic": 2, "likely": 4, "pessimistic": 8 },
+                        "impactUnit": "days"
+                      },
+                      {
+                        "description": "Competitor offers",
+                        "probability": { "optimistic": 0.1, "likely": 0.3, "pessimistic": 0.5 },
+                        "impact": { "optimistic": 1, "likely": 3, "pessimistic": 6 },
+                        "impactUnit": "days"
+                      }
+                    ]
+                  },
+                  "quality": {
+                    "metrics": [
+                      {
+                        "name": "Negotiation effectiveness",
+                        "parameters": [
+                          { "name": "Achieved profit margin", "weight": 1.0 }
+                        ],
+                        "target": { "optimistic": 0.20, "likely": 0.18, "pessimistic": 0.15 } // Example profit margins
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "id": "step_5_order_confirmation",
+              "name": "Order Confirmation",
+              "tasks": [
+                {
+                  "id": "task_5_1_order_processing",
+                  "name": "Process Order",
+                  // ... (existing fields)
+                  "risk": {
+                    "reasons": [
+                      {
+                        "description": "Data entry errors",
+                        "probability": { "optimistic": 0.05, "likely": 0.1, "pessimistic": 0.2 },
+                        "impact": { "optimistic": 0.5, "likely": 1, "pessimistic": 2 },
+                        "impactUnit": "days"
+                      },
+                      {
+                        "description": "System integration issues",
+                        "probability": { "optimistic": 0.01, "likely": 0.05, "pessimistic": 0.1 },
+                        "impact": { "optimistic": 1, "likely": 2, "pessimistic": 4 },
+                        "impactUnit": "days"
+                      }
+                    ]
+                  },
+                  "quality": {
+                    "metrics": [
+                      {
+                        "name": "Order accuracy",
+                        "parameters": [
+                          { "name": "Number of order discrepancies", "weight": -1.0 }
+                        ],
+                        "target": { "optimistic": 0.01, "likely": 0.02, "pessimistic": 0.05 } // Error rate
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "roles": [// ...],
+      "materials": [// ...]
+    }
+  }

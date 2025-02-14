@@ -7,7 +7,7 @@ const ProcessEditor = ({ initialData }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [processData, setProcessData] = useState(initialData);
   const [drawerVisible, setDrawerVisible] = useState(false);
-const [timeUnit, setTimeUnit] = useState('days');
+const [timeUnit, setTimeUnit] = useState('hours');
 
   const minutesToDays = (minutes) => minutes / (60 * 24);
   const minutesToHours = (minutes) => minutes / 60;
@@ -18,6 +18,7 @@ const minutesToUnit = (minutes, unit) => {
       default: return minutes; // minutes
     }
   };
+
   const convertToMinutes = (value, unit) => {
     switch (unit) {
       case 'days': return value * 60 * 24;
@@ -36,9 +37,25 @@ const minutesToUnit = (minutes, unit) => {
     } else if (selectedItem.type === 'task') {
       const step = workflow.steps.find(s => s.id === selectedItem.stepId);
       const task = step.tasks.find(t => t.id === selectedItem.id);
+
+      const pertTime = {
+        leadTime: {
+          optimistic: convertToMinutes(values.leadTimeOptimistic, timeUnit),
+          likely: convertToMinutes(values.leadTimeLikely, timeUnit),
+          pessimistic: convertToMinutes(values.leadTimePessimistic, timeUnit),
+          timeUnit: timeUnit // Store the unit
+        },
+        effortTime: {
+          optimistic: convertToMinutes(values.effortTimeOptimistic, timeUnit),
+          likely: convertToMinutes(values.effortTimeLikely, timeUnit),
+          pessimistic: convertToMinutes(values.effortTimePessimistic, timeUnit),
+          timeUnit: timeUnit
+        }
+      };
+      
       Object.assign(task, {
         ...values,
-        pert: {
+        pert_time: {
           optimistic: convertToMinutes(values.optimisticTime, timeUnit),
           likely: convertToMinutes(values.likelyTime, timeUnit),
           pessimistic: convertToMinutes(values.pessimisticTime, timeUnit)
@@ -51,6 +68,7 @@ const minutesToUnit = (minutes, unit) => {
     setProcessData(newData);
     setDrawerVisible(false);
   };
+
 
   const handleDelete = () => {
     const newData = JSON.parse(JSON.stringify(processData));
@@ -106,33 +124,32 @@ const minutesToUnit = (minutes, unit) => {
   );
 
   const TaskItem = ({ task, stepId }) => {
-    const displayUnit = task.preferredUnit || 'days';
-    const pert = task.pert || { optimistic: 0, likely: 0, pessimistic: 0 }; // Default values if pert is undefined
+    const displayUnit = task.pert_time?.leadTime?.timeUnit || 'hours'; // Access nested properties safely
+    const leadTime = task.pert_time?.leadTime || { optimistic: 0, likely: 0, pessimistic: 0 }; // Provide default values
   
     return (
       <div className="task-item">
         <div className="task-content">
           <h4>{task.name}</h4>
           <Space>
-            <Tag color="blue">R: {task.raci.responsible.join(', ')}</Tag>
-            <Tag color="geekblue">O: {minutesToUnit(pert.optimistic, displayUnit).toFixed(2)}{displayUnit === 'days' ? 'd' : displayUnit === 'hours' ? 'h' : 'm'}</Tag>
-            <Tag color="purple">L: {minutesToUnit(pert.likely, displayUnit).toFixed(2)}{displayUnit === 'days' ? 'd' : displayUnit === 'hours' ? 'h' : 'm'}</Tag>
-            <Tag color="magenta">P: {minutesToUnit(pert.pessimistic, displayUnit).toFixed(2)}{displayUnit === 'days' ? 'd' : displayUnit === 'hours' ? 'h' : 'm'}</Tag>
+            <Tag color="blue">R: {task.raci?.responsible?.join(', ')}</Tag> {/* Optional chaining */}
+            <Tag color="geekblue">O: {minutesToUnit(leadTime.optimistic, displayUnit).toFixed(2)}{displayUnit === 'days' ? 'd' : displayUnit === 'hours' ? 'h' : 'm'}</Tag>
+            <Tag color="purple">L: {minutesToUnit(leadTime.likely, displayUnit).toFixed(2)}{displayUnit === 'days' ? 'd' : displayUnit === 'hours' ? 'h' : 'm'}</Tag>
+            <Tag color="magenta">P: {minutesToUnit(leadTime.pessimistic, displayUnit).toFixed(2)}{displayUnit === 'days' ? 'd' : displayUnit === 'hours' ? 'h' : 'm'}</Tag>
           </Space>
         </div>
         <Space>
           <Button icon={<EditOutlined />} onClick={() => {
-            setSelectedItem({ 
-              type: 'task', 
-              stepId,
-              ...task
-            });
-            setTimeUnit(task.preferredUnit || 'days');
+            setSelectedItem({ type: 'task', stepId, ...task });
+            setTimeUnit(task.pert_time?.leadTime?.timeUnit || 'hours'); // Set initial unit
             form.setFieldsValue({
               ...task,
-              optimisticTime: minutesToUnit(pert.optimistic, task.preferredUnit || 'days'),
-              likelyTime: minutesToUnit(pert.likely, task.preferredUnit || 'days'),
-              pessimisticTime: minutesToUnit(pert.pessimistic, task.preferredUnit || 'days')
+              leadTimeOptimistic: minutesToUnit(task.pert_time?.leadTime?.optimistic || 0, task.pert_time?.leadTime?.timeUnit || 'hours'),
+              leadTimeLikely: minutesToUnit(task.pert_time?.leadTime?.likely || 0, task.pert_time?.leadTime?.timeUnit || 'hours'),
+              leadTimePessimistic: minutesToUnit(task.pert_time?.leadTime?.pessimistic || 0, task.pert_time?.leadTime?.timeUnit || 'hours'),
+              effortTimeOptimistic: minutesToUnit(task.pert_time?.effortTime?.optimistic || 0, task.pert_time?.effortTime?.timeUnit || 'hours'),
+              effortTimeLikely: minutesToUnit(task.pert_time?.effortTime?.likely || 0, task.pert_time?.effortTime?.timeUnit || 'hours'),
+              effortTimePessimistic: minutesToUnit(task.pert_time?.effortTime?.pessimistic || 0, task.pert_time?.effortTime?.timeUnit || 'hours'),
             });
             setDrawerVisible(true);
           }}/>
@@ -148,7 +165,7 @@ const minutesToUnit = (minutes, unit) => {
   const handleUnitChange = (value) => {
     setTimeUnit(value);
     const values = form.getFieldsValue();
-    ['optimisticTime', 'likelyTime', 'pessimisticTime'].forEach(field => {
+    ['leadTimeOptimistic', 'leadTimeLikely', 'leadTimePessimistic', 'effortTimeOptimistic', 'effortTimeLikely', 'effortTimePessimistic'].forEach(field => {
       if (values[field] !== undefined) {
         let newValue = minutesToUnit(convertToMinutes(values[field], timeUnit), value);
         form.setFieldsValue({ [field]: newValue });
@@ -156,20 +173,20 @@ const minutesToUnit = (minutes, unit) => {
     });
   };
 
-  const setInitialValues = (item) => {
-    if (item.type === 'task') {
-      const unit = item.preferredUnit || 'days';
-      setTimeUnit(unit);
-      form.setFieldsValue({
-        ...item,
-        optimisticTime: minutesToUnit(item.pert.optimistic, unit),
-        likelyTime: minutesToUnit(item.pert.likely, unit),
-        pessimisticTime: minutesToUnit(item.pert.pessimistic, unit)
-      });
-    } else {
-      form.setFieldsValue(item);
-    }
-  };
+//   const setInitialValues = (item) => {
+//     if (item.type === 'task') {
+//       const unit = item.preferredUnit || 'days';
+//       setTimeUnit(unit);
+//       form.setFieldsValue({
+//         ...item,
+//         optimisticTime: minutesToUnit(item.pert.optimistic, unit),
+//         likelyTime: minutesToUnit(item.pert.likely, unit),
+//         pessimisticTime: minutesToUnit(item.pert.pessimistic, unit)
+//       });
+//     } else {
+//       form.setFieldsValue(item);
+//     }
+//   };
 
   return (
     <div className="process-editor">
@@ -209,16 +226,20 @@ const minutesToUnit = (minutes, unit) => {
                 <Input.TextArea />
               </Form.Item>
               <Row gutter={16}>
-  {['optimistic', 'likely', 'pessimistic'].map((field, index) => (
+  {['leadTime', 'effortTime'].map((timeType) => (
+                  <React.Fragment key={timeType}>
+                    {['Optimistic', 'Likely', 'Pessimistic'].map((field) => (
     <Col key={field} span={6}>
       <Form.Item 
-        label={field.charAt(0).toUpperCase() + field.slice(1)} 
-        name={field + 'Time'} 
+        label={`${timeType} ${field}`} 
+        name={`${timeType}${field}`} 
         rules={[{ required: true }]}
       >
         <InputNumber min={0} />
       </Form.Item>
     </Col>
+))}
+                  </React.Fragment>
   ))}
   <Col span={6}>
     <Form.Item label="Unit">
