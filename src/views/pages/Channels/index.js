@@ -234,127 +234,21 @@ const Channels = () => {
 
     return (
         <Card>
-            <ForumComment />
             <Tabs activeKey={activeTab} onChange={handleTabChange}>
                 {channels.map((channel) => (
                     <TabPane tab={channel.slug} key={channel.slug}>
-                        <List
-                            dataSource={messages[channel.slug] || []}
-                            renderItem={(messageItem) => (
-                                <List.Item
-                                    actions={[
-                                        <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDeleteMessage(messageItem.id, channel.slug)} />,
-                                    ]}
-                                >
-                                    {messageItem.message}
-                                    {messageItem.category_ids && messageItem.category_ids.map(categoryId => {
-                                        const category = categories.find(cat => cat.id === categoryId);
-                                        return category ? <Tag key={categoryId}>{category.category_name}</Tag> : null;
-                                    })}
-                                    {messageItem.image_url && (
-                                        <Card
-                                            style={{ marginTop: 16 }}
-                                            cover={<img alt="example" src={messageItem.image_url} />}
-                                        >
-                                            <Card.Meta description={messageItem.message} />
-                                        </Card>
-                                    )}
-                                </List.Item>
-                            )}
-                        />
-
-                        {/* <Form.Item label="Categories">
-                            <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Select Categories"
-                                onChange={handleCategoryChange}
-                                options={categories.map(category => ({
-                                    value: category.id, // Use category ID as value
-                                    label: category.category_name,
-                                }))}
-                            />
-                        </Form.Item> */}
-
-                        <Form.Item label="Parent Category">
-                            <Select
-                                style={{ width: '100%' }}
-                                placeholder="Select Parent Category"
-                                onChange={handleParentCategoryChange}
-                                value={selectedParentCategory} // Important: Bind the value
-                            >
-                                {parentCategories.map(category => (
-                                    <Option key={category.id} value={category.id}>
-                                        {category.category_name}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item label="Categories">
-                            <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Select Categories"
-                                onChange={handleCategoryChange}
-                                value={selectedCategories} // Bind selectedCategories
-                                options={[
-                                    ...(selectedParentCategory ? childCategories[selectedParentCategory]?.map(cat => ({
-                                        value: cat.id,
-                                        label: cat.category_name,
-                                    })) : []),
-                                    ...parentCategories.map(category => ({
-                                        value: category.id,
-                                        label: category.category_name,
-                                    })),
-                                ]}
-                            />
-                        </Form.Item>
-
-                        <TextArea
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder="Enter your message"
-                            onPressEnter={handleAddMessage}
-                            autoSize={{ minRows: 1, maxRows: 3 }}
-                        />
-
-                        {/* <Upload
-                            action={handleUpload}
-                            listType="picture-card"
-                            fileList={fileList}
-                            onChange={handleImageChange}
-                            onPreview={handlePreview}
-                        >
-                            {fileList.length >= 1 ? null : uploadButton}
-                        </Upload> */}
-                        <Modal
-                            visible={previewVisible}
-                            title={previewTitle}
-                            footer={null}
-                            onCancel={handleCancel}
-                        >
+                        <ForumComment channel_id={channel?.id} />
+                        <Modal visible={previewVisible} title={previewTitle} footer={null} onCancel={handleCancel} >
                             <img alt="example" style={{ width: '100%' }} src={previewImage} />
                         </Modal>
-
-
-                        <Button type="primary" onClick={handleAddMessage} style={{ marginTop: "10px" }}>
-                            Send
-                        </Button>
                     </TabPane>
                 ))}
             </Tabs>
-
             <h2>Add New Channel</h2>
-            <Input
-                placeholder="New channel slug"
-                value={newChannelSlug}
-                onChange={(e) => setNewChannelSlug(e.target.value)}
-            />
+            <Input placeholder="New channel slug" value={newChannelSlug} onChange={(e) => setNewChannelSlug(e.target.value)} />
             <Button type="primary" onClick={handleAddChannel} icon={<PlusOutlined />} style={{ marginTop: "10px" }}>
                 Add Channel
             </Button>
-
             <h2>Delete Channel</h2>
             <select onChange={(e) => handleDeleteChannel(e.target.value)}>
                 <option value="">Select a Channel</option>

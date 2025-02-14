@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer } from 'antd';
 import { UserOutlined, MessageOutlined } from '@ant-design/icons';
 import './styles.css';
+import { supabase } from 'api/supabaseClient';
+import { useSelector } from 'react-redux';
 
 const { TextArea } = Input;
 const { Option } = Mentions;
@@ -24,28 +26,85 @@ const tagHierarchy = [
     },
 ];
 
-const ForumComment = () => {
+const ForumComment = ({ channel_id }) => {
     const [form] = Form.useForm();
     const [tags, setTags] = useState([]);
-    const [comments, setComments] = useState([]);
+    const [messages, setMessages] = useState([]);
     const [mentionUsers] = useState([
         { id: '1', display: 'Alice' },
         { id: '2', display: 'Bob' },
     ]);
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+    const { session } = useSelector((state) => state.auth);
 
-    const handleSubmit = (values) => {
-        const newComment = {
-            author: 'Current User',
-            content: values.message,
-            tags,
-            mentions: values.mentions,
-            datetime: new Date().toLocaleString(),
+    useEffect(() => {
+        // Fetch messages on component mount or when channel_id changes
+        const fetchMessages = async () => {
+            if (channel_id) {
+                const { data, error } = await supabase
+                    .from('messages')
+                    .select('*, user:users(user_name)')
+                    .eq('channel_id', channel_id)
+                    .order('inserted_at', { ascending: false }); // Order by time
+
+                if (error) {
+                    console.error("Error fetching messages:", error);
+                } else {
+                    console.log("ui", data);
+                    setMessages(data || []);
+                }
+            }
         };
 
-        setComments([...comments, newComment]);
-        form.resetFields();
-        setTags([]);
+        fetchMessages();
+    }, [channel_id]);
+
+    const handleSubmit = async (values) => {
+        if (!session?.user?.id) return;
+
+        const firstTag = tags.length > 0 ? tags[0] : null;
+        const otherTags = tags.slice(1);
+
+        const newMessage = {
+            message: values.message,
+            user_id: session?.user?.id,
+            channel_id: channel_id,
+            details: {
+                tags: otherTags,
+                category_id: firstTag,
+            },
+        };
+
+        try {
+            const { data, error } = await supabase
+                .from('messages')
+                .insert([newMessage]).select('*');
+            console.log("tt", data);
+            if (error) {
+                console.error("Error inserting message:", error);
+            } else {
+                // Fetch the newly inserted message (it will have the correct timestamp and ID)
+                const { data: insertedMessage } = await supabase
+                    .from('messages')
+                    .select('*, user:users(user_name)')
+                    .eq('id', data[0].id) // Use the ID from the insert response
+                    .single(); // Expecting only one result
+
+                if (insertedMessage) {
+
+                    setMessages([insertedMessage, ...messages]); // Add the fetched message to state
+                    form.resetFields();
+                    setTags([]);
+                } else {
+                    console.error("Failed to fetch inserted message")
+                }
+
+
+
+            }
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const handleCascaderChange = (value) => {
@@ -60,26 +119,27 @@ const ForumComment = () => {
         <div className="forum-container"> {/* Main container */}
             <div className="message-list">
                 <List
-                    dataSource={comments}
+                    dataSource={messages}
                     renderItem={(item) => (
                         <Card
                             style={{ marginBottom: 16 }}
                             actions={[
                                 <div key="tags">
-                                    {item.tags?.map((tag) => (
+                                    {item?.details?.tags?.map((tag) => (
                                         <Tag key={tag}>{tag}</Tag>
                                     ))}
+                                    {item?.details?.category_id && <Tag color="blue">{item?.details?.category_id}</Tag>}
                                 </div>,
                             ]}
                         >
                             <Card.Meta
                                 avatar={<Avatar icon={<UserOutlined />} />}
-                                title={item.author}
+                                title={item?.user?.user_name} // Or get the user's name if you have it
                                 description={
                                     <div>
-                                        <div style={{ marginBottom: 8 }}>{item.content}</div>
+                                        <div style={{ marginBottom: 8 }}>{item?.message}</div>
                                         <div style={{ fontSize: 12, color: '#666' }}>
-                                            {item.datetime}
+                                            {new Date(item?.inserted_at).toLocaleString() || ""} {/* Format the timestamp */}
                                         </div>
                                     </div>
                                 }
@@ -100,7 +160,7 @@ const ForumComment = () => {
                                 prefix={['@']}
                                 placeholder="Write your message (use @ to mention users)"
                             >
-                                {mentionUsers.map((user) => (
+                                {mentionUsers?.map((user) => (
                                     <Option key={user.id} value={user.id}>
                                         {user.display}
                                     </Option>
@@ -110,30 +170,12 @@ const ForumComment = () => {
 
                         <Form.Item label="Add Tags">
                             <Flex gap={8}>
-                                {/* <Cascader
-                                options={tagHierarchy}
-                                onChange={(value) => {
-                                    if (value) setTags([...tags, value.join(' > ')]);
-                                }}
-                                placeholder="Hierarchical tags"
-                                style={{ width: 200 }}
-                                showSearch
-                            /> */}
-                                {/* <Cascader
-                                options={tagHierarchy}
-                                onChange={handleCascaderChange}
-                                placeholder="Hierarchical tags"
-                                style={{ width: 200 }}
-                                showSearch
-                                changeOnSelect // Key change: Allow selecting intermediate levels
-                            /> */}
                                 <Cascader
                                     options={tagHierarchy}
                                     onChange={handleCascaderChange}
                                     placeholder="Hierarchical tags"
                                     style={{ width: 200 }}
                                     showSearch
-                                // Remove changeOnSelect. We only want the final value.
                                 />
                                 <Input
                                     placeholder="Free-form tags"
