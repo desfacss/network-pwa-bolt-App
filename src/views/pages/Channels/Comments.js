@@ -5,10 +5,25 @@ import './styles.css';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
 
-const { TextArea } = Input;
 const { Option } = Mentions;
 
 // Sample data
+// const tagHierarchy = [
+//     {
+//         value: 'frontend',
+//         label: 'Frontend',
+//         children: [
+//             {
+//                 value: 'react',
+//                 label: 'React',
+//                 children: [
+//                     { value: 'hooks', label: 'Hooks' },
+//                     { value: 'context', label: 'Context' },
+//                 ],
+//             },
+//         ],
+//     },
+// ];
 const tagHierarchy = [
     {
         value: 'frontend',
@@ -18,13 +33,124 @@ const tagHierarchy = [
                 value: 'react',
                 label: 'React',
                 children: [
-                    { value: 'hooks', label: 'Hooks' },
-                    { value: 'context', label: 'Context' },
+                    {
+                        value: 'hooks', label: 'Hooks',
+                        children: [
+                            {
+                                value: 'hooks', label: 'Hooks',
+                                children: [
+                                    {
+                                        value: 'hooks', label: 'Hooks',
+                                        children: [
+                                            {
+                                                value: 'hooks', label: 'Hooks',
+                                                children: [
+                                                    {
+                                                        value: 'hooks', label: 'Hooks',
+                                                        children: [
+                                                            { value: 'hooks', label: 'Hooks' },
+                                                            { value: 'context', label: 'Context' },
+                                                        ]
+                                                    },
+                                                    { value: 'context', label: 'Context' },
+                                                ]
+                                            },
+                                            { value: 'context', label: 'Context' },
+                                        ]
+                                    },
+                                    { value: 'context', label: 'Context' },
+                                ]
+                            },
+                            { value: 'context', label: 'Context' },
+                        ]
+                    },
+                    {
+                        value: 'context', label: 'Context',
+                        children: [
+                            { value: 'hooks', label: 'Hooks' },
+                            { value: 'context', label: 'Context' },
+                        ]
+                    },
                 ],
             },
         ],
     },
 ];
+
+const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
+    const [mentionUsers] = useState([ /* ... your mentionUsers data */]);
+
+    const handleCascaderChange = (value) => {
+        if (value && value.length > 0) {
+            setTags(value);
+        } else {
+            setTags([]);
+        }
+    };
+
+    return (
+        <Form form={form} onFinish={onSubmit}>
+            <Form.Item
+                name="message"
+                rules={[{ required: true, message: 'Please write your message' }]}
+            >
+                <Mentions
+                    rows={4}
+                    prefix={['@']}
+                    placeholder="Write your message (use @ to mention users)"
+                >
+                    {mentionUsers?.map((user) => (
+                        <Option key={user.id} value={user.id}>
+                            {user.display}
+                        </Option>
+                    ))}
+                </Mentions>
+            </Form.Item>
+
+            <Form.Item label="Add Tags">
+                <Flex gap={8}>
+                    <Cascader
+                        options={tagHierarchy}
+                        onChange={handleCascaderChange}
+                        placeholder="Hierarchical tags"
+                        style={{ width: 200 }}
+                        showSearch
+                    />
+                    <Input
+                        placeholder="Free-form tags"
+                        onPressEnter={(e) => {
+                            const target = e.target;
+                            const newTag = target.value.trim();
+                            if (newTag) {
+                                setTags([...tags, newTag]);
+                                target.value = '';
+                            }
+                        }}
+                    />
+                </Flex>
+            </Form.Item>
+
+            <div style={{ marginTop: 16 }}>
+                {tags.map((tag) => (
+                    <Tag
+                        key={tag}
+                        closable
+                        onClose={() => setTags(tags.filter((t) => t !== tag))}
+                        style={{ marginBottom: 8 }}
+                    >
+                        {tag}
+                    </Tag>
+                ))}
+            </div>
+
+            <Form.Item style={{ marginTop: 24 }}>
+                <Button type="primary" htmlType="submit">
+                    Post Message
+                </Button>
+            </Form.Item>
+        </Form>
+    );
+};
 
 const ForumComment = ({ channel_id }) => {
     const [form] = Form.useForm();
@@ -150,7 +276,8 @@ const ForumComment = ({ channel_id }) => {
             </div>
             <div className="new-post-container">
                 <Card title={<><MessageOutlined /> New Post</>} style={{ marginTop: 24 }}>
-                    <Form form={form} onFinish={handleSubmit}>
+                    <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
+                    {/* <Form form={form} onFinish={handleSubmit}>
                         <Form.Item
                             name="message"
                             rules={[{ required: true, message: 'Please write your message' }]}
@@ -209,7 +336,7 @@ const ForumComment = ({ channel_id }) => {
                                 Post Message
                             </Button>
                         </Form.Item>
-                    </Form>
+                    </Form> */}
                 </Card>
             </div>
             <Drawer
@@ -222,6 +349,7 @@ const ForumComment = ({ channel_id }) => {
             >
                 <Card style={{ border: 'none', padding: 0 }}>{/* Card inside Drawer */}
                     <Form form={form} onFinish={handleSubmit}>
+                        <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
                         {/* ... (Form content - Mentions, Tags, etc.) */}
                     </Form>
                 </Card>
