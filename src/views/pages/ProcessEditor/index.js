@@ -4,8 +4,8 @@ import { PlusOutlined, DeleteOutlined, UploadOutlined, EyeOutlined } from '@ant-
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
 import WorkflowVisualizer from './flow';
-import WorkflowEditor from './workflow';
-import workflowData from './processv1.json';
+// import WorkflowEditor from './workflow';
+import workflowData from './processv2.json';
 import WorkflowEditorTable from './workflow_table';
 import ProcessEditor from './processEditor';
 
@@ -242,9 +242,7 @@ const Process = () => {
         <Card>
             {/* <WorkflowVisualizer /> */}
             {/* <WorkflowEditor /> */}
-            {/* <WorkflowEditor initialData={workflowData} /> */}
-            {/* <WorkflowEditorTable initialData={workflowData} /> */}
-            {/* <ProcessEditor initialData={workflowData} /> */}
+            <ProcessEditor initialData={workflowData} />
 
         </Card>
     );
