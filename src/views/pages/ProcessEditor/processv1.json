@@ -1,0 +1,882 @@
+{
+  "id": "tensile_leads_v1",
+  "process_id": "pro_tensile_lead_conversion",
+  "version": "1.0",
+  "estimatedVolume": {
+    "value": 100,
+    "timeUnit": "weeks"
+  },
+  "blueprint": {
+    "workflows": [
+      {
+        "id": "wf_lead_to_order",
+        "name": "Tensile Lead Conversion",
+        "steps": [
+          {
+            "id": "step_1_lead_intake",
+            "name": "Lead Intake",
+            "tasks": [
+              {
+                "id": "task_1_1_capture_lead",
+                "name": "Capture Lead Information",
+                "description": "Log lead details from email, call, or WhatsApp.",
+                "raci": {
+                  "responsible": ["res_team_sales"],
+                  "accountable": ["user_sales_manager"],
+                  "consulted": ["leadership"],
+                  "informed": ["customer"]
+                },
+                "dependencies": [],
+                "parallelizable": true,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "reasons": ["Unresponsive client", "CRM system downtime"]
+                },
+                "pert_cost": {
+                  "optimistic": 60,
+                  "likely": 1440,
+                  "pessimistic": 2880,
+                  "costUnit": "INR",
+                  "reasons": ["Overtime work", "Third-party API costs"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_sales",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 30,
+                      "likely": 720,
+                      "pessimistic": 1440,
+                      "costUnit": "INR",
+                      "reasons": ["Travel expenses", "CRM software costs"]
+                    }
+                  }
+                ],
+                "tools": ["crm_system", "communication_platforms"],
+                "checklist": [
+                  "Record lead source (email, call, WhatsApp)",
+                  "Capture customer name and contact information",
+                  "Note initial inquiry details"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "step_2_client_meeting",
+            "name": "Client Interaction",
+            "tasks": [
+              {
+                "id": "task_2_1_information_gathering",
+                "name": "Gather Client Requirements",
+                "description": "Collect detailed project requirements and specifications.",
+                "raci": {
+                  "responsible": ["res_team_sales"],
+                  "accountable": ["user_sales_manager"],
+                  "consulted": [],
+                  "informed": ["customer"]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_1_1_capture_lead",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 4,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 4,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "reasons": ["Calendar conflicts", "Client unavailability"]
+                },
+                "pert_cost": {
+                  "optimistic": 60,
+                  "likely": 240,
+                  "pessimistic": 2880,
+                  "costUnit": "INR",
+                  "reasons": ["Meeting room booking", "Communication tools"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_sales",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 30,
+                      "likely": 120,
+                      "pessimistic": 1440,
+                      "costUnit": "INR",
+                      "reasons": ["Travel expenses", "CRM software costs"]
+                    }
+                  }
+                ],
+                "tools": ["meeting_notes_template"],
+                "checklist": [
+                  "Understand project scope and objectives",
+                  "Discuss design preferences and functional needs",
+                  "Confirm project timeline and budget"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "step_3_design_and_costing",
+            "name": "Design & Costing",
+            "tasks": [
+              {
+                "id": "task_3_1_design_creation",
+                "name": "Create Design/SSR",
+                "description": "Develop initial designs or SSR (Structural Stability Report).",
+                "raci": {
+                  "responsible": ["res_team_design"],
+                  "accountable": ["user_design_lead"],
+                  "consulted": ["res_team_sales"],
+                  "informed": []
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_2_1_information_gathering",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 2,
+                    "likely": 4,
+                    "pessimistic": 6,
+                    "timeUnit": "days"
+                  },
+                  "effortTime": {
+                    "optimistic": 2,
+                    "likely": 4,
+                    "pessimistic": 6,
+                    "timeUnit": "days"
+                  },
+                  "reasons": ["Resource unavailability", "Tool malfunctions"]
+                },
+                "pert_cost": {
+                  "optimistic": 2880,
+                  "likely": 5760,
+                  "pessimistic": 8640,
+                  "costUnit": "INR",
+                  "reasons": ["Software licensing", "Specialized tools"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_design",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 1440,
+                      "likely": 2880,
+                      "pessimistic": 4320,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "Specialized tool requirements"]
+                    }
+                  }
+                ],
+                "tools": ["design_software", "structural_analysis_tools"],
+                "checklist": [
+                  "Generate design drawings or SSR",
+                  "Ensure design meets client requirements",
+                  "Obtain internal design approval"
+                ]
+              },
+              {
+                "id": "task_3_2_cost_estimation",
+                "name": "Prepare Cost Sheet/BOQ",
+                "description": "Generate Bill of Quantities (BOQ) and cost sheet.",
+                "raci": {
+                  "responsible": ["res_team_costing"],
+                  "accountable": ["user_costing_manager"],
+                  "consulted": ["res_team_design"],
+                  "informed": []
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_3_1_design_creation",
+                    "type": "SS",
+                    "lag": 1
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 2,
+                    "pessimistic": 4,
+                    "timeUnit": "days"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 2,
+                    "pessimistic": 4,
+                    "timeUnit": "days"
+                  },
+                  "reasons": ["Incomplete design data", "Material cost fluctuations"]
+                },
+                "pert_cost": {
+                  "optimistic": 1440,
+                  "likely": 2880,
+                  "pessimistic": 5760,
+                  "costUnit": "INR",
+                  "reasons": ["Estimation software costs", "Revisions"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_costing",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 720,
+                      "likely": 1440,
+                      "pessimistic": 2880,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "Specialized tool requirements"]
+                    }
+                  }
+                ],
+                "tools": ["costing_software"],
+                "checklist": [
+                  "Accurately calculate material quantities",
+                  "Include labor and other costs",
+                  "Verify cost sheet with design team"
+                ]
+              },
+              {
+                "id": "task_3_3_gm_approval",
+                "name": "GM/MD Approval",
+                "description": "Obtain approval on the cost sheet and BOQ.",
+                "raci": {
+                  "responsible": ["res_team_costing"],
+                  "accountable": ["user_costing_manager"],
+                  "consulted": [],
+                  "informed": []
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_3_2_cost_estimation",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "reasons": ["GM/MD availability", "Approval delays"]
+                },
+                "pert_cost": {
+                  "optimistic": 60,
+                  "likely": 1440,
+                  "pessimistic": 2880,
+                  "costUnit": "INR",
+                  "reasons": ["Administrative overhead", "Approval process complexity"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_costing",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 30,
+                      "likely": 720,
+                      "pessimistic": 1440,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "Specialized tool requirements"]
+                    }
+                  }
+                ],
+                "tools": [],
+                "checklist": [
+                  "Present cost sheet and BOQ to GM/MD",
+                  "Address any questions or concerns",
+                  "Document approval decision"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "step_4_offer_and_finalization",
+            "name": "Offer & Finalization",
+            "tasks": [
+              {
+                "id": "task_4_1_offer_preparation",
+                "name": "Prepare Techno-Commercial Offer",
+                "description": "Create a formal offer document for the client.",
+                "raci": {
+                  "responsible": ["res_team_sales"],
+                  "accountable": ["user_sales_manager"],
+                  "consulted": ["res_team_costing"],
+                  "informed": ["customer"]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_3_3_gm_approval",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 2,
+                    "pessimistic": 3,
+                    "timeUnit": "days"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 2,
+                    "pessimistic": 3,
+                    "timeUnit": "days"
+                  },
+                  "reasons": ["Client-specific customizations", "Internal review delays"]
+                },
+                "pert_cost": {
+                  "optimistic": 1440,
+                  "likely": 2880,
+                  "pessimistic": 4320,
+                  "costUnit": "INR",
+                  "reasons": ["Documentation costs", "Review process complexity"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_sales",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 720,
+                      "likely": 1440,
+                      "pessimistic": 2160,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "CRM software costs"]
+                    }
+                  }
+                ],
+                "tools": ["offer_letter_template"],
+                "checklist": [
+                  "Include all relevant technical and commercial details",
+                  "Clearly state payment terms and conditions",
+                  "Send offer to client"
+                ]
+              },
+              {
+                "id": "task_4_2_finalization_meeting",
+                "name": "Finalization Meeting",
+                "description": "Conduct a final meeting to discuss and finalize the offer.",
+                "raci": {
+                  "responsible": ["res_team_sales"],
+                  "accountable": ["user_sales_manager"],
+                  "consulted": [],
+                  "informed": ["customer"]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_4_1_offer_preparation",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 2,
+                    "pessimistic": 3,
+                    "timeUnit": "days"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 2,
+                    "pessimistic": 3,
+                    "timeUnit": "days"
+                  },
+                  "reasons": ["Client scheduling conflicts", "Negotiation delays"]
+                },
+                "pert_cost": {
+                  "optimistic": 1440,
+                  "likely": 2880,
+                  "pessimistic": 4320,
+                  "costUnit": "INR",
+                  "reasons": ["Meeting facilitation costs", "Client travel costs"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_sales",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 720,
+                      "likely": 1440,
+                      "pessimistic": 2160,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "CRM software costs"]
+                    }
+                  }
+                ],
+                "tools": ["meeting_notes_template"],
+                "checklist": [
+                  "Address any client questions or concerns",
+                  "Negotiate any outstanding points",
+                  "Obtain client acceptance of the offer"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "step_5_order_and_payment",
+            "name": "Order & Payment",
+            "tasks": [
+              {
+                "id": "task_5_1_order_confirmation",
+                "name": "Confirm Order",
+                "description": "Formally confirm the order with the client.",
+                "raci": {
+                  "responsible": ["res_team_sales"],
+                  "accountable": ["user_sales_manager"],
+                  "consulted": [],
+                  "informed": ["customer", "res_team_projects"]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_4_2_finalization_meeting",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "reasons": ["Client confirmation delays", "Internal processing delays"]
+                },
+                "pert_cost": {
+                  "optimistic": 60,
+                  "likely": 1440,
+                  "pessimistic": 2880,
+                  "costUnit": "INR",
+                  "reasons": ["Administrative overhead", "Confirmation process complexity"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_sales",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 30,
+                      "likely": 720,
+                      "pessimistic": 1440,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "CRM software costs"]
+                    }
+                  }
+                ],
+                "tools": ["order_confirmation_template"],
+                "checklist": [
+                  "Issue a formal order confirmation document",
+                  "Communicate project start date and timeline"
+                ]
+              },
+              {
+                "id": "task_5_2_advance_payment",
+                "name": "Receive Advance Payment",
+                "description": "Collect the agreed-upon advance payment from the client.",
+                "raci": {
+                  "responsible": ["res_team_finance"],
+                  "accountable": ["user_finance_manager"],
+                  "consulted": ["res_team_sales"],
+                  "informed": ["customer"]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_5_1_order_confirmation",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 36,
+                    "timeUnit": "hours"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 24,
+                    "pessimistic": 36,
+                    "timeUnit": "hours"
+                  },
+                  "reasons": ["Payment processing delays", "Client payment issues"]
+                },
+                "pert_cost": {
+                  "optimistic": 60,
+                  "likely": 1440,
+                  "pessimistic": 2160,
+                  "costUnit": "INR",
+                  "reasons": ["Payment gateway fees", "Administrative overhead"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_finance",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 30,
+                      "likely": 720,
+                      "pessimistic": 1080,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "Payment processing costs"]
+                    }
+                  }
+                ],
+                "tools": ["payment_gateway"],
+                "checklist": [
+                  "Generate and send payment link/invoice",
+                  "Verify receipt of advance payment",
+                  "Issue payment receipt to client"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "step_6_project_initiation",
+            "name": "Project Initiation",
+            "tasks": [
+              {
+                "id": "task_6_1_ocr_and_handover",
+                "name": "OCR & Project Handover",
+                "description": "Perform OCR (if needed) and hand over project to the Admin/Projects team.",
+                "raci": {
+                  "responsible": ["res_team_admin"],
+                  "accountable": ["user_admin_manager"],
+                  "consulted": ["res_team_sales"],
+                  "informed": ["res_team_projects"]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_5_2_advance_payment",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 1,
+                    "likely": 1,
+                    "pessimistic": 1,
+                    "timeUnit": "days"
+                  },
+                  "effortTime": {
+                    "optimistic": 1,
+                    "likely": 1,
+                    "pessimistic": 1,
+                    "timeUnit": "days"
+                  },
+                  "reasons": ["Administrative delays", "Handover process complexity"]
+                },
+                "pert_cost": {
+                  "optimistic": 1440,
+                  "likely": 1440,
+                  "pessimistic": 1440,
+                  "costUnit": "INR",
+                  "reasons": ["OCR processing costs", "Administrative overhead"]
+                },
+                "roles": [
+                  {
+                    "roleId": "res_team_admin",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 720,
+                      "likely": 720,
+                      "pessimistic": 720,
+                      "costUnit": "INR",
+                      "reasons": ["Overtime costs", "OCR software costs"]
+                    }
+                  }
+                ],
+                "tools": ["ocr_software", "project_management_system"],
+                "checklist": [
+                  "Process any physical documents using OCR",
+                  "Upload project details to project management system",
+                  "Handover project to the assigned project manager"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "step_1739491161977",
+            "name": "Customer Approval",
+            "tasks": [
+              {
+                "id": "task_1739491195716",
+                "name": "Kickoff Date",
+                "description": "",
+                "raci": {
+                  "responsible": ["customer"],
+                  "accountable": ["sales"],
+                  "consulted": ["production"],
+                  "informed": ["leadership"]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_6_1_ocr_and_handover",
+                    "type": "FS",
+                    "lag": 0
+                  }
+                ],
+                "parallelizable": false,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 24,
+                    "likely": 30,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "effortTime": {
+                    "optimistic": 24,
+                    "likely": 30,
+                    "pessimistic": 48,
+                    "timeUnit": "hours"
+                  },
+                  "reasons": ["Customer scheduling conflicts", "Approval delays"]
+                },
+                "pert_cost": {
+                  "optimistic": 1440,
+                  "likely": 1800,
+                  "pessimistic": 2880,
+                  "costUnit": "INR",
+                  "reasons": ["Administrative overhead", "Approval process complexity"]
+                },
+                "roles": [
+                  {
+                    "roleId": "customer",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 720,
+                      "likely": 900,
+                      "pessimistic": 1440,
+                      "costUnit": "INR",
+                      "reasons": ["Client-side costs", "Approval process complexity"]
+                    }
+                  }
+                ],
+                "tools": [],
+                "checklist": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "roles": [
+      {
+        "roleId": "res_team_sales",
+        "name": "Sales Team",
+        "skillLevel": "Intermediate",
+        "availability": 30,
+        "costPerHour": 30,
+        "maxConcurrentTasks": 2,
+        "costVariability": {
+          "optimistic": 25,
+          "likely": 30,
+          "pessimistic": 35,
+          "reasons": ["Travel expenses", "CRM software costs"]
+        }
+      },
+      {
+        "roleId": "res_team_design",
+        "name": "Design Team",
+        "skillLevel": "Senior",
+        "availability": 40,
+        "costPerHour": 45,
+        "maxConcurrentTasks": 3,
+        "costVariability": {
+          "optimistic": 40,
+          "likely": 45,
+          "pessimistic": 50,
+          "reasons": ["Overtime costs", "Specialized tool requirements"]
+        }
+      },
+      {
+        "roleId": "res_team_costing",
+        "name": "Costing Team",
+        "skillLevel": "Intermediate",
+        "availability": 35,
+        "costPerHour": 35,
+        "maxConcurrentTasks": 2,
+        "costVariability": {
+          "optimistic": 30,
+          "likely": 35,
+          "pessimistic": 40,
+          "reasons": ["Estimation software costs", "Revisions"]
+        }
+      },
+      {
+        "roleId": "res_team_finance",
+        "name": "Finance Team",
+        "skillLevel": "Intermediate",
+        "availability": 30,
+        "costPerHour": 30,
+        "maxConcurrentTasks": 2,
+        "costVariability": {
+          "optimistic": 25,
+          "likely": 30,
+          "pessimistic": 35,
+          "reasons": ["Payment gateway fees", "Administrative overhead"]
+        }
+      },
+      {
+        "roleId": "res_team_admin",
+        "name": "Admin Team",
+        "skillLevel": "Junior",
+        "availability": 40,
+        "costPerHour": 20,
+        "maxConcurrentTasks": 3,
+        "costVariability": {
+          "optimistic": 15,
+          "likely": 20,
+          "pessimistic": 25,
+          "reasons": ["OCR software costs", "Administrative overhead"]
+        }
+      },
+      {
+        "roleId": "customer",
+        "name": "Customer",
+        "skillLevel": "External",
+        "availability": 40,
+        "costPerHour": 0,
+        "maxConcurrentTasks": 1,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": ["No direct costs"]
+        }
+      }
+    ],
+    "materials": [
+      {
+        "id": "mat_steel",
+        "name": "Structural Steel",
+        "unit": "kg",
+        "costPerUnit": 2.5,
+        "costVariability": {
+          "optimistic": 2.0,
+          "likely": 2.5,
+          "pessimistic": 3.0,
+          "reasons": ["Global price fluctuations", "Import duties"]
+        }
+      },
+      {
+        "id": "cost_sheet",
+        "name": "Cost Sheet",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": ["No direct costs"]
+        }
+      },
+      {
+        "id": "boq",
+        "name": "Bill of Quantities (BOQ)",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": ["No direct costs"]
+        }
+      },
+      {
+        "id": "design_drawings",
+        "name": "Design Drawings",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": ["No direct costs"]
+        }
+      },
+      {
+        "id": "accepted_offer",
+        "name": "Accepted Offer",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": ["No direct costs"]
+        }
+      },
+      {
+        "id": "project_documents",
+        "name": "Project Documents",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": ["No direct costs"]
+        }
+      },
+      {
+        "id": "payment_receipt",
+        "name": "Payment Receipt",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": ["No direct costs"]
+        }
+      }
+    ]
+  }
+}
