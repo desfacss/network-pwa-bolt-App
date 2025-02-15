@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Input, Button, List, message, Card, Tag, Select, Checkbox, Form, Upload, Modal } from 'antd';
+import { Input, Button, List, message, Card, Tag, Select, Checkbox, Form, Upload, Modal, Tabs } from 'antd';
 import { PlusOutlined, DeleteOutlined, UploadOutlined, EyeOutlined } from '@ant-design/icons';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
-import WorkflowVisualizer from './flow';
+// import WorkflowVisualizer from './flow';
 // import WorkflowEditor from './workflow';
+
+// import workflowData from './processv0.json';
 import workflowData from './processv2.json';
-import WorkflowEditorTable from './workflow_table';
-import ProcessEditor from './processEditor';
+import workflowData2 from './ProcessViewer/processvg.json';
+// import ProcessEditor from './processEditor-processv0';
+// import ProcessEditor from './processEditor-processv2';
+import ProcessEditor from './processEditor-processv3';
+import ProcessViewer from './ProcessViewer';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -236,13 +241,29 @@ const Process = () => {
 
     const handleCancel = () => setPreviewVisible(false);
 
-
+    const tabItems = [
+        {
+            key: 'processes',
+            label: 'Processes',
+            children: <ProcessEditor initialData={workflowData} />,
+        },
+        {
+            key: 'resources',
+            label: 'Resources',
+            children: <ProcessViewer initialData={workflowData2} />,
+        },
+    ];
 
     return (
         <Card>
             {/* <WorkflowVisualizer /> */}
             {/* <WorkflowEditor /> */}
-            <ProcessEditor initialData={workflowData} />
+            <Tabs
+                defaultActiveKey="processes"
+                items={tabItems}
+            />
+            {/* <ProcessEditor initialData={workflowData} />
+            <ProcessViewer initialData={workflowData2} /> */}
 
         </Card>
     );

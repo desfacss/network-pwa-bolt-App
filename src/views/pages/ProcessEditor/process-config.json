@@ -1,0 +1,278 @@
+{
+  "id": "tensile_leads_v1",
+  "process_id": "pro_tensile_lead_conversion",
+  "version": "1.0",
+  "estimatedVolume": {
+    "value": 10,
+    "timeUnit": "month"
+  },
+  "blueprint": {
+    "workflows": [
+      {
+        "id": "wf_lead_to_order",
+        "name": "Tensile Lead Conversion",
+        "steps": [
+          {
+            "id": "step_1_lead_intake",
+            "name": "Lead Intake",
+            "tasks": [
+              {
+                "id": "task_1_1_capture_lead",
+                "name": "Capture Lead Information",
+                "description": "Log lead details from email, call, or WhatsApp.",
+                "raci": {
+                  "responsible": [
+                    "res_team_sales"
+                  ],
+                  "accountable": [
+                    "user_sales_manager"
+                  ],
+                  "consulted": [
+                    "leadership"
+                  ],
+                  "informed": [
+                    "customer"
+                  ]
+                },
+                "dependencies": [
+                  {
+                    "taskId": "task_1_1_capture_lead",
+                    "type": "FS",
+                    "lag": 0
+                  },
+                  {
+                    "taskId": "task_1_2_capture_lead",
+                    "type": "SS",
+                    "lag": 0
+                  }
+                ],
+                "pert_lead_time": {
+                  "optimistic": 1,
+                  "likely": 24,
+                  "pessimistic": 48,
+                  "timeUnit": "hours",
+                  "reasons": [
+                    "Unresponsive client",
+                    "CRM system downtime"
+                  ]
+                },
+                "pert_effort_time": {
+                  "optimistic": 1,
+                  "likely": 24,
+                  "pessimistic": 48,
+                  "timeUnit": "hours",
+                  "reasons": [
+                    "Unresponsive client",
+                    "CRM system downtime"
+                  ]
+                },
+                "pert_cost": {
+                  "optimistic": 6,
+                  "likely": 3,
+                  "pessimistic": 4,
+                  "costUnit": "INR"
+                },
+                "tools": [
+                  "crm_system",
+                  "communication_platforms"
+                ],
+                "checklist": [
+                  "Record lead source (email, call, WhatsApp)",
+                  "Capture customer name and contact information",
+                  "Note initial inquiry details"
+                ],
+                "risk": [],
+                "quality_metrics": [],
+                "optimisticLeadTime": 45,
+                "optimisticEffortTime": 43,
+                "likelyLeadTime": 34,
+                "likelyEffortTime": 6,
+                "pessimisticLeadTime": 14,
+                "pessimisticEffortTime": 45,
+                "optimisticCost": 6,
+                "likelyCost": 3,
+                "pessimisticCost": 4,
+                "pert_time": {
+                  "leadTime": {
+                    "optimistic": 64800,
+                    "likely": 48960,
+                    "pessimistic": 20160,
+                    "timeUnit": "days"
+                  },
+                  "effortTime": {
+                    "optimistic": 61920,
+                    "likely": 8640,
+                    "pessimistic": 64800,
+                    "timeUnit": "days"
+                  }
+                },
+                "roles": [
+                  {
+                    "roleId": "role_1739595998538",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 43,
+                      "likely": 234,
+                      "pessimistic": 23,
+                      "costUnit": "INR",
+                      "reasons": [],
+                      "aspirational": 234
+                    }
+                  },
+                  {
+                    "roleId": "role_1739596017668",
+                    "quantity": 1,
+                    "pert_cost": {
+                      "optimistic": 0,
+                      "likely": 44,
+                      "pessimistic": 344,
+                      "costUnit": "INR",
+                      "reasons": [],
+                      "aspirational": 34
+                    }
+                  }
+                ],
+                "preferredUnit": "days"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "roles": [
+      {
+        "roleId": "res_team_sales",
+        "name": "Sales Team",
+        "skillLevel": "Intermediate",
+        "skill": "Skill1",
+        "maxConcurrentTasks": 2,
+        "costVariability": {
+          "optimistic": 25,
+          "likely": 30,
+          "pessimistic": 35,
+          "reasons": [
+            "Travel expenses",
+            "CRM software costs"
+          ]
+        }
+      },
+      {
+        "roleId": "res_team_design",
+        "name": "Design Team",
+        "skillLevel": "Senior",
+        "skill": "Skill2",
+        "maxConcurrentTasks": 3,
+        "costVariability": {
+          "optimistic": 40,
+          "likely": 45,
+          "pessimistic": 50,
+          "reasons": [
+            "Overtime costs",
+            "Specialized tool requirements"
+          ]
+        }
+      }
+    ],
+    "materials": [
+      {
+        "id": "mat_steel",
+        "name": "Structural Steel",
+        "unit": "kg",
+        "costPerUnit": 2.5,
+        "costVariability": {
+          "optimistic": 2,
+          "likely": 2.5,
+          "pessimistic": 3,
+          "reasons": [
+            "Global price fluctuations",
+            "Import duties"
+          ]
+        }
+      },
+      {
+        "id": "cost_sheet",
+        "name": "Cost Sheet",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": [
+            "No direct costs"
+          ]
+        }
+      },
+      {
+        "id": "boq",
+        "name": "Bill of Quantities (BOQ)",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": [
+            "No direct costs"
+          ]
+        }
+      },
+      {
+        "id": "design_drawings",
+        "name": "Design Drawings",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": [
+            "No direct costs"
+          ]
+        }
+      },
+      {
+        "id": "accepted_offer",
+        "name": "Accepted Offer",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": [
+            "No direct costs"
+          ]
+        }
+      },
+      {
+        "id": "project_documents",
+        "name": "Project Documents",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": [
+            "No direct costs"
+          ]
+        }
+      },
+      {
+        "id": "payment_receipt",
+        "name": "Payment Receipt",
+        "unit": "document",
+        "costPerUnit": 0,
+        "costVariability": {
+          "optimistic": 0,
+          "likely": 0,
+          "pessimistic": 0,
+          "reasons": [
+            "No direct costs"
+          ]
+        }
+      }
+    ]
+  }
+}
