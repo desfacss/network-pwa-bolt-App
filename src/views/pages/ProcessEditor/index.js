@@ -13,6 +13,7 @@ import workflowData2 from './ProcessViewer/processvg.json';
 // import ProcessEditor from './processEditor-processv2';
 import ProcessEditor from './processEditor-processv3';
 import ProcessViewer from './ProcessViewer';
+import ProjectPlan from './ProjectPlan';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -251,6 +252,11 @@ const Process = () => {
             key: 'resources',
             label: 'Resources',
             children: <ProcessViewer initialData={workflowData2} />,
+        },
+        {
+            key: 'project_plan',
+            label: 'Project Plan',
+            children: <ProjectPlan />,
         },
     ];
 
