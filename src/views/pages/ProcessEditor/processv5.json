@@ -1,0 +1,184 @@
+{
+    "id":"tensile_leads_v1",
+    "process_id":"pro_tensile_lead_conversion",
+    "estimatedVolume":{
+       "value":10,
+       "timeUnit":"month"
+    },
+    "version":{
+       "number":"1.1",
+       "release_date":"2023-10-01",
+       "changes":[
+          "Added aspirational targets for time/cost",
+          "Included dynamic adaptation rules for CRM downtime"
+       ]
+    },
+    "blueprint":{
+       "dynamic_rules":[
+          {
+             "id":"rule_1",
+             "trigger":"task_delay",
+             "condition":"actual_time > pert_lead_time.likely * 1.2",
+             "actions":[
+                "notify_role:res_team_sales",
+                "escalate_to:user_sales_manager"
+             ],
+             "scope":"task"
+          },
+          {
+             "id":"rule_2",
+             "trigger":"material_cost_increase",
+             "condition":"material_cost > costVariability.pessimistic",
+             "actions":[
+                "switch_material_source:mat_steel_secondary",
+                "alert:procurement_team"
+             ],
+             "scope":"process"
+          }
+       ],
+       "workflows":[
+          {
+             "id":"wf_lead_to_order",
+             "name":"Tensile Lead Conversion",
+             "goals":[
+                {
+                   "metric":"lead_completeness",
+                   "target":0.99,
+                   "unit":"%"
+                }
+             ],
+             "steps":[
+                {
+                   "id":"step_1_lead_intake",
+                   "name":"Lead Intake",
+                   "goals":[
+                      {
+                         "metric":"lead_completeness",
+                         "target":0.99,
+                         "unit":"%"
+                      }
+                   ],
+                   "tasks":[
+                      {
+                         "id":"task_1_1_capture_lead",
+                         "name":"Capture Lead Information",
+                         "goals":[
+                          {
+                             "metric":"lead_completeness",
+                             "target":0.99,
+                             "unit":"%"
+                          }
+                       ],
+                         "description":"Log lead details from email, call, or WhatsApp.",
+                         "raci":{
+                            "responsible":[
+                               "res_team_sales"
+                            ],
+                            "accountable":[
+                               "user_sales_manager"
+                            ],
+                            "consulted":[
+                               "leadership"
+                            ],
+                            "informed":[
+                               "customer"
+                            ]
+                         },
+                         
+                         "lead_time":{
+                            "optimistic":1,
+                            "likely":24,
+                            "pessimistic":48,
+                            "aspirational":48,
+                            "uomType":"time",
+                            "uomBase":"hours",
+                            "uomDisplay":"hours",
+                            "reasons":[
+                               "Unresponsive client",
+                               "CRM system downtime"
+                            ]
+                         },
+                         "effort_time":{
+                            "optimistic":1,
+                            "likely":24,
+                            "pessimistic":48,
+                            "aspirational":48,
+                            "uomType":"time",
+                            "uomBase":"hours",
+                            "uomDisplay":"hours",
+                            "reasons":[
+                               "Unresponsive client",
+                               "CRM system downtime"
+                            ]
+                         },
+                         "cost":{
+                            "optimistic":1,
+                            "likely":24,
+                            "pessimistic":48,
+                            "aspirational":48,
+                            "uomType":"time",
+                            "uomBase":"hours",
+                            "uomDisplay":"hours",
+                            "reasons":[
+                               "Unresponsive client",
+                               "CRM system downtime"
+                            ]
+                         },
+                         "tools":[
+                            "crm_system",
+                            "communication_platforms"
+                         ],
+                         "checklist":[
+                            "Record lead source (email, call, WhatsApp)",
+                            "Capture customer name and contact information",
+                            "Note initial inquiry details"
+                         ],
+                         "risk":[
+                            {
+                               "description":"Unresponsive client",
+                               "probability":{
+                                  "optimistic":0.1,
+                                  "likely":0.2,
+                                  "pessimistic":0.5
+                               },
+                               "impact":2,
+                               "impactUnit":"hours"
+                            },
+                            {
+                               "description":"CRM system downtime",
+                               "probability":{
+                                  "optimistic":0.1,
+                                  "likely":0.2,
+                                  "pessimistic":0.5
+                               },
+                               "impact":2,
+                               "impactUnit":"hours"
+                            }
+                         ],
+                         "dependencies":[
+                            {
+                               "taskId":"task_1_1_capture_lead",
+                               "type":"FS",
+                               "lag":0
+                            },
+                            {
+                               "taskId":"task_1_2_capture_lead",
+                               "type":"SS",
+                               "lag":0
+                            }
+                         ],
+                         "goals":[
+                            {
+                               "metric":"lead_completeness",
+                               "target":0.99,
+                               "unit":"%"
+                            }
+                         ]
+                      }
+                   ]
+                }
+             ]
+          }
+       ]
+    }
+ }
