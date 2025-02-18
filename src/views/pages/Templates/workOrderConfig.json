@@ -1,0 +1,135 @@
+{
+    "type": "work_order",
+    "header": {
+        "fields": [
+            {
+                "label": "Company Name",
+                "type": "text",
+                "value": "Foresight Roofings LLP",
+                "alignment": "center"
+            },
+            {
+                "label": "Document Title",
+                "type": "text",
+                "value": "Subcontract Work Order",
+                "alignment": "center"
+            }
+        ]
+    },
+    "workOrderDetails": {
+        "fields": [
+            {
+                "label": "WO No",
+                "name": "woNumber",
+                "type": "input",
+                "alignment": "right"
+            },
+            {
+                "label": "Date",
+                "name": "date",
+                "type": "datePicker",
+                "alignment": "right"
+            },
+            {
+                "label": "Project",
+                "name": "project",
+                "type": "input",
+                "alignment": "right"
+            }
+        ]
+    },
+    "subcontractorDetails": {
+        "fields": [
+            {
+                "label": "Name",
+                "name": "subcontractorName",
+                "type": "input",
+                "value": "Hari Engineering",
+                "alignment": "left"
+            }
+        ]
+    },
+    "jobDetails": {
+        "columns": [
+            {
+                "title": "Description of Job",
+                "dataIndex": "description",
+                "key": "description"
+            },
+            {
+                "title": "Unit",
+                "dataIndex": "unit",
+                "key": "unit"
+            },
+            {
+                "title": "Qty",
+                "dataIndex": "quantity",
+                "key": "quantity"
+            },
+            {
+                "title": "Unit Rate (Rs/Kg)",
+                "dataIndex": "unitRate",
+                "key": "unitRate"
+            },
+            {
+                "title": "Total (Rs)",
+                "dataIndex": "total",
+                "key": "total"
+            }
+        ],
+        "data": [
+            {
+                "key": "1",
+                "description": "Steel Fabrication & Erection",
+                "unit": "Kgs",
+                "quantity": 14000,
+                "unitRate": 30,
+                "total": 420000
+            }
+        ]
+    },
+    "summary": {
+        "fields": [
+            {
+                "label": "Grand Total",
+                "key": "grandTotal",
+                "type": "display",
+                "value": "420,000",
+                "alignment": "right",
+                "bold": true
+            }
+        ]
+    },
+    "scopeOfWork": {
+        "fields": [
+            {
+                "label": "Scope of Work",
+                "name": "scopeOfWork",
+                "type": "textArea",
+                "value": "Fabrication, Erection, Painting (Epoxy paint & epoxy primer), Offloading Of Materials.",
+                "alignment": "left"
+            }
+        ]
+    },
+    "engineerInCharge": {
+        "fields": [
+            {
+                "label": "Engineer in charge",
+                "name": "engineerInCharge",
+                "type": "input",
+                "value": "Mulikan K",
+                "alignment": "left"
+            }
+        ]
+    },
+    "subcontractorSignature": {
+        "fields": [
+            {
+                "label": "Subcontractor",
+                "type": "text",
+                "value": "Foresight roofings LLP",
+                "alignment": "center"
+            }
+        ]
+    }
+}
