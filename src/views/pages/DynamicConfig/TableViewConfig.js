@@ -154,6 +154,59 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
         },
     ];
 
+    const handleAddAction = (type) => {
+        const newAction = { form: '', name: '' };
+        setActions(prev => ({
+            ...prev,
+            [type]: [...prev[type], newAction]
+        }));
+    };
+
+    const handleActionChange = (type, index, key, value) => {
+        const updatedActions = [...actions[type]];
+        updatedActions[index][key] = value;
+        setActions(prev => ({
+            ...prev,
+            [type]: updatedActions
+        }));
+    };
+
+    const handleRemoveAction = (type, index) => {
+        const updatedActions = actions[type].filter((_, i) => i !== index);
+        setActions(prev => ({
+            ...prev,
+            [type]: updatedActions
+        }));
+    };
+
+    const renderActionRow = (action, index, type) => (
+        <Row gutter={8} key={index}>
+            <Col span={10}>
+                <Input
+                    value={action.form}
+                    onChange={(e) => handleActionChange(type, index, 'form', e.target.value)}
+                    placeholder="Form"
+                />
+            </Col>
+            <Col span={10}>
+                <Input
+                    value={action.name}
+                    onChange={(e) => handleActionChange(type, index, 'name', e.target.value)}
+                    placeholder="Name"
+                />
+            </Col>
+            <Col span={4}>
+                <Button
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleRemoveAction(type, index)}
+                    danger
+                />
+            </Col>
+        </Row>
+    );
+
+
+
     return (
         <div>
             <h2>Table View Configuration</h2>
@@ -176,6 +229,36 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
 
             <h3>Actions</h3>
             <Row gutter={[16, 16]}>
+                <Col span={12}>
+                    <h4>Row Actions:</h4>
+                    {actions.row.map((action, index) => renderActionRow(action, index, 'row'))}
+                    <Button
+                        type="dashed"
+                        icon={<PlusOutlined />}
+                        onClick={() => handleAddAction('row')}
+                        style={{ marginTop: '10px' }}
+                    >
+                        Add Row Action
+                    </Button>
+                </Col>
+                <Col span={12}>
+                    <h4>Bulk Actions:</h4>
+                    {actions.bulk.map((action, index) => renderActionRow(action, index, 'bulk'))}
+                    <Button
+                        type="dashed"
+                        icon={<PlusOutlined />}
+                        onClick={() => handleAddAction('bulk')}
+                        style={{ marginTop: '10px' }}
+                    >
+                        Add Bulk Action
+                    </Button>
+                </Col>
+            </Row>
+
+
+
+            {/* <h3>Actions</h3> */}
+            {/* <Row gutter={[16, 16]}>
                 <Col span={12}>
                     <p>Row Actions:</p>
                     <Select
@@ -205,7 +288,7 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
                         <Option value="add_new_task">Add New Task</Option>
                     </Select>
                 </Col>
-            </Row>
+            </Row> */}
 
             <h3>Group By</h3>
             <Select
