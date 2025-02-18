@@ -1,59 +1,134 @@
 {
-    "meta": {
-      "project": "Commercial Tower",
-      "units": {
-        "default_weight": "tons",
-        "default_length": "meters"
-      },
-      "categories": ["steel", "fabric", "fixtures"]
+  "meta": {
+    "project": "Commercial Tower",
+    "units": {
+      "default_weight": "tons",
+      "default_length": "meters"
     },
-    "items": [
-      {
-        "id": "STL-001",
-        "category": "steel",
-        "description": "ISMB 250 Beam",
-        "quantity": {
-          "base": { "value": 15, "unit": "nos" }, 
-          "weight": { "value": 2.69, "unit": "tons" }, 
-          "length": { "value": 6, "unit": "meters" } 
+    "categories": [
+      "steel",
+      "fabric",
+      "fixtures"
+    ]
+  },
+  "items": [
+    {
+      "id": "STL-001",
+      "category": "steel",
+      "description": "ISMB 250 Beam",
+      "quantity": {
+        "base": {
+          "value": 15,
+          "unit": "nos"
         },
-        "specs": {
-          "grade": "FE 500",
-          "section": "ISMB 250",
-          "source": "TATA"
+        "weight": {
+          "value": 2.69,
+          "unit": "tons"
         },
-        "views": {
-          "phases": ["foundation", "superstructure"],
-          "blocks": ["Tower A", "Core"],
-          "procurement": { "manager": "John", "eta": "2024-03-01" }
+        "length": {
+          "value": 6,
+          "unit": "meters"
         }
       },
-      {
-        "id": "FAB-001",
-        "category": "fabric",
-        "description": "Ferrai Type 1",
-        "quantity": {
-          "base": { "value": 2500, "unit": "sqm" }, 
-          "length": { "value": 150, "unit": "meters" } 
-        },
-        "specs": {
-          "material_type": "Ferrai",
-          "width": 2500,
-          "fire_rating": "Class A"
-        },
-        "views": {
-          "phases": ["façade"],
-          "blocks": ["Tower B"],
-          "procurement": { "manager": "Sarah", "eta": "2024-04-15" }
+      "specs": {
+        "grade": "FE 500",
+        "section": "ISMB 250",
+        "source": "TATA"
+      },
+      "views": {
+        "phases": [
+          "foundation",
+          "superstructure"
+        ],
+        "blocks": [
+          "Tower A",
+          "Core"
+        ],
+        "procurement": {
+          "manager": "John",
+          "eta": "2024-03-01"
         }
       }
-    ],
-    "summary": {
-      "steel": { "total_weight": 15.8, "unit": "tons" },
-      "fabric": { "total_area": 2500, "unit": "sqm" },
-      "grand_total": {
-        "weight": 15.8,
-        "area": 2500
+    },
+    {
+      "id": "FAB-001",
+      "category": "fabric",
+      "description": "Ferrai Type 1",
+      "quantity": {
+        "base": {
+          "value": 2500,
+          "unit": "sqm"
+        },
+        "length": {
+          "value": 150,
+          "unit": "meters"
+        }
+      },
+      "specs": {
+        "material_type": "Ferrai",
+        "width": 2500,
+        "fire_rating": "Class A"
+      },
+      "views": {
+        "phases": [
+          "façade"
+        ],
+        "blocks": [
+          "Tower B"
+        ],
+        "procurement": {
+          "manager": "Sarah",
+          "eta": "2024-04-15"
+        }
       }
+    },
+    {
+      "id": "FIX-001",
+      "category": "fixtures",
+      "description": "XYZ Brand Toilet Bowl",
+      "quantity": {
+        "base": {
+          "value": 10,
+          "unit": "nos"
+        }
+      },
+      "specs": {
+        "model": "XYZ-123",
+        "type": "Wall-mounted",
+        "material": "Vitreous China"
+      },
+      "views": {
+        "phases": [
+          "plumbing"
+        ],
+        "blocks": [
+          "Tower A",
+          "Tower B"
+        ],
+        "procurement": {
+          "manager": "Lisa",
+          "eta": "2024-05-01"
+        }
+      },
+      "sno": 1,
+      "thickness_size": "Standard",
+      "grade": "A",
+      "length_will_be_in_stock": true,
+      "weight_will_be_in_stock": true
+    }
+  ],
+  "summary": {
+    "steel": {
+      "total_weight": 15.8,
+      "unit": "tons"
+    },
+    "fabric": {
+      "total_area": 2500,
+      "unit": "sqm"
+    },
+    "grand_total": {
+      "weight": 15.8,
+      "area": 2500
     }
   }
+}
