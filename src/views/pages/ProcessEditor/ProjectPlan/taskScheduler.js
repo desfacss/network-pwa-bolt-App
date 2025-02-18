@@ -2,11 +2,11 @@ export const calculateTaskDates = (tasks, startDateTime) => {
     const taskDates = {};
 
     // Validate dependencies
-    const taskIds = new Set(tasks.map((task) => task.id));
+    const taskIds = new Set(tasks.map((task) => task?.id));
     tasks.forEach((task) => {
-        task.dependencies.forEach((dep) => {
+        task?.dependencies?.forEach((dep) => {
             if (!taskIds.has(dep.taskId)) {
-                console.error(`Invalid dependency: Task ${task.id} depends on non-existent task ${dep.taskId}`);
+                console.error(`Invalid dependency: Task ${task?.id} depends on non-existent task ${dep.taskId}`);
             }
         });
     });
@@ -15,13 +15,13 @@ export const calculateTaskDates = (tasks, startDateTime) => {
     const sortedTasks = topologicalSort(tasks);
 
     sortedTasks.forEach((task) => {
-        const leadTime = task.lead_time;
+        const leadTime = task?.lead_time;
 
         // Default start date is the project start date
         let taskStart = new Date(startDateTime);
 
         // Adjust start date based on dependencies
-        task.dependencies.forEach((dep) => {
+        task?.dependencies?.forEach((dep) => {
             const depTaskId = dep.taskId;
             const depType = dep.type;
             const lag = dep.lag || 0;
@@ -53,7 +53,7 @@ export const calculateTaskDates = (tasks, startDateTime) => {
         const taskEnd = new Date(taskStart.getTime() + leadTime * 3600 * 1000);
 
         // Store calculated dates
-        taskDates[task.id] = { start: taskStart, end: taskEnd };
+        taskDates[task?.id] = { start: taskStart, end: taskEnd };
     });
 
     return taskDates;

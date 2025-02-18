@@ -19,7 +19,7 @@ const ProjectPlan = () => {
         step.tasks.map((task) => ({
             id: task?.id,
             name: task?.name,
-            lead_time: task?.lead_time[scenario],
+            lead_time: task?.lead_time?.[scenario],
             dependencies: task?.dependencies || [],
         }))
     );

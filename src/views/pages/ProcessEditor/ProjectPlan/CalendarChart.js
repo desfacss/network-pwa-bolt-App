@@ -20,9 +20,9 @@ const localizer = dateFnsLocalizer({
 
 const CalendarChart = ({ tasks, taskDates }) => {
     const events = tasks.map(task => ({
-        title: task.name,
-        start: taskDates[task.id].start,
-        end: taskDates[task.id].end,
+        title: task?.name,
+        start: taskDates[task?.id]?.start,
+        end: taskDates[task?.id]?.end,
     }));
     console.log('Task Dates:', tasks, taskDates, events);
     return (
