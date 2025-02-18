@@ -1,13 +1,14 @@
+import { Card } from 'antd';
 import React from 'react';
 // import InvoiceEntryPage from './invoice';
 import Invoice from './inv'
 
 const App = () => {
   return (
-    <div style={{ padding: 24 }}>
+    <Card>
       {/* <InvoiceEntryPage /> */}
       <Invoice />
-    </div>
+    </Card>
   );
 };
 
