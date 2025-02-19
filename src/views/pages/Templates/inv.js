@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Table, InputNumber, DatePicker, Row, Col, Typography, Select } from 'antd';
-import invoiceConfig from './invoiceConfig.json';
-import purchaseOrderConfig from './purchaseOrderConfig.json';
+import invoiceConfig from './configs/invoiceConfig.json';
+import purchaseOrderConfig from './configs/purchaseOrderConfig.json';
 
 const { TextArea } = Input;
 const { Title } = Typography;

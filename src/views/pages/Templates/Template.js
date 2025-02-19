@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Table, InputNumber, DatePicker, Row, Col, Typography, Divider } from 'antd';
-import purchaseOrderConfig from './purchaseOrderConfig.json';
-import workOrderConfig from './workOrderConfig.json';
+import purchaseOrderConfig from './configs/purchaseOrderConfig.json';
+import workOrderConfig from './configs/workOrderConfig.json';
 
 const { TextArea } = Input;
 const { Title } = Typography;

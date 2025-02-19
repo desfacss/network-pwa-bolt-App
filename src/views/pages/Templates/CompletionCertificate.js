@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, Table, DatePicker, Row, Col, Typography } from 'antd';
-import completionCertificateConfig from './completionCertificateConfig.json';
+import completionCertificateConfig from './configs/completionCertificateConfig.json';
 
 const { TextArea } = Input;
 const { Title } = Typography;

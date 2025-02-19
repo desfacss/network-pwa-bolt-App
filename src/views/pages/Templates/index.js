@@ -7,19 +7,21 @@ import WorkOrder from './WorkOrder';
 import CompletionCertificate from './CompletionCertificate';
 
 import GeneralDocumentComponent from './GeneralDocumentComponent';
-import invoiceConfig from './invoiceConfig.json';
-import purchaseOrderConfig from './purchaseOrderConfig.json';
-import workOrderConfig from './workOrderConfig.json';
-import completionCertificateConfig from './completionCertificateConfig.json';
-
+import invoiceConfig from './configs/invoiceConfig.json';
+import purchaseOrderConfig from './configs/purchaseOrderConfig.json';
+import workOrderConfig from './configs/workOrderConfig.json';
+import completionCertificateConfig from './configs/completionCertificateConfig.json';
+import BillOfQuantity from './BOQ';
+import boqData from './boq_v2.json';
 
 const App = () => {
   return (
     <Card>
-      {/* <Invoice />
-      <Template />
-      <WorkOrder />
-      <CompletionCertificate /> */}
+      {/* <BillOfQuantity initialData={boqData} /> */}
+      {/* <Invoice /> */}
+      {/* <Template />
+      <WorkOrder /> */}
+      {/* <CompletionCertificate /> */}
       <h2>Invoice</h2>
       <GeneralDocumentComponent config={invoiceConfig} />
 

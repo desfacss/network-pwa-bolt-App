@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Table, InputNumber, DatePicker, Row, Col, Typography } from 'antd';
-import workOrderConfig from './workOrderConfig.json';
-// import completionCertificateConfig from './completionCertificateConfig.json';
+import workOrderConfig from './configs/workOrderConfig.json';
+// import completionCertificateConfig from './configs/completionCertificateConfig.json';
 
 const { TextArea } = Input;
 const { Title } = Typography;
