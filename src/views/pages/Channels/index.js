@@ -78,14 +78,14 @@ const Channels = () => {
 
     return (
         <Card>
-            <Tabs activeKey={activeTab} onChange={handleTabChange}
-                tabBarExtraContent={<Button type="primary" onClick={showModal} icon={<PlusOutlined />}>Add Channel</Button>}
+            <Tabs activeKey={activeTab} onChange={handleTabChange} animated={true} //tabPosition={'left'} size={'small'}
+                tabBarExtraContent={session?.user?.role_type === 'admin' && <Button type="primary" onClick={showModal} icon={<PlusOutlined />}>Add Channel</Button>}
             >
                 {channels.map((channel) => (
                     <TabPane tab={
                         <span>
                             {channel?.slug}
-                            <Popconfirm // Wrap CloseOutlined with Popconfirm
+                            {session?.user?.role_type === 'admin' && <Popconfirm // Wrap CloseOutlined with Popconfirm
                                 title={`Are you sure to delete ${channel?.slug}?`}
                                 onConfirm={() => handleDeleteChannel(channel?.id)} // Pass channel?.id to delete function
                                 onCancel={() => { }} // Handle cancel if needed
@@ -96,7 +96,7 @@ const Channels = () => {
                                     style={{ marginLeft: '8px', color: 'red', cursor: 'pointer' }}
                                     onClick={(e) => e.stopPropagation()} // Prevent tab change
                                 />
-                            </Popconfirm>
+                            </Popconfirm>}
                         </span>
                     }
                         key={channel?.slug}>
