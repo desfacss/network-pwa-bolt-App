@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer } from 'antd';
-import { UserOutlined, MessageOutlined } from '@ant-design/icons';
+import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message } from 'antd';
+import { UserOutlined, MessageOutlined, DeleteOutlined } from '@ant-design/icons';
 import './styles.css';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
@@ -218,6 +218,18 @@ const ForumComment = ({ channel_id }) => {
     const [idToNameMap, setIdToNameMap] = useState(new Map());
     const [searchText, setSearchText] = useState("");
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // Initial check
+
+    useEffect(() => {
+        // Update isMobile state on window resize
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize); // Cleanup
+    }, []);
+
     useEffect(() => {
         // Fetch messages on component mount or when channel_id changes
         const fetchMessages = async () => {
@@ -328,6 +340,26 @@ const ForumComment = ({ channel_id }) => {
         setFilteredMessages(filterMessages(searchText));
     }, [searchText, messages, idToNameMap]);
 
+    const handleDelete = async (messageId) => {
+        try {
+            const { error } = await supabase
+                .from('messages')
+                .delete()
+                .eq('id', messageId);
+
+            if (error) {
+                console.error("Error deleting message:", error);
+                message.error("Failed to delete message."); // Ant Design message
+            } else {
+                setMessages(messages.filter(msg => msg.id !== messageId)); // Optimistic update
+                message.success("Message deleted successfully."); // Ant Design message
+            }
+        } catch (err) {
+            console.error(err);
+            message.error("An error occurred."); // Ant Design message
+        }
+    };
+
     return (
         <div className="forum-container"> {/* Main container */}
             <div className="message-list">
@@ -338,43 +370,63 @@ const ForumComment = ({ channel_id }) => {
                         onChange={(e) => setSearchText(e.target.value)}
                     />
                 </div>
-                {filteredMessages?.length > 0 ? <List
-                    dataSource={filteredMessages}
-                    renderItem={(item) => (
-                        <Card
-                            style={{ marginBottom: 16 }}
-                            // actions={[
-                            //     <div key="tags">
-                            //         {item?.details?.tags?.map((tag) => (
-                            //             <Tag key={tag}>{tag}</Tag>
-                            //         ))}
-                            //         {item?.details?.category_id && <Tag color="blue">{item?.details?.category_id}</Tag>}
-                            //     </div>,
-                            // ]}
-                            actions={[
-                                <div key="tags">
-                                    {item?.details?.tags?.map((tag) => (
-                                        <Tag key={tag}>{idToNameMap.get(tag) || tag}</Tag>
-                                    ))}
-                                    {item?.details?.category_id && <Tag color="blue">{idToNameMap.get(item?.details?.category_id) || item?.details?.category_id}</Tag>}
-                                </div>,
-                            ]}
-                        >
-                            <Card.Meta
-                                avatar={<Avatar icon={<UserOutlined />} />}
-                                title={item?.user?.user_name} // Or get the user's name if you have it
-                                description={
-                                    <div>
-                                        <div style={{ marginBottom: 8 }}>{item?.message}</div>
-                                        <div style={{ fontSize: 12, color: '#666' }}>
-                                            {new Date(item?.inserted_at).toLocaleString() || ""} {/* Format the timestamp */}
+                {filteredMessages?.length > 0 ?
+                    <List
+                        dataSource={filteredMessages}
+                        renderItem={(item) => (
+                            <Card
+                                style={{ marginBottom: 16 }}
+                                actions={[
+                                    <div key="tags">
+                                        {item?.details?.tags?.map((tag) => (
+                                            <Tag key={tag} style={{ cursor: 'default' }}>
+                                                {idToNameMap.get(tag) || tag}
+                                            </Tag>
+                                        ))}
+                                        {item?.details?.category_id && (
+                                            <Tag color="blue" style={{ cursor: 'default' }}>
+                                                {idToNameMap.get(item?.details?.category_id) || item?.details?.category_id}
+                                            </Tag>
+                                        )}
+                                    </div>,
+                                ]}
+                            >
+                                {(session?.user?.role_type === 'superadmin' || session?.user?.id === item.user_id) && (
+                                    <Popconfirm
+                                        title="Are you sure to delete this message?"
+                                        onConfirm={() => handleDelete(item?.id)}
+                                        okText="Yes"
+                                        cancelText="No"
+                                    >
+                                        <DeleteOutlined
+                                            style={{
+                                                position: 'absolute',
+                                                top: '10px',
+                                                right: '10px',
+                                                cursor: 'pointer',
+                                                color: 'red' // Or any color you prefer
+                                            }}
+                                        />
+                                    </Popconfirm>
+                                )}
+                                <Card.Meta
+                                    avatar={<Avatar icon={<UserOutlined />} />}
+                                    title={item?.message}
+                                    description={
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ fontSize: 13, color: '#666' }}>{item?.user?.user_name}</span>
+                                            <span
+                                                style={{ fontSize: 13 }}
+                                            >
+                                                {new Date(item?.inserted_at).toLocaleString() || ""}
+                                            </span>
                                         </div>
-                                    </div>
-                                }
-                            />
-                        </Card>
-                    )}
-                /> : <>No Messages</>}
+                                    }
+                                />
+                            </Card>
+                        )}
+                    />
+                    : <>No Messages</>}
             </div>
             <div className="new-post-container">
                 <Card title={<><MessageOutlined /> New Post</>} style={{ marginTop: 24 }}>
@@ -458,7 +510,7 @@ const ForumComment = ({ channel_id }) => {
             </Drawer>
 
             {/* Floating Button (for smaller screens) */}
-            <div className="new-post-button-container">
+            {isMobile && <div className="new-post-button-container">
                 <Button
                     type="primary"
                     icon={<MessageOutlined />}
@@ -466,7 +518,7 @@ const ForumComment = ({ channel_id }) => {
                 >
                     New Post
                 </Button>
-            </div>
+            </div>}
         </div>
     );
 };

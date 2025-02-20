@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Button, Modal, Divider } from 'antd';
+import { Card, Descriptions, Button, Modal, Divider, Tabs } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
@@ -9,6 +9,7 @@ import ChangePassword from 'views/auth-views/components/ChangePassword';
 import { useNavigate, useParams } from 'react-router-dom';
 import ProfilePic from './ProfilePic';
 import DynamicViews from '../DynamicViews';
+import ShareButton from 'components/common/WhatsappShare';
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -222,69 +223,62 @@ const Profile = () => {
 
     if (!userData) return null;
 
+    const tabItems = [
+        {
+            key: 'profile',
+            label: 'Profile',
+            children: (
+                <Card
+                    title={
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'left',
+                                overflow: 'visible',
+                            }}
+                        >
+                            <span
+                                className='mr-2'
+                            >Personal Info</span>
+                            {userData && session?.user?.id === userData?.id && (
+                                <>
+                                    <Button
+                                        // className='px-1'
+                                        icon={details ? <EditOutlined /> : <PlusOutlined />}
+                                        onClick={e => showModal(details, 'user_self_edit_form')}
+                                    />
+                                    <ChangePassword />
+                                </>
+                            )}
+                        </div>
+                    }
+                >
+                    <div className='ml-3'>
+                        <ProfilePic />
+                        {renderDynamicDescriptionItems()}
+                    </div>
+                </Card>
+            ),
+        },
+        {
+            key: 'businesses',
+            label: 'Businesses',
+            children: (
+                <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} />
+            ),
+        },
+    ];
+
     return (
         <Card>
-            <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} />
             {(edit && schema) && <Modal footer={null}
                 title={schema?.data_schema?.title || ""}
                 open={edit} onOk={handleOk} onCancel={handleCancel} >
                 {/* <DynamicForm schema={schema?.data} initialValues={[{ ...formData }]} /> */}
                 <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
             </Modal>}
-            {/* Profile Start ************************************* */}
-            <Card title={
-                // <div style={{
-                //     display: 'flex', alignItems: 'center'
-                //     // justifyContent: 'space-between',
-                // }}>
-                <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'left',
-                        // justifyContent: 'space-between', // Ensures proper spacing
-                        overflow: 'visible', // Prevent cropping
-                    }}
-                >
-                    <span className='mr-2'>Personal Info</span>
-                    {userData && session?.user?.id === userData?.id &&
-                        <>
-                            <Button className='mr-5' icon={details ? <EditOutlined /> : <PlusOutlined />} onClick={e => showModal(details, 'user_self_edit_form')}>
-                            </Button>
-                            <ChangePassword />
-                        </>
-                    }
-                </div>
-            }
-            >
-                <div className='ml-3'>
-                    <ProfilePic />
-                    {/* <Descriptions column={1}>
-                        {renderDescriptionItem("Name", details?.user_name)}
-                        {renderDescriptionItem("Designation", details?.designation)}
-                        {renderDescriptionItem("Role Type", userData?.role_type?.replace("_", " "))}
-                        {renderDescriptionItem("Department", details?.department)}
-                    </Descriptions>
-                    <Divider />
-                    <Descriptions column={1}>
-                        {renderDescriptionItem("Email", details?.email)}
-                        {renderDescriptionItem("Mobile", details?.mobile)}
-                    </Descriptions>
-                    <Divider />
-                    <Descriptions column={1}>
-                        {renderDescriptionItem("Date of Birth", details?.birthDate)}
-                        {renderDescriptionItem("Address", details?.address)}
-                        {renderDescriptionItem("Emergency Contact", details?.emergencyContact)}
-                        {renderDescriptionItem("Date of Joining", details?.joiningDate)}
-                    </Descriptions>
-                    <Divider />
-                    <Descriptions column={1}>
-                        {renderDescriptionItem("HR Contact", userData?.hr?.user_name + " ( " + userData?.hr?.details?.mobile + " ) ")}
-                        {renderDescriptionItem("Line Manager", userData?.manager?.user_name + " ( " + userData?.manager?.details?.mobile + " ) ")}
-                    </Descriptions> */}
-                    {renderDynamicDescriptionItems()}
-                </div>
-            </Card >
-            {/* <FileUpload /> */}
+            <ShareButton />
+            <Tabs defaultActiveKey="profile" items={tabItems} />
         </Card >
     );
 };

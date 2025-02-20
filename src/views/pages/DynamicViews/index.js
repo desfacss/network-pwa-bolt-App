@@ -290,7 +290,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const fetchData = async () => {
         console.log("viewConfig", viewConfig);
 
-        let query = supabase.from(entityType).select('*').order('details->>name', { ascending: true });
+        let query = supabase.from(entityType).select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true).order('details->>name', { ascending: true });
 
         // Apply multiple filters
         fetchFilters?.forEach(filter => {
@@ -497,12 +497,32 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     };
 
     const deleteData = async (deleteRow) => {
-        console.log("Del", deleteRow?.id)
-        const { data, error } = await supabase.from(entityType).delete().eq('id', deleteRow?.id);
-        if (error) {
-            notification.error({ message: error.message });
+        console.log("Del", deleteRow?.id);
+
+        if (session?.user?.role_type === "superadmin") {
+            // For superadmin: perform actual deletion
+            const { data, error } = await supabase
+                .from(entityType)
+                .delete()
+                .eq('id', deleteRow?.id);
+
+            if (error) {
+                notification.error({ message: error.message });
+            } else {
+                fetchData(); // Refresh data after deleting
+            }
         } else {
-            fetchData(); // Refresh data after deleting
+            // For non-superadmin: update is_active to false
+            const { data, error } = await supabase
+                .from(entityType)
+                .update({ is_active: false })
+                .eq('id', deleteRow?.id);
+
+            if (error) {
+                notification.error({ message: error.message });
+            } else {
+                fetchData(); // Refresh data after updating
+            }
         }
     };
 

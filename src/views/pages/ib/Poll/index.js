@@ -18,26 +18,17 @@ const Poll2 = () => {
     const { session } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        // login();
         fetchQuestions();
         getResponses();
-        const question = questions[current];
-        calculateOptionCounts(question);
-    }, [questions, current]);
+    }, []); // Empty dependency array ensures this runs only once on mount
 
-    // const login = async () => {
-    //     const { data, error } = await supabase.auth.signInWithPassword({
-    //         // email: 'ratedrnagesh28@gmail.com',
-    //         // password: 'Test@1234',
-    //         email: 'someone@email.com',
-    //         password: 'jgjXViMXIoJYqJKAuBYD',
-    //     });
-    //     if (data) {
-    //         console.log('U', data);
-    //     } else {
-    //         console.log(error);
-    //     }
-    // };
+    useEffect(() => {
+        // Only calculate counts when the current question changes
+        const question = questions[current];
+        if (question) {
+            calculateOptionCounts(question);
+        }
+    }, [current, questions]);
 
     const fetchQuestions = async () => {
         const { data } = await supabase.from('forms').select('*').eq('form_type', 'poll').single();
@@ -133,27 +124,6 @@ const Poll2 = () => {
     const handleAnswerChange = (e, tag) => {
         setAnswers({ ...answers, [tag]: e.target.value });
     };
-
-    // const config = {
-    //     // appendPadding: 10,
-    //     radius: 0.76,
-    //     data: optionCounts,
-    //     angleField: 'value',
-    //     colorField: 'type',
-    //     label: {
-    //         text: 'value',
-    //         style: {
-    //             fontWeight: 'bold',
-    //         },
-    //     },
-    //     legend: {
-    //         color: {
-    //             title: false,
-    //             position: 'right',
-    //             rowPadding: 5,
-    //         },
-    //     },
-    // };
 
     return (
         <Card>

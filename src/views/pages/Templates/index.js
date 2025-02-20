@@ -1,5 +1,5 @@
-import { Card } from 'antd';
-import React from 'react';
+import { Button, Card, Drawer } from 'antd';
+import React, { useState } from 'react';
 // import InvoiceEntryPage from './invoice';
 import Invoice from './inv'
 import Template from './Template';
@@ -16,6 +16,32 @@ import BillOfQuantity from './BOQ';
 import boqData from './boq_v2.json';
 
 const App = () => {
+
+  const [visibleDrawer, setVisibleDrawer] = useState(null);
+
+  const showDrawer = (type) => {
+    setVisibleDrawer(type);
+  };
+
+  const closeDrawer = () => {
+    setVisibleDrawer(null);
+  };
+
+  const renderComponent = () => {
+    switch (visibleDrawer) {
+      case 'invoice':
+        return <GeneralDocumentComponent config={invoiceConfig} />;
+      case 'purchaseOrder':
+        return <GeneralDocumentComponent config={purchaseOrderConfig} />;
+      case 'workOrder':
+        return <GeneralDocumentComponent config={workOrderConfig} />;
+      case 'completionCertificate':
+        return <GeneralDocumentComponent config={completionCertificateConfig} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Card>
       {/* <BillOfQuantity initialData={boqData} /> */}
@@ -23,7 +49,9 @@ const App = () => {
       {/* <Template />
       <WorkOrder /> */}
       {/* <CompletionCertificate /> */}
-      <h2>Invoice</h2>
+
+
+      {/* <h2>Invoice</h2>
       <GeneralDocumentComponent config={invoiceConfig} />
 
       <h2>Purchase Order</h2>
@@ -33,7 +61,47 @@ const App = () => {
       <GeneralDocumentComponent config={workOrderConfig} />
 
       <h2>Completion Certificate</h2>
-      <GeneralDocumentComponent config={completionCertificateConfig} />
+      <GeneralDocumentComponent config={completionCertificateConfig} /> */}
+
+      <div style={{ marginBottom: 16 }}>
+        <Button
+          type="primary"
+          onClick={() => showDrawer('invoice')}
+          style={{ marginRight: 8 }}
+        >
+          Invoice
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => showDrawer('purchaseOrder')}
+          style={{ marginRight: 8 }}
+        >
+          Purchase Order
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => showDrawer('workOrder')}
+          style={{ marginRight: 8 }}
+        >
+          Work Order
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => showDrawer('completionCertificate')}
+        >
+          Completion Certificate
+        </Button>
+      </div>
+
+      <Drawer
+        title={visibleDrawer ? visibleDrawer.replace(/([A-Z])/g, ' $1').trim() : ''}
+        placement="right"
+        onClose={closeDrawer}
+        open={visibleDrawer !== null}
+        width={"60%"}
+      >
+        {renderComponent()}
+      </Drawer>
     </Card>
   );
 };

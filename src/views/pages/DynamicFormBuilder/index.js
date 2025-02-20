@@ -108,10 +108,19 @@ const FormBuilder = ({ masterObjectInit }) => {
       message.error("Enter LookUp Details");
       return;
     }
-    fieldInput.fieldTitle = fieldInput?.fieldName
-    fieldInput.fieldName = fieldInput?.fieldName?.trim()?.replaceAll(" ", "_")//?.toLowerCase();
+
+    // Find the selected field from masterObjectInit if it exists
+    const selectedField = masterObjectInit?.find(item => item.key === fieldInput.fieldName);
+
+    // Use display_name if it exists, otherwise fallback to fieldName
+    const fieldTitle = selectedField?.display_name || fieldInput?.fieldName;
+
+    const formattedFieldName = fieldInput.fieldName.trim().replaceAll(" ", "_");
+
     const newField = {
       ...fieldInput,
+      fieldTitle: fieldTitle, // Set fieldTitle explicitly
+      fieldName: formattedFieldName,
       uiOrder: parseInt(fieldInput.uiOrder),
       options: fieldInput.options.length ? fieldInput.options : undefined,
       lookupTable: fieldInput.lookupTable || undefined,
