@@ -104,7 +104,8 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.survey && feature?.survey && {
+      // module_features?.survey && feature?.survey && 
+      {
         key: 'survey',
         path: `${APP_PREFIX_PATH}/survey`,
         title: 'Survey',
@@ -120,18 +121,74 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
+      module_features?.ibIdeas && feature?.ibIdeas && {
+        key: 'ib_ideas',
+        path: `${APP_PREFIX_PATH}/ideas`,
+        title: 'Ideas',
+        icon: ApartmentOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibIdeas && feature?.ibIdeas && {
+        key: 'poll',
+        path: `${APP_PREFIX_PATH}/poll`,
+        title: 'Poll',
+        icon: ApartmentOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      {
+        key: 'blank',
+        path: `#`,
+        title: '',
+        // icon: UserOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
       module_features?.tmembers && feature?.tmembers && {
         key: 'tmembers',
         path: `${APP_PREFIX_PATH}/tmembers`,
-        title: 'T Members',
+        title: 'Offline',
+        icon: TeamOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.tmembers && feature?.tmembers && {
+        key: 'sales',
+        path: `${APP_PREFIX_PATH}/ysales`,
+        title: 'Sales',
+        icon: TeamOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.tmembers && feature?.tmembers && {
+        key: 'projects',
+        path: `${APP_PREFIX_PATH}/yprojects`,
+        title: 'Projects',
         icon: TeamOutlined,
         breadcrumb: false,
         submenu: [],
       },
       module_features?.ibIdeas && feature?.ibIdeas && {
-        key: 'ib_ideas',
-        path: `${APP_PREFIX_PATH}/ideas`,
-        title: 'Ideas',
+        key: 'process',
+        path: `${APP_PREFIX_PATH}/process`,
+        title: 'Process',
+        icon: ApartmentOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibIdeas && feature?.ibIdeas && {
+        key: 'template',
+        path: `${APP_PREFIX_PATH}/template`,
+        title: 'Template',
+        icon: ApartmentOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
+      module_features?.ibIdeas && feature?.ibIdeas && {
+        key: 'config',
+        path: `${APP_PREFIX_PATH}/yconfig`,
+        title: 'Config',
         icon: ApartmentOutlined,
         breadcrumb: false,
         submenu: [],
@@ -167,7 +224,8 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.team && feature?.team && {
+      // module_features?.team && feature?.team && 
+      {
         key: 'team',
         path: `${APP_PREFIX_PATH}/team`,
         title: 'Team',
@@ -175,7 +233,8 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.notifications && feature?.notifications && {
+      // module_features?.notifications && feature?.notifications && 
+      {
         key: 'notifications',
         path: `${APP_PREFIX_PATH}/notifications`,
         title: 'Notifications',
@@ -183,7 +242,8 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.settings && feature?.settings && {
+      // module_features?.settings && feature?.settings && 
+      {
         key: 'settings',
         path: `${APP_PREFIX_PATH}/settings`,
         title: 'Settings',
