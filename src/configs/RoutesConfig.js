@@ -79,22 +79,26 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/projects`,
             component: React.lazy(() => import('views/pages/Projects/index')),
         },
-        module_features?.team && feature?.team && {
+        // module_features?.team && feature?.team && 
+        {
             key: 'team',
             path: `${APP_PREFIX_PATH}/team`,
             component: React.lazy(() => import('views/pages/Team/index')),
         },
-        module_features?.notifications && feature?.notifications && {
+        // module_features?.notifications && feature?.notifications && 
+        {
             key: 'notifications',
             path: `${APP_PREFIX_PATH}/notifications`,
             component: React.lazy(() => import('views/pages/Notifications')),
         },
-        module_features?.settings && feature?.settings && {
+        // module_features?.settings && feature?.settings && 
+        {
             key: 'settings',
             path: `${APP_PREFIX_PATH}/settings`,
             component: React.lazy(() => import('views/pages/Settings')),
         },
-        module_features?.survey && feature?.survey && {
+        // module_features?.survey && feature?.survey && 
+        {
             key: 'survey',
             path: `${APP_PREFIX_PATH}/survey`,
             component: React.lazy(() => import('views/pages/Survey')),
@@ -204,6 +208,21 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/channels`,
             component: React.lazy(() => import('views/pages/Channels')),
         },
+        {
+            key: 'process',
+            path: `${APP_PREFIX_PATH}/process`,
+            component: React.lazy(() => import('views/pages/ProcessEditor')),
+        },
+        {
+            key: 'boq',
+            path: `${APP_PREFIX_PATH}/boq`,
+            component: React.lazy(() => import('views/pages/BOQ')),
+        },
+        {
+            key: 'template',
+            path: `${APP_PREFIX_PATH}/template`,
+            component: React.lazy(() => import('views/pages/Templates')),
+        },
         // module_features?.ibMembers && feature?.ibMembers && {
         //     key: 'ib_member',
         //     path: `${APP_PREFIX_PATH}/members/:user_name`,
@@ -224,11 +243,12 @@ export const protectedRoutes = (feature, module_features) => {
         //     path: `${APP_PREFIX_PATH}/heirarchy`,
         //     component: React.lazy(() => import('views/pages/ib/Heirarchy')),
         // },
-        // module_features?.ibPoll && feature?.ibPoll && {
-        //     key: 'ib_poll',
-        //     path: `${APP_PREFIX_PATH}/ib_poll`,
-        //     component: React.lazy(() => import('views/pages/ib/Poll')),
-        // },
+        // module_features?.ibPoll && feature?.ibPoll && 
+        {
+            key: 'ib_poll',
+            path: `${APP_PREFIX_PATH}/ib_poll`,
+            component: React.lazy(() => import('views/pages/ib/Poll')),
+        },
         // module_features?.trial && feature?.trial && {
         //     key: 'trial',
         //     path: `${APP_PREFIX_PATH}/trial`,
