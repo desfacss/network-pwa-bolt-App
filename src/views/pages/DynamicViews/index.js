@@ -120,7 +120,7 @@ const structureData = (flatData, config) => {
 };
 
 
-const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters }) => {
+const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters, tabs }) => {
 
     const defaultStartDate = dayjs().subtract(30, 'days');
     // const defaultStartDate = dayjs().subtract(30, 'days');
@@ -655,56 +655,56 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     // };
     console.log("GTD", data);
     const tabItems = [];
-    if (viewConfig?.tableview && viewConfig?.tableview?.showFeatures?.includes('enable_view')) {
+    if ((tabs ? tabs.includes('tableview') : true) && viewConfig?.tableview && viewConfig?.tableview?.showFeatures?.includes('enable_view')) {
         tabItems.push({
             label: 'Table',
             key: '1',
             children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
         })
     }
-    if (viewConfig?.views_config?.gridview && viewConfig?.gridview) {
+    if ((tabs ? tabs.includes('gridview') : true) && viewConfig?.views_config?.gridview && viewConfig?.gridview) {
         tabItems.push({
             label: 'Grid',
             key: '2',
             children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />
         })
     }
-    if (viewConfig?.views_config?.timelineview && viewConfig?.timelineview) {
+    if ((tabs ? tabs.includes('timelineview') : true) && viewConfig?.views_config?.timelineview && viewConfig?.timelineview) {
         tabItems.push({
             label: 'Timeline',
             key: '3',
             children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />
         })
     }
-    if (viewConfig?.views_config?.kanbanview && viewConfig?.kanbanview) {
+    if ((tabs ? tabs.includes('kanbanview') : true) && viewConfig?.views_config?.kanbanview && viewConfig?.kanbanview) {
         tabItems.push({
             label: 'Kanban',
             key: '4',
             children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} />
         })
     }
-    if (viewConfig?.views_config?.ganttview && viewConfig?.ganttview) {
+    if ((tabs ? tabs.includes('ganttview') : true) && viewConfig?.views_config?.ganttview && viewConfig?.ganttview) {
         tabItems.push({
             label: 'Gantt',
             key: '5',
             children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} />,
         })
     }
-    if (viewConfig?.views_config?.calendarview && viewConfig?.calendarview) {
+    if ((tabs ? tabs.includes('calendarview') : true) && viewConfig?.views_config?.calendarview && viewConfig?.calendarview) {
         tabItems.push({
             label: 'Calendar',
             key: '6',
             children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} />,
         })
     }
-    // if (viewConfig?.views_config?.calendarview && viewConfig?.calendarview) {
+    // if ((tabs?tabs.includes('calendarview'):true) && viewConfig?.views_config?.calendarview && viewConfig?.calendarview) {
     //     tabItems.push({
     //         label: 'Schedule',
     //         key: '7',
     //         children: <SchedularView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
     //     })
     // }
-    if (viewConfig?.views_config?.dashboardview && viewConfig?.dashboardview) {
+    if ((tabs ? tabs.includes('dashboardview') : true) && viewConfig?.views_config?.dashboardview && viewConfig?.dashboardview) {
         tabItems.push({
             label: 'Dashboard',
             key: '8',

@@ -58,8 +58,8 @@ export const handleAllocations = async (formData, allocationsTable, mainEntityId
 };
 
 export function transformData(data, data_config) {
-    const details2 = data["details2"] || {};
-    const details = data["details"] || {};
+    const details2 = data?.details2 || {};
+    const details = data?.details || {};
 
     const mergedDetails = { ...details2, ...details }; // Merge with priority
 

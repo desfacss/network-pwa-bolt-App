@@ -1,0 +1,51 @@
+/* styles.css */
+.forum-container {
+    display: flex;
+    /* Use flexbox for layout */
+    gap: 24px;
+    /* Space between the two divs */
+    align-items: flex-start;
+    /* Align items to the top */
+    padding: 24px;
+    /* Add padding to the container */
+    min-height: 500px;
+    /* Ensure content is visible even if empty */
+    /* Make the layout responsive */
+    flex-wrap: wrap;
+    /* Allow wrapping on smaller screens */
+}
+
+.message-list {
+    flex: 1;
+    /* Take up available space */
+    min-width: 50%;
+    /* Ensure a minimum width */
+}
+
+.new-post-container {
+    width: 300px;
+    /* Fixed width for the new post section */
+    /* Responsive adjustments */
+}
+
+/* Styles for smaller screens */
+@media (max-width: 768px) {
+
+    /* Adjust breakpoint as needed */
+    .new-post-container {
+        display: none;
+        /* Hide the new post section */
+    }
+
+    .new-post-button-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        /* Ensure it's on top */
+    }
+
+    .ant-drawer-content {
+        padding: 0;
+    }
+}

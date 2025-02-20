@@ -27,17 +27,13 @@ const GanttChart = ({ data, onFinish, openDrawer, deleteData, viewConfig }) => {
     };
 
     const tasks = data?.map(event => ({
-
         id: event?.id || "default-id",
         name: event?.name || "Unnamed Task",
         start: event?.start_date ? new Date(event.start_date) : new Date(),
         end: event?.due_date ? new Date(event.due_date) : new Date(),
-        // start: event?.date_time_range && event?.date_time_range[0] ? new Date(event?.date_time_range[0]) : new Date(),
-        // end: event?.date_time_range && event?.date_time_range[1] ? new Date(event?.date_time_range[1]) : new Date(),
         progress: event?.progress || 0,
-        // dependencies: Array.isArray(event?.dependencies) ? event?.dependencies : [],
         type: "task",
-        isDisabled: false, // Allows dragging and resizing
+        isDisabled: false,
     }));
 
     const handleZoomChange = (mode) => {

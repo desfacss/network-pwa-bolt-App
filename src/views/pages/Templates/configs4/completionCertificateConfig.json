@@ -1,0 +1,106 @@
+{
+    "type": "completion_certificate",
+    "header": {
+        "fields": [
+            {
+                "label": "Title",
+                "type": "text",
+                "value": "COMPLETION CERTIFICATE",
+                "alignment": "center"
+            }
+        ]
+    },
+    "documentDetails": {
+        "fields": [
+            {
+                "label": "To,",
+                "type": "text",
+                "alignment": "left"
+            },
+            {
+                "label": "Date:",
+                "name": "date",
+                "type": "datePicker",
+                "alignment": "right"
+            }
+        ]
+    },
+    "partyDetails": {
+        "fields": [
+            {
+                "label": "M/S FORESIGHT",
+                "type": "text",
+                "alignment": "left"
+            },
+            {
+                "label": "M/S",
+                "name": "otherParty",
+                "type": "input",
+                "alignment": "right"
+            }
+        ]
+    },
+    "itemsTable": {
+        "columns": [
+            {
+                "title": "S.No",
+                "key": "sNo",
+                "type": "number"
+            },
+            {
+                "title": "Information",
+                "key": "information",
+                "type": "text"
+            },
+            {
+                "title": "Particulars",
+                "key": "particulars",
+                "type": "textArea"
+            }
+        ],
+        "data": [
+            {
+                "key": "1",
+                "sNo": 1,
+                "information": "Name of the site",
+                "particulars": ""
+            },
+            {
+                "key": "2",
+                "sNo": 2,
+                "information": "Site Address",
+                "particulars": ""
+            },
+            {
+                "key": "3",
+                "sNo": 3,
+                "information": "Scope of Work",
+                "particulars": ""
+            }
+        ]
+    },
+    "summary": {
+        "fields": [
+            {
+                "label": "Certificate Body",
+                "type": "text",
+                "value": "This is to certify that we have completed our scope of work as stipulated in the Work Order. We are pleased to hand over the scope with required documents, for your perusal and records. We request to accept and acknowledge the same.",
+                "alignment": "left"
+            }
+        ]
+    },
+    "footer": {
+        "fields": [
+            {
+                "label": "Authorized Signatory",
+                "type": "signature",
+                "alignment": "left"
+            },
+            {
+                "label": "Authorized Signatory",
+                "type": "signature",
+                "alignment": "right"
+            }
+        ]
+    }
+}

@@ -6,11 +6,12 @@ import Template from './Template';
 import WorkOrder from './WorkOrder';
 import CompletionCertificate from './CompletionCertificate';
 
-import GeneralDocumentComponent from './GeneralDocumentComponent';
-import invoiceConfig from './configs/invoiceConfig.json';
-import purchaseOrderConfig from './configs/purchaseOrderConfig.json';
-import workOrderConfig from './configs/workOrderConfig.json';
-import completionCertificateConfig from './configs/completionCertificateConfig.json';
+import GeneralDocumentComponent from './GeneralDocumentComponent4';
+
+import invoiceConfig from './configs4/invoiceConfig.json';
+import purchaseOrderConfig from './configs4/purchaseOrderConfig.json';
+import workOrderConfig from './configs4/workOrderConfig.json';
+import completionCertificateConfig from './configs4/completionCertificateConfig.json';
 import BillOfQuantity from './BOQ';
 import boqData from './boq_v2.json';
 

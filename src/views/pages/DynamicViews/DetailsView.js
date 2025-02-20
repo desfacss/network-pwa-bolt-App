@@ -27,7 +27,7 @@ const DetailsView = ({ entityType, viewConfig, editItem, DetailsCard, rawData })
         ];
 
         staticTabs?.forEach(tabConfig => {
-            if (viewConfig && viewConfig?.detailview && viewConfig?.detailview[tabConfig?.label?.toLowerCase()] === true) {
+            if (viewConfig && viewConfig?.detailview && viewConfig?.detailview?.staticTabs.map(tab => tab?.tab)[tabConfig?.label?.toLowerCase()] === true) {
                 tabs?.push({
                     key: tabConfig?.key,
                     label: tabConfig?.label,

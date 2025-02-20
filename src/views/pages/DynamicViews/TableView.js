@@ -247,7 +247,7 @@ const TableView = ({ data, viewConfig, fetchConfig, updateData, deleteData, open
 
     const columns = useMemo(() => {
         return viewConfig?.tableview?.fields?.map((fieldConfig) => ({
-            title: formatColumnTitle(fieldConfig?.fieldName), // Label always uses fieldName
+            title: formatColumnTitle(fieldConfig?.display_name || fieldConfig?.fieldName), // Label always uses fieldName
             dataIndex: fieldConfig?.fieldPath || fieldConfig?.fieldName, // Use fieldPath if available
             key: fieldConfig?.fieldName, // Unique key from fieldName
             sorter: (a, b) => {

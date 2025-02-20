@@ -8,6 +8,7 @@ import ChangePassword from 'views/auth-views/components/ChangePassword';
 // import FileUpload from './FileUpload';
 import { useNavigate, useParams } from 'react-router-dom';
 import ProfilePic from './ProfilePic';
+import DynamicViews from '../DynamicViews';
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -21,6 +22,7 @@ const Profile = () => {
     const [profileFields, setProfileFields] = useState([]);
     const [userData, setUserData] = useState();//session?.user
 
+    const filters = [{ column: 'user_id', value: userData?.id || session?.user?.id }]
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -222,6 +224,7 @@ const Profile = () => {
 
     return (
         <Card>
+            <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} />
             {(edit && schema) && <Modal footer={null}
                 title={schema?.data_schema?.title || ""}
                 open={edit} onOk={handleOk} onCancel={handleCancel} >

@@ -4,128 +4,45 @@ import { UserOutlined, MessageOutlined } from '@ant-design/icons';
 import './styles.css';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
+import { MobileCascader } from './MobileCascader';
 
 const { Option } = Mentions;
 
 // Sample data
-// const tagHierarchy = [
-//     {
-//         value: 'frontend',
-//         label: 'Frontend',
-//         children: [
-//             {
-//                 value: 'react',
-//                 label: 'React',
-//                 children: [
-//                     { value: 'hooks', label: 'Hooks' },
-//                     { value: 'context', label: 'Context' },
-//                 ],
-//             },
-//         ],
-//     },
-// ];
-// const tagHierarchy = [
-//     {
-//         value: 'frontend',
-//         label: 'Frontend',
-//         children: [
-//             {
-//                 value: 'react',
-//                 label: 'React',
-//                 children: [
-//                     {
-//                         value: 'hooks', label: 'Hooks',
-//                     },
-//                     {
-//                         value: 'context', label: 'Context',
-//                         children: [
-//                             { value: 'hooks', label: 'Hooks' },
-//                             { value: 'context', label: 'Context' },
-//                         ]
-//                     },
-//                 ],
-//             },
-//         ],
-//     },
-// ];
-
-// Function to fetch and build tag hierarchy
-const buildTagHierarchy = async () => {
-    const { data, error } = await supabase
-        .from('ib_categories')
-        .select('id, category_name, parent_category_id');
-
-    if (error) {
-        console.error('Error fetching categories:', error);
-        return [];
-    }
-
-    // Create a map for easy lookup of parent-child relationships
-    const categoryMap = new Map(data.map(category => [category.id, { ...category, children: [] }]));
-
-    // Build the hierarchy
-    const rootCategories = [];
-    for (let category of data) {
-        if (category.parent_category_id === null) {
-            rootCategories.push(categoryMap.get(category.id));
-        } else if (categoryMap.has(category.parent_category_id)) {
-            categoryMap.get(category.parent_category_id).children.push(categoryMap.get(category.id));
-        }
-    }
-
-    // Convert to the format expected by Cascader
-    const convertToCascaderFormat = (category) => ({
-        value: category.id,
-        label: category.category_name,
-        children: category.children.map(convertToCascaderFormat)
-    });
-
-    return rootCategories.map(convertToCascaderFormat);
-};
+const tagHierarchy = [
+    {
+        value: 'frontend',
+        label: 'Frontend',
+        children: [
+            {
+                value: 'react',
+                label: 'React',
+                children: [
+                    { value: 'hooks', label: 'Hooks' },
+                    { value: 'context', label: 'Context' },
+                ],
+            },
+        ],
+    },
+];
 
 const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
+    const [mobileCascaderVisible, setMobileCascaderVisible] = useState(false);
+    const isMobile = window.innerWidth < 768
     const [mentionUsers] = useState([ /* ... your mentionUsers data */]);
 
-    const [tagHierarchy, setTagHierarchy] = useState([]);
-    const [idToNameMap, setIdToNameMap] = useState(new Map());
-
-    useEffect(() => {
-        const loadHierarchy = async () => {
-            const hierarchy = await buildTagHierarchy();
-            setTagHierarchy(hierarchy);
-            // Building a map of ID to name for easy lookup
-            const map = new Map();
-            function buildMap(categories) {
-                categories.forEach(cat => {
-                    map.set(cat.value, cat.label);
-                    if (cat.children) buildMap(cat.children);
-                });
-            }
-            buildMap(hierarchy);
-            setIdToNameMap(map);
-        };
-        loadHierarchy();
-    }, []);
-
-    // useEffect(() => {
-    //     const loadHierarchy = async () => {
-    //         const hierarchy = await buildTagHierarchy();
-    //         setTagHierarchy(hierarchy);
-    //     };
-    //     loadHierarchy();
-    // }, []);
-
-    // const handleCascaderChange = (value) => {
-    //     if (value && value.length > 0) {
-    //         setTags(value);
-    //     } else {
-    //         setTags([]);
-    //     }
-    // };
     const handleCascaderChange = (value) => {
         if (value && value.length > 0) {
-            // Convert ID array to names array for display
-            setTags(value.map(id => ({ id, name: idToNameMap.get(id) })));
+            setTags(value);
+        } else {
+            setTags([]);
+        }
+    };
+
+    const handleTagSelect = (value) => {
+        // setTags(prev => [...prev, value.join('/')]);
+        if (value && value.length > 0) {
+            setTags(value);
         } else {
             setTags([]);
         }
@@ -152,14 +69,35 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
 
             <Form.Item label="Add Tags">
                 <Flex gap={8}>
-                    <Cascader
+                    {/* <Cascader
                         options={tagHierarchy}
                         onChange={handleCascaderChange}
                         placeholder="Hierarchical tags"
                         style={{ width: 200 }}
                         showSearch
-                    />
-                    {/* <Input
+                    /> */}
+                    {isMobile ? (
+                        <>
+                            <Button onClick={() => setMobileCascaderVisible(true)}>
+                                Select Tags
+                            </Button>
+                            <MobileCascader
+                                visible={mobileCascaderVisible}
+                                onClose={() => setMobileCascaderVisible(false)}
+                                options={tagHierarchy}
+                                onSelect={handleTagSelect}
+                            />
+                        </>
+                    ) : (
+                        <Cascader
+                            options={tagHierarchy}
+                            onChange={value => setTags([...tags, value.join('/')])}
+                            placeholder="Hierarchical tags"
+                            style={{ width: 200 }}
+                            showSearch
+                        />
+                    )}
+                    <Input
                         placeholder="Free-form tags"
                         onPressEnter={(e) => {
                             const target = e.target;
@@ -169,12 +107,12 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
                                 target.value = '';
                             }
                         }}
-                    /> */}
+                    />
                 </Flex>
             </Form.Item>
 
             <div style={{ marginTop: 16 }}>
-                {/* {tags.map((tag) => (
+                {tags.map((tag) => (
                     <Tag
                         key={tag}
                         closable
@@ -182,16 +120,6 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
                         style={{ marginBottom: 8 }}
                     >
                         {tag}
-                    </Tag>
-                ))} */}
-                {tags.map((tag) => (
-                    <Tag
-                        key={tag.id}
-                        closable
-                        onClose={() => setTags(tags.filter((t) => t.id !== tag.id))}
-                        style={{ marginBottom: 8 }}
-                    >
-                        {tag.name}
                     </Tag>
                 ))}
             </div>
@@ -215,8 +143,6 @@ const ForumComment = ({ channel_id }) => {
     ]);
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const { session } = useSelector((state) => state.auth);
-    const [idToNameMap, setIdToNameMap] = useState(new Map());
-    const [searchText, setSearchText] = useState("");
 
     useEffect(() => {
         // Fetch messages on component mount or when channel_id changes
@@ -226,24 +152,12 @@ const ForumComment = ({ channel_id }) => {
                     .from('messages')
                     .select('*, user:users(user_name)')
                     .eq('channel_id', channel_id)
-                    .order('inserted_at', { ascending: false });
+                    .order('inserted_at', { ascending: false }); // Order by time
 
                 if (error) {
                     console.error("Error fetching messages:", error);
                 } else {
-                    // If we haven't loaded the hierarchy yet, do it now
-                    if (idToNameMap.size === 0) {
-                        const hierarchy = await buildTagHierarchy();
-                        const map = new Map();
-                        function buildMap(categories) {
-                            categories.forEach(cat => {
-                                map.set(cat.value, cat.label);
-                                if (cat.children) buildMap(cat.children);
-                            });
-                        }
-                        buildMap(hierarchy);
-                        setIdToNameMap(map);
-                    }
+                    console.log("ui", data);
                     setMessages(data || []);
                 }
             }
@@ -255,16 +169,16 @@ const ForumComment = ({ channel_id }) => {
     const handleSubmit = async (values) => {
         if (!session?.user?.id) return;
 
-        const firstTag = tags?.length > 0 ? tags[0] : null;
-        const otherTags = tags?.slice(1);
+        const firstTag = tags.length > 0 ? tags[0] : null;
+        const otherTags = tags.slice(1);
 
         const newMessage = {
             message: values.message,
             user_id: session?.user?.id,
             channel_id: channel_id,
             details: {
-                tags: otherTags?.map(tag => tag?.id),
-                category_id: firstTag?.id,
+                tags: otherTags,
+                category_id: firstTag,
             },
         };
 
@@ -308,55 +222,20 @@ const ForumComment = ({ channel_id }) => {
         }
     };
 
-    const [filteredMessages, setFilteredMessages] = useState([]);
-
-    useEffect(() => {
-        const filterMessages = (text) => {
-            const lowerCaseSearchText = text.toLowerCase();
-            return messages.filter(message => {
-                const userName = message.user?.user_name?.toLowerCase() || '';
-                const messageContent = message.message?.toLowerCase() || '';
-                const tags = message.details?.tags?.map(tag => idToNameMap.get(tag) || tag).join(' ').toLowerCase() || '';
-                const category = idToNameMap.get(message.details?.category_id)?.toLowerCase() || message.details?.category_id?.toLowerCase() || '';
-                return userName.includes(lowerCaseSearchText) ||
-                    messageContent.includes(lowerCaseSearchText) ||
-                    tags.includes(lowerCaseSearchText) ||
-                    category.includes(lowerCaseSearchText);
-            });
-        };
-
-        setFilteredMessages(filterMessages(searchText));
-    }, [searchText, messages, idToNameMap]);
-
     return (
         <div className="forum-container"> {/* Main container */}
             <div className="message-list">
-                <div style={{ marginBottom: 16 }}>
-                    <Input
-                        placeholder="Search by user name, message or tag"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                    />
-                </div>
-                {filteredMessages?.length > 0 ? <List
-                    dataSource={filteredMessages}
+                {messages?.length > 0 ? <List
+                    dataSource={messages}
                     renderItem={(item) => (
                         <Card
                             style={{ marginBottom: 16 }}
-                            // actions={[
-                            //     <div key="tags">
-                            //         {item?.details?.tags?.map((tag) => (
-                            //             <Tag key={tag}>{tag}</Tag>
-                            //         ))}
-                            //         {item?.details?.category_id && <Tag color="blue">{item?.details?.category_id}</Tag>}
-                            //     </div>,
-                            // ]}
                             actions={[
                                 <div key="tags">
                                     {item?.details?.tags?.map((tag) => (
-                                        <Tag key={tag}>{idToNameMap.get(tag) || tag}</Tag>
+                                        <Tag key={tag}>{tag}</Tag>
                                     ))}
-                                    {item?.details?.category_id && <Tag color="blue">{idToNameMap.get(item?.details?.category_id) || item?.details?.category_id}</Tag>}
+                                    {item?.details?.category_id && <Tag color="blue">{item?.details?.category_id}</Tag>}
                                 </div>,
                             ]}
                         >

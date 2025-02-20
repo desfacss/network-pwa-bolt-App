@@ -152,7 +152,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         }}
       >
         {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-        {(value && fieldConfig?.label) && `${fieldConfig?.fieldName}: ` || null}
+        {(value && fieldConfig?.label) && `${fieldConfig?.display_name || fieldConfig?.fieldName}: ` || null}
         {value || null}
       </Text>
     );
