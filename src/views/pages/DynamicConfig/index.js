@@ -12,6 +12,7 @@ import CrudTableConfig from './Forms';
 import MasterObject from './MasterObject';
 import QueryBuilderComponent from './QueryBuilder';
 import FormBuilder from '../DynamicFormBuilder';
+import ConfigEditor from './Detailview';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -189,6 +190,17 @@ const YViewConfigManager = () => {
         />
       );
     }
+    if (viewName === 'detailview') {
+      return (
+        <ConfigEditor
+          // configData={formData}
+          // availableColumns={data || availableColumns} // Pass dynamically fetched columns
+          onSave={(updatedData) => handleSave(viewName, updatedData)}
+          // masterObject={selectedConfig?.master_object}
+          detailView={selectedConfig?.detailview} entityType={selectedConfig?.entity_type}
+        />
+      );
+    }
 
     return (
       <Form
@@ -337,6 +349,9 @@ const YViewConfigManager = () => {
         </TabPane> */}
         {selectedConfig && <TabPane tab="Table View" key="tableview">
           {renderTabContent('tableview')}
+        </TabPane>}
+        {selectedConfig && <TabPane tab="Config Editor" key="config_editor">
+          {renderTabContent('detailview')}
         </TabPane>}
         {/* <TabPane tab="Kanban View" key="kanbanview">
           {renderTabContent('kanbanview')}

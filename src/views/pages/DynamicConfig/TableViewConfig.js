@@ -39,6 +39,16 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
     const handleFieldChange = (index, key, value) => {
         const updatedFields = [...fields];
         updatedFields[index][key] = value;
+
+        // Find the corresponding object in masterObject to get the display_name
+        const selectedColumn = masterObject.find(col => col.key === value);
+        if (selectedColumn) {
+            updatedFields[index].display_name = selectedColumn.display_name;
+        } else {
+            updatedFields[index].display_name = value; // If not found, reset to empty string
+        }
+
+        // Keep fieldPath in sync with fieldName
         updatedFields[index]['fieldPath'] = value;
         setFields(updatedFields);
     };
@@ -95,40 +105,16 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
             dataIndex: 'display_name',
             key: 'display_name',
             render: (text, record, index) => (
-                // <Select
-                //     value={record.fieldName || ''}  // Ensure that the value passed is a string
-                //     onChange={(value) => handleFieldChange(index, 'fieldName', value)}
-                //     style={{ width: '100%' }}
-                // >
-                //     {transformedColumns.map((col) => (
-                //         <Option key={col} value={col}>
-                //             {col}
-                //         </Option>
-                //     ))}
-                // </Select>
-                <Input placeholder="Display Name" defaultValue={record.display_name || ''}
-                    onChange={(value) => handleFieldChange(index, 'display_name', value)}
+                // <Input placeholder="Display Name" defaultValue={record.display_name || ''}
+                //     onChange={(value) => handleFieldChange(index, 'display_name', value)}
+                // />
+                <Input
+                    value={record.display_name || ''}
+                    onChange={(e) => handleFieldChange(index, 'display_name', e.target.value)}
+                    placeholder="Display Name"
                 />
             ),
         },
-        // {
-        //     title: 'Display Name',
-        //     dataIndex: 'displayName',
-        //     key: 'displayName',
-        //     render: (text, record, index) => (
-        //         <Select
-        //             value={record.displayName || record.fieldName || ''}  // Ensure that the value passed is a string
-        //             onChange={(value) => handleFieldChange(index, 'displayName', value)}
-        //             style={{ width: '100%' }}
-        //         >
-        //             {transformedColumns.map((col) => (
-        //                 <Option key={col} value={col}>
-        //                     {col}
-        //                 </Option>
-        //             ))}
-        //         </Select>
-        //     ),
-        // },
         {
             title: 'Actions',
             key: 'actions',
