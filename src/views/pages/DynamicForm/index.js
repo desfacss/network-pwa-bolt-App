@@ -1,7 +1,7 @@
 import Form from "@rjsf/antd";
 // import { RJSFSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-import { Spin } from "antd";
+import { Button, Space, Spin, Typography } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -15,7 +15,9 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     const [schema, setSchema] = useState()
     const [userId, setUserId] = useState();
     const [organization, setOrganization] = useState();
-
+    const [currentPage, setCurrentPage] = useState(0); // Added for multi-page
+    const [multiPageFormData, setMultiPageFormData] = useState({}); // Added for multi-page
+    const [submitClicked, setSubmitClicked] = useState(false);
     const { session } = useSelector((state) => state.auth);
 
     const getOrganization = async () => {
@@ -347,6 +349,7 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
 
     const onSubmit = async (e) => {
+        setSubmitClicked(true);
         // console.log("Payload", schema?.db_schema?.table, schema?.db_schema?.column, e?.formData)
         onFinish(e?.formData)
         // if (schema?.db_schema?.multiple_rows === true) {
@@ -389,31 +392,98 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
 
     }
     // console.log("Schemas", schemas, formData, updateId)
+    const pageFields = schema?.ui_schema?.["pageFields"];
+    // Multi-page logic (only used if pageFields is provided)
+    const totalPages = pageFields ? pageFields.length : 1;
 
-    let _RJSFSchema = schema && JSON.parse(JSON.stringify(schema?.data_schema));
+    const getPageSchema = () => {
+        if (!pageFields || !schema) return schema?.data_schema;
+
+        const currentFields = pageFields[currentPage];
+        const fullSchema = JSON.parse(JSON.stringify(schema?.data_schema));
+        // Only include required fields that are on the current page unless submitting
+        if (!submitClicked) {
+            fullSchema.required = fullSchema.required.filter((field) =>
+                currentFields.includes(field)
+            );
+        }
+        return {
+            ...fullSchema,
+            properties: Object.fromEntries(
+                currentFields.map((key) => [key, fullSchema.properties[key]])
+            ),
+        };
+    };
+
+    const handleNext = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePrevious = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const handleChange = ({ formData }) => {
+        setMultiPageFormData((prev) => ({ ...prev, ...formData }));
+    };
+
+
+    const customButtons = pageFields ? (
+        <Space
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 16,
+                width: "100%",
+            }}
+        >
+            <Button
+                onClick={handlePrevious}
+                disabled={currentPage === 0}
+                style={{ visibility: currentPage > 0 ? "visible" : "hidden" }}
+            >
+                Previous
+            </Button>
+            <Typography.Text>
+                Page {currentPage + 1} of {totalPages}
+            </Typography.Text>
+            <Button
+                type={currentPage === totalPages - 1 ? "primary" : "default"}
+                htmlType={currentPage === totalPages - 1 ? "submit" : "button"}
+                onClick={currentPage < totalPages - 1 ? handleNext : undefined}
+            >
+                {currentPage === totalPages - 1 ? "Submit" : "Next"}
+            </Button>
+        </Space>
+    ) : null;
+
+    let _RJSFSchema = schema && (pageFields ? getPageSchema() : schema?.data_schema);
     const log = (type) => console.log.bind(console, type);
 
     return (
         <>
-            {schema ? <Form
-                schema={_RJSFSchema}
-                widgets={Widgets}
-                validator={validator}
-                templates={{ ObjectFieldTemplate: ObjectFieldTemplate, }}
-                uiSchema={schema?.ui_schema
-                    //     {
-                    //     "ui:grid": [
-                    //         { firstName: 8, lastName: 4, tName: 8, },
-                    //         { age: 6, bio: 18 },
-                    //         { password: 12, telephone: 12 }
-                    //     ],
-                    // }
-                }
-                formData={formData && formData}
-                onSubmit={onSubmit}
-                onError={log('errors')}
-            // onChange={log('changed')}
-            /> : <Spin spinning={true}></Spin>}
+            {schema ? (
+                <Form
+                    schema={_RJSFSchema}
+                    widgets={Widgets}
+                    validator={validator}
+                    templates={{ ObjectFieldTemplate: ObjectFieldTemplate }}
+                    uiSchema={schema?.ui_schema}
+                    formData={pageFields ? multiPageFormData : formData}
+                    onSubmit={onSubmit}
+                    onChange={pageFields ? handleChange : undefined}
+                    onError={log("errors")}
+                >
+                    {customButtons}
+                </Form>
+            ) : (
+                <Spin spinning={true}></Spin>
+            )}
         </>
     );
 };

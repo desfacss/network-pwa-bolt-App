@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message } from 'antd';
-import { UserOutlined, MessageOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message, Empty } from 'antd';
+import { UserOutlined, MessageOutlined, DeleteOutlined, RocketOutlined } from '@ant-design/icons';
 import './styles.css';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
@@ -236,13 +236,14 @@ const ForumComment = ({ channel_id }) => {
             if (channel_id) {
                 const { data, error } = await supabase
                     .from('messages')
-                    .select('*, user:users(user_name)')
+                    .select('*, user:users(user_name),channel:channels(slug)')
                     .eq('channel_id', channel_id)
                     .order('inserted_at', { ascending: false });
 
                 if (error) {
                     console.error("Error fetching messages:", error);
                 } else {
+                    console.log("gh", data);
                     // If we haven't loaded the hierarchy yet, do it now
                     if (idToNameMap.size === 0) {
                         const hierarchy = await buildTagHierarchy();
@@ -426,7 +427,30 @@ const ForumComment = ({ channel_id }) => {
                             </Card>
                         )}
                     />
-                    : <>No Messages</>}
+                    :
+                    <>
+                        {/* <>Start posting your message for everyone in the group to interact!</> */}
+                        <Empty
+                            image={<RocketOutlined style={{ fontSize: '48px', color: '#40a9ff' }} />}
+                            imageStyle={{
+                                height: 70,
+                            }}
+                            description={
+                                <span>
+                                    <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Welcome to the {messages[0]?.channel?.slug} Group!</span><br />
+                                    This space is ready for your team's conversations and updates.  Start by sharing a message or even just a quick "hello!".  Let's get this rolling!
+                                </span>
+                            }
+                        >
+                            {/* <div style={{ marginTop: 16 }}>
+                                <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                                    Tip: Try typing a message below and pressing Enter to get started.
+                                </span>
+                            </div> */}
+                        </Empty>
+                    </>
+
+                }
             </div>
             <div className="new-post-container">
                 <Card title={<><MessageOutlined /> New Post</>} style={{ marginTop: 24 }}>

@@ -198,7 +198,7 @@ export const OpenRegisterForm = (props) => {
             </Col>
           </Row> : */}
         <>
-          <h2 className="mb-4">User Registration</h2>
+          {/* <h2 className="mb-4">User Registration</h2> */}
           <p>
             Alredy Registered ? {" "}
             <Link to={`${APP_PREFIX_PATH}/login`}>Login here  </Link>

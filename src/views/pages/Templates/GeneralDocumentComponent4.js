@@ -7,21 +7,46 @@ import { useSelector } from 'react-redux';
 const { TextArea } = Input;
 const { Title } = Typography;
 
-const GeneralDocumentComponent = ({ config }) => {
+const GeneralDocumentComponent = ({ formName }) => {
   const [form] = Form.useForm();
   const { session } = useSelector((state) => state.auth);
   const [tableData, setTableData] = useState([]);
+  const [config, setConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initializeTableData();
-  }, []);
+    fetchFormConfig();
+  }, [formName]); // Fetch config when formName changes
 
-  const initializeTableData = () => {
-    const tableSection = Object.keys(config).find(key => config[key].columns);
+  const fetchFormConfig = async () => {
+    setLoading(true); // Set loading to true while fetching
+    try {
+      const { data, error } = await supabase
+        .from('forms')
+        .select('data_schema')
+        .eq('name', formName)
+        .single(); // Use single() to get a single record
+
+      if (error) {
+        console.error('Error fetching form config:', formName, error);
+        message.error("Error loading form configuration.");
+      } else if (data) {
+        setConfig(data.data_schema); // Set the config from data_schema
+        initializeTableData(data.data_schema); // Initialize table after config is set
+      } else {
+        message.error("Form configuration not found.");
+      }
+    } finally {
+      setLoading(false); // Set loading to false after fetch, regardless of success/failure
+    }
+  };
+
+  const initializeTableData = (loadedConfig) => {
+    const tableSection = Object.keys(loadedConfig || {}).find(key => loadedConfig[key].columns);
     if (tableSection) {
-      const initialData = config[tableSection].data || config[tableSection].rows || [];
+      const initialData = loadedConfig[tableSection].data || loadedConfig[tableSection].rows || [];
       setTableData(initialData);
-      updateSummary(initialData);
+      updateSummary(initialData, loadedConfig); // Pass loadedConfig to updateSummary
     }
   };
 
@@ -148,10 +173,10 @@ const GeneralDocumentComponent = ({ config }) => {
   //   }
   // }, [tableData]); // Dependency on tableData to recalculate when data changes
 
-  const updateSummary = (data) => {
-    const summarySection = config.summary;
-    const calculationConfig = config.summaryCalculation || {};
-    const summaryFieldsMapping = config.summaryFieldsMapping || {};
+  const updateSummary = (data, loadedConfig) => { // Accept loadedConfig as a parameter
+    const summarySection = loadedConfig?.summary; // Use loadedConfig here
+    const calculationConfig = loadedConfig?.summaryCalculation || {}; // And here
+    const summaryFieldsMapping = loadedConfig?.summaryFieldsMapping || {}; // And here
 
     if (summarySection && summarySection.fields) {
       const newValues = {};
@@ -243,28 +268,38 @@ const GeneralDocumentComponent = ({ config }) => {
 
   // Render function for the form and table
   const renderForm = () => {
+    const sectionOrder = ['header', 'itemsTable', 'summary', 'termsAndConditions', 'footer']; // Define the desired order
+    if (loading) {
+      return <div>Loading form configuration...</div>; // Display loading message
+    }
+
+    if (!config) {
+      return <div>Form configuration not found.</div>; // Display not found message if config is still null after loading
+    }
     return (
       <div ref={reportDataRef}>
-        {Object.keys(config).map((sectionKey, index) => {
-          const section = config[sectionKey];
-          if (section.fields) {
-            return (
-              <div key={index}>
-                <Title level={4}>{sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Title>
-                {section.fields.map((field, fieldIndex) => (
-                  <Form.Item key={fieldIndex} name={field.name || field.label}>
-                    {renderField(field)}
-                  </Form.Item>
-                ))}
-              </div>
-            );
-          } else if (section.columns) {
-            return (
-              <div key={index}>
-                <Title level={4}>Items Table</Title>
-                {renderTable(section)}
-              </div>
-            );
+        {sectionOrder?.map((sectionKey) => { // Iterate through the ordered array
+          if (config[sectionKey]) {
+            const section = config[sectionKey];
+            if (section.fields) {
+              return (
+                <div key={sectionKey}>
+                  <Title level={4}>{sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Title>
+                  {section.fields.map((field, fieldIndex) => (
+                    <Form.Item key={fieldIndex} name={field.name || field.label}>
+                      {renderField(field)}
+                    </Form.Item>
+                  ))}
+                </div>
+              );
+            } else if (section.columns) {
+              return (
+                <div key={sectionKey}>
+                  <Title level={4}>{sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Title>
+                  {renderTable(section)}
+                </div>
+              );
+            }
           }
           return null;
         })}
@@ -277,8 +312,8 @@ const GeneralDocumentComponent = ({ config }) => {
       <Form form={form} layout="vertical">
         {renderForm()}
         <Form.Item style={{ textAlign: 'right', marginTop: '20px' }}>
-          <Button type="primary" onClick={saveToSupabase}>Save Document</Button>
-          <Button onClick={handlePrint} style={{ marginLeft: '10px' }}>Download PDF</Button>
+          <Button type="primary" onClick={saveToSupabase} disabled={loading}>Save Document</Button>
+          <Button onClick={handlePrint} style={{ marginLeft: '10px' }} disabled={loading}>Download PDF</Button>
         </Form.Item>
       </Form>
     </div>

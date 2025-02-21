@@ -242,13 +242,13 @@ const IntroScreen = () => {
   const generateAbstractShapes = (text) => {
     const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const shapes = [];
-  
+
     for (let i = 0; i < 3; i++) { // Generate 3 shapes
       const size = 80 + ((hash + i) % 40); // Vary size slightly
       const rotate = ((hash * i) % 360) + 'deg'; // Different rotation for each shape
       const lightness = 80 - (i * 10); // Get lighter for each subsequent shape
       const bgColor = `hsl(${(hash + i * 30) % 360}, 70%, ${lightness}%)`; // Vary color slightly
-  
+
       shapes.push({
         width: `${size}px`,
         height: `${size}px`,
@@ -262,7 +262,7 @@ const IntroScreen = () => {
         zIndex: 100 - i // Lower z-index for shapes behind
       });
     }
-  
+
     return shapes;
   };
 
@@ -287,10 +287,10 @@ const IntroScreen = () => {
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         padding: '20px',
         color: '#003764',
         height: `${headerHeight}px`
@@ -311,26 +311,26 @@ const IntroScreen = () => {
             const shapeStyles = generateAbstractShapes(slide.title + slide.content.join(''));
             return (
               <Swiper.Item key={index}>
-                <div style={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'flex-start', 
+                <div style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
                   alignItems: 'flex-start',
-                  padding: '20px 20px 40px', 
-                  background: '#f8f9fa', 
+                  padding: '20px 20px 40px',
+                  background: '#f8f9fa',
                   borderRadius: '10px',
                   position: 'relative',
                   overflowY: 'auto'
                 }}>
                   {shapeStyles.map((style, idx) => <div key={idx} style={style}></div>)}
-                  <h2 style={{ 
-                    marginBottom: '20px', 
-                    textAlign: 'left', 
+                  <h2 style={{
+                    marginBottom: '20px',
+                    textAlign: 'left',
                     width: '100%'
                   }}>{slide.title}</h2>
-                  <ul style={{ 
-                    textAlign: 'left', 
+                  <ul style={{
+                    textAlign: 'left',
                     paddingLeft: '20px',
                     listStyleType: 'none',
                     padding: 0,
@@ -338,8 +338,8 @@ const IntroScreen = () => {
                     width: '100%'
                   }}>
                     {slide.content.map((bullet, bulletIndex) => (
-                      <li key={bulletIndex} style={{ 
-                        marginBottom: '15px', 
+                      <li key={bulletIndex} style={{
+                        marginBottom: '15px',
                         paddingLeft: '10px'
                       }}>
                         <span style={{ marginLeft: '-10px', fontWeight: 'bold' }}>•</span> {bullet}

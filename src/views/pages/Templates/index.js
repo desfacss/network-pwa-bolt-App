@@ -27,19 +27,19 @@ const App = () => {
     setVisibleDrawer(null);
   };
 
+  const formNameMap = {
+    'invoice': 'Invoice',
+    'purchase_order': 'Purchase Order',
+    'work_order': 'Work Order',
+    'completion_certificate': 'Completion Certificate',
+    // Add more mappings as needed
+  };
+
   const renderComponent = () => {
-    switch (visibleDrawer) {
-      case 'invoice':
-        return <GeneralDocumentComponent config={invoiceConfig} />;
-      case 'purchaseOrder':
-        return <GeneralDocumentComponent config={purchaseOrderConfig} />;
-      case 'workOrder':
-        return <GeneralDocumentComponent config={workOrderConfig} />;
-      case 'completionCertificate':
-        return <GeneralDocumentComponent config={completionCertificateConfig} />;
-      default:
-        return null;
+    if (visibleDrawer) {
+      return <GeneralDocumentComponent formName={visibleDrawer} />;
     }
+    return null;
   };
 
   return (
@@ -64,33 +64,16 @@ const App = () => {
       <GeneralDocumentComponent config={completionCertificateConfig} /> */}
 
       <div style={{ marginBottom: 16 }}>
-        <Button
-          type="primary"
-          onClick={() => showDrawer('invoice')}
-          style={{ marginRight: 8 }}
-        >
-          Invoice
-        </Button>
-        <Button
-          type="primary"
-          onClick={() => showDrawer('purchaseOrder')}
-          style={{ marginRight: 8 }}
-        >
-          Purchase Order
-        </Button>
-        <Button
-          type="primary"
-          onClick={() => showDrawer('workOrder')}
-          style={{ marginRight: 8 }}
-        >
-          Work Order
-        </Button>
-        <Button
-          type="primary"
-          onClick={() => showDrawer('completionCertificate')}
-        >
-          Completion Certificate
-        </Button>
+        {Object.keys(formNameMap).map((formName) => ( // Dynamically render buttons
+          <Button
+            key={formName}
+            type="primary"
+            onClick={() => showDrawer(formName)}
+            style={{ marginRight: 8 }}
+          >
+            {formNameMap[formName]} {/* Use the mapping for display name */}
+          </Button>
+        ))}
       </div>
 
       <Drawer
