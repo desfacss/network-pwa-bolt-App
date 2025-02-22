@@ -213,11 +213,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/process`,
             component: React.lazy(() => import('views/pages/ProcessEditor')),
         },
-        {
-            key: 'boq',
-            path: `${APP_PREFIX_PATH}/boq`,
-            component: React.lazy(() => import('views/pages/BOQ')),
-        },
+        // {
+        //     key: 'boq',
+        //     path: `${APP_PREFIX_PATH}/boq`,
+        //     component: React.lazy(() => import('views/pages/BOQ')),
+        // },
         {
             key: 'template',
             path: `${APP_PREFIX_PATH}/template`,
