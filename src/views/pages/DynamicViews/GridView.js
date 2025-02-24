@@ -93,9 +93,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     if (!fieldConfig) return null;
     // if (!fieldConfig) return '';
 
-    let value = fieldConfig?.fieldPath
-      ? getNestedValue(record, fieldConfig?.fieldPath)
-      : record[fieldConfig?.fieldName];
+    // let value = fieldConfig?.fieldPath
+    //   ? getNestedValue(record, fieldConfig?.fieldPath)
+    //   : record[fieldConfig?.fieldName];
+    let value = getNestedValue(record, fieldConfig?.fieldPath)
 
     // Handle comma-separated display for subfields
     if (fieldConfig?.display === "comma_separated" && fieldConfig.subFields) {
@@ -120,7 +121,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     const value = getFieldValue(record, fieldConfig);
     const { style = {} } = fieldConfig;
     const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
-
+    // Return null if value is null, undefined, or empty string to prevent empty line
+    if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+      return null;
+    }
     if (style?.render === 'tag' && Array.isArray(value)) {
       return (
         <Space wrap>
@@ -141,20 +145,23 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       return <Badge status={style.color?.[value?.toLowerCase()] || 'default'} text={value} />;
     }
 
-    const content = (
-      <Text
-        style={{
-          ...style,
-          display: 'block',
-          whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
-          overflow: style?.ellipsis ? 'hidden' : 'visible',
-          textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
-        }}
-      >
-        {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-        {(value && fieldConfig?.label) && `${fieldConfig?.display_name || fieldConfig?.fieldName}: ` || null}
-        {value || null}
-      </Text>
+    const content = value && (
+      <>
+        {value && <Text
+          style={{
+            ...style,
+            display: 'block',
+            whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
+            overflow: style?.ellipsis ? 'hidden' : 'visible',
+            textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
+          }}
+        >
+          {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
+          {/* {(value && fieldConfig?.label) && `${fieldConfig?.fieldName}: ` || null} */}
+          {(fieldConfig?.fieldName) && `${fieldConfig?.fieldName}: `}
+          {value}
+        </Text>}
+      </>
     );
 
     //   //****
@@ -396,21 +403,22 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                   )
                 }
               >
+                {/* <div key={fieldConfig?.fieldPath}>
+                      {renderField(record, fieldConfig)}
+                    </div> */}
                 <Space direction="vertical" style={{ width: '100%' }}>
                   {bodyFields?.map((fieldConfig) => (
-                    <div key={fieldConfig?.fieldName}>
-                      {renderField(record, fieldConfig)}
-                    </div>
-                  ))}
+                    renderField(record, fieldConfig)
+                  )).filter(Boolean)}
                 </Space>
+                {/* <div key={fieldConfig?.fieldPath}>
+                        </div> */}
                 {footerFields?.length > 0 && (
                   <div style={{ marginTop: '10px' }}>
                     <Space wrap>
                       {footerFields?.map(fieldConfig => (
-                        <div key={fieldConfig?.fieldName}>
-                          {renderField(record, fieldConfig)}
-                        </div>
-                      ))}
+                        renderField(record, fieldConfig)
+                      )).filter(Boolean)}
                     </Space>
                   </div>
                 )}

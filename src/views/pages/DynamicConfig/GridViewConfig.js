@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Select, Table, Space, Checkbox, Row, Col, Input } from 'antd';
-import { PlusOutlined, UpOutlined, DownOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Select, Table, Space, Checkbox, Row, Col, Input, Modal, Form } from 'antd';
+import { PlusOutlined, UpOutlined, DownOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -17,35 +17,31 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
         size: 'small',
         spacing: 16,
         maxWidth: '100%',
-        cardStyle: {
-            _boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-            _borderRadius: '20px'
-        },
+        cardStyle: { _boxShadow: '0 1px 4px rgba(0,0,0,0.1)', _borderRadius: '20px' },
         cardsPerRow: 1
     });
     const [viewLink, setViewLink] = useState(configData?.viewLink || '/gridview/');
     const [viewName, setViewName] = useState(configData?.viewName || 'GridView');
+    const [styleModalVisible, setStyleModalVisible] = useState(false);
+    const [subFieldsModalVisible, setSubFieldsModalVisible] = useState(false);
+    const [currentFieldIndex, setCurrentFieldIndex] = useState(null);
+    const [form] = Form.useForm();
 
     useEffect(() => {
         if (configData) {
-            setFields(configData.fields || []);
-            setActions({
-                row: configData.actions?.row || [],
-                bulk: configData.actions?.bulk || [],
-            });
+            // Ensure every field has a subFields array
+            const initializedFields = (configData.fields || []).map(field => ({
+                ...field,
+                subFields: field.subFields || [],
+                style: field.style || {},
+                label: field.label !== undefined ? field.label : ''
+            }));
+            setFields(initializedFields);
+            setActions({ row: configData.actions?.row || [], bulk: configData.actions?.bulk || [] });
             setGroupBy(configData.groupBy || []);
             setExportOptions(configData.exportOptions || []);
             setShowFeatures(configData.showFeatures || []);
-            setLayout(configData.layout || {
-                size: 'small',
-                spacing: 16,
-                maxWidth: '100%',
-                cardStyle: {
-                    _boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-                    _borderRadius: '20px'
-                },
-                cardsPerRow: 1
-            });
+            setLayout(configData.layout || { size: 'small', spacing: 16, maxWidth: '100%', cardStyle: { _boxShadow: '0 1px 4px rgba(0,0,0,0.1)', _borderRadius: '20px' }, cardsPerRow: 1 });
             setViewLink(configData.viewLink || '/gridview/');
             setViewName(configData.viewName || 'GridView');
         }
@@ -54,34 +50,24 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     const transformedColumns = masterObject?.map(col => col.key);
 
     const handleAddField = () => {
-        setFields([...fields, {
-            order: fields.length + 1,
-            fieldName: '',
-            fieldPath: '',
-            icon: '',
-            _link: '',
-            cardSection: '',
-            display_name: ''
-        }]);
+        setFields([...fields, { order: fields.length + 1, fieldName: '', fieldPath: '', icon: '', _link: '', cardSection: '', style: {}, subFields: [] }]);
     };
 
     const handleFieldChange = (index, key, value) => {
         const updatedFields = [...fields];
         updatedFields[index][key] = value;
-
         if (key === 'fieldPath') {
             const selectedColumn = masterObject?.find(col => col.key === value);
             if (selectedColumn) {
                 updatedFields[index].fieldName = selectedColumn.display_name;
-                updatedFields[index].display_name = selectedColumn.display_name;
+                // updatedFields[index].display_name = selectedColumn.display_name;
             }
         }
         setFields(updatedFields);
     };
 
     const handleRemoveField = (index) => {
-        const updatedFields = fields.filter((_, i) => i !== index);
-        setFields(updatedFields);
+        setFields(fields.filter((_, i) => i !== index));
     };
 
     const moveField = (index, direction) => {
@@ -92,17 +78,102 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     };
 
     const handleSaveConfig = () => {
-        onSave({
-            fields,
-            actions,
-            groupBy,
-            exportOptions,
-            showFeatures,
-            layout,
-            viewLink,
-            viewName
-        });
+        onSave({ fields, actions, groupBy, exportOptions, showFeatures, layout, viewLink, viewName });
     };
+
+    const openStyleModal = (index) => {
+        setCurrentFieldIndex(index);
+        form.setFieldsValue(fields[index].style || {});
+        setStyleModalVisible(true);
+    };
+
+    const openSubFieldsModal = (index) => {
+        setCurrentFieldIndex(index);
+        setSubFieldsModalVisible(true);
+    };
+
+    const handleStyleOk = () => {
+        const styleValues = form.getFieldsValue();
+        const updatedFields = [...fields];
+        updatedFields[currentFieldIndex].style = styleValues;
+        setFields(updatedFields);
+        setStyleModalVisible(false);
+    };
+
+    const handleAddSubField = () => {
+        const updatedFields = [...fields];
+        updatedFields[currentFieldIndex].subFields.push({ fieldName: '', fieldPath: '' });
+        setFields(updatedFields);
+    };
+
+    const handleSubFieldChange = (subIndex, key, value) => {
+        const updatedFields = [...fields];
+        updatedFields[currentFieldIndex].subFields[subIndex][key] = value;
+        setFields(updatedFields);
+    };
+
+    const handleRemoveSubField = (subIndex) => {
+        const updatedFields = [...fields];
+        updatedFields[currentFieldIndex].subFields = updatedFields[currentFieldIndex].subFields.filter((_, i) => i !== subIndex);
+        setFields(updatedFields);
+    };
+
+    const handleAddStyle = () => {
+        const updatedFields = [...fields];
+        if (!updatedFields[currentFieldIndex].style) {
+            updatedFields[currentFieldIndex].style = {};
+        }
+        // Convert style object to array for table display
+        const styleArray = Object.entries(updatedFields[currentFieldIndex].style).map(([key, value]) => ({ key, value }));
+        styleArray.push({ key: '', value: '' });
+        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray.map(item => [item.key, item.value]));
+        setFields(updatedFields);
+    };
+
+    const handleStyleChange = (styleIndex, keyOrValue, value) => {
+        const updatedFields = [...fields];
+        const styleArray = Object.entries(updatedFields[currentFieldIndex].style || {}).map(([key, val]) => ({ key, value: val }));
+        styleArray[styleIndex][keyOrValue] = value;
+        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray.map(item => [item.key, item.value]));
+        setFields(updatedFields);
+    };
+
+    const handleRemoveStyle = (styleIndex) => {
+        const updatedFields = [...fields];
+        const styleArray = Object.entries(updatedFields[currentFieldIndex].style).map(([key, value]) => ({ key, value }));
+        styleArray.splice(styleIndex, 1);
+        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray.map(item => [item.key, item.value]));
+        setFields(updatedFields);
+    };
+
+    const getStyleDataSource = () => {
+        if (currentFieldIndex === null || !fields[currentFieldIndex]?.style) return [];
+        return Object.entries(fields[currentFieldIndex].style).map(([key, value]) => ({ key, value }));
+    };
+
+    const styleColumns = [
+        {
+            title: 'Style Key',
+            dataIndex: 'key',
+            key: 'key',
+            render: (text, record, index) => (
+                <Input value={text} onChange={(e) => handleStyleChange(index, 'key', e.target.value)} placeholder="e.g., fontSize" />
+            )
+        },
+        {
+            title: 'Value',
+            dataIndex: 'value',
+            key: 'value',
+            render: (text, record, index) => (
+                <Input value={text} onChange={(e) => handleStyleChange(index, 'value', e.target.value)} placeholder="e.g., 16px" />
+            )
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, __, index) => <Button icon={<DeleteOutlined />} danger onClick={() => handleRemoveStyle(index)} />
+        },
+    ];
 
     const columns = [
         { title: 'Order', dataIndex: 'order', key: 'order' },
@@ -111,27 +182,17 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             dataIndex: 'fieldPath',
             key: 'fieldPath',
             render: (text, record, index) => (
-                <Select
-                    value={record.fieldPath}
-                    onChange={(value) => handleFieldChange(index, 'fieldPath', value)}
-                    style={{ width: '100%' }}
-                >
-                    {transformedColumns?.map(col => (
-                        <Option key={col} value={col}>{col}</Option>
-                    ))}
+                <Select value={record.fieldPath} onChange={(value) => handleFieldChange(index, 'fieldPath', value)} style={{ width: '100%' }}>
+                    {transformedColumns?.map(col => <Option key={col} value={col}>{col}</Option>)}
                 </Select>
             ),
         },
         {
-            title: 'Display Name',
-            dataIndex: 'display_name',
-            key: 'display_name',
+            title: 'Name',
+            dataIndex: 'fieldName',
+            key: 'fieldName',
             render: (text, record, index) => (
-                <Input
-                    value={record.display_name}
-                    onChange={(e) => handleFieldChange(index, 'display_name', e.target.value)}
-                    placeholder="Display Name"
-                />
+                <Input value={record.fieldName} onChange={(e) => handleFieldChange(index, 'fieldName', e.target.value)} placeholder="Field Name" />
             ),
         },
         {
@@ -139,11 +200,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             dataIndex: 'icon',
             key: 'icon',
             render: (text, record, index) => (
-                <Input
-                    value={record.icon}
-                    onChange={(e) => handleFieldChange(index, 'icon', e.target.value)}
-                    placeholder="Icon Name"
-                />
+                <Input value={record.icon} onChange={(e) => handleFieldChange(index, 'icon', e.target.value)} placeholder="Icon Name" />
             ),
         },
         {
@@ -151,11 +208,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             dataIndex: '_link',
             key: '_link',
             render: (text, record, index) => (
-                <Input
-                    value={record._link}
-                    onChange={(e) => handleFieldChange(index, '_link', e.target.value)}
-                    placeholder="Link URL"
-                />
+                <Input value={record._link} onChange={(e) => handleFieldChange(index, '_link', e.target.value)} placeholder="Link URL" />
             ),
         },
         {
@@ -163,11 +216,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             dataIndex: 'cardSection',
             key: 'cardSection',
             render: (text, record, index) => (
-                <Select
-                    value={record.cardSection}
-                    onChange={(value) => handleFieldChange(index, 'cardSection', value)}
-                    style={{ width: '100%' }}
-                >
+                <Select value={record.cardSection} onChange={(value) => handleFieldChange(index, 'cardSection', value)} style={{ width: '100%' }}>
                     <Option value="title">Title</Option>
                     <Option value="body">Body</Option>
                     <Option value="footer">Footer</Option>
@@ -181,12 +230,19 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
                 <Space>
                     <Button icon={<UpOutlined />} onClick={() => moveField(index, -1)} disabled={index === 0} />
                     <Button icon={<DownOutlined />} onClick={() => moveField(index, 1)} disabled={index === fields.length - 1} />
+                    <Button icon={<EditOutlined />} onClick={() => openStyleModal(index)} />
+                    <Button icon={<EditOutlined />} onClick={() => openSubFieldsModal(index)} />
                     <Button icon={<DeleteOutlined />} danger onClick={() => handleRemoveField(index)} />
                 </Space>
             ),
         },
     ];
 
+    const subFieldColumns = [
+        { title: 'Field Name', dataIndex: 'fieldName', key: 'fieldName', render: (text, record, index) => <Input value={text} onChange={(e) => handleSubFieldChange(index, 'fieldName', e.target.value)} /> },
+        { title: 'Field Path', dataIndex: 'fieldPath', key: 'fieldPath', render: (text, record, index) => <Input value={text} onChange={(e) => handleSubFieldChange(index, 'fieldPath', e.target.value)} /> },
+        { title: 'Actions', key: 'actions', render: (_, __, index) => <Button icon={<DeleteOutlined />} danger onClick={() => handleRemoveSubField(index)} /> },
+    ];
     const handleAddAction = (type) => {
         setActions(prev => ({
             ...prev,
@@ -236,21 +292,46 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             <h2>Grid View Configuration</h2>
 
             <h3>Fields</h3>
-            <Table
-                dataSource={fields}
-                columns={columns}
-                rowKey="order"
-                pagination={false}
-                style={{ marginBottom: '20px' }}
-            />
-            <Button
-                type="dashed"
-                icon={<PlusOutlined />}
-                onClick={handleAddField}
-                style={{ marginBottom: '20px' }}
+            <Table dataSource={fields} columns={columns} rowKey="order" pagination={false} style={{ marginBottom: '20px' }} />
+            <Button type="dashed" icon={<PlusOutlined />} onClick={handleAddField} style={{ marginBottom: '20px' }}>Add Field</Button>
+
+            {/* Style Modal */}
+            {/* <Modal title="Edit Field Styles" visible={styleModalVisible} onOk={handleStyleOk} onCancel={() => setStyleModalVisible(false)}>
+                <Form form={form} layout="vertical">
+                    <Form.Item name="fontSize" label="Font Size"><Input placeholder="e.g., 16px" /></Form.Item>
+                    <Form.Item name="fontWeight" label="Font Weight"><Input placeholder="e.g., bold" /></Form.Item>
+                    <Form.Item name="color" label="Color"><Input placeholder="e.g., rgba(0,0,0,0.65)" /></Form.Item>
+                    <Form.Item name="marginBottom" label="Margin Bottom"><Input placeholder="e.g., 8px" /></Form.Item>
+                </Form>
+            </Modal> */}
+            <Modal
+                title="Manage Styles"
+                visible={styleModalVisible}
+                onOk={() => setStyleModalVisible(false)}
+                onCancel={() => setStyleModalVisible(false)}
+                width={600}
             >
-                Add Field
-            </Button>
+                <Table
+                    dataSource={getStyleDataSource()}
+                    columns={styleColumns}
+                    rowKey={(record, index) => index}
+                    pagination={false}
+                />
+                <Button
+                    type="dashed"
+                    icon={<PlusOutlined />}
+                    onClick={handleAddStyle}
+                    style={{ marginTop: '10px' }}
+                >
+                    Add Style
+                </Button>
+            </Modal>
+
+            {/* SubFields Modal */}
+            <Modal title="Manage SubFields" visible={subFieldsModalVisible} onOk={() => setSubFieldsModalVisible(false)} onCancel={() => setSubFieldsModalVisible(false)} width={600}>
+                <Table dataSource={fields[currentFieldIndex]?.subFields || []} columns={subFieldColumns} rowKey={(record, index) => index} pagination={false} />
+                <Button type="dashed" icon={<PlusOutlined />} onClick={handleAddSubField} style={{ marginTop: '10px' }}>Add SubField</Button>
+            </Modal>
 
             <h3>Layout Configuration</h3>
             <Row gutter={[16, 16]}>
@@ -387,14 +468,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
                     />
                 </Col>
             </Row>
-
-            <Button
-                type="primary"
-                onClick={handleSaveConfig}
-                style={{ marginTop: '20px' }}
-            >
-                Save Configuration
-            </Button>
+            <Button type="primary" onClick={handleSaveConfig} style={{ marginTop: '20px' }}>Save Configuration</Button>
         </div>
     );
 };

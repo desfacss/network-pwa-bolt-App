@@ -3,7 +3,7 @@ import DynamicViews from '../DynamicViews';
 
 const Index = () => {
     return (
-        <DynamicViews entityType={'ib_members'} />
+        <DynamicViews entityType={'users'} />
     );
 }
 
