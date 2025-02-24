@@ -13,6 +13,8 @@ import MasterObject from './MasterObject';
 import QueryBuilderComponent from './QueryBuilder';
 import FormBuilder from '../DynamicFormBuilder';
 import ConfigEditor from './Detailview';
+import GridViewConfig from './GridViewConfig';
+import DynamicViews from '../DynamicViews';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -27,27 +29,30 @@ const YViewConfigManager = () => {
   const [selectedRow, setSelectedRow] = useState(null); // Selected row from dropdown
   const [availableColumns, setAvailableColumns] = useState([]); // Available columns for the selected table
 
-  useEffect(() => {
-    // Fetch existing configurations
-    const fetchConfigs = async () => {
-      const { data, error } = await supabase.from('y_view_config').select('*');
-      if (error) {
-        message.error(error?.message || 'Failed to fetch configurations');
-      } else {
-        console.log("YC", data)
-        setConfigs(data);
+  // Fetch existing configurations
+  const fetchConfigs = async () => {
+    const { data, error } = await supabase.from('y_view_config').select('*');
+    if (error) {
+      message.error(error?.message || 'Failed to fetch configurations');
+    } else {
+      console.log("YC", data)
+      setConfigs(data);
+      if (selectedConfig) {
+        setSelectedConfig(data?.find(item => item?.id === selectedConfig?.id))
       }
-    };
+    }
+  };
 
-    const fetchWorkflowConfigurations = async () => {
-      const { data, error } = await supabase.from('workflow_configurations').select('*');
-      if (error) {
-        message.error(error?.message || 'Failed to fetch Workflow Configurations');
-      } else {
-        console.log("WC", data)
-        setWorkflowConfigurations(data);
-      }
-    };
+  const fetchWorkflowConfigurations = async () => {
+    const { data, error } = await supabase.from('workflow_configurations').select('*');
+    if (error) {
+      message.error(error?.message || 'Failed to fetch Workflow Configurations');
+    } else {
+      console.log("WC", data)
+      setWorkflowConfigurations(data);
+    }
+  };
+  useEffect(() => {
 
     fetchConfigs();
     fetchWorkflowConfigurations()
@@ -145,6 +150,7 @@ const YViewConfigManager = () => {
 
         if (error) throw error;
         message.success('Configuration updated successfully');
+        fetchConfigs();
       } else {
         // Insert new row
         const { error } = await supabase.from('y_view_config').insert([updatedConfig]);
@@ -183,6 +189,16 @@ const YViewConfigManager = () => {
     if (viewName === 'tableview') {
       return (
         <TableViewConfig
+          configData={formData}
+          availableColumns={data || availableColumns} // Pass dynamically fetched columns
+          onSave={(updatedData) => handleSave(viewName, updatedData)}
+          masterObject={selectedConfig?.master_object}
+        />
+      );
+    }
+    if (viewName === 'gridview') {
+      return (
+        <GridViewConfig
           configData={formData}
           availableColumns={data || availableColumns} // Pass dynamically fetched columns
           onSave={(updatedData) => handleSave(viewName, updatedData)}
@@ -331,7 +347,7 @@ const YViewConfigManager = () => {
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="Master object" key="master_object">
-          <MasterObject entityType={selectedRow} masterObjectInit={selectedConfig?.master_object} />
+          <MasterObject entityType={selectedRow} masterObjectInit={selectedConfig?.master_object} fetchConfigs={fetchConfigs} />
         </TabPane>
         <TabPane tab="Query Builder" key="query_builder">
           <QueryBuilderComponent entityType={selectedRow} masterObject={selectedConfig?.master_object} />
@@ -347,12 +363,18 @@ const YViewConfigManager = () => {
               handleSave('form_schema', updatedData);
             }} />
         </TabPane> */}
-        {selectedConfig && <TabPane tab="Table View" key="tableview">
-          {renderTabContent('tableview')}
-        </TabPane>}
-        {selectedConfig && <TabPane tab="Config Editor" key="config_editor">
-          {renderTabContent('detailview')}
-        </TabPane>}
+        <TabPane tab="Table View" key="tableview">
+          {selectedConfig && activeTab === "tableview" && renderTabContent('tableview')}
+        </TabPane>
+        <TabPane tab="Grid View" key="gridview">
+          {selectedConfig && activeTab === "gridview" && renderTabContent('gridview')}
+        </TabPane>
+        <TabPane tab="Config Editor" key="config_editor">
+          {selectedConfig && activeTab === "config_editor" && renderTabContent('detailview')}
+        </TabPane>
+        <TabPane tab="View" key="view">
+          {activeTab === 'view' && activeTab === "view" && <DynamicViews entityType={selectedConfig?.entity_type} />}
+        </TabPane>
         {/* <TabPane tab="Kanban View" key="kanbanview">
           {renderTabContent('kanbanview')}
         </TabPane>

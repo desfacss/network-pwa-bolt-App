@@ -351,7 +351,9 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     const onSubmit = async (e) => {
         setSubmitClicked(true);
         // console.log("Payload", schema?.db_schema?.table, schema?.db_schema?.column, e?.formData)
-        onFinish(e?.formData)
+        if (!pageFields || currentPage === totalPages - 1) {
+            onFinish(e?.formData)
+        }
         // if (schema?.db_schema?.multiple_rows === true) {
         //     if (updateId) {
         //         const { data, error } = await supabase.from(schema?.db_schema?.table)
@@ -415,13 +417,15 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
         };
     };
 
-    const handleNext = () => {
+    const handleNext = (e) => {
+        e.preventDefault();
         if (currentPage < totalPages - 1) {
             setCurrentPage(currentPage + 1);
         }
     };
 
-    const handlePrevious = () => {
+    const handlePrevious = (e) => {
+        e.preventDefault();
         if (currentPage > 0) {
             setCurrentPage(currentPage - 1);
         }

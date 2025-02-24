@@ -41,15 +41,17 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
         updatedFields[index][key] = value;
 
         // Find the corresponding object in masterObject to get the display_name
-        const selectedColumn = masterObject.find(col => col.key === value);
+        const selectedColumn = masterObject?.find(col => col?.key === value);
         if (selectedColumn) {
-            updatedFields[index].display_name = selectedColumn.display_name;
+            updatedFields[index].fieldName = selectedColumn?.display_name;
         } else {
-            updatedFields[index].display_name = value; // If not found, reset to empty string
+            updatedFields[index].fieldName = value; // If not found, reset to empty string
         }
 
-        // Keep fieldPath in sync with fieldName
-        updatedFields[index]['fieldPath'] = value;
+        // // Keep fieldPath in sync with fieldName
+        // if (key === 'fieldPath') {
+        //     updatedFields[index]['fieldPath'] = value;
+        // }
         setFields(updatedFields);
     };
 
@@ -84,15 +86,15 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
         },
         {
             title: 'Field',
-            dataIndex: 'fieldName',
-            key: 'fieldName',
+            dataIndex: 'fieldPath',
+            key: 'fieldPath',
             render: (text, record, index) => (
                 <Select
-                    value={record.fieldName || ''}  // Ensure that the value passed is a string
-                    onChange={(value) => handleFieldChange(index, 'fieldName', value)}
+                    value={record?.fieldPath || ''}  // Ensure that the value passed is a string
+                    onChange={(value) => handleFieldChange(index, 'fieldPath', value)}
                     style={{ width: '100%' }}
                 >
-                    {transformedColumns.map((col) => (
+                    {transformedColumns?.map((col) => (
                         <Option key={col} value={col}>
                             {col}
                         </Option>
@@ -102,15 +104,15 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
         },
         {
             title: 'Name',
-            dataIndex: 'display_name',
-            key: 'display_name',
+            dataIndex: 'fieldName',
+            key: 'fieldName',
             render: (text, record, index) => (
-                // <Input placeholder="Display Name" defaultValue={record.display_name || ''}
-                //     onChange={(value) => handleFieldChange(index, 'display_name', value)}
+                // <Input placeholder="Display Name" defaultValue={record.fieldName || ''}
+                //     onChange={(value) => handleFieldChange(index, 'fieldName', value)}
                 // />
                 <Input
-                    value={record.display_name || ''}
-                    onChange={(e) => handleFieldChange(index, 'display_name', e.target.value)}
+                    value={record?.fieldName || ''}
+                    onChange={(e) => handleFieldChange(index, 'fieldName', e.target.value)}
                     placeholder="Display Name"
                 />
             ),
@@ -158,7 +160,7 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
     };
 
     const handleRemoveAction = (type, index) => {
-        const updatedActions = actions[type].filter((_, i) => i !== index);
+        const updatedActions = actions[type]?.filter((_, i) => i !== index);
         setActions(prev => ({
             ...prev,
             [type]: updatedActions
@@ -169,14 +171,14 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
         <Row gutter={8} key={index}>
             <Col span={10}>
                 <Input
-                    value={action.form}
+                    value={action?.form}
                     onChange={(e) => handleActionChange(type, index, 'form', e.target.value)}
                     placeholder="Form"
                 />
             </Col>
             <Col span={10}>
                 <Input
-                    value={action.name}
+                    value={action?.name}
                     onChange={(e) => handleActionChange(type, index, 'name', e.target.value)}
                     placeholder="Name"
                 />
@@ -217,7 +219,7 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
             <Row gutter={[16, 16]}>
                 <Col span={12}>
                     <h4>Row Actions:</h4>
-                    {actions.row.map((action, index) => renderActionRow(action, index, 'row'))}
+                    {actions?.row?.map((action, index) => renderActionRow(action, index, 'row'))}
                     <Button
                         type="dashed"
                         icon={<PlusOutlined />}
@@ -229,7 +231,7 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
                 </Col>
                 <Col span={12}>
                     <h4>Bulk Actions:</h4>
-                    {actions.bulk.map((action, index) => renderActionRow(action, index, 'bulk'))}
+                    {actions?.bulk?.map((action, index) => renderActionRow(action, index, 'bulk'))}
                     <Button
                         type="dashed"
                         icon={<PlusOutlined />}

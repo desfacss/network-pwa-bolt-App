@@ -7,7 +7,7 @@ import { supabase } from 'api/supabaseClient';
 
 const { Option } = Select;
 
-const MasterObject = ({ entityType, masterObjectInit }) => {
+const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
     const [columns, setColumns] = useState([]);
     const [masterObject, setMasterObject] = useState(masterObjectInit);
     const [loading, setLoading] = useState(true);
@@ -108,6 +108,7 @@ const MasterObject = ({ entityType, masterObjectInit }) => {
 
             message.success('Configuration saved successfully!');
             setMasterObject(masterObjectData);
+            fetchConfigs()
             // setMasterObject(masterObjectData?.reduce((acc, obj) => ({ ...acc, [obj.key]: obj }), {}));
         } catch (error) {
             console.error('Error in onFinish:', error);

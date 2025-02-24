@@ -17,7 +17,7 @@ export const OpenRegisterForm = (props) => {
   const [organization, setOrganization] = useState();
   const [signIn, setSignIn] = useState(false)
   const [schema, setSchema] = useState();
-  // const [roles, setRoles] = useState();
+  const [roles, setRoles] = useState();
 
   const getOrganization = async () => {
     const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE).single()
@@ -31,16 +31,17 @@ export const OpenRegisterForm = (props) => {
   const getForms = async () => {
     const { data, error } = await supabase.from('forms').select('*').eq('organization_id', organization?.id).eq('name', "open_user_registration_form").single()
     if (data) {
+      // console.log("Form Schema", data);
       setSchema(data)
     }
   }
 
-  // const getRoles = async () => {
-  //   const { data, error } = await supabase.from('roles').select('*')
-  //   if (data) {
-  //     setRoles(data)
-  //   }
-  // }
+  const getRoles = async () => {
+    const { data, error } = await supabase.from('roles').select('*')
+    if (data) {
+      setRoles(data)
+    }
+  }
 
   const formData = {
     // "role": "Admin",
@@ -63,8 +64,8 @@ export const OpenRegisterForm = (props) => {
     //   }
     // };
     getOrganization()
+    getRoles()
     // getUserType();
-    // getRoles()
     // getEnums();
   }, []);
 
@@ -116,10 +117,10 @@ export const OpenRegisterForm = (props) => {
           organization_id: organization?.id,
           details: userDetails,
           user_name,
-          // role_type: values?.role,
+          role_type: values?.role,
           // manager_id: user_id,
           // hr_id: user_id,
-          // role_id: roles?.find(i => i.role_name === values?.role)?.id
+          role_id: roles?.find(i => i.role_name === values?.role)?.id
           // TODO role_id, location_id
         },
       ]);
@@ -133,7 +134,7 @@ export const OpenRegisterForm = (props) => {
       const { data: data3, error: error3 } = await supabase.from('ib_members').insert([
         {
           user_id: data?.user?.id,
-          reg_info: userDetails, // Assuming reg_info is for registration data
+          // reg_info: userDetails, // Assuming reg_info is for registration data
           details: userDetails, // Assuming details here is for additional user info
           short_name: user_name // You might want to adjust this based on your table structure
         }
