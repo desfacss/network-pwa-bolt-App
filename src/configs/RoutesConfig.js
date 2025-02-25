@@ -151,17 +151,22 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/yprojects`,
             component: React.lazy(() => import('views/pages/DynamicProjects')),
         },
-        // module_features?.yprojects && feature?.yprojects && 
         {
-            key: 'yprojects',
-            path: `${APP_PREFIX_PATH}/yprojects`,
-            component: React.lazy(() => import('views/pages/DynamicProjects')),
+            key: 'net',
+            path: `${APP_PREFIX_PATH}/net`,
+            component: React.lazy(() => import('views/pages/ib/Networking')),
         },
-        module_features?.ibIdeas && feature?.ibIdeas && {
-            key: 'ib_ideas',
-            path: `${APP_PREFIX_PATH}/ideas`,
-            component: React.lazy(() => import('views/pages/Ideas')),
-        },
+        // // module_features?.yprojects && feature?.yprojects && 
+        // {
+        //     key: 'yprojects',
+        //     path: `${APP_PREFIX_PATH}/yprojects`,
+        //     component: React.lazy(() => import('views/pages/DynamicProjects')),
+        // },
+        // module_features?.ibIdeas && feature?.ibIdeas && {
+        //     key: 'ib_ideas',
+        //     path: `${APP_PREFIX_PATH}/ideas`,
+        //     component: React.lazy(() => import('views/pages/Ideas')),
+        // },
         // module_features?.ystate && feature?.ystate && {
         //     key: 'ystate',
         //     path: `${APP_PREFIX_PATH}/ystate`,
@@ -228,21 +233,28 @@ export const protectedRoutes = (feature, module_features) => {
         //     path: `${APP_PREFIX_PATH}/members/:user_name`,
         //     component: React.lazy(() => import('views/pages/Profile/index')),
         // },
-        // module_features?.ibChat && feature?.ibChat && {
-        //     key: 'ib_chat',
-        //     path: `${APP_PREFIX_PATH}/networking/:chatId`,
-        //     component: React.lazy(() => import('views/pages/ib/Chat')),
-        // },
+        // module_features?.ibChat && feature?.ibChat && 
+        {
+            key: 'ib_chat',
+            path: `${APP_PREFIX_PATH}/net/:chatId`,
+            component: React.lazy(() => import('views/pages/ib/Chat')),
+        },
+        {
+            key: 'channel_post_messages',
+            path: `${APP_PREFIX_PATH}/networking/:channel_post_id`,
+            component: React.lazy(() => import('views/pages/Channels/ChannelPostMessages')),
+        },
         // module_features?.ibNetworking && feature?.ibNetworking && {
         //     key: 'ib_networking',
         //     path: `${APP_PREFIX_PATH}/networking`,
         //     component: React.lazy(() => import('views/pages/ib/Networking')),
         // },
-        // module_features?.ibNetworking && feature?.ibNetworking && {
-        //     key: 'ib_heirarchy',
-        //     path: `${APP_PREFIX_PATH}/heirarchy`,
-        //     component: React.lazy(() => import('views/pages/ib/Heirarchy')),
-        // },
+        // module_features?.ibNetworking && feature?.ibNetworking && 
+        {
+            key: 'ib_heirarchy',
+            path: `${APP_PREFIX_PATH}/heirarchy`,
+            component: React.lazy(() => import('views/pages/ib/Heirarchy')),
+        },
         // module_features?.ibPoll && feature?.ibPoll && 
         {
             key: 'ib_poll',
@@ -261,11 +273,12 @@ export const protectedRoutes = (feature, module_features) => {
         //     path: `${APP_PREFIX_PATH}/ytasks`,
         //     component: React.lazy(() => import('views/pages/DynamicTasks')),
         // },
-        // module_features?.rnd && feature?.rnd && {
-        //     key: 'ysales',
-        //     path: `${APP_PREFIX_PATH}/ysales`,
-        //     component: React.lazy(() => import('views/pages/DynamicSales')),
-        // },
+        // module_features?.rnd && feature?.rnd && 
+        {
+            key: 'ysales',
+            path: `${APP_PREFIX_PATH}/ysales`,
+            component: React.lazy(() => import('views/pages/DynamicSales')),
+        },
         // module_features?.rnd && feature?.rnd && {
         //     key: 'yformbuilder',
         //     path: `${APP_PREFIX_PATH}/yform`,
