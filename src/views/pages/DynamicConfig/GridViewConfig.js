@@ -50,7 +50,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     const transformedColumns = masterObject?.map(col => col.key);
 
     const handleAddField = () => {
-        setFields([...fields, { order: fields.length + 1, fieldName: '', fieldPath: '', icon: '', _link: '', cardSection: '', style: {}, subFields: [] }]);
+        setFields([...fields, { order: fields.length + 1, fieldName: '', fieldPath: '', icon: '', link: '', cardSection: '', style: {}, subFields: [] }]);
     };
 
     const handleFieldChange = (index, key, value) => {
@@ -211,7 +211,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             dataIndex: 'fieldName',
             key: 'fieldName',
             render: (text, record, index) => (
-                <Input value={record.fieldName} onChange={(e) => handleFieldChange(index, 'fieldName', e.target.value)} placeholder="Field Name" />
+                <Input value={record?.fieldName} onChange={(e) => handleFieldChange(index, 'fieldName', e.target.value)} placeholder="Field Name" />
             ),
         },
         {
@@ -219,15 +219,15 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             dataIndex: 'icon',
             key: 'icon',
             render: (text, record, index) => (
-                <Input value={record.icon} onChange={(e) => handleFieldChange(index, 'icon', e.target.value)} placeholder="Icon Name" />
+                <Input value={record?.icon} onChange={(e) => handleFieldChange(index, 'icon', e.target.value)} placeholder="Icon Name" />
             ),
         },
         {
             title: 'Link',
-            dataIndex: '_link',
-            key: '_link',
+            dataIndex: 'link',
+            key: 'link',
             render: (text, record, index) => (
-                <Input value={record._link} onChange={(e) => handleFieldChange(index, '_link', e.target.value)} placeholder="Link URL" />
+                <Input value={record?.link} onChange={(e) => handleFieldChange(index, 'link', e.target.value)} placeholder="Link URL" />
             ),
         },
         {
@@ -235,7 +235,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             dataIndex: 'cardSection',
             key: 'cardSection',
             render: (text, record, index) => (
-                <Select value={record.cardSection} onChange={(value) => handleFieldChange(index, 'cardSection', value)} style={{ width: '100%' }}>
+                <Select value={record?.cardSection} onChange={(value) => handleFieldChange(index, 'cardSection', value)} style={{ width: '100%' }}>
                     <Option value="title">Title</Option>
                     <Option value="body">Body</Option>
                     <Option value="footer">Footer</Option>

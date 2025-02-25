@@ -44,7 +44,7 @@ const Channels = () => {
         if (!channel) return;
 
         const { data, error } = await supabase
-            .from('messages')
+            .from('channel_posts')
             .select('*')
             .eq('channel_id', channel.id)
             .order('inserted_at');
@@ -67,7 +67,7 @@ const Channels = () => {
         const channel = channels.find(c => c.slug === activeTab);
         if (!channel) return;
 
-        const { error } = await supabase.from('messages').insert([
+        const { error } = await supabase.from('channel_posts').insert([
             { message: newMessage, user_id: session?.user?.id, channel_id: channel.id }, // Replace with actual user ID
         ]);
 
@@ -82,7 +82,7 @@ const Channels = () => {
 
 
     const handleDeleteMessage = async (messageId, channelSlug) => {
-        const { error } = await supabase.from('messages').delete().eq('id', messageId);
+        const { error } = await supabase.from('channel_posts').delete().eq('id', messageId);
 
         if (error) {
             console.error("Error deleting message:", error)

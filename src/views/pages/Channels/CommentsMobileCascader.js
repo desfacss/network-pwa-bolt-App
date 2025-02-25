@@ -149,7 +149,7 @@ const ForumComment = ({ channel_id }) => {
         const fetchMessages = async () => {
             if (channel_id) {
                 const { data, error } = await supabase
-                    .from('messages')
+                    .from('channel_posts')
                     .select('*, user:users(user_name)')
                     .eq('channel_id', channel_id)
                     .order('inserted_at', { ascending: false }); // Order by time
@@ -184,7 +184,7 @@ const ForumComment = ({ channel_id }) => {
 
         try {
             const { data, error } = await supabase
-                .from('messages')
+                .from('channel_posts')
                 .insert([newMessage]).select('*');
             console.log("tt", data);
             if (error) {
@@ -192,7 +192,7 @@ const ForumComment = ({ channel_id }) => {
             } else {
                 // Fetch the newly inserted message (it will have the correct timestamp and ID)
                 const { data: insertedMessage } = await supabase
-                    .from('messages')
+                    .from('channel_posts')
                     .select('*, user:users(user_name)')
                     .eq('id', data[0].id) // Use the ID from the insert response
                     .single(); // Expecting only one result
