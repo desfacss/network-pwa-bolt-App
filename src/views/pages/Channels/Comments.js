@@ -4,6 +4,7 @@ import { UserOutlined, MessageOutlined, DeleteOutlined, RocketOutlined, CloseOut
 import './styles.css';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Mentions;
 
@@ -326,17 +327,13 @@ const ForumComment = ({ channel_id }) => {
     const { session } = useSelector((state) => state.auth);
     const [idToNameMap, setIdToNameMap] = useState(new Map());
     const [searchText, setSearchText] = useState("");
-
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // Initial check
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // Update isMobile state on window resize
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize); // Cleanup
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     useEffect(() => {
@@ -345,7 +342,7 @@ const ForumComment = ({ channel_id }) => {
             if (channel_id) {
                 const { data, error } = await supabase
                     .from('channel_posts')
-                    .select('*, user:users(user_name),channel:channels(slug)')
+                    .select('*, user:users(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
                     .eq('channel_id', channel_id)
                     .order('inserted_at', { ascending: false });
 
@@ -359,14 +356,20 @@ const ForumComment = ({ channel_id }) => {
                         const map = new Map();
                         function buildMap(categories) {
                             categories.forEach(cat => {
-                                map.set(cat.value, cat.label);
-                                if (cat.children) buildMap(cat.children);
+                                map?.set(cat?.value, cat?.label);
+                                if (cat?.children) buildMap(cat?.children);
                             });
                         }
                         buildMap(hierarchy);
                         setIdToNameMap(map);
                     }
-                    setMessages(data || []);
+                    // setMessages(data || []);
+                    // Process data to include reply_count
+                    const processedData = data?.map(item => ({
+                        ...item,
+                        reply_count: item?.reply_count[0]?.count || 0, // Default to 0 if no replies
+                    }));
+                    setMessages(processedData || []);
                 }
             }
         };
@@ -470,6 +473,16 @@ const ForumComment = ({ channel_id }) => {
         }
     };
 
+    const formatMessage = (text) => {
+        const words = text.split(' ');
+        const boldWords = words.slice(0, 5).join(' '); // First 5 words bold
+        const restWords = words.slice(5).join(' ');
+        return (
+            <span>
+                <strong>{boldWords}</strong> {restWords}
+            </span>
+        );
+    };
     return (
         <div className="forum-container"> {/* Main container */}
             <div className="message-list">
@@ -506,7 +519,14 @@ const ForumComment = ({ channel_id }) => {
                             <Card
                                 style={{ marginBottom: 16 }}
                                 actions={[
-                                    <div key="tags">
+                                    <Flex key="footer" justify="space-between" align="center" style={{ padding: '0 16px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Avatar icon={<UserOutlined />} />
+                                            <span style={{ fontSize: 13, color: '#666' }}>{item?.user?.user_name}</span>
+                                        </div>
+                                        <span style={{ fontSize: 13 }}>{new Date(item?.inserted_at).toLocaleString()}</span>
+                                    </Flex>,
+                                    <div key="tags" style={{ padding: '0 16px' }}>
                                         {item?.details?.tags?.map((tag) => (
                                             <Tag key={tag} style={{ cursor: 'default' }}>
                                                 {idToNameMap.get(tag) || tag}
@@ -533,25 +553,38 @@ const ForumComment = ({ channel_id }) => {
                                                 top: '10px',
                                                 right: '10px',
                                                 cursor: 'pointer',
-                                                color: 'red' // Or any color you prefer
+                                                color: 'red',
                                             }}
                                         />
                                     </Popconfirm>
                                 )}
-                                <Card.Meta
-                                    avatar={<Avatar icon={<UserOutlined />} />}
-                                    title={item?.message}
-                                    description={
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span style={{ fontSize: 13, color: '#666' }}>{item?.user?.user_name}</span>
-                                            <span
-                                                style={{ fontSize: 13 }}
-                                            >
-                                                {new Date(item?.inserted_at).toLocaleString() || ""}
-                                            </span>
-                                        </div>
-                                    }
-                                />
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                                    <div
+                                        style={{
+                                            width: '40px',
+                                            height: '40px',
+                                            background: '#E6E6FA',
+                                            borderRadius: '8px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 'bold',
+                                            color: '#9370DB',
+                                        }}
+                                    >
+                                        {item?.reply_count}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        {formatMessage(item?.message)}
+                                        <Button
+                                            type="link"
+                                            onClick={() => navigate(`/app/networking/${item.id}`)}
+                                            style={{ padding: 0, marginTop: 8 }}
+                                        >
+                                            Reply
+                                        </Button>
+                                    </div>
+                                </div>
                             </Card>
                         )}
                     />

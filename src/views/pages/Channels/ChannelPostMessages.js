@@ -7,8 +7,8 @@ import PostCard from './Post';
 import { addMessage, fetchMessages } from './utils';
 import { EditOutlined } from '@ant-design/icons';
 
-const Chat = () => {
-    const { chatId } = useParams();
+const ChannelPostMessages = () => {
+    const { channel_post_id } = useParams();
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -19,8 +19,9 @@ const Chat = () => {
 
     useEffect(() => {
         const fetchMessagesForChat = async () => {
-            if (chatId) {
-                const messages = await fetchMessages(chatId);
+            if (channel_post_id) {
+                const messages = await fetchMessages(channel_post_id);
+                console.log("msg", messages);
                 setMessages(messages);
             }
         };
@@ -28,13 +29,13 @@ const Chat = () => {
 
         // Subscribe to real-time message updates
         const channel = supabase
-            .channel(`realtime-messages-${chatId}`)
+            .channel(`realtime-messages-${channel_post_id}`)
             .on('postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'ib_post_messages', filter: `chat_id=eq.${chatId}` },
+                { event: 'INSERT', schema: 'public', table: 'channel_post_messages', filter: `channel_post_id=eq.${channel_post_id}` },
                 async (payload) => {
-                    console.log('New message received:', payload.new);
+                    console.log('New message received:', payload.new, messages, channel_post_id);
                     setMessages((prevMessages) => [...prevMessages, payload.new]);
-                    // const messages = await fetchMessages(chatId);
+                    // const messages = await fetchMessages(channel_post_id);
                     // setMessages(messages);
                 }
             )
@@ -44,15 +45,15 @@ const Chat = () => {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [chatId]);
+    }, [channel_post_id]);
 
     const handleAddMessage = async () => {
-        // if (newMessage.trim() === '' || !chatId) return;
+        // if (newMessage.trim() === '' || !channel_post_id) return;
         // setMessages([...messages, { name: session?.user?.user_name, message: newMessage }]);
         // setNewMessage('');
 
-        if (newMessage.trim() === '' || !chatId) return
-        const message = await addMessage(chatId, session?.user?.user_name, newMessage, session?.user?.id) // Replace with actual client_id and owner_id
+        if (newMessage.trim() === '' || !channel_post_id) return
+        const message = await addMessage(channel_post_id, session?.user?.user_name, newMessage, session?.user?.id) // Replace with actual client_id and owner_id
         // setMessages([...messages, { name: session?.user?.user_name, message: newMessage }])
         setNewMessage('')
     };
@@ -62,13 +63,13 @@ const Chat = () => {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         let messageWithLinks = [];
 
-        if (messageText.match(urlRegex)) {
-            const parts = messageText.split(urlRegex);
+        if (messageText?.match(urlRegex)) {
+            const parts = messageText?.split(urlRegex);
             for (let i = 0; i < parts.length; i++) {
                 if (i % 2 === 1) { // Odd indices are URLs
-                    messageWithLinks.push(<a key={i} href={parts[i]} target="_blank" rel="noopener noreferrer">{parts[i]}</a>);
+                    messageWithLinks?.push(<a key={i} href={parts[i]} target="_blank" rel="noopener noreferrer">{parts[i]}</a>);
                 } else {
-                    messageWithLinks.push(parts[i]);
+                    messageWithLinks?.push(parts[i]);
                 }
             }
         } else {
@@ -94,7 +95,7 @@ const Chat = () => {
     const handleUpdateMessage = async () => {
         if (editMessageId && editMessageContent.trim() !== '') {
             const { error } = await supabase
-                .from('ib_post_messages')
+                .from('channel_post_messages')
                 .update({ message: editMessageContent })
                 .eq('id', editMessageId);
 
@@ -102,7 +103,7 @@ const Chat = () => {
                 console.error('Error updating message:', error);
             } else {
                 // Fetch updated messages
-                const updatedMessages = await fetchMessages(chatId);
+                const updatedMessages = await fetchMessages(channel_post_id);
                 setMessages(updatedMessages);
                 setIsModalVisible(false);
             }
@@ -112,7 +113,7 @@ const Chat = () => {
     return (
         <Card>
             <Button onClick={() => navigate(`app/networking`)}>Back</Button>
-            <PostCard chatId={chatId} />
+            <PostCard channel_post_id={channel_post_id} />
             <h2>Messages</h2>
             <ul>
                 {messages?.map((message, index) => (
@@ -153,4 +154,4 @@ const Chat = () => {
     );
 };
 
-export default Chat;
+export default ChannelPostMessages;
