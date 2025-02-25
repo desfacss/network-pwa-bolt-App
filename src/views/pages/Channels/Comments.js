@@ -1,53 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message, Empty } from 'antd';
-import { UserOutlined, MessageOutlined, DeleteOutlined, RocketOutlined } from '@ant-design/icons';
+import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message, Empty, ConfigProvider, theme } from 'antd';
+import { UserOutlined, MessageOutlined, DeleteOutlined, RocketOutlined, CloseOutlined, SendOutlined } from '@ant-design/icons';
 import './styles.css';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
 
 const { Option } = Mentions;
 
-// Sample data
-// const tagHierarchy = [
-//     {
-//         value: 'frontend',
-//         label: 'Frontend',
-//         children: [
-//             {
-//                 value: 'react',
-//                 label: 'React',
-//                 children: [
-//                     { value: 'hooks', label: 'Hooks' },
-//                     { value: 'context', label: 'Context' },
-//                 ],
-//             },
-//         ],
-//     },
-// ];
-// const tagHierarchy = [
-//     {
-//         value: 'frontend',
-//         label: 'Frontend',
-//         children: [
-//             {
-//                 value: 'react',
-//                 label: 'React',
-//                 children: [
-//                     {
-//                         value: 'hooks', label: 'Hooks',
-//                     },
-//                     {
-//                         value: 'context', label: 'Context',
-//                         children: [
-//                             { value: 'hooks', label: 'Hooks' },
-//                             { value: 'context', label: 'Context' },
-//                         ]
-//                     },
-//                 ],
-//             },
-//         ],
-//     },
-// ];
 
 // Function to fetch and build tag hierarchy
 const buildTagHierarchy = async () => {
@@ -93,7 +52,6 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
         const loadHierarchy = async () => {
             const hierarchy = await buildTagHierarchy();
             setTagHierarchy(hierarchy);
-            // Building a map of ID to name for easy lookup
             const map = new Map();
             function buildMap(categories) {
                 categories.forEach(cat => {
@@ -107,24 +65,8 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
         loadHierarchy();
     }, []);
 
-    // useEffect(() => {
-    //     const loadHierarchy = async () => {
-    //         const hierarchy = await buildTagHierarchy();
-    //         setTagHierarchy(hierarchy);
-    //     };
-    //     loadHierarchy();
-    // }, []);
-
-    // const handleCascaderChange = (value) => {
-    //     if (value && value.length > 0) {
-    //         setTags(value);
-    //     } else {
-    //         setTags([]);
-    //     }
-    // };
     const handleCascaderChange = (value) => {
         if (value && value.length > 0) {
-            // Convert ID array to names array for display
             setTags(value.map(id => ({ id, name: idToNameMap.get(id) })));
         } else {
             setTags([]);
@@ -132,78 +74,245 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
     };
 
     return (
-        <Form form={form} onFinish={onSubmit}>
-            <Form.Item
-                name="message"
-                rules={[{ required: true, message: 'Please write your message' }]}
-            >
-                <Mentions
-                    rows={4}
-                    prefix={['@']}
-                    placeholder="Write your message (use @ to mention users)"
-                >
-                    {mentionUsers?.map((user) => (
-                        <Option key={user.id} value={user.id}>
-                            {user.display}
-                        </Option>
-                    ))}
-                </Mentions>
-            </Form.Item>
+        <Form
+            form={form}
+            onFinish={onSubmit}
+            layout="vertical"
+            style={{
+                background: 'transparent', // Let ConfigProvider handle background
+                // padding: 8, // Minimal padding for sleekness
+                borderRadius: 4, // Subtle rounding
+                // maxWidth: 400, // Keep it compact
+            }}
+        >
+            {/* Single Control with Light Pastel Purple Background */}
+            {/* Single Control with Light Pastel Purple Background */}
+            <div style={{
+                background: '#E6E6FA', // Light pastel purple
+                borderRadius: 4,
+                overflow: 'hidden',
+                border: '1px solid #D8BFD8', // Subtle purple border
+            }}>
+                <Flex gap={8} align="center" style={{ padding: 8, width: '100%' }}>
+                    {/* Message Input (taking most of the space, left-aligned) */}
+                    <Form.Item
+                        name="message"
+                        rules={[{ required: true, message: 'Please write your message' }]}
+                        style={{ flex: 1, margin: 0 }} // Take remaining space, no margins
+                    >
+                        <Mentions
+                            rows={2} // Reduce rows for compactness
+                            prefix={['@']}
+                            placeholder="Write your message (use @ to mention users)"
+                            style={{
+                                // background: 'transparent', // Match light purple background
+                                border: 'none', // No borders for sleekness
+                                // color: '#4B0082', // Darker purple text
+                                padding: 0, // Remove padding to align tightly
+                                // Custom scrollbar styling
+                                '::-webkit-scrollbar': {
+                                    width: '4px', // Slim scrollbar
+                                },
+                                '::-webkit-scrollbar-track': {
+                                    background: '#E6E6FA', // Light pastel purple to match background
+                                    borderRadius: '2px', // Rounded corners
+                                },
+                                '::-webkit-scrollbar-thumb': {
+                                    background: '#D8BFD8', // Light purple for thumb, matching tag/border color
+                                    borderRadius: '2px', // Rounded corners
+                                    '&:hover': {
+                                        background: '#C0C0C0', // Slightly darker on hover for interactivity
+                                    },
+                                },
+                                // Fallback for Firefox
+                                scrollbarWidth: 'thin',
+                                scrollbarColor: '#D8BFD8 #E6E6FA',
+                            }}
+                        >
+                            {mentionUsers?.map((user) => (
+                                <Option key={user.id} value={user.id}>
+                                    {user.display}
+                                </Option>
+                            ))}
+                        </Mentions>
+                    </Form.Item>
 
-            <Form.Item label="Add Tags">
-                <Flex gap={8}>
+                    {/* Circular "Post Message" Button (right-aligned, same line) */}
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        shape="circle" // Makes the button circular
+                        icon={<SendOutlined />} // Paper airplane icon for "Post Message"
+                        style={{
+                            background: '#9370DB', // Medium purple
+                            border: 'none',
+                            fontSize: 16, // Adjust icon size if needed
+                            padding: 8, // Ensure the circle is compact
+                            height: 40, // Match height with input for consistency
+                            width: 40, // Match width for a perfect circle
+                        }}
+                    />
+                </Flex>
+
+                {/* Tag Selection and Display in the same field, below the input and button */}
+                <Flex gap={4} align="center" style={{ padding: '0 8px 8px', flexWrap: 'wrap' }}>
                     <Cascader
                         options={tagHierarchy}
                         onChange={handleCascaderChange}
-                        placeholder="Hierarchical tags"
-                        style={{ width: 200 }}
-                        showSearch
-                    />
-                    {/* <Input
-                        placeholder="Free-form tags"
-                        onPressEnter={(e) => {
-                            const target = e.target;
-                            const newTag = target.value.trim();
-                            if (newTag) {
-                                setTags([...tags, newTag]);
-                                target.value = '';
-                            }
+                        placeholder="Add tags"
+                        style={{
+                            width: '100%',
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#4B0082',
+                            marginBottom: 4,
                         }}
-                    /> */}
+                        showSearch
+                        dropdownStyle={{ background: '#E6E6FA', color: '#4B0082' }} // Light purple dropdown
+                    />
+                    {/* {tags.map((tag) => (
+                        <Tag
+                            key={tag.id}
+                            closable
+                            onClose={() => setTags(tags.filter((t) => t.id !== tag.id))}
+                            style={{
+                                background: '#D8BFD8', // Light purple for tags
+                                color: '#4B0082',
+                                borderRadius: 2,
+                                marginBottom: 4,
+                                fontSize: 12, // Smaller text for compactness
+                            }}
+                            closeIcon={<CloseOutlined style={{ color: '#9370DB', fontSize: 10 }} />}
+                        >
+                            {tag.name}
+                        </Tag>
+                    ))} */}
                 </Flex>
-            </Form.Item>
-
-            <div style={{ marginTop: 16 }}>
-                {/* {tags.map((tag) => (
-                    <Tag
-                        key={tag}
-                        closable
-                        onClose={() => setTags(tags.filter((t) => t !== tag))}
-                        style={{ marginBottom: 8 }}
-                    >
-                        {tag}
-                    </Tag>
-                ))} */}
-                {tags.map((tag) => (
-                    <Tag
-                        key={tag.id}
-                        closable
-                        onClose={() => setTags(tags.filter((t) => t.id !== tag.id))}
-                        style={{ marginBottom: 8 }}
-                    >
-                        {tag.name}
-                    </Tag>
-                ))}
             </div>
-
-            <Form.Item style={{ marginTop: 24 }}>
-                <Button type="primary" htmlType="submit">
-                    Post Message
-                </Button>
-            </Form.Item>
         </Form>
     );
 };
+// const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
+//     const [mentionUsers] = useState([ /* ... your mentionUsers data */]);
+
+//     const [tagHierarchy, setTagHierarchy] = useState([]);
+//     const [idToNameMap, setIdToNameMap] = useState(new Map());
+
+//     useEffect(() => {
+//         const loadHierarchy = async () => {
+//             const hierarchy = await buildTagHierarchy();
+//             setTagHierarchy(hierarchy);
+//             // Building a map of ID to name for easy lookup
+//             const map = new Map();
+//             function buildMap(categories) {
+//                 categories.forEach(cat => {
+//                     map.set(cat.value, cat.label);
+//                     if (cat.children) buildMap(cat.children);
+//                 });
+//             }
+//             buildMap(hierarchy);
+//             setIdToNameMap(map);
+//         };
+//         loadHierarchy();
+//     }, []);
+
+//     // useEffect(() => {
+//     //     const loadHierarchy = async () => {
+//     //         const hierarchy = await buildTagHierarchy();
+//     //         setTagHierarchy(hierarchy);
+//     //     };
+//     //     loadHierarchy();
+//     // }, []);
+
+//     // const handleCascaderChange = (value) => {
+//     //     if (value && value.length > 0) {
+//     //         setTags(value);
+//     //     } else {
+//     //         setTags([]);
+//     //     }
+//     // };
+//     const handleCascaderChange = (value) => {
+//         if (value && value.length > 0) {
+//             // Convert ID array to names array for display
+//             setTags(value.map(id => ({ id, name: idToNameMap.get(id) })));
+//         } else {
+//             setTags([]);
+//         }
+//     };
+
+//     return (
+//         <Form form={form} onFinish={onSubmit}>
+//             <Form.Item
+//                 name="message"
+//                 rules={[{ required: true, message: 'Please write your message' }]}
+//             >
+//                 <Mentions
+//                     rows={4}
+//                     prefix={['@']}
+//                     placeholder="Write your message (use @ to mention users)"
+//                 >
+//                     {mentionUsers?.map((user) => (
+//                         <Option key={user.id} value={user.id}>
+//                             {user.display}
+//                         </Option>
+//                     ))}
+//                 </Mentions>
+//             </Form.Item>
+
+//             <Form.Item label="Add Tags">
+//                 <Flex gap={8}>
+//                     <Cascader
+//                         options={tagHierarchy}
+//                         onChange={handleCascaderChange}
+//                         placeholder="Hierarchical tags"
+//                         style={{ width: 200 }}
+//                         showSearch
+//                     />
+//                     {/* <Input
+//                         placeholder="Free-form tags"
+//                         onPressEnter={(e) => {
+//                             const target = e.target;
+//                             const newTag = target.value.trim();
+//                             if (newTag) {
+//                                 setTags([...tags, newTag]);
+//                                 target.value = '';
+//                             }
+//                         }}
+//                     /> */}
+//                 </Flex>
+//             </Form.Item>
+
+//             <div style={{ marginTop: 16 }}>
+//                 {/* {tags.map((tag) => (
+//                     <Tag
+//                         key={tag}
+//                         closable
+//                         onClose={() => setTags(tags.filter((t) => t !== tag))}
+//                         style={{ marginBottom: 8 }}
+//                     >
+//                         {tag}
+//                     </Tag>
+//                 ))} */}
+//                 {tags.map((tag) => (
+//                     <Tag
+//                         key={tag.id}
+//                         closable
+//                         onClose={() => setTags(tags.filter((t) => t.id !== tag.id))}
+//                         style={{ marginBottom: 8 }}
+//                     >
+//                         {tag.name}
+//                     </Tag>
+//                 ))}
+//             </div>
+
+//             <Form.Item style={{ marginTop: 24 }}>
+//                 <Button type="primary" htmlType="submit">
+//                     Post Message
+//                 </Button>
+//             </Form.Item>
+//         </Form>
+//     );
+// };
 
 const ForumComment = ({ channel_id }) => {
     const [form] = Form.useForm();
@@ -364,6 +473,25 @@ const ForumComment = ({ channel_id }) => {
     return (
         <div className="forum-container"> {/* Main container */}
             <div className="message-list">
+                {/* <Card title={<><MessageOutlined /> New Post</>} style={{ marginTop: 24 }}> */}
+                <ConfigProvider
+                    theme={{
+                        algorithm: theme.defaultAlgorithm, // Use AntD's default light theme
+                        token: {
+                            // colorPrimary: '#9370DB', // Medium purple for buttons and accents
+                            // colorBgContainer: '#E6E6FA', // Light pastel purple background
+                            // colorBgBase: '#E6E6FA', // Consistent light purple base
+                            // colorText: '#4B0082', // Darker purple for text (e.g., Indigo)
+                            colorBorder: '#D8BFD8', // Light purple border for subtle contrast
+                            borderRadius: 4, // Subtle rounded corners
+                            fontFamily: 'Inter, sans-serif', // Modern font
+                        },
+                    }}
+                >
+
+                    <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
+                </ConfigProvider>
+                {/* </Card> */}
                 <div style={{ marginBottom: 16 }}>
                     <Input
                         placeholder="Search by user name, message or tag"
@@ -453,68 +581,8 @@ const ForumComment = ({ channel_id }) => {
                 }
             </div>
             <div className="new-post-container">
-                <Card title={<><MessageOutlined /> New Post</>} style={{ marginTop: 24 }}>
-                    <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
-                    {/* <Form form={form} onFinish={handleSubmit}>
-                        <Form.Item
-                            name="message"
-                            rules={[{ required: true, message: 'Please write your message' }]}
-                        >
-                            <Mentions
-                                rows={4}
-                                prefix={['@']}
-                                placeholder="Write your message (use @ to mention users)"
-                            >
-                                {mentionUsers?.map((user) => (
-                                    <Option key={user.id} value={user.id}>
-                                        {user.display}
-                                    </Option>
-                                ))}
-                            </Mentions>
-                        </Form.Item>
+                <Card title={<>Register for Stream</>} style={{ marginTop: 24 }}>
 
-                        <Form.Item label="Add Tags">
-                            <Flex gap={8}>
-                                <Cascader
-                                    options={tagHierarchy}
-                                    onChange={handleCascaderChange}
-                                    placeholder="Hierarchical tags"
-                                    style={{ width: 200 }}
-                                    showSearch
-                                />
-                                <Input
-                                    placeholder="Free-form tags"
-                                    onPressEnter={(e) => {
-                                        const target = e.target;
-                                        const newTag = target.value.trim();
-                                        if (newTag) {
-                                            setTags([...tags, newTag]);
-                                            target.value = '';
-                                        }
-                                    }}
-                                />
-                            </Flex>
-                        </Form.Item>
-
-                        <div style={{ marginTop: 16 }}>
-                            {tags.map((tag) => (
-                                <Tag
-                                    key={tag}
-                                    closable
-                                    onClose={() => setTags(tags.filter((t) => t !== tag))}
-                                    style={{ marginBottom: 8 }}
-                                >
-                                    {tag}
-                                </Tag>
-                            ))}
-                        </div>
-
-                        <Form.Item style={{ marginTop: 24 }}>
-                            <Button type="primary" htmlType="submit">
-                                Post Message
-                            </Button>
-                        </Form.Item>
-                    </Form> */}
                 </Card>
             </div>
             <Drawer
@@ -534,7 +602,7 @@ const ForumComment = ({ channel_id }) => {
             </Drawer>
 
             {/* Floating Button (for smaller screens) */}
-            {isMobile && <div className="new-post-button-container">
+            {/* {isMobile && <div className="new-post-button-container">
                 <Button
                     type="primary"
                     icon={<MessageOutlined />}
@@ -542,7 +610,7 @@ const ForumComment = ({ channel_id }) => {
                 >
                     New Post
                 </Button>
-            </div>}
+            </div>} */}
         </div>
     );
 };
