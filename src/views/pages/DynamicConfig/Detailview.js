@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Table, Button, Form, Space, Input } from 'antd';
+import { Table, Button, Form, Space, Input, Popover } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from 'api/supabaseClient';
 import { Select } from 'antd';
@@ -11,11 +11,12 @@ const ConfigEditor = ({ detailView, entityType }) => {
 
     // Predefined static tab options
     const staticTabOptions = ["files", "notes", "status"];
+    const tabViewOptions = ["tableview", "gridview", "kanbanview", "calendarview", "timelineview", "ganttview", "dashboardview"];
 
     useEffect(() => {
         form.setFieldsValue({
-            staticTabs: detailView.staticTabs || [],
-            dynamicTabs: detailView.dynamicTabs || []
+            staticTabs: detailView?.staticTabs || [],
+            dynamicTabs: detailView?.dynamicTabs || []
         });
     }, [detailView, form]);
 
@@ -82,6 +83,43 @@ const ConfigEditor = ({ detailView, entityType }) => {
             ),
         },
         {
+            title: 'Filters',
+            key: 'filters',
+            render: (_, record, index) => (
+                <Form.Item name={[index, 'props', 'filters']}>
+                    <Popover
+                        content={
+                            <FilterEditor
+                                filters={record?.props?.filters || []}
+                                onChange={(newFilters) => {
+                                    const dynamicTabs = form.getFieldValue('dynamicTabs');
+                                    dynamicTabs[index].props.filters = newFilters;
+                                    form.setFieldsValue({ dynamicTabs });
+                                }}
+                            />
+                        }
+                        title="Edit Filters"
+                        trigger="click"
+                    >
+                        <Button type="primary">Edit</Button>
+                    </Popover>
+                </Form.Item>
+            ),
+        },
+        {
+            title: 'Tabs',
+            key: 'tabs',
+            render: (_, record, index) => (
+                <Form.Item name={[index, 'props', 'tabs']}>
+                    <Select mode="multiple" placeholder="Select Tabs">
+                        {tabViewOptions.map(option => (
+                            <Option key={option} value={option}>{option}</Option>
+                        ))}
+                    </Select>
+                </Form.Item>
+            ),
+        },
+        {
             title: 'Action',
             key: 'action',
             render: (_, record, index) => (
@@ -105,7 +143,7 @@ const ConfigEditor = ({ detailView, entityType }) => {
 
     const handleAddDynamic = () => {
         const dynamicTabs = form.getFieldValue('dynamicTabs') || [];
-        form.setFieldsValue({ dynamicTabs: [...dynamicTabs, { label: '', props: { entityType: '' } }] });
+        form.setFieldsValue({ dynamicTabs: [...dynamicTabs, { label: '', props: { entityType: '', filters: [], tabs: [] } }] });
     };
 
     const onFinish = async (values) => {
@@ -125,6 +163,68 @@ const ConfigEditor = ({ detailView, entityType }) => {
         } catch (error) {
             console.error('Error saving config:', error.message);
         }
+    };
+
+    const FilterEditor = ({ filters, onChange }) => {
+        const [filterList, setFilterList] = React.useState(filters);
+
+        const handleAddFilter = () => {
+            setFilterList([...filterList, { column: '', value: '' }]);
+        };
+
+        const handleFilterChange = (index, field, value) => {
+            const updatedFilters = [...filterList];
+            updatedFilters[index][field] = value;
+            setFilterList(updatedFilters);
+            onChange(updatedFilters); // Important: Update parent component's state
+        };
+
+        const handleDeleteFilter = (index) => {
+            const updatedFilters = filterList.filter((_, i) => i !== index);
+            setFilterList(updatedFilters);
+            onChange(updatedFilters); // Important: Update parent component's state
+        };
+
+        const filterColumns = [
+            {
+                title: 'Column',
+                dataIndex: 'column',
+                key: 'column',
+                render: (_, record, index) => (
+                    <Input
+                        placeholder="Column"
+                        value={record.column}
+                        onChange={(e) => handleFilterChange(index, 'column', e.target.value)}
+                    />
+                )
+            },
+            {
+                title: 'Value',
+                dataIndex: 'value',
+                key: 'value',
+                render: (_, record, index) => (
+                    <Input
+                        placeholder="Value"
+                        value={record.value}
+                        onChange={(e) => handleFilterChange(index, 'value', e.target.value)}
+                    />
+                )
+            },
+            {
+                title: 'Action',
+                key: 'action',
+                render: (_, record, index) => (
+                    <Button onClick={() => handleDeleteFilter(index)} icon={<DeleteOutlined />} danger />
+                ),
+            },
+        ];
+
+        return (
+            <div>
+                <Table columns={filterColumns} dataSource={filterList} pagination={false} />
+                <Button onClick={handleAddFilter} icon={<PlusOutlined />}>Add Filter</Button>
+            </div>
+        );
     };
 
     return (

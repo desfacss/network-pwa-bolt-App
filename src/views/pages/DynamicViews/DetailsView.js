@@ -4,6 +4,7 @@ import { Tabs } from 'antd';
 import StatusTab from '../Details/Status';
 import NotesTab from '../Details/Notes';
 import FilesTab from '../Details/Files';
+const DynamicComponent = lazy(() => import('../Details/DynamicTab'));
 // import AllocationsTab from './Details/Allocations';
 
 // Lazy load dynamic components.  This is crucial for performance.
@@ -27,7 +28,7 @@ const DetailsView = ({ entityType, viewConfig, editItem, DetailsCard, rawData })
         ];
 
         staticTabs?.forEach(tabConfig => {
-            if (viewConfig && viewConfig?.detailview && viewConfig?.detailview?.staticTabs.map(tab => tab?.tab)[tabConfig?.label?.toLowerCase()] === true) {
+            if (viewConfig && viewConfig?.detailview && viewConfig?.detailview?.staticTabs?.map(tab => tab?.tab)[tabConfig?.label?.toLowerCase()] === true) {
                 tabs?.push({
                     key: tabConfig?.key,
                     label: tabConfig?.label,
@@ -39,13 +40,18 @@ const DetailsView = ({ entityType, viewConfig, editItem, DetailsCard, rawData })
         // Dynamic Tabs
         if (viewConfig && viewConfig?.detailview?.dynamicTabs) { // Check for dynamicTabs in config
             for (const tabConfig of viewConfig?.detailview?.dynamicTabs) {
-                const DynamicComponent = lazy(() => import('../Details/DynamicTab')); // Dynamic import
+                const tabProps = tabConfig?.props
+                // console.log("tp", tabConfig);
+                // const DynamicComponent = lazy(() => import('../Details/DynamicTab')); // Dynamic import
                 tabs?.push({
-                    key: tabConfig?.key || tabConfig?.label?.toLowerCase(), // Use key from config or label
+                    key: tabConfig?.label?.toLowerCase(), // Use key from config or label
                     label: tabConfig?.label,
                     children: (
                         <Suspense fallback={<div>Loading {tabConfig?.label}...</div>}> {/* Important! */}
-                            <DynamicComponent entityType={entityType} viewConfig={viewConfig} editItem={editItem} {...tabConfig?.props} /> {/* Pass props */}
+                            <DynamicComponent entityType={tabProps?.entityType} viewConfig={viewConfig} editItem={editItem}
+                                fetchFilters={tabProps?.filters} tabs={tabProps?.tabs}
+                            // {...tabConfig?.props}
+                            /> {/* Pass props */}
                         </Suspense>
                     ),
                 });

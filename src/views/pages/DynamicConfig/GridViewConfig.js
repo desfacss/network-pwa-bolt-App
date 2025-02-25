@@ -78,7 +78,19 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     };
 
     const handleSaveConfig = () => {
-        onSave({ fields, actions, groupBy, exportOptions, showFeatures, layout, viewLink, viewName });
+        const updatedFields = fields.map(field => {
+            if (field.subFields && field.subFields.length > 0) {
+                return {
+                    ...field,
+                    fieldPath: "", // Set fieldPath to empty
+                    display: "comma_separated" // Add display property
+                };
+            }
+            return field;
+        });
+
+        onSave({ fields: updatedFields, actions, groupBy, exportOptions, showFeatures, layout, viewLink, viewName });
+        // onSave({ fields, actions, groupBy, exportOptions, showFeatures, layout, viewLink, viewName });
     };
 
     const openStyleModal = (index) => {
@@ -109,6 +121,13 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     const handleSubFieldChange = (subIndex, key, value) => {
         const updatedFields = [...fields];
         updatedFields[currentFieldIndex].subFields[subIndex][key] = value;
+
+        if (key === 'fieldPath') {
+            const selectedColumn = masterObject?.find(col => col.key === value);
+            if (selectedColumn) {
+                updatedFields[currentFieldIndex].subFields[subIndex].fieldName = selectedColumn.display_name;
+            }
+        }
         setFields(updatedFields);
     };
 
@@ -239,10 +258,27 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     ];
 
     const subFieldColumns = [
-        { title: 'Field Name', dataIndex: 'fieldName', key: 'fieldName', render: (text, record, index) => <Input value={text} onChange={(e) => handleSubFieldChange(index, 'fieldName', e.target.value)} /> },
-        { title: 'Field Path', dataIndex: 'fieldPath', key: 'fieldPath', render: (text, record, index) => <Input value={text} onChange={(e) => handleSubFieldChange(index, 'fieldPath', e.target.value)} /> },
+        {
+            title: 'Field',
+            dataIndex: 'fieldPath',
+            key: 'fieldPath',
+            render: (text, record, index) => (
+                <Select value={record.fieldPath} onChange={(value) => handleSubFieldChange(index, 'fieldPath', value)} style={{ width: '100%', minWidth: '150px' }}>
+                    {transformedColumns?.map(col => <Option key={col} value={col}>{col}</Option>)}
+                </Select>
+            ),
+        },
+        {
+            title: 'Name',
+            dataIndex: 'fieldName',
+            key: 'fieldName',
+            render: (text, record, index) => (
+                <Input value={record.fieldName} onChange={(e) => handleSubFieldChange(index, 'fieldName', e.target.value)} placeholder="Field Name" />
+            ),
+        },
         { title: 'Actions', key: 'actions', render: (_, __, index) => <Button icon={<DeleteOutlined />} danger onClick={() => handleRemoveSubField(index)} /> },
     ];
+
     const handleAddAction = (type) => {
         setActions(prev => ({
             ...prev,

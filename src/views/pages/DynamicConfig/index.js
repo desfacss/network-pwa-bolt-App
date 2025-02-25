@@ -369,8 +369,8 @@ const YViewConfigManager = () => {
         <TabPane tab="Grid View" key="gridview">
           {selectedConfig && activeTab === "gridview" && renderTabContent('gridview')}
         </TabPane>
-        <TabPane tab="Config Editor" key="config_editor">
-          {selectedConfig && activeTab === "config_editor" && renderTabContent('detailview')}
+        <TabPane tab="Detail View" key="detail_view">
+          {selectedConfig && activeTab === "detail_view" && renderTabContent('detailview')}
         </TabPane>
         <TabPane tab="View" key="view">
           {activeTab === 'view' && activeTab === "view" && <DynamicViews entityType={selectedConfig?.entity_type} />}

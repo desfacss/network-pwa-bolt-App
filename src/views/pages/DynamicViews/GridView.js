@@ -89,7 +89,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
 
   // Function to get field value, now with whitespace and array handling
   const getFieldValue = (record, fieldConfig) => {
-    console.log("ft-Getting field value for record:", record);
+    // console.log("ft-Getting field value for record:", record);
     if (!fieldConfig) return null;
     // if (!fieldConfig) return '';
 
@@ -99,7 +99,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     let value = getNestedValue(record, fieldConfig?.fieldPath)
 
     // Handle comma-separated display for subfields
-    if (fieldConfig?.display === "comma_separated" && fieldConfig.subFields) {
+    if (fieldConfig?.display === "comma_separated" && fieldConfig?.subFields?.length > 0) {
       value = fieldConfig.subFields
         .map(subField => getNestedValue(record, subField.fieldPath))
         .filter(Boolean) // Remove any undefined or null values
@@ -122,7 +122,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     const { style = {} } = fieldConfig;
     const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
     // Return null if value is null, undefined, or empty string to prevent empty line
-    if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+    if (value === null || value === undefined || value === '' || (Array.isArray(value) && value?.length === 0)) {
       return null;
     }
     if (style?.render === 'tag' && Array.isArray(value)) {
@@ -380,6 +380,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
           const titleFields = fields?.filter(f => f.cardSection === 'title');
           const footerFields = fields?.filter(f => f.cardSection === 'footer');
           const bodyFields = fields?.filter(f => !f.cardSection || f.cardSection === 'body');
+          //console.log("Fields", titleFields, bodyFields, footerFields)
 
           return (
             <Col key={record?.id || index} {...getResponsiveSpans(gridViewConfig?.layout?.cardsPerRow)}>
@@ -394,7 +395,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                   <Space>
                     {titleFields?.map(field => renderField(record, field))}
                   </Space>
-                ) : undefined}
+                ) : null}
                 extra={
                   gridViewConfig?.actions?.row && (
                     <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
@@ -409,7 +410,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                 <Space direction="vertical" style={{ width: '100%' }}>
                   {bodyFields?.map((fieldConfig) => (
                     renderField(record, fieldConfig)
-                  )).filter(Boolean)}
+                  ))?.filter(Boolean)}
                 </Space>
                 {/* <div key={fieldConfig?.fieldPath}>
                         </div> */}
@@ -418,7 +419,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                     <Space wrap>
                       {footerFields?.map(fieldConfig => (
                         renderField(record, fieldConfig)
-                      )).filter(Boolean)}
+                      ))?.filter(Boolean)}
                     </Space>
                   </div>
                 )}

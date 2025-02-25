@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, Drawer, notification, Tabs } from 'antd';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Card, Drawer, notification, Spin, Tabs } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
@@ -134,7 +134,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
-
+    const [loading, setLoading] = useState(true);
 
 
     const openDrawer = addEditFunction || ((item = null, view = false, form = "") => {
@@ -288,6 +288,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
 
     const fetchData = async () => {
+        setLoading(true);
         console.log("viewConfig", viewConfig);
 
         let query = supabase.from(entityType).select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true).order('details->>name', { ascending: true });
@@ -360,6 +361,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch Data" });
         }
+        setLoading(false);
     };
 
 
@@ -744,9 +746,15 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         entry_criteria: {}
     };
 
+    const memoizedViewConfig = useMemo(() => viewConfig, [viewConfig]);
+
     return (
         <Card ref={divRef}>
-            {(data && viewConfig) && (
+            {loading ? ( // Show Spin component while loading
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <Spin size="large" />
+                </div>
+            ) : (data && viewConfig) && (
                 tabItems.length > 1 ? (
                     <Tabs
                         tabBarExtraContent={ //Global filters
@@ -778,8 +786,8 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 footer={null}
             >
                 {viewMode ?
-                    <DetailsView entityType={entityType} viewConfig={viewConfig} editItem={editItem} rawData={rawData}
-                        DetailsCard={<GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />}
+                    <DetailsView entityType={entityType} viewConfig={memoizedViewConfig} editItem={editItem} rawData={rawData}
+                        DetailsCard={<GridView data={data} viewConfig={memoizedViewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />}
                     />
                     : <DynamicForm
                         // schemas={viewConfig} // Replace with actual schemas
