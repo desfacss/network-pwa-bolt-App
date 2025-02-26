@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Descriptions, Button, Modal, Divider, Tabs } from 'antd';
-import { supabase } from 'configs/SupabaseConfig';
+import { supabase } from 'api/supabaseClient';
 import DynamicForm from '../DynamicForm';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
@@ -27,7 +27,7 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userName = decodeURIComponent(user_name) || session?.user?.user_name; // Use route ID if available, otherwise use logged-in user
+            const userName = (user_name && decodeURIComponent(user_name)) || session?.user?.user_name; // Use route ID if available, otherwise use logged-in user
             if (!userName) return;
 
             const { data, error } = await supabase
@@ -202,23 +202,33 @@ const Profile = () => {
     const renderDynamicDescriptionItems = () => {
         const groups = profileFields?.groups?.sort((a, b) => a.order - b.order);
 
-        return groups?.map((group, idx) => (
-            <React.Fragment key={group.name}>
-                {group.show_group_name && <Descriptions title={group.name} column={1} />}
-                <Descriptions column={1}>
-                    {group.fields.sort((a, b) => a.order - b.order).map(field => (
-                        <Descriptions.Item key={field.value} label={field.label}>
-                            {field.custom_format
-                                ? formatCustomValue(userData, field.custom_path, field.custom_format)
-                                : (Array.isArray(getValueByPath(userData, field.path))
-                                    ? getValueByPath(userData, field.path).join(' , ')
-                                    : getValueByPath(userData, field.path) || 'N/A')}
-                        </Descriptions.Item>
-                    ))}
-                </Descriptions>
-                {profileFields?.dividers?.includes(group.name) && idx < groups.length - 1 && <Divider />}
-            </React.Fragment>
-        ));
+        return groups?.map((group, idx) => {
+            const showGroup = !group.private || (session?.user?.id === userData?.id); // Check group privacy
+            if (!showGroup) return null; // Skip if group is private and not the owner
+
+            return (
+                <React.Fragment key={group.name}>
+                    {group.show_group_name && <Descriptions title={group.name} column={1} />}
+                    <Descriptions column={1}>
+                        {group.fields.sort((a, b) => a.order - b.order).map(field => {
+                            const showField = !field.private || (session?.user?.id === userData?.id); // Check field privacy
+                            if (!showField) return null; // Skip if field is private and not the owner
+
+                            return (
+                                <Descriptions.Item key={field.value} label={field.label}>
+                                    {field.custom_format
+                                        ? formatCustomValue(userData, field.custom_path, field.custom_format)
+                                        : (Array.isArray(getValueByPath(userData, field.path))
+                                            ? getValueByPath(userData, field.path).join(' , ')
+                                            : getValueByPath(userData, field.path) || 'N/A')}
+                                </Descriptions.Item>
+                            );
+                        })}
+                    </Descriptions>
+                    {profileFields?.dividers?.includes(group.name) && idx < groups.length - 1 && <Divider />}
+                </React.Fragment>
+            );
+        });
     };
 
     if (!userData) return null;

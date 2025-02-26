@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Input, Button, message, Card, Select, Modal, Popconfirm } from 'antd';
-import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import { Drawer, Menu, Input, Button, message, Card, Modal, Popconfirm } from 'antd';
+import { CloseOutlined, PlusOutlined, MenuOutlined } from '@ant-design/icons';
 import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
 import ForumComment from './Comments';
 
-const { TabPane } = Tabs;
-
 const Channels = () => {
     const [channels, setChannels] = useState([]);
-    const [activeTab, setActiveTab] = useState(null);
+    const [activeChannel, setActiveChannel] = useState(null); // Replaced activeTab with activeChannel
     const [newChannelSlug, setNewChannelSlug] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [selectedChannelToDelete, setSelectedChannelToDelete] = useState(null);
-    const [userNames, setUserNames] = useState({}); // State to hold user names
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false); // For Drawer visibility
+    const [userNames, setUserNames] = useState({});
 
     const { session } = useSelector((state) => state.auth);
 
@@ -29,9 +27,8 @@ const Channels = () => {
         } else {
             setChannels(data);
             if (data.length > 0) {
-                setActiveTab(data[0].slug);
+                setActiveChannel(data[0]); // Set the first channel as active
             }
-            // Fetch user names for all join requests across all channels
             const uniqueUserIds = [...new Set(data.flatMap(channel => channel.join_requests || []))];
             fetchUserNames(uniqueUserIds);
         }
@@ -52,22 +49,12 @@ const Channels = () => {
         }
     };
 
-    const showModal = () => {
-        setIsModalVisible(true);
-    };
-
+    const showModal = () => setIsModalVisible(true);
     const handleOk = () => {
         handleAddChannel();
         setIsModalVisible(false);
     };
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
-
-    const handleTabChange = (key) => {
-        setActiveTab(key);
-    };
+    const handleCancel = () => setIsModalVisible(false);
 
     const handleAddChannel = async () => {
         if (!newChannelSlug) return;
@@ -92,15 +79,15 @@ const Channels = () => {
             message.error("Failed to delete channel.");
         } else {
             fetchChannels();
-            setActiveTab(channels.length > 0 ? channels[0]?.slug : null);
+            setActiveChannel(channels.length > 0 ? channels[0] : null);
             message.success("Channel deleted successfully!");
         }
     };
 
     const handleJoinRequest = async (channelId) => {
-        console.log("uuu", channelId, [...(channels.find(c => c.id === channelId).join_requests || []), session.user.id]);
+        const channel = channels.find(c => c.id === channelId);
         const { error } = await supabase.from('channels').update({
-            join_requests: [...(channels.find(c => c.id === channelId).join_requests || []), session.user.id]
+            join_requests: [...(channel.join_requests || []), session.user.id]
         }).eq('id', channelId);
 
         if (error) {
@@ -108,18 +95,16 @@ const Channels = () => {
             message.error("Failed to request to join channel.");
         } else {
             message.success("Join request sent!");
-            fetchChannels(); // Refresh channels to update UI
+            fetchChannels();
         }
     };
 
     const approveJoinRequest = async (channelId, userId) => {
-        // Remove from join_requests
         const channel = channels.find(c => c.id === channelId);
         const newJoinRequests = channel.join_requests.filter(id => id !== userId);
 
         await supabase.from('channels').update({ join_requests: newJoinRequests }).eq('id', channelId);
 
-        // Update user's subscriptions
         const { data: user, error: userError } = await supabase
             .from('users')
             .select('subscriptions')
@@ -137,11 +122,10 @@ const Channels = () => {
         };
 
         await supabase.from('users').update({ subscriptions: newSubscriptions }).eq('id', userId);
-        fetchChannels(); // Refresh channels to reflect changes
+        fetchChannels();
     };
 
-    const renderChannelTab = (channel) => {
-        console.log("ccc", channel?.join_requests);
+    const renderChannelContent = (channel) => {
         const isSubscribed = session?.user?.subscriptions?.channels?.includes(channel.id);
 
         if (channel.is_public) {
@@ -161,49 +145,104 @@ const Channels = () => {
 
     return (
         <Card>
-            <Tabs activeKey={activeTab} onChange={handleTabChange} animated={true}
-                tabBarExtraContent={session?.user?.role_type === 'superadmin' && <Button type="primary" onClick={showModal} icon={<PlusOutlined />}>Add Channel</Button>}
+            {/* Button to toggle Drawer */}
+            <Button
+                icon={<MenuOutlined />}
+                onClick={() => setIsDrawerVisible(true)}
+                style={{ marginBottom: 16 }}
             >
-                {channels.map((channel) => (
-                    <TabPane tab={
-                        <span>
-                            {channel.slug}
-                            {(session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') &&
-                                <Popconfirm
-                                    title={`Are you sure to delete ${channel.slug}?`}
-                                    onConfirm={() => handleDeleteChannel(channel.id)}
-                                    okText="Yes"
-                                    cancelText="No"
-                                >
-                                    <CloseOutlined style={{ marginLeft: '8px', color: 'red', cursor: 'pointer' }} />
-                                </Popconfirm>
-                            }
-                            {channel.join_requests && channel.join_requests.length > 0 && (session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') &&
-                                <Button onClick={() => {
-                                    Modal.info({
-                                        title: 'Join Requests',
-                                        content: (
-                                            <div>
-                                                {channel.join_requests.map((userId) => (
-                                                    <div key={userId}>
-                                                        <Button onClick={() => approveJoinRequest(channel.id, userId)}>Approve</Button>
-                                                        {" "}For {userNames[userId] || 'Unknown User'}
+                Channels
+            </Button>
+
+            {/* Drawer with Menu for channel selection */}
+            <Drawer
+                title="Channels"
+                placement="right"
+                onClose={() => setIsDrawerVisible(false)}
+                visible={isDrawerVisible}
+                width={300}
+            >
+                <Menu
+                    selectedKeys={activeChannel ? [activeChannel.slug] : []}
+                    mode="vertical"
+                    onClick={({ key }) => {
+                        const selectedChannel = channels.find(c => c.slug === key);
+                        setActiveChannel(selectedChannel);
+                        setIsDrawerVisible(false); // Close drawer on selection
+                    }}
+                >
+                    {channels.map(channel => (
+                        <Menu.Item key={channel.slug}>
+                            <span>
+                                {channel.slug}
+                                {(session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
+                                    <Popconfirm
+                                        title={`Are you sure to delete ${channel.slug}?`}
+                                        onConfirm={() => handleDeleteChannel(channel.id)}
+                                        okText="Yes"
+                                        cancelText="No"
+                                    >
+                                        <CloseOutlined style={{ marginLeft: '8px', color: 'red', cursor: 'pointer' }} />
+                                    </Popconfirm>
+                                )}
+                                {channel.join_requests?.length > 0 && (session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            Modal.info({
+                                                title: 'Join Requests',
+                                                content: (
+                                                    <div>
+                                                        {channel.join_requests.map((userId) => (
+                                                            <div key={userId}>
+                                                                <Button onClick={() => approveJoinRequest(channel.id, userId)}>Approve</Button>
+                                                                {" "}For {userNames[userId] || 'Unknown User'}
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )
-                                    });
-                                }}>View Requests</Button>
-                            }
-                        </span>
-                    }
-                        key={channel.slug}>
-                        {renderChannelTab(channel)}
-                    </TabPane>
-                ))}
-            </Tabs>
-            <Modal title="Add New Channel" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-                <Input placeholder="New channel slug" value={newChannelSlug} onChange={(e) => setNewChannelSlug(e.target.value)} />
+                                                )
+                                            });
+                                        }}
+                                    >
+                                        View Requests
+                                    </Button>
+                                )}
+                            </span>
+                        </Menu.Item>
+                    ))}
+                </Menu>
+                {session?.user?.role_type === 'superadmin' && (
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={showModal}
+                        style={{ marginTop: 16 }}
+                    >
+                        Add Channel
+                    </Button>
+                )}
+            </Drawer>
+
+            {/* Active Channel Content */}
+            {activeChannel && (
+                <div>
+                    <h3>{activeChannel.slug}</h3>
+                    {renderChannelContent(activeChannel)}
+                </div>
+            )}
+
+            {/* Modal for adding new channel */}
+            <Modal
+                title="Add New Channel"
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <Input
+                    placeholder="New channel slug"
+                    value={newChannelSlug}
+                    onChange={(e) => setNewChannelSlug(e.target.value)}
+                />
             </Modal>
         </Card>
     );

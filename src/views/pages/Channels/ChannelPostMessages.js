@@ -1,4 +1,4 @@
-import { Button, Card, Input, Modal } from 'antd';
+import { Button, Card, Input, Modal, Avatar, Tooltip } from 'antd';
 import { supabase } from 'api/supabaseClient';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -6,6 +6,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import PostCard from './Post';
 import { addMessage, fetchMessages } from './utils';
 import { EditOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import './message.css';
 
 const ChannelPostMessages = () => {
     const { channel_post_id } = useParams();
@@ -33,7 +35,7 @@ const ChannelPostMessages = () => {
             .on('postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'channel_post_messages', filter: `channel_post_id=eq.${channel_post_id}` },
                 async (payload) => {
-                    console.log('New message received:', payload.new, messages, channel_post_id);
+                    // console.log('New message received:', payload, messages, channel_post_id);
                     setMessages((prevMessages) => [...prevMessages, payload.new]);
                     // const messages = await fetchMessages(channel_post_id);
                     // setMessages(messages);
@@ -112,7 +114,7 @@ const ChannelPostMessages = () => {
 
     return (
         <Card>
-            <Button onClick={() => navigate(`app/networking`)}>Back</Button>
+            {/* <Button onClick={() => navigate(`app/networking`)}>Back</Button>
             <PostCard channel_post_id={channel_post_id} />
             <h2>Messages</h2>
             <ul>
@@ -143,6 +145,49 @@ const ChannelPostMessages = () => {
                 onChange={(e) => setNewMessage(e.target.value)}
             />
             <Button onClick={handleAddMessage} type='primary'>Send</Button>
+            <Modal title="Edit Message" visible={isModalVisible} onOk={handleUpdateMessage} onCancel={handleCancel}>
+                <Input.TextArea
+                    value={editMessageContent}
+                    onChange={(e) => setEditMessageContent(e.target.value)}
+                    autoSize={{ minRows: 3, maxRows: 6 }}
+                />
+            </Modal> */}
+            <Button onClick={() => navigate(`app/networking`)}>Back</Button>
+            <PostCard channel_post_id={channel_post_id} />
+            <div className="message-container"> {/* Container for messages */}
+                <h2>Messages</h2>
+                <ul className="message-list">
+                    {messages?.map((message) => (
+                        <li key={message.id} className={`message ${message.user_id === session?.user?.id ? 'message-own' : ''}`}> {/* Add conditional class */}
+                            <Tooltip title={moment(message.created_at).format('LLL')}> {/* Display timestamp tooltip */}
+                                <Avatar size="medium" className="message-avatar">{message.name?.charAt(0)}</Avatar> {/* Display avatar */}
+                            </Tooltip>
+                            <div className="message-content">
+                                <div className="message-bubble">
+                                    <span>{convertMessageToLinks(message?.message)}</span>
+                                    {message?.user_id === session?.user?.id && (
+                                        <div className="message-actions"> {/* Container for actions */}
+                                            <Button onClick={() => showEditModal(message.id, message.message)} type='text' size="small" icon={<EditOutlined />} />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="message-info">
+                                    <span className="message-author">{message?.name}</span>
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+                <div className="message-input"> {/* Container for input */}
+                    <Input.TextArea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        autoSize={{ minRows: 1, maxRows: 3 }}
+                        onPressEnter={handleAddMessage}  // Send on Enter
+                    />
+                    <Button onClick={handleAddMessage} type='primary'>Send</Button>
+                </div>
+            </div>
             <Modal title="Edit Message" visible={isModalVisible} onOk={handleUpdateMessage} onCancel={handleCancel}>
                 <Input.TextArea
                     value={editMessageContent}

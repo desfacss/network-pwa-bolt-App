@@ -517,74 +517,217 @@ const ForumComment = ({ channel_id }) => {
                         dataSource={filteredMessages}
                         renderItem={(item) => (
                             <Card
-                                style={{ marginBottom: 16 }}
-                                actions={[
-                                    <Flex key="footer" justify="space-between" align="center" style={{ padding: '0 16px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Avatar icon={<UserOutlined />} />
-                                            <span style={{ fontSize: 13, color: '#666' }}>{item?.user?.user_name}</span>
+                                style={{
+                                    marginBottom: 16,
+                                    borderRadius: 10,
+                                    background: '#fff',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                                    padding: '16px',
+                                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                                    border: '1px solid #f0f0f0',
+                                }}
+                                bodyStyle={{ padding: 0 }}
+                                hoverable
+                            >
+                                {/* Row 1: Message and Reply Controls */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: '14px',
+                                        marginBottom: 14,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 8, // Space between reply count and reply button
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                width: 28,
+                                                height: 28,
+                                                background: '#E6E6FA',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontWeight: 700,
+                                                fontSize: 14,
+                                                color: '#9370DB',
+                                                cursor: 'pointer',
+                                                transition: 'background 0.2s ease',
+                                            }}
+                                            onClick={() => navigate(`/app/networking/${item.id}`)}
+                                            onMouseEnter={(e) => (e.currentTarget.style.background = '#D8BFD8')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.background = '#E6E6FA')}
+                                        >
+                                            {item?.reply_count}
                                         </div>
-                                        <span style={{ fontSize: 13 }}>{new Date(item?.inserted_at).toLocaleString()}</span>
-                                    </Flex>,
-                                    <div key="tags" style={{ padding: '0 16px' }}>
-                                        {item?.details?.tags?.map((tag) => (
-                                            <Tag key={tag} style={{ cursor: 'default' }}>
-                                                {idToNameMap.get(tag) || tag}
-                                            </Tag>
-                                        ))}
+                                        <Button
+                                            type="link"
+                                            onClick={() => navigate(`/app/networking/${item?.id}`)}
+                                            style={{
+                                                padding: 0,
+                                                fontSize: 13,
+                                                color: '#9370DB',
+                                                fontWeight: 500,
+                                                height: 'auto', // Remove default button height
+                                                lineHeight: 1, // Align with reply count
+                                            }}
+                                        >
+                                            Reply
+                                        </Button>
+                                    </div>
+                                    <div
+                                        style={{
+                                            flex: 1,
+                                            color: '#333',
+                                            fontSize: 14.5,
+                                            lineHeight: 1.5,
+                                            wordBreak: 'break-word',
+                                        }}
+                                    >
+                                        {formatMessage(item?.message)}
+                                    </div>
+                                </div>
+
+                                {/* Row 2: Username, Tags (center-aligned), Timestamp */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        paddingBottom: 10,
+                                        borderBottom: '1px solid #f5f5f5',
+                                    }}
+                                >
+                                    {/* Left: Avatar and Username */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                                        <Avatar
+                                            icon={<UserOutlined />}
+                                            size={36}
+                                            style={{
+                                                backgroundColor: '#9370DB',
+                                                border: '2px solid #E6E6FA',
+                                            }}
+                                        />
+                                        <div style={{ minWidth: 0 }}>
+                                            <span
+                                                style={{
+                                                    fontWeight: 600,
+                                                    color: '#4B0082',
+                                                    fontSize: 15,
+                                                }}
+                                            >
+                                                {item?.user?.user_name}
+                                            </span>
+                                            <div
+                                                style={{
+                                                    fontSize: 11,
+                                                    color: '#999',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                }}
+                                            >
+                                                @{item?.user?.user_name?.toLowerCase().replace(/\s+/g, '')}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Center: Tags */}
+                                    <div
+                                        style={{
+                                            flex: 1,
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            flexWrap: 'wrap',
+                                            gap: 6,
+                                            padding: '0 10px',
+                                        }}
+                                    >
                                         {item?.details?.category_id && (
-                                            <Tag color="blue" style={{ cursor: 'default' }}>
+                                            <Tag
+                                                style={{
+                                                    borderRadius: 12,
+                                                    background: '#E6E6FA',
+                                                    color: '#4B0082',
+                                                    fontSize: 12,
+                                                    padding: '2px 8px',
+                                                    border: 'none',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 {idToNameMap.get(item?.details?.category_id) || item?.details?.category_id}
                                             </Tag>
                                         )}
-                                    </div>,
-                                ]}
-                            >
+                                        {item?.details?.tags?.map((tag) => (
+                                            <Tag
+                                                key={tag}
+                                                style={{
+                                                    borderRadius: 12,
+                                                    background: '#D8BFD8',
+                                                    color: '#4B0082',
+                                                    fontSize: 12,
+                                                    padding: '2px 8px',
+                                                    border: 'none',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                {idToNameMap.get(tag) || tag}
+                                            </Tag>
+                                        ))}
+                                    </div>
+
+                                    {/* Right: Timestamp */}
+                                    <span
+                                        style={{
+                                            fontSize: 12,
+                                            color: '#888',
+                                            fontStyle: 'italic',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        {new Date(item?.inserted_at).toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}{' '}
+                                        ·{' '}
+                                        {new Date(item?.inserted_at).toLocaleDateString([], {
+                                            month: 'short',
+                                            day: 'numeric',
+                                        })}
+                                    </span>
+                                </div>
+
+                                {/* Delete Button (if authorized) */}
                                 {(session?.user?.role_type === 'superadmin' || session?.user?.id === item.user_id) && (
                                     <Popconfirm
                                         title="Are you sure to delete this message?"
                                         onConfirm={() => handleDelete(item?.id)}
                                         okText="Yes"
                                         cancelText="No"
+                                        placement="topRight"
                                     >
                                         <DeleteOutlined
                                             style={{
                                                 position: 'absolute',
-                                                top: '10px',
-                                                right: '10px',
+                                                top: 16,
+                                                right: 16,
                                                 cursor: 'pointer',
-                                                color: 'red',
+                                                color: '#ff4d4f',
+                                                fontSize: 18,
+                                                transition: 'color 0.2s ease',
                                             }}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ff7875')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = '#ff4d4f')}
                                         />
                                     </Popconfirm>
                                 )}
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                                    <div
-                                        style={{
-                                            width: '40px',
-                                            height: '40px',
-                                            background: '#E6E6FA',
-                                            borderRadius: '8px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontWeight: 'bold',
-                                            color: '#9370DB',
-                                        }}
-                                    >
-                                        {item?.reply_count}
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        {formatMessage(item?.message)}
-                                        <Button
-                                            type="link"
-                                            onClick={() => navigate(`/app/networking/${item.id}`)}
-                                            style={{ padding: 0, marginTop: 8 }}
-                                        >
-                                            Reply
-                                        </Button>
-                                    </div>
-                                </div>
                             </Card>
                         )}
                     />

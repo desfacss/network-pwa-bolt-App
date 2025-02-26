@@ -397,7 +397,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                   </Space>
                 ) : null}
                 extra={
-                  gridViewConfig?.actions?.row && (
+                  gridViewConfig?.actions?.row?.length > 0 && getActionMenu(record)?.props?.children?.length > 0 && (
                     <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
                       <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
                     </Dropdown>

@@ -1,0 +1,92 @@
+.message-container {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    /* Set a fixed height for scrolling */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    padding: 10px;
+}
+
+.message-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    /* Align items to the top */
+    margin-bottom: 10px;
+}
+
+.message-own {
+    flex-direction: row-reverse;
+    /* Reverse for own messages */
+}
+
+.message-avatar {
+    margin-right: 10px;
+    /* Space between avatar and content */
+}
+
+.message-own .message-avatar {
+    margin-left: 10px;
+    margin-right: 0;
+}
+
+.message-content {
+    flex: 1;
+    /* Allow content to expand */
+}
+
+.message-bubble {
+    background-color: #f0f0f0;
+    /* Light gray bubble */
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 5px;
+    /* Space between bubble and info */
+    position: relative;
+}
+
+.message-own .message-bubble {
+    background-color: #e6f7ff;
+    /* Light blue for own messages */
+}
+
+.message-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none;
+    /* Hide by default */
+}
+
+.message-bubble:hover .message-actions {
+    display: block;
+    /* Show on hover */
+}
+
+.message-info {
+    font-size: 0.8em;
+    color: gray;
+}
+
+.message-author {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.message-input {
+    display: flex;
+    align-items: center;
+    /* Vertically center input and button */
+}
+
+.message-input .ant-input-textarea {
+    flex: 1;
+    /* Allow textarea to expand */
+    margin-right: 10px;
+}
