@@ -1,0 +1,23 @@
+/* prostyle.css */
+.property-listing-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .property-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  @media (max-width: 576px) {
+    .property-listing-container {
+      padding: 10px;
+    }
+  }
+  
+  @media (min-width: 577px) {
+    .property-listing-container {
+      padding: 20px;
+    }
+  }
