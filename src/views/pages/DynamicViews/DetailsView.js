@@ -61,36 +61,22 @@ const DetailsView = ({ entityType, viewConfig, editItem, DetailsCard, rawData })
         return tabs;
     };
 
+    const tabs = generateTabs();
+
+    if (tabs.length === 1) {
+        return (
+            <div style={{ padding: '20px' }}>
+                {tabs[0].children}
+            </div>
+        );
+    }
     return (
         <div style={{ padding: '20px' }}> {/* Added padding for better visuals */}
             {/* <DetailsCard /> */}
             <Tabs
                 activeKey={activeKey}
                 onChange={onChange}
-                items={generateTabs()}
-            // items={[
-            //     {
-            //         key: '1',
-            //         label: 'Status',
-            //         children: <StatusTab />,
-            //     },
-            //     {
-            //         key: '2',
-            //         label: 'Notes',
-            //         children: <NotesTab />,
-            //     },
-            //     {
-            //         key: '3',
-            //         label: 'Files',
-            //         children: <FilesTab editItem={editItem} rawData={rawData} />,
-            //     },
-            //     // viewConfig?.allocations && Object.keys(viewConfig?.allocations).length > 0 &&
-            //     {
-            //         key: '4',
-            //         label: 'Allocations',
-            //         children: <AllocationsTab entityType={entityType} viewConfig={viewConfig} editItem={editItem} />,
-            //     },
-            // ]}
+                items={tabs}
             />
         </div>
     );

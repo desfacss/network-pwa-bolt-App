@@ -5,15 +5,30 @@ import { supabase } from 'api/supabaseClient';
 import { useSelector } from 'react-redux';
 import ForumComment from './Comments';
 
+// Simple hook to detect screen size
+const useMediaQuery = (query) => {
+    const [matches, setMatches] = useState(window.matchMedia(query).matches);
+
+    useEffect(() => {
+        const media = window.matchMedia(query);
+        const listener = () => setMatches(media.matches);
+        media.addListener(listener);
+        return () => media.removeListener(listener);
+    }, [query]);
+
+    return matches;
+};
+
 const Channels = () => {
     const [channels, setChannels] = useState([]);
-    const [activeChannel, setActiveChannel] = useState(null); // Replaced activeTab with activeChannel
+    const [activeChannel, setActiveChannel] = useState(null);
     const [newChannelSlug, setNewChannelSlug] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isDrawerVisible, setIsDrawerVisible] = useState(false); // For Drawer visibility
+    const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [userNames, setUserNames] = useState({});
 
     const { session } = useSelector((state) => state.auth);
+    const isDesktop = useMediaQuery('(min-width: 768px)'); // Adjust breakpoint as needed
 
     useEffect(() => {
         fetchChannels();
@@ -27,7 +42,7 @@ const Channels = () => {
         } else {
             setChannels(data);
             if (data.length > 0) {
-                setActiveChannel(data[0]); // Set the first channel as active
+                setActiveChannel(data[0]);
             }
             const uniqueUserIds = [...new Set(data.flatMap(channel => channel.join_requests || []))];
             fetchUserNames(uniqueUserIds);
@@ -143,91 +158,121 @@ const Channels = () => {
         }
     };
 
-    return (
-        <Card>
-            {/* Button to toggle Drawer */}
-            <Button
-                icon={<MenuOutlined />}
-                onClick={() => setIsDrawerVisible(true)}
-                style={{ marginBottom: 16 }}
-            >
-                Channels
-            </Button>
+    const renderMenu = () => (
+        <Menu
+            selectedKeys={activeChannel ? [activeChannel.slug] : []}
+            mode="vertical"
+            onClick={({ key }) => {
+                const selectedChannel = channels.find(c => c.slug === key);
+                setActiveChannel(selectedChannel);
+            }}
+            style={{ width: '100%' }}
+        >
+            {/* Register for Stream */}
+            {/* <Card title={<>Register for Stream</>} style={{ marginTop: 24 }}>
 
-            {/* Drawer with Menu for channel selection */}
-            <Drawer
-                title="Channels"
-                placement="right"
-                onClose={() => setIsDrawerVisible(false)}
-                visible={isDrawerVisible}
-                width={300}
-            >
-                <Menu
-                    selectedKeys={activeChannel ? [activeChannel.slug] : []}
-                    mode="vertical"
-                    onClick={({ key }) => {
-                        const selectedChannel = channels.find(c => c.slug === key);
-                        setActiveChannel(selectedChannel);
-                        setIsDrawerVisible(false); // Close drawer on selection
+            </Card> */}
+            {channels?.map(channel => (
+                <Menu.Item key={channel.slug}>
+                    <span>
+                        {channel.slug}
+                        {(session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
+                            <Popconfirm
+                                title={`Are you sure to delete ${channel.slug}?`}
+                                onConfirm={() => handleDeleteChannel(channel.id)}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <CloseOutlined style={{ marginLeft: '8px', color: 'red', cursor: 'pointer' }} />
+                            </Popconfirm>
+                        )}
+                        {channel.join_requests?.length > 0 && (session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    Modal.info({
+                                        title: 'Join Requests',
+                                        content: (
+                                            <div>
+                                                {channel.join_requests.map((userId) => (
+                                                    <div key={userId}>
+                                                        <Button onClick={() => approveJoinRequest(channel.id, userId)}>Approve</Button>
+                                                        {" "}For {userNames[userId] || 'Unknown User'}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )
+                                    });
+                                }}
+                            >
+                                View Requests
+                            </Button>
+                        )}
+                    </span>
+                </Menu.Item>
+            ))}
+            {session?.user?.role_type === 'superadmin' && (
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={showModal}
+                    style={{ marginTop: 16, width: '100%' }}
+                >
+                    Add Channel
+                </Button>
+            )}
+        </Menu>
+    );
+
+    return (
+        <>
+            <Card style={{ paddingRight: isDesktop ? 320 : 0 }}>
+                {/* Mobile Layout with Drawer */}
+                {!isDesktop && (
+                    <>
+                        <Button
+                            icon={<MenuOutlined />}
+                            onClick={() => setIsDrawerVisible(true)}
+                            style={{ marginBottom: 16 }}
+                        >
+                            Channels
+                        </Button>
+                        <Drawer
+                            title="Channels"
+                            placement="right"
+                            onClose={() => setIsDrawerVisible(false)}
+                            visible={isDrawerVisible}
+                            width={300}
+                        >
+                            {renderMenu()}
+                        </Drawer>
+                    </>
+                )}
+
+                {/* Content Area */}
+                {activeChannel && (
+                    <div>
+                        <h3>{activeChannel.slug}</h3>
+                        {renderChannelContent(activeChannel)}
+                    </div>
+                )}
+            </Card>
+
+            {/* Desktop Fixed Menu (Below Header) */}
+            {isDesktop && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 80, // Adjust this value to account for your header height (e.g., 60px header + 20px padding)
+                        right: 16,
+                        width: 300,
+                        background: '#fff',
+                        borderRadius: 4,
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                        zIndex: 1000, // Higher zIndex to stay above other elements
                     }}
                 >
-                    {channels.map(channel => (
-                        <Menu.Item key={channel.slug}>
-                            <span>
-                                {channel.slug}
-                                {(session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
-                                    <Popconfirm
-                                        title={`Are you sure to delete ${channel.slug}?`}
-                                        onConfirm={() => handleDeleteChannel(channel.id)}
-                                        okText="Yes"
-                                        cancelText="No"
-                                    >
-                                        <CloseOutlined style={{ marginLeft: '8px', color: 'red', cursor: 'pointer' }} />
-                                    </Popconfirm>
-                                )}
-                                {channel.join_requests?.length > 0 && (session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
-                                    <Button
-                                        size="small"
-                                        onClick={() => {
-                                            Modal.info({
-                                                title: 'Join Requests',
-                                                content: (
-                                                    <div>
-                                                        {channel.join_requests.map((userId) => (
-                                                            <div key={userId}>
-                                                                <Button onClick={() => approveJoinRequest(channel.id, userId)}>Approve</Button>
-                                                                {" "}For {userNames[userId] || 'Unknown User'}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )
-                                            });
-                                        }}
-                                    >
-                                        View Requests
-                                    </Button>
-                                )}
-                            </span>
-                        </Menu.Item>
-                    ))}
-                </Menu>
-                {session?.user?.role_type === 'superadmin' && (
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={showModal}
-                        style={{ marginTop: 16 }}
-                    >
-                        Add Channel
-                    </Button>
-                )}
-            </Drawer>
-
-            {/* Active Channel Content */}
-            {activeChannel && (
-                <div>
-                    <h3>{activeChannel.slug}</h3>
-                    {renderChannelContent(activeChannel)}
+                    {renderMenu()}
                 </div>
             )}
 
@@ -244,7 +289,7 @@ const Channels = () => {
                     onChange={(e) => setNewChannelSlug(e.target.value)}
                 />
             </Modal>
-        </Card>
+        </>
     );
 };
 

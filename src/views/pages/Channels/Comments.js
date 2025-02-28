@@ -89,7 +89,7 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
             {/* Single Control with Light Pastel Purple Background */}
             {/* Single Control with Light Pastel Purple Background */}
             <div style={{
-                background: '#E6E6FA', // Light pastel purple
+                background: '#ccceee', // Light pastel purple
                 borderRadius: 4,
                 overflow: 'hidden',
                 border: '1px solid #D8BFD8', // Subtle purple border
@@ -115,7 +115,7 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
                                     width: '4px', // Slim scrollbar
                                 },
                                 '::-webkit-scrollbar-track': {
-                                    background: '#E6E6FA', // Light pastel purple to match background
+                                    background: '#ccceee', // Light pastel purple to match background
                                     borderRadius: '2px', // Rounded corners
                                 },
                                 '::-webkit-scrollbar-thumb': {
@@ -127,7 +127,7 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
                                 },
                                 // Fallback for Firefox
                                 scrollbarWidth: 'thin',
-                                scrollbarColor: '#D8BFD8 #E6E6FA',
+                                scrollbarColor: '#D8BFD8 #ccceee',
                             }}
                         >
                             {mentionUsers?.map((user) => (
@@ -169,7 +169,7 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
                             marginBottom: 4,
                         }}
                         showSearch
-                        dropdownStyle={{ background: '#E6E6FA', color: '#4B0082' }} // Light purple dropdown
+                        dropdownStyle={{ background: '#ccceee', color: '#4B0082' }} // Light purple dropdown
                     />
                     {/* {tags.map((tag) => (
                         <Tag
@@ -441,8 +441,8 @@ const ForumComment = ({ channel_id }) => {
             return messages.filter(message => {
                 const userName = message.user?.user_name?.toLowerCase() || '';
                 const messageContent = message.message?.toLowerCase() || '';
-                const tags = message.details?.tags?.map(tag => idToNameMap.get(tag) || tag).join(' ').toLowerCase() || '';
-                const category = idToNameMap.get(message.details?.category_id)?.toLowerCase() || message.details?.category_id?.toLowerCase() || '';
+                const tags = message.details?.tags?.map(tag => idToNameMap?.get(tag) || tag).join(' ').toLowerCase() || '';
+                const category = idToNameMap.get(message?.details?.category_id)?.toLowerCase() || message.details?.category_id?.toLowerCase() || '';
                 return userName.includes(lowerCaseSearchText) ||
                     messageContent.includes(lowerCaseSearchText) ||
                     tags.includes(lowerCaseSearchText) ||
@@ -492,8 +492,8 @@ const ForumComment = ({ channel_id }) => {
                         algorithm: theme.defaultAlgorithm, // Use AntD's default light theme
                         token: {
                             // colorPrimary: '#9370DB', // Medium purple for buttons and accents
-                            // colorBgContainer: '#E6E6FA', // Light pastel purple background
-                            // colorBgBase: '#E6E6FA', // Consistent light purple base
+                            // colorBgContainer: '#ccceee', // Light pastel purple background
+                            // colorBgBase: '#ccceee', // Consistent light purple base
                             // colorText: '#4B0082', // Darker purple for text (e.g., Indigo)
                             colorBorder: '#D8BFD8', // Light purple border for subtle contrast
                             borderRadius: 4, // Subtle rounded corners
@@ -549,7 +549,7 @@ const ForumComment = ({ channel_id }) => {
                                             style={{
                                                 width: 28,
                                                 height: 28,
-                                                background: '#E6E6FA',
+                                                background: '#ccceee',
                                                 borderRadius: '50%',
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -562,10 +562,35 @@ const ForumComment = ({ channel_id }) => {
                                             }}
                                             onClick={() => navigate(`/app/networking/${item.id}`)}
                                             onMouseEnter={(e) => (e.currentTarget.style.background = '#D8BFD8')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.background = '#E6E6FA')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.background = '#ccceee')}
                                         >
                                             {item?.reply_count}
                                         </div>
+                                        {/* <Button
+                                            type="link"
+                                            onClick={() => navigate(`/app/networking/${item?.id}`)}
+                                            style={{
+                                                padding: 0,
+                                                fontSize: 13,
+                                                color: '#9370DB',
+                                                fontWeight: 500,
+                                                height: 'auto', // Remove default button height
+                                                lineHeight: 1, // Align with reply count
+                                            }}
+                                        >
+                                            Reply
+                                        </Button> */}
+                                    </div>
+                                    <div
+                                        style={{
+                                            flex: 1,
+                                            color: '#333',
+                                            fontSize: 14.5,
+                                            lineHeight: 1.5,
+                                            wordBreak: 'break-word',
+                                        }}
+                                    >
+                                        {formatMessage(item?.message)}
                                         <Button
                                             type="link"
                                             onClick={() => navigate(`/app/networking/${item?.id}`)}
@@ -581,17 +606,6 @@ const ForumComment = ({ channel_id }) => {
                                             Reply
                                         </Button>
                                     </div>
-                                    <div
-                                        style={{
-                                            flex: 1,
-                                            color: '#333',
-                                            fontSize: 14.5,
-                                            lineHeight: 1.5,
-                                            wordBreak: 'break-word',
-                                        }}
-                                    >
-                                        {formatMessage(item?.message)}
-                                    </div>
                                 </div>
 
                                 {/* Row 2: Username, Tags (center-aligned), Timestamp */}
@@ -606,25 +620,25 @@ const ForumComment = ({ channel_id }) => {
                                 >
                                     {/* Left: Avatar and Username */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                                        <Avatar
+                                        {/* <Avatar
                                             icon={<UserOutlined />}
                                             size={36}
                                             style={{
-                                                backgroundColor: '#9370DB',
-                                                border: '2px solid #E6E6FA',
+                                                backgroundColor: '#333',
+                                                border: '2px solid #ccceee',
                                             }}
-                                        />
+                                        /> */}
                                         <div style={{ minWidth: 0 }}>
                                             <span
                                                 style={{
                                                     fontWeight: 600,
-                                                    color: '#4B0082',
+                                                    color: '#333eee',
                                                     fontSize: 15,
                                                 }}
                                             >
                                                 {item?.user?.user_name}
                                             </span>
-                                            <div
+                                            {/* <div
                                                 style={{
                                                     fontSize: 11,
                                                     color: '#999',
@@ -633,8 +647,16 @@ const ForumComment = ({ channel_id }) => {
                                                     textOverflow: 'ellipsis',
                                                 }}
                                             >
-                                                @{item?.user?.user_name?.toLowerCase().replace(/\s+/g, '')}
-                                            </div>
+                                            {new Date(item?.inserted_at).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}{' '}
+                                            ·{' '}
+                                            {new Date(item?.inserted_at).toLocaleDateString([], {
+                                                month: 'short',
+                                                day: 'numeric',
+                                            })}
+                                        </div> */}
                                         </div>
                                     </div>
 
@@ -654,8 +676,8 @@ const ForumComment = ({ channel_id }) => {
                                             <Tag
                                                 style={{
                                                     borderRadius: 12,
-                                                    background: '#E6E6FA',
-                                                    color: '#4B0082',
+                                                    background: '#ccceee',
+                                                    color: '#333eee',
                                                     fontSize: 12,
                                                     padding: '2px 8px',
                                                     border: 'none',
@@ -670,15 +692,15 @@ const ForumComment = ({ channel_id }) => {
                                                 key={tag}
                                                 style={{
                                                     borderRadius: 12,
-                                                    background: '#D8BFD8',
-                                                    color: '#4B0082',
+                                                    background: '#ccceee',
+                                                    color: '#333eee',
                                                     fontSize: 12,
                                                     padding: '2px 8px',
                                                     border: 'none',
                                                     fontWeight: 500,
                                                 }}
                                             >
-                                                {idToNameMap.get(tag) || tag}
+                                                {idToNameMap?.get(tag) || tag}
                                             </Tag>
                                         ))}
                                     </div>
@@ -756,11 +778,11 @@ const ForumComment = ({ channel_id }) => {
 
                 }
             </div>
-            <div className="new-post-container">
+            {/* <div className="new-post-container">
                 <Card title={<>Register for Stream</>} style={{ marginTop: 24 }}>
 
                 </Card>
-            </div>
+            </div> */}
             <Drawer
                 title="New Post"
                 placement="bottom"
@@ -787,7 +809,7 @@ const ForumComment = ({ channel_id }) => {
                     New Post
                 </Button>
             </div>} */}
-        </div>
+        </div >
     );
 };
 

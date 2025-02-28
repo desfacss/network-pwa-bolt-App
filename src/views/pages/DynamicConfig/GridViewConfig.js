@@ -30,27 +30,28 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     useEffect(() => {
         if (configData) {
             // Ensure every field has a subFields array
-            const initializedFields = (configData.fields || []).map(field => ({
+            const initializedFields = (configData?.fields || [])?.map(field => ({
                 ...field,
-                subFields: field.subFields || [],
-                style: field.style || {},
-                label: field.label !== undefined ? field.label : ''
+                subFields: field?.subFields || [],
+                style: field?.style || {},
+                label: field?.label !== undefined ? field?.label : '',
+                linkParam: field?.linkParam !== undefined ? field?.linkParam : ''
             }));
             setFields(initializedFields);
-            setActions({ row: configData.actions?.row || [], bulk: configData.actions?.bulk || [] });
-            setGroupBy(configData.groupBy || []);
-            setExportOptions(configData.exportOptions || []);
-            setShowFeatures(configData.showFeatures || []);
-            setLayout(configData.layout || { size: 'small', spacing: 16, maxWidth: '100%', cardStyle: { _boxShadow: '0 1px 4px rgba(0,0,0,0.1)', _borderRadius: '20px' }, cardsPerRow: 1 });
-            setViewLink(configData.viewLink || '/gridview/');
-            setViewName(configData.viewName || 'GridView');
+            setActions({ row: configData.actions?.row || [], bulk: configData?.actions?.bulk || [] });
+            setGroupBy(configData?.groupBy || []);
+            setExportOptions(configData?.exportOptions || []);
+            setShowFeatures(configData?.showFeatures || []);
+            setLayout(configData?.layout || { size: 'small', spacing: 16, maxWidth: '100%', cardStyle: { _boxShadow: '0 1px 4px rgba(0,0,0,0.1)', _borderRadius: '20px' }, cardsPerRow: 1 });
+            setViewLink(configData?.viewLink || '/gridview/');
+            setViewName(configData?.viewName || 'GridView');
         }
     }, [configData]);
 
     const transformedColumns = masterObject?.map(col => col.key);
 
     const handleAddField = () => {
-        setFields([...fields, { order: fields.length + 1, fieldName: '', fieldPath: '', icon: '', link: '', cardSection: '', style: {}, subFields: [] }]);
+        setFields([...fields, { order: fields?.length + 1, fieldName: '', fieldPath: '', icon: '', link: '', cardSection: '', style: {}, subFields: [], linkParam: '' }]);
     };
 
     const handleFieldChange = (index, key, value) => {
@@ -59,7 +60,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
         if (key === 'fieldPath') {
             const selectedColumn = masterObject?.find(col => col.key === value);
             if (selectedColumn) {
-                updatedFields[index].fieldName = selectedColumn.display_name;
+                updatedFields[index].fieldName = selectedColumn?.display_name;
                 // updatedFields[index].display_name = selectedColumn.display_name;
             }
         }
@@ -67,19 +68,19 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
     };
 
     const handleRemoveField = (index) => {
-        setFields(fields.filter((_, i) => i !== index));
+        setFields(fields?.filter((_, i) => i !== index));
     };
 
     const moveField = (index, direction) => {
         const newFields = [...fields];
-        const [movedField] = newFields.splice(index, 1);
-        newFields.splice(index + direction, 0, movedField);
-        setFields(newFields.map((field, i) => ({ ...field, order: i + 1 })));
+        const [movedField] = newFields?.splice(index, 1);
+        newFields?.splice(index + direction, 0, movedField);
+        setFields(newFields?.map((field, i) => ({ ...field, order: i + 1 })));
     };
 
     const handleSaveConfig = () => {
-        const updatedFields = fields.map(field => {
-            if (field.subFields && field.subFields.length > 0) {
+        const updatedFields = fields?.map(field => {
+            if (field?.subFields && field?.subFields?.length > 0) {
                 return {
                     ...field,
                     fieldPath: "", // Set fieldPath to empty
@@ -114,7 +115,7 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
 
     const handleAddSubField = () => {
         const updatedFields = [...fields];
-        updatedFields[currentFieldIndex].subFields.push({ fieldName: '', fieldPath: '' });
+        updatedFields[currentFieldIndex]?.subFields?.push({ fieldName: '', fieldPath: '' });
         setFields(updatedFields);
     };
 
@@ -123,9 +124,9 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
         updatedFields[currentFieldIndex].subFields[subIndex][key] = value;
 
         if (key === 'fieldPath') {
-            const selectedColumn = masterObject?.find(col => col.key === value);
+            const selectedColumn = masterObject?.find(col => col?.key === value);
             if (selectedColumn) {
-                updatedFields[currentFieldIndex].subFields[subIndex].fieldName = selectedColumn.display_name;
+                updatedFields[currentFieldIndex].subFields[subIndex].fieldName = selectedColumn?.display_name;
             }
         }
         setFields(updatedFields);
@@ -133,41 +134,41 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
 
     const handleRemoveSubField = (subIndex) => {
         const updatedFields = [...fields];
-        updatedFields[currentFieldIndex].subFields = updatedFields[currentFieldIndex].subFields.filter((_, i) => i !== subIndex);
+        updatedFields[currentFieldIndex].subFields = updatedFields[currentFieldIndex]?.subFields?.filter((_, i) => i !== subIndex);
         setFields(updatedFields);
     };
 
     const handleAddStyle = () => {
         const updatedFields = [...fields];
-        if (!updatedFields[currentFieldIndex].style) {
+        if (!updatedFields[currentFieldIndex]?.style) {
             updatedFields[currentFieldIndex].style = {};
         }
         // Convert style object to array for table display
-        const styleArray = Object.entries(updatedFields[currentFieldIndex].style).map(([key, value]) => ({ key, value }));
+        const styleArray = Object.entries(updatedFields[currentFieldIndex]?.style)?.map(([key, value]) => ({ key, value }));
         styleArray.push({ key: '', value: '' });
-        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray.map(item => [item.key, item.value]));
+        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray?.map(item => [item?.key, item?.value]));
         setFields(updatedFields);
     };
 
     const handleStyleChange = (styleIndex, keyOrValue, value) => {
         const updatedFields = [...fields];
-        const styleArray = Object.entries(updatedFields[currentFieldIndex].style || {}).map(([key, val]) => ({ key, value: val }));
+        const styleArray = Object.entries(updatedFields[currentFieldIndex]?.style || {})?.map(([key, val]) => ({ key, value: val }));
         styleArray[styleIndex][keyOrValue] = value;
-        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray.map(item => [item.key, item.value]));
+        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray?.map(item => [item?.key, item?.value]));
         setFields(updatedFields);
     };
 
     const handleRemoveStyle = (styleIndex) => {
         const updatedFields = [...fields];
-        const styleArray = Object.entries(updatedFields[currentFieldIndex].style).map(([key, value]) => ({ key, value }));
+        const styleArray = Object.entries(updatedFields[currentFieldIndex]?.style)?.map(([key, value]) => ({ key, value }));
         styleArray.splice(styleIndex, 1);
-        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray.map(item => [item.key, item.value]));
+        updatedFields[currentFieldIndex].style = Object.fromEntries(styleArray?.map(item => [item?.key, item?.value]));
         setFields(updatedFields);
     };
 
     const getStyleDataSource = () => {
         if (currentFieldIndex === null || !fields[currentFieldIndex]?.style) return [];
-        return Object.entries(fields[currentFieldIndex].style).map(([key, value]) => ({ key, value }));
+        return Object.entries(fields[currentFieldIndex]?.style)?.map(([key, value]) => ({ key, value }));
     };
 
     const styleColumns = [
@@ -228,6 +229,14 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             key: 'link',
             render: (text, record, index) => (
                 <Input value={record?.link} onChange={(e) => handleFieldChange(index, 'link', e.target.value)} placeholder="Link URL" />
+            ),
+        },
+        {
+            title: 'Link Param',
+            dataIndex: 'linkParam',
+            key: 'linkParam',
+            render: (text, record, index) => (
+                <Input value={record?.linkParam} onChange={(e) => handleFieldChange(index, 'linkParam', e.target.value)} placeholder="Link Param" />
             ),
         },
         {

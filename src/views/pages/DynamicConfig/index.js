@@ -15,6 +15,7 @@ import FormBuilder from '../DynamicFormBuilder';
 import ConfigEditor from './Detailview';
 import GridViewConfig from './GridViewConfig';
 import DynamicViews from '../DynamicViews';
+import KanbanViewConfig from './KanbanViewConfig';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -206,6 +207,16 @@ const YViewConfigManager = () => {
         />
       );
     }
+    if (viewName === 'kanbanview') {
+      return (
+        <KanbanViewConfig
+          configData={formData}
+          availableColumns={data || availableColumns} // Pass dynamically fetched columns
+          onSave={(updatedData) => handleSave(viewName, updatedData)}
+          masterObject={selectedConfig?.master_object}
+        />
+      );
+    }
     if (viewName === 'detailview') {
       return (
         <ConfigEditor
@@ -369,16 +380,16 @@ const YViewConfigManager = () => {
         <TabPane tab="Grid View" key="gridview">
           {selectedConfig && activeTab === "gridview" && renderTabContent('gridview')}
         </TabPane>
-        <TabPane tab="Detail View" key="detail_view">
-          {selectedConfig && activeTab === "detail_view" && renderTabContent('detailview')}
+        <TabPane tab="Detail View" key="detailview">
+          {selectedConfig && activeTab === "detailview" && renderTabContent('detailview')}
+        </TabPane>
+        <TabPane tab="Kanban View" key="kanbanview">
+          {selectedConfig && activeTab === "kanbanview" && renderTabContent('kanbanview')}
         </TabPane>
         <TabPane tab="View" key="view">
           {activeTab === 'view' && activeTab === "view" && <DynamicViews entityType={selectedConfig?.entity_type} />}
         </TabPane>
-        {/* <TabPane tab="Kanban View" key="kanbanview">
-          {renderTabContent('kanbanview')}
-        </TabPane>
-        <TabPane tab="Grid View" key="gridview">
+        {/* <TabPane tab="Grid View" key="gridview">
           {renderTabContent('gridview')}
         </TabPane>
         <TabPane tab="Gantt View" key="ganttview">
