@@ -1,96 +1,53 @@
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
-import * as THREE from 'three' // Explicitly import Three.js
+// src/views/pages/Conference/ConferenceScene.jsx
+import React from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import * as THREE from 'three';
 
-const Chair = ({ position, onSelect, isOccupied }) => {
-  const handleClick = (e) => {
-    e.stopPropagation()
-    if (!isOccupied) onSelect()
-  }
-
+const ConferenceScene = ({ layout = [], bookings = [], onChairSelect, onTableSelect }) => {
   return (
-    <mesh position={position || [0, 0, 0]} onClick={handleClick}>
-      <sphereGeometry args={[0.5, 32, 32]} /> {/* Added segments for better geometry */}
-      <meshStandardMaterial 
-        color={isOccupied ? "#ff4444" : "#4caf50"} 
-        metalness={0.1}
-        roughness={0.5}
-      />
-    </mesh>
-  )
-}
-
-const ConferenceScene = ({ layout, onChairSelect, bookings }) => {
-  // Add safety checks for props
-  if (!layout || !layout.tables || !Array.isArray(layout.tables)) {
-    console.error('Invalid layout prop:', layout)
-    return <div>Invalid room layout</div>
-  }
-
-  if (!bookings || !Array.isArray(bookings)) {
-    console.warn('Invalid bookings prop:', bookings)
-  }
-
-  const isChairOccupied = (tableId, chairNumber) => {
-    if (!bookings) return false
-    return bookings.some(booking => 
-      booking.table_number === tableId && 
-      booking.seat_number === chairNumber
-    )
-  }
-
-  return (
-    <Canvas
-      camera={{ position: [40, 30, 40], fov: 50 }}
-      gl={{ antialias: true }} // Add WebGL options
-      onCreated={({ gl }) => {
-        gl.setClearColor(new THREE.Color('#ffffff')) // Set background color
-      }}
-    >
+    <Canvas camera={{ position: [0, 10, 20], fov: 50 }}>
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1} />
 
-      {/* Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <planeGeometry args={[80, 60]} />
-        <meshStandardMaterial color="#808080" />
-      </mesh>
-
-      {/* Tables and Chairs */}
-      {layout.tables.map((table) => (
-        <group key={table.id}>
-          <mesh position={[table.x || 0, 0.5, table.y || 0]}>
-            <cylinderGeometry args={[2, 2, 1, 32]} />
-            <meshStandardMaterial color="#3d5afe" />
-          </mesh>
-
-          {Array.from({ length: table.chairs || 0 }).map((_, i) => {
-            const angle = (i * (360 / (table.chairs || 1))) * (Math.PI / 180)
+      {/* Render tables */}
+      {layout.map((table) => (
+        <mesh
+          key={table.id}
+          position={[table.x, 0, table.y]}
+          onClick={() => onTableSelect?.(table.id)}
+        >
+          <boxGeometry args={[2, 0.1, 2]} /> {/* Simplified table representation */}
+          <meshStandardMaterial color="#4ECDC4" />
+          {/* Render chairs around the table */}
+          {Array.from({ length: table.chairs }, (_, i) => {
+            const angle = (2 * Math.PI * i) / table.chairs;
+            const radius = 1.5;
+            const chairX = table.x + radius * Math.cos(angle);
+            const chairZ = table.y + radius * Math.sin(angle);
+            const isBooked = bookings.some(
+              (b) => b.table_id === table.id && b.seat_number === i + 1
+            );
             return (
-              <Chair
-                key={i}
-                position={[
-                  (table.x || 0) + Math.cos(angle) * 3,
-                  0.3,
-                  (table.y || 0) + Math.sin(angle) * 3
-                ]}
-                onSelect={() => onChairSelect(table.id, i)}
-                isOccupied={isChairOccupied(table.id, i)}
-              />
-            )
+              <mesh
+                key={`${table.id}-chair-${i}`}
+                position={[chairX, 0.5, chairZ]}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChairSelect?.(table.id, i + 1);
+                }}
+              >
+                <boxGeometry args={[0.5, 1, 0.5]} />
+                <meshStandardMaterial color={isBooked ? '#FF6B6B' : '#FFFFFF'} />
+              </mesh>
+            );
           })}
-        </group>
+        </mesh>
       ))}
 
-      <OrbitControls 
-        enablePan={true} 
-        enableZoom={true} 
-        enableRotate={true}
-        minDistance={10}
-        maxDistance={100}
-      />
+      <OrbitControls />
     </Canvas>
-  )
-}
+  );
+};
 
-export default ConferenceScene
+export default ConferenceScene;
