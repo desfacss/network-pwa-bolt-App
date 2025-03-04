@@ -291,7 +291,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         setLoading(true);
         console.log("viewConfig", viewConfig);
 
-        let query = supabase.from(entityType).select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true).order('details->>name', { ascending: true });
+        let query = supabase.from(entityType).select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true)//.order('details->>name', { ascending: true });
 
         // Apply multiple filters
         fetchFilters?.forEach(filter => {
@@ -684,7 +684,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />,
         })
     }
-    if ((tabs ? tabs.includes('gridview') : true) && viewConfig?.views_config?.gridview && viewConfig?.gridview) {
+    if ((tabs ? tabs.includes('gridview') : true) && viewConfig?.gridview && viewConfig?.gridview?.showFeatures?.includes('enable_view')) {
         tabItems.push({
             label: 'Grid',
             key: '2',
@@ -698,7 +698,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} />
         })
     }
-    if ((tabs ? tabs.includes('kanbanview') : true) && viewConfig?.views_config?.kanbanview && viewConfig?.kanbanview) {
+    if ((tabs ? tabs.includes('kanbanview') : true) && viewConfig?.kanbanview && viewConfig?.kanbanview?.showFeatures?.includes('enable_view')) {
         tabItems.push({
             label: 'Kanban',
             key: '4',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Button, message, Select, Input } from 'antd';
+import { Tabs, Button, message, Select, Input, Modal } from 'antd';
 import Form from '@rjsf/antd';
 import { RJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
@@ -29,6 +29,46 @@ const YViewConfigManager = () => {
   const [dropdownOptions, setDropdownOptions] = useState([]); // Dropdown options for entity_type
   const [selectedRow, setSelectedRow] = useState(null); // Selected row from dropdown
   const [availableColumns, setAvailableColumns] = useState([]); // Available columns for the selected table
+  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
+  const [newEntityType, setNewEntityType] = useState('');
+
+  const handleAddNew = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleModalOk = async () => {
+    try {
+      if (!newEntityType) {
+        message.error('Entity type cannot be empty');
+        return;
+      }
+      const newConfig = {
+        entity_type: newEntityType,
+      };
+
+      const { data, error } = await supabase.from('y_view_config').insert([newConfig]);
+
+      if (error) {
+        throw error;
+      }
+
+      message.success('New configuration added successfully');
+      setNewEntityType('');
+      setIsModalVisible(false);
+      fetchConfigs();
+      setSelectedRow(newEntityType);
+      setSelectedConfig(data[0]);
+      setSelectedWorkflowConfiguration(workflowConfigurations.find(config => config.name === newEntityType) || null);
+      setAvailableColumns([])
+    } catch (error) {
+      message.error('Failed to add new configuration');
+    }
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    setNewEntityType('');
+  };
 
   // Fetch existing configurations
   const fetchConfigs = async () => {
@@ -345,12 +385,13 @@ const YViewConfigManager = () => {
 
         <Button
           type="primary"
-          onClick={() => {
-            setSelectedRow(null);
-            setSelectedConfig({});
-            setSelectedWorkflowConfiguration({});
-            setAvailableColumns([]); // Reset available columns when adding new
-          }}
+          onClick={handleAddNew}
+        // onClick={() => {
+        //   setSelectedRow(null);
+        //   setSelectedConfig({});
+        //   setSelectedWorkflowConfiguration({});
+        //   setAvailableColumns([]); // Reset available columns when adding new
+        // }}
         >
           Add New
         </Button>
@@ -405,6 +446,19 @@ const YViewConfigManager = () => {
           <Status />
         </TabPane> */}
       </Tabs>
+      <Modal
+        title="Enter Entity Type"
+        visible={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+      >
+        <Input
+          placeholder="Entity Type"
+          value={newEntityType}
+          onChange={(e) => setNewEntityType(e.target.value)}
+        />
+      </Modal>
+
     </div>
   );
 };

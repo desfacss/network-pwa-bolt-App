@@ -45,7 +45,7 @@ const Clients = () => {
     }, []);
 
     const fetchClients = async () => {
-        let { data, error } = await supabase.from('clients').select('*').eq('organization_id', session?.user?.organization_id).neq('default', true).order('name', { ascending: true });
+        let { data, error } = await supabase.from('crm_clients').select('*').eq('organization_id', session?.user?.organization_id).neq('default', true).order('name', { ascending: true });
         if (data) {
             setClients(data);
         }
@@ -64,8 +64,8 @@ const Clients = () => {
 
         try {
             const { data, error } = editItem
-                ? await supabase.from('clients').update(clientPayload).eq('id', editItem.id).select('*') // Update existing client
-                : await supabase.from('clients').insert([clientPayload]).select('*'); // Add new client
+                ? await supabase.from('crm_clients').update(clientPayload).eq('id', editItem.id).select('*') // Update existing client
+                : await supabase.from('crm_clients').insert([clientPayload]).select('*'); // Add new client
 
             if (data) {
                 notification.success({
@@ -105,7 +105,7 @@ const Clients = () => {
 
     const handleDelete = async () => {
         if (clientToDelete) {
-            const { error } = await supabase.from('clients').delete().eq('id', clientToDelete);
+            const { error } = await supabase.from('crm_clients').delete().eq('id', clientToDelete);
             if (!error) {
                 notification.success({ message: "Client deleted successfully" });
                 fetchClients();
@@ -126,7 +126,7 @@ const Clients = () => {
             okType: 'danger',
             cancelText: 'No',
             onOk: async () => {
-                const { error } = await supabase.from('clients').delete().eq('id', record?.id);
+                const { error } = await supabase.from('crm_clients').delete().eq('id', record?.id);
                 if (!error) {
                     notification.success({ message: "Client deleted successfully" });
                     fetchClients();

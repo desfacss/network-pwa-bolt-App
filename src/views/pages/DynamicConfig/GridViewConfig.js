@@ -11,8 +11,9 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
         bulk: configData?.actions?.bulk || [],
     });
     const [groupBy, setGroupBy] = useState(configData?.groupBy || []);
-    const [exportOptions, setExportOptions] = useState(configData?.exportOptions || []);
-    const [showFeatures, setShowFeatures] = useState(configData?.showFeatures || []);
+    const [exportOptions, setExportOptions] = useState(configData?.exportOptions || ['pdf', 'csv']);
+    const [showFeatures, setShowFeatures] = useState(configData?.showFeatures || ["search", "enable_view", "columnVisibility", "pagination", "groupBy", "sorting"]);
+
     const [layout, setLayout] = useState(configData?.layout || {
         size: 'small',
         spacing: 16,
@@ -40,8 +41,8 @@ const GridViewConfig = ({ configData, onSave, availableColumns, masterObject }) 
             setFields(initializedFields);
             setActions({ row: configData.actions?.row || [], bulk: configData?.actions?.bulk || [] });
             setGroupBy(configData?.groupBy || []);
-            setExportOptions(configData?.exportOptions || []);
-            setShowFeatures(configData?.showFeatures || []);
+            setExportOptions(configData?.exportOptions || ['pdf', 'csv']);
+            setShowFeatures(configData?.showFeatures || ["search", "enable_view", "columnVisibility", "pagination", "groupBy", "sorting"]);
             setLayout(configData?.layout || { size: 'small', spacing: 16, maxWidth: '100%', cardStyle: { _boxShadow: '0 1px 4px rgba(0,0,0,0.1)', _borderRadius: '20px' }, cardsPerRow: 1 });
             setViewLink(configData?.viewLink || '/gridview/');
             setViewName(configData?.viewName || 'GridView');

@@ -69,10 +69,31 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/reports`,
             component: React.lazy(() => import('views/pages/Reports')),
         },
+        // module_features?.clients && feature?.clients && {
+        //     key: 'clients',
+        //     path: `${APP_PREFIX_PATH}/clients`,
+        //     component: React.lazy(() => import('views/pages/Clients')),// /Clients is view table/card, /client/:id is view detail page
+        // },
         module_features?.clients && feature?.clients && {
             key: 'clients',
             path: `${APP_PREFIX_PATH}/clients`,
-            component: React.lazy(() => import('views/pages/Clients')),// /Clients is view table/card, /client/:id is view detail page
+            component: React.lazy(() => import('views/pages/CRM/Clients')),// /Clients is view table/card, /client/:id is view detail page
+        },
+        // module_features?.clients && feature?.services && 
+        {
+            key: 'services',
+            path: `${APP_PREFIX_PATH}/services`,
+            component: React.lazy(() => import('views/pages/CRM/Services')),
+        },
+        {
+            key: 'materials',
+            path: `${APP_PREFIX_PATH}/materials`,
+            component: React.lazy(() => import('views/pages/Inventory/Materials')),
+        },
+        {
+            key: 'suppliers',
+            path: `${APP_PREFIX_PATH}/suppliers`,
+            component: React.lazy(() => import('views/pages/Inventory/Suppliers')),
         },
         module_features?.projects && feature?.projects && {
             key: 'projects',
@@ -277,7 +298,7 @@ export const protectedRoutes = (feature, module_features) => {
         {
             key: 'ysales',
             path: `${APP_PREFIX_PATH}/ysales`,
-            component: React.lazy(() => import('views/pages/DynamicSales')),
+            component: React.lazy(() => import('views/pages/CRM/Sales')),
         },
         // module_features?.rnd && feature?.rnd && {
         //     key: 'yformbuilder',

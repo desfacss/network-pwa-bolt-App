@@ -12,8 +12,8 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
         bulk: configData?.actions?.bulk || [],
     });
     const [groupBy, setGroupBy] = useState(configData?.groupBy || []);
-    const [exportOptions, setExportOptions] = useState(configData?.exportOptions || []);
-    const [showFeatures, setShowFeatures] = useState(configData?.showFeatures || []);
+    const [exportOptions, setExportOptions] = useState(configData?.exportOptions || ['pdf', 'csv']);
+    const [showFeatures, setShowFeatures] = useState(configData?.showFeatures || ["search", "enable_view", "columnVisibility", "pagination", "groupBy", "sorting"]);
 
     useEffect(() => {
         if (configData) {
@@ -23,8 +23,8 @@ const TableViewConfig = ({ configData, onSave, availableColumns, masterObject })
             });
             setFields(configData?.fields || []);
             setGroupBy(configData?.groupBy || []);
-            setExportOptions(configData?.exportOptions || []);
-            setShowFeatures(configData?.showFeatures || []);
+            setExportOptions(configData?.exportOptions || ['pdf', 'csv']);
+            setShowFeatures(configData?.showFeatures || ["search", "enable_view", "columnVisibility", "pagination", "groupBy", "sorting"]);
         }
     }, [configData]);
 

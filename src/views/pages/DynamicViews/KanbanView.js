@@ -47,12 +47,12 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
     ];
     const [editingCard, setEditingCard] = useState(null); // Track the card being edited
     const [editedCard, setEditedCard] = useState(null); // Store edits temporarily
-    const [groupBy, setGroupBy] = useState(kanbanview.groups[0]);
+    const [groupBy, setGroupBy] = useState(kanbanview?.groupBy || 'priority');
 
 
     // Function to group data dynamically based on config
     const groupData = (data, groupBy) => {
-        return data.reduce((acc, item) => {
+        return data?.reduce((acc, item) => {
             const groupKey = item[groupBy] || 'Todo';
             if (!acc[groupKey]) {
                 acc[groupKey] = [];
@@ -86,17 +86,23 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
 
         // Determine the source based on the lane grouping type (status or priority)
         console.log("lk", workflowConfig, workflowConfig?.details?.stages?.map(stage => stage?.name))
-        const source = groupBy === "priority"
-            ? priorityType
-            : workflowConfig?.details?.stages?.map(stage => ({ name: stage?.name, sequence: stage.sequence, color: stage?.color })) || [];
+        // const source = groupBy === "priority"
+        //     ? priorityType
+        //     : workflowConfig?.details?.stages?.map(stage => ({ name: stage?.name, sequence: stage.sequence, color: stage?.color })) || [];
+
+        const source = viewConfig?.kanbanview?.types[groupBy]?.map(type => ({
+            name: type?.name,
+            sequence: type?.sequence,
+            color: type?.color
+        })) || [];
 
         return {
             lanes: source
-                .sort((a, b) => a.sequence - b.sequence) // Sort by sequence
+                .sort((a, b) => a?.sequence - b?.sequence) // Sort by sequence
                 .map((config) => ({
-                    id: config.name,
-                    title: config.name,
-                    cards: (groupedData[config.name] || []).map((item) => ({
+                    id: config?.name,
+                    title: config?.name,
+                    cards: (groupedData[config?.name] || [])?.map((item) => ({
                         id: item?.id,
                         title: item?.name,
                         description: kanbanview?.fields?.includes('description') ? item?.description : '',
@@ -108,8 +114,10 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                         backgroundColor: config.color || '#f4f5f7',
                     },
                     // If lane is 'priority', disable drag/drop
-                    canDrag: groupBy !== 'priority',
-                    canAddCard: groupBy !== 'priority', // Disable adding new cards to priority lanes
+                    // canDrag: groupBy !== 'priority',
+                    // canAddCard: groupBy !== 'priority', // Disable adding new cards to priority lanes
+                    canDrag: groupBy === 'status', // Enable drag/drop only for status
+                    canAddCard: groupBy === 'status', // Enable adding cards only for status
                 })),
         };
     };
@@ -236,9 +244,14 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                         onChange={(value) => setGroupBy(value)}
                         style={{ width: 200 }}
                     >
-                        {viewConfig.kanbanview.groups.map((group) => (
+                        {/* {viewConfig?.kanbanview?.groups?.map((group) => (
                             <Option key={group} value={group}>
-                                {group.charAt(0).toUpperCase() + group.slice(1)}
+                                {group?.charAt(0)?.toUpperCase() + group?.slice(1)}
+                            </Option>
+                        ))} */}
+                        {Object.keys(viewConfig?.kanbanview?.types || {}).map((group) => (
+                            <Option key={group} value={group}>
+                                {group?.charAt(0)?.toUpperCase() + group?.slice(1)}
                             </Option>
                         ))}
                     </Select>
