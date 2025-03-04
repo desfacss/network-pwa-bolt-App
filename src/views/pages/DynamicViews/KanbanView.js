@@ -4,19 +4,15 @@
 // The lane dragdrop is True
 // FUTURE - ADD CONFIG IN KANBAN VIEW (SAME AS IN FORM STATIC OR ENUM TABLE >> COLUMN >> DETAIL >> NAME)
 
-import { Button, Drawer, Dropdown, Menu, Select } from 'antd';
+import { Button, Dropdown, Menu, Select } from 'antd';
 import React, { useState } from 'react';
 import Board from 'react-trello';
 import { ExportOutlined } from '@ant-design/icons';
-import DynamicForm from '../DynamicForm';
 
 const { Option } = Select;
 
 const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, openDrawer, deleteData }) => {
 
-    const dynamicBulkActions = viewConfig?.tableview?.actions?.bulk?.filter(action =>
-        action?.includes("add_new_")
-    );
     const { showFeatures, exportOptions, globalSearch } = viewConfig?.tableview;
 
     const handleExport = (type) => {
@@ -31,22 +27,8 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
         }
     };
 
-    // const priorityType = [{
-    //     name: "Low", sequence: 1, color: "",
-    //     name: "Medium", sequence: 2, color: "",
-    //     name: "High", sequence: 3, color: "",
-    //     name: "Critical", sequence: 4, color: ""
-    // }]
     const { kanbanview } = viewConfig;
-    console.log("tt", data)
-    const priorityType = [
-        { name: "Low", sequence: 1, color: "" },
-        { name: "Medium", sequence: 2, color: "" },
-        { name: "High", sequence: 3, color: "" },
-        { name: "Critical", sequence: 4, color: "" }
-    ];
-    const [editingCard, setEditingCard] = useState(null); // Track the card being edited
-    const [editedCard, setEditedCard] = useState(null); // Store edits temporarily
+
     const [groupBy, setGroupBy] = useState(kanbanview?.groupBy || 'priority');
 
 
@@ -62,34 +44,11 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
         }, {});
     };
 
-    // // Transform data to the format required by react-trello
-    // const buildBoardData = () => {
-    //     const groupedData = groupData(data, kanbanview?.groupBy);
-    //     return {
-    //         lanes: Object.keys(groupedData)?.map((key) => ({
-    //             id: key,
-    //             title: key,
-    //             cards: groupedData[key]?.map((item) => ({
-    //                 id: item?.id,
-    //                 title: item?.name,
-    //                 description: kanbanview?.fields?.includes('description') ? item?.description : '',
-    //                 label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
-    //                 tags: item?.tags?.map((tag) => ({ title: tag })),
-    //                 metadata: item,
-    //             })),
-    //         })),
-    //     };
-    // };
-
     const buildBoardData = () => {
         const groupedData = groupData(data, groupBy);
 
         // Determine the source based on the lane grouping type (status or priority)
         console.log("lk", workflowConfig, workflowConfig?.details?.stages?.map(stage => stage?.name))
-        // const source = groupBy === "priority"
-        //     ? priorityType
-        //     : workflowConfig?.details?.stages?.map(stage => ({ name: stage?.name, sequence: stage.sequence, color: stage?.color })) || [];
-
         const source = viewConfig?.kanbanview?.types[groupBy]?.map(type => ({
             name: type?.name,
             sequence: type?.sequence,
@@ -114,96 +73,11 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                         backgroundColor: config.color || '#f4f5f7',
                     },
                     // If lane is 'priority', disable drag/drop
-                    // canDrag: groupBy !== 'priority',
-                    // canAddCard: groupBy !== 'priority', // Disable adding new cards to priority lanes
                     canDrag: groupBy === 'status', // Enable drag/drop only for status
                     canAddCard: groupBy === 'status', // Enable adding cards only for status
                 })),
         };
     };
-
-    // // Transform data to the format required by react-trello
-    // const buildBoardData = () => {
-    //     const groupedData = groupData(data, kanbanview?.groupBy);
-    //     const source =
-    //         kanbanview?.groupBy === "priority"
-    //             ? priorityType
-    //             : workflowConfig?.stages || [];
-
-    //     return {
-    //         lanes: source
-    //             .sort((a, b) => a.sequence - b.sequence) // Sort by sequence
-    //             .map((config) => ({
-    //                 id: config.name,
-    //                 title: config.name,
-    //                 cards: (groupedData[config.name] || []).map((item) => ({
-    //                     id: item?.id,
-    //                     title: item?.name,
-    //                     description: kanbanview?.fields?.includes('description') ? item?.description : '',
-    //                     label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
-    //                     tags: item?.tags?.map((tag) => ({ title: tag })),
-    //                     metadata: item,
-    //                 })),
-    //                 style: {
-    //                     backgroundColor: config.color,
-    //                 },
-    //             })),
-    //     };
-    // };
-
-
-
-
-    // const buildBoardData = () => {
-    //     // Define lanes based on groupBy
-    //     const lanes = (kanbanview?.groupBy === "priority" ? priorityType : workflowConfig?.stages || [])
-    //         .sort((a, b) => a.sequence - b.sequence) // Sort by sequence
-    //         .map((config) => ({
-    //             id: config.name,
-    //             title: config.name,
-    //             cards: [], // Initialize empty cards array
-    //             style: { backgroundColor: config.color },
-    //         }));
-
-    //     // Create a map for quick access to lanes
-    //     const laneMap = Object.fromEntries(lanes.map((lane) => [lane.id, lane]));
-
-    //     // Assign items to lanes
-    //     data.forEach((item) => {
-    //         const groupKey = item[kanbanview?.groupBy] || 'Todo';
-    //         if (laneMap[groupKey]) {
-    //             laneMap[groupKey].cards.push({
-    //                 id: item?.id,
-    //                 title: item?.name,
-    //                 description: kanbanview?.fields?.includes('description') ? item?.description : '',
-    //                 label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
-    //                 tags: item?.tags?.map((tag) => ({ title: tag })),
-    //                 metadata: item,
-    //             });
-    //         } else {
-    //             // Handle uncategorized or invalid group
-    //             if (!laneMap['Uncategorized']) {
-    //                 laneMap['Uncategorized'] = {
-    //                     id: 'Uncategorized',
-    //                     title: 'Uncategorized',
-    //                     cards: [],
-    //                     style: { backgroundColor: '#f4f5f7' },
-    //                 };
-    //             }
-    //             laneMap['Uncategorized'].cards.push({
-    //                 id: item?.id,
-    //                 title: item?.name,
-    //                 description: kanbanview?.fields?.includes('description') ? item?.description : '',
-    //                 label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
-    //                 tags: item?.tags?.map((tag) => ({ title: tag })),
-    //                 metadata: item,
-    //             });
-    //         }
-    //     });
-
-    //     // Return the lanes array
-    //     return { lanes: Object.values(laneMap) };
-    // };
 
 
     const handleCardMove = (cardId, sourceLaneId, targetLaneId) => {
@@ -216,25 +90,6 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
         }
     };
 
-    const handleCardClick = (cardId) => {
-        const cardToEdit = data.find((item) => item?.id === cardId);
-        setEditingCard(cardToEdit);
-        setEditedCard({ ...cardToEdit }); // Create a copy for editing
-    };
-
-    const handleEditChange = (field, value) => {
-        setEditedCard((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const saveChanges = () => {
-        updateData(editedCard);
-        setEditingCard(null);
-    };
-
-    const cancelEditing = () => {
-        setEditingCard(null);
-    };
-
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
@@ -244,11 +99,6 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                         onChange={(value) => setGroupBy(value)}
                         style={{ width: 200 }}
                     >
-                        {/* {viewConfig?.kanbanview?.groups?.map((group) => (
-                            <Option key={group} value={group}>
-                                {group?.charAt(0)?.toUpperCase() + group?.slice(1)}
-                            </Option>
-                        ))} */}
                         {Object.keys(viewConfig?.kanbanview?.types || {}).map((group) => (
                             <Option key={group} value={group}>
                                 {group?.charAt(0)?.toUpperCase() + group?.slice(1)}
@@ -260,7 +110,6 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                     {/* Bulk Actions */}
                     {[
                         ...viewConfig?.tableview?.actions?.bulk//?.filter(action => !action.includes("add_new_"))
-                        // ...(dynamicBulkActions || []), 
                     ].map((action) => (
                         <Button
                             key={action}
@@ -316,52 +165,8 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                     backgroundColor: '#fff',
                 }}
             />
-            {/* Modal for editing card */}
-            {/* {editingCard && (
-                <div style={modalStyle}>
-                    <h3>Edit Card</h3>
-                    <label>
-                        Title:
-                        <input
-                            type="text"
-                            value={editedCard.name}
-                            onChange={(e) => handleEditChange('name', e.target.value)}
-                        />
-                    </label>
-                    <label>
-                        Description:
-                        <textarea
-                            value={editedCard.description}
-                            onChange={(e) => handleEditChange('description', e.target.value)}
-                        />
-                    </label>
-                    <label>
-                        Due Date:
-                        <input
-                            type="date"
-                            value={editedCard.due_date}
-                            onChange={(e) => handleEditChange('due_date', e.target.value)}
-                        />
-                    </label>
-                    <button onClick={saveChanges}>Save</button>
-                    <button onClick={cancelEditing}>Cancel</button>
-                </div>
-            )} */}
         </>
     );
-};
-
-// Basic styles for the modal
-const modalStyle = {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '5px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-    zIndex: 1000,
 };
 
 export default KanbanView;
