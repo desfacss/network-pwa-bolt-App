@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Row, Col, Input, Space, Select, Drawer, Checkbox } from 'antd';
+import { Button, Row, Col, Input, Space, Select, Drawer, Checkbox, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
+const { Text } = Typography;
 const { Option } = Select;
 
 const KanbanViewConfigEditor = ({ configData, onSave }) => {
@@ -11,25 +12,16 @@ const KanbanViewConfigEditor = ({ configData, onSave }) => {
     });
     const [groupBy, setGroupBy] = useState(configData?.groupBy || '');
     const [exportOptions, setExportOptions] = useState(configData?.exportOptions || []);
-    const [types, setTypes] = useState(
-        configData?.types || {
-            priority: [
-                { name: 'Low', sequence: 1, color: '' },
-                { name: 'Medium', sequence: 2, color: '' },
-                { name: 'High', sequence: 3, color: '' },
-                { name: 'Critical', sequence: 4, color: '' },
-            ],
-            status: [
-                { name: 'New', sequence: 1, color: '' },
-                { name: 'Pending', sequence: 2, color: '' },
-                { name: 'Completed', sequence: 3, color: '' },
-                { name: 'Halted', sequence: 4, color: '' },
-            ],
-        }
-    );
+    const [types, setTypes] = useState(configData?.types || {});
     const [isTypesDrawerVisible, setIsTypesDrawerVisible] = useState(false);
     const [newTypeName, setNewTypeName] = useState('');
     const [showFeatures, setShowFeatures] = useState(configData?.showFeatures || []);
+    const [cardFields, setCardFields] = useState(configData?.cardFields || {
+        tags: '',
+        label: '',
+        title: '',
+        description: '',
+    });
 
     useEffect(() => {
         if (configData) {
@@ -39,8 +31,14 @@ const KanbanViewConfigEditor = ({ configData, onSave }) => {
             });
             setGroupBy(configData?.groupBy || '');
             setExportOptions(configData?.exportOptions || []);
-            setTypes(configData?.types || types);
+            setTypes(configData?.types || {});
             setShowFeatures(configData?.showFeatures || []);
+            setCardFields(configData?.cardFields || {
+                tags: '',
+                label: '',
+                title: '',
+                description: '',
+            });
         }
     }, [configData]);
 
@@ -54,6 +52,7 @@ const KanbanViewConfigEditor = ({ configData, onSave }) => {
             exportOptions,
             types,
             showFeatures,
+            cardFields,
         };
         onSave(updatedConfig);
     };
@@ -115,7 +114,7 @@ const KanbanViewConfigEditor = ({ configData, onSave }) => {
         if (newTypeName && !types[newTypeName]) {
             setTypes((prev) => ({
                 ...prev,
-                [newTypeName]: [{ name: '', sequence: 1, color: '' }],
+                [newTypeName]: { lanes: [{ name: '', sequence: 1, color: '' }], fieldPath: '' },
             }));
             setNewTypeName('');
         }
@@ -123,19 +122,19 @@ const KanbanViewConfigEditor = ({ configData, onSave }) => {
 
     const handleAddTypeItem = (typeKey) => {
         const updatedTypes = { ...types };
-        updatedTypes[typeKey].push({ name: '', sequence: updatedTypes[typeKey].length + 1, color: '' });
+        updatedTypes[typeKey].lanes.push({ name: '', sequence: updatedTypes[typeKey].lanes.length + 1, color: '' });
         setTypes(updatedTypes);
     };
 
     const handleTypeChange = (typeKey, index, key, value) => {
         const updatedTypes = { ...types };
-        updatedTypes[typeKey][index][key] = value;
+        updatedTypes[typeKey].lanes[index][key] = value;
         setTypes(updatedTypes);
     };
 
     const handleRemoveTypeItem = (typeKey, index) => {
         const updatedTypes = { ...types };
-        updatedTypes[typeKey] = updatedTypes[typeKey].filter((_, i) => i !== index);
+        updatedTypes[typeKey].lanes = updatedTypes[typeKey].lanes.filter((_, i) => i !== index);
         setTypes(updatedTypes);
     };
 
@@ -192,7 +191,13 @@ const KanbanViewConfigEditor = ({ configData, onSave }) => {
                     size="small"
                 />
             </Row>
-            {types[typeKey].map((item, index) => renderTypeRow(item, index, typeKey))}
+            <Input
+                value={types[typeKey].fieldPath}
+                onChange={(e) => setTypes((prev) => ({ ...prev, [typeKey]: { ...prev[typeKey], fieldPath: e.target.value } }))}
+                placeholder="Field Path (e.g., details.status)"
+                style={{ marginBottom: '8px' }}
+            />
+            {types[typeKey].lanes.map((item, index) => renderTypeRow(item, index, typeKey))}
             <Button
                 type="dashed"
                 icon={<PlusOutlined />}
@@ -270,6 +275,46 @@ const KanbanViewConfigEditor = ({ configData, onSave }) => {
                 value={showFeatures}
                 onChange={setShowFeatures}
             />
+
+            <h3>Card Fields</h3>
+            <Row gutter={[16, 16]}>
+                <Col span={6}>
+                    <Text>Title:</Text>
+                    <Input
+                        value={cardFields.title}
+                        onChange={(e) => setCardFields({ ...cardFields, title: e.target.value })}
+                        placeholder="e.g., details.name"
+                        style={{ marginBottom: '8px' }}
+                    />
+                </Col>
+                <Col span={6}>
+                    <Text>Description:</Text>
+                    <Input
+                        value={cardFields.description}
+                        onChange={(e) => setCardFields({ ...cardFields, description: e.target.value })}
+                        placeholder="e.g., details.description"
+                        style={{ marginBottom: '8px' }}
+                    />
+                </Col>
+                <Col span={6}>
+                    <Text>Label:</Text>
+                    <Input
+                        value={cardFields.label}
+                        onChange={(e) => setCardFields({ ...cardFields, label: e.target.value })}
+                        placeholder="e.g., details.due_date"
+                        style={{ marginBottom: '8px' }}
+                    />
+                </Col>
+                <Col span={6}>
+                    <Text>Tags:</Text>
+                    <Input
+                        value={cardFields.tags}
+                        onChange={(e) => setCardFields({ ...cardFields, tags: e.target.value })}
+                        placeholder="e.g., details.tags"
+                        style={{ marginBottom: '8px' }}
+                    />
+                </Col>
+            </Row>
 
             <Button
                 type="link"

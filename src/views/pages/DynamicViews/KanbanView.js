@@ -5,7 +5,7 @@
 // FUTURE - ADD CONFIG IN KANBAN VIEW (SAME AS IN FORM STATIC OR ENUM TABLE >> COLUMN >> DETAIL >> NAME)
 
 import { Button, Dropdown, Menu, Select } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Board from 'react-trello';
 import { ExportOutlined } from '@ant-design/icons';
 
@@ -31,11 +31,11 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
 
     const [groupBy, setGroupBy] = useState(kanbanview?.groupBy || 'priority');
 
-
-    // Function to group data dynamically based on config
+    // Function to group data dynamically based on config and fieldPath
     const groupData = (data, groupBy) => {
+        const fieldPath = viewConfig?.kanbanview?.types[groupBy]?.fieldPath || groupBy;
         return data?.reduce((acc, item) => {
-            const groupKey = item[groupBy] || 'Todo';
+            const groupKey = item[fieldPath] || 'Todo';
             if (!acc[groupKey]) {
                 acc[groupKey] = [];
             }
@@ -44,48 +44,57 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
         }, {});
     };
 
-    const buildBoardData = () => {
-        const groupedData = groupData(data, groupBy);
+    const buildBoardData = useMemo(() => {
+        return () => { // Make it a function to be called in useMemo
+            const groupedData = groupData(data, groupBy);
 
-        // Determine the source based on the lane grouping type (status or priority)
-        console.log("lk", workflowConfig, workflowConfig?.details?.stages?.map(stage => stage?.name))
-        const source = viewConfig?.kanbanview?.types[groupBy]?.map(type => ({
-            name: type?.name,
-            sequence: type?.sequence,
-            color: type?.color
-        })) || [];
+            const source = viewConfig?.kanbanview?.types[groupBy]?.lanes?.map(type => ({
+                name: type?.name,
+                sequence: type?.sequence,
+                color: type?.color
+            }));
 
-        return {
-            lanes: source
-                .sort((a, b) => a?.sequence - b?.sequence) // Sort by sequence
-                .map((config) => ({
-                    id: config?.name,
-                    title: config?.name,
-                    cards: (groupedData[config?.name] || [])?.map((item) => ({
-                        id: item?.id,
-                        title: item?.name,
-                        description: kanbanview?.fields?.includes('description') ? item?.description : '',
-                        label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
-                        tags: item?.tags?.map((tag) => ({ title: tag })),
-                        metadata: item,
+            return {
+                lanes: (source || [])
+                    .sort((a, b) => a?.sequence - b?.sequence)
+                    .map((config) => ({
+                        id: config?.name,
+                        title: config?.name,
+                        // cards: (groupedData[config?.name] || [])?.map((item) => ({
+                        //     id: item?.id,
+                        //     title: item?.name,
+                        //     description: kanbanview?.fields?.includes('description') ? item?.description : '',
+                        //     label: kanbanview?.fields?.includes('due_date') ? `Due: ${item?.due_date}` : '',
+                        //     tags: item?.tags?.map((tag) => ({ title: tag })),
+                        //     metadata: item,
+                        // })),
+                        cards: (groupedData[config?.name] || [])?.map((item) => {
+                            const cardFields = kanbanview?.cardFields || {};
+                            return {
+                                id: item?.id,
+                                title: item[cardFields.title] || '',
+                                description: item[cardFields.description] || '',
+                                label: cardFields.label ? `Due: ${item[cardFields.label]}` : '',
+                                tags: (item[cardFields.tags] || [])?.map((tag) => ({ title: tag })),
+                                metadata: item,
+                            };
+                        }),
+                        style: {
+                            backgroundColor: config.color || '#f4f5f7',
+                        },
+                        canDrag: groupBy === 'status',
+                        canAddCard: groupBy === 'status',
                     })),
-                    style: {
-                        backgroundColor: config.color || '#f4f5f7',
-                    },
-                    // If lane is 'priority', disable drag/drop
-                    canDrag: groupBy === 'status', // Enable drag/drop only for status
-                    canAddCard: groupBy === 'status', // Enable adding cards only for status
-                })),
+            };
         };
-    };
-
+    }, [data, groupBy, viewConfig, workflowConfig]); // Dependencies for useMemo
 
     const handleCardMove = (cardId, sourceLaneId, targetLaneId) => {
         const updatedItem = data.find((item) => item?.id === cardId);
         if (updatedItem) {
             const editItem = { ...updatedItem }
-            updatedItem[groupBy] = targetLaneId;
-            console.log("uP", updatedItem)
+            const fieldPath = viewConfig?.kanbanview?.types[groupBy]?.fieldPath || groupBy;
+            updatedItem[fieldPath] = targetLaneId;
             onFinish(updatedItem, editItem);
         }
     };
@@ -149,24 +158,61 @@ const KanbanView = ({ data, viewConfig, workflowConfig, updateData, onFinish, op
                 </div>
             </div>
             <Board editable canAddLanes
+                style={boardStyle}
+                cardStyle={cardStyle}
+                laneStyle={laneStyle}
+                laneTitleStyle={laneTitleStyle}
                 data={buildBoardData()}
                 draggable
                 handleDragEnd={handleCardMove}
-                onCardClick={(cardId, metadata) => openDrawer(metadata)} // Handle card click
-                laneStyle={{
-                    backgroundColor: '#f4f5f7',
-                    borderRadius: '5px',
-                    padding: '10px',
-                }}
-                cardStyle={{
-                    borderRadius: '5px',
-                    border: '1px solid #ddd',
-                    padding: '10px',
-                    backgroundColor: '#fff',
-                }}
+                onCardClick={(cardId, metadata) => openDrawer(metadata)}
+            // laneStyle={{
+            //     backgroundColor: '#f4f5f7',
+            //     borderRadius: '5px',
+            //     padding: '10px',
+            // }}
+            // cardStyle={{
+            //     borderRadius: '5px',
+            //     border: '1px solid #ddd',
+            //     padding: '10px',
+            //     backgroundColor: '#fff',
+            // }}
             />
         </>
     );
+};
+
+const boardStyle = {
+    backgroundColor: '#f8f8f8', // Very light background
+    padding: '20px',
+    borderRadius: '10px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow
+};
+
+const laneStyle = {
+    backgroundColor: '#f0f0f0', // Slightly darker lane background
+    borderRadius: '8px',
+    margin: '15px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
+};
+
+const laneTitleStyle = {
+    backgroundColor: '#e8e8e8', // Subtle title background
+    padding: '12px',
+    borderRadius: '8px 8px 0 0',
+    fontWeight: '600', // Slightly bolder title
+    fontSize: '1.1em',
+};
+
+const cardStyle = {
+    backgroundColor: '#ffffff', // White cards
+    borderRadius: '6px',
+    boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)', // Card shadow
+    padding: '15px',
+    transition: 'box-shadow 0.3s ease', // Smooth hover effect
+    '&:hover': {
+        boxShadow: '0 5px 10px rgba(0, 0, 0, 0.15)', // Enhanced hover shadow
+    },
 };
 
 export default KanbanView;
