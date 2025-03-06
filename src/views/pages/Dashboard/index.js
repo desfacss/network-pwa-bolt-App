@@ -18,7 +18,8 @@ const Dashboaard = () => {
             ) : workspace === "ibcn" ? (
                 <Channels />//<Networking />
             ) : (
-                <Channels />//<DefaultDashboard />
+                // <Channels />// 
+                <DefaultDashboard />
             )}
         </>
     );

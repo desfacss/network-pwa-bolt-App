@@ -7,6 +7,7 @@ import TimesheetSettings from './Timesheet';
 import EnumEditor from './enumeditor';
 import LeaveSettings from '../LeaveSettings';
 import LeaveTypes from '../LeaveSettings/LeaveTypes';
+import OrganizationFeatureEdit from './OrganizationFeatures';
 
 const Index = () => {
 
@@ -22,24 +23,28 @@ const Index = () => {
             children: activeKey === '1' && <Organization />,
         },
         {
-            label: 'Roles & Permission', key: '2',
-            children: activeKey === '2' && <RoleFeatureEdit />,
+            label: 'Org Features', key: '2',
+            children: activeKey === '2' && <OrganizationFeatureEdit />,
         },
         {
-            label: 'Location & Holidays', key: '3',
-            children: activeKey === '3' && <Locations />,
+            label: 'Roles & Permission', key: '3',
+            children: activeKey === '3' && <RoleFeatureEdit />,
         },
         {
-            label: 'Workflow Settings', key: '4',
-            children: activeKey === '4' && <TimesheetSettings />,
+            label: 'Location & Holidays', key: '4',
+            children: activeKey === '4' && <Locations />,
         },
         {
-            label: 'Types', key: '5',
-            children: activeKey === '5' && <LeaveTypes />,
+            label: 'Workflow Settings', key: '5',
+            children: activeKey === '5' && <TimesheetSettings />,
         },
         {
-            label: 'Leave Settings', key: '6',
-            children: activeKey === '6' && <LeaveSettings />,
+            label: 'Types', key: '6',
+            children: activeKey === '6' && <LeaveTypes />,
+        },
+        {
+            label: 'Leave Settings', key: '7',
+            children: activeKey === '7' && <LeaveSettings />,
         },
         // {
         //     label: 'Enum Editor', key: '7',
