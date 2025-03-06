@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Checkbox, Button, message, Modal, Form, InputNumber, Input } from 'antd';
+import { Table, Checkbox, Button, message, Modal, Form, InputNumber, Input, Space, Drawer } from 'antd';
 import { useSelector } from 'react-redux';
 import { camelCaseToTitleCase } from 'components/util-components/utils';
 import { supabase } from 'api/supabaseClient';
+import { DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import OrganizationFeatureEdit from './OrganizationFeatures';
 
 const RoleFeatureEdit = () => {
     const [roles, setRoles] = useState([]);
-    const [features, setFeatures] = useState([]); // State for features
+    const [features, setFeatures] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
-    const [modalType, setModalType] = useState('add'); // 'add', 'edit', 'delete'
+    const [modalType, setModalType] = useState('add');
     const [selectedRole, setSelectedRole] = useState(null);
+    const [drawerVisible, setDrawerVisible] = useState(false);
+
     const [form] = Form.useForm();
 
     const { session } = useSelector((state) => state.auth);
     const organizationId = session?.user?.organization_id;
 
-    // Fetch roles from Supabase
     const fetchRoles = async () => {
         const { data, error } = await supabase.from('roles').select('id, role_name, feature, ui_order')
             .neq('is_superadmin', true).eq('organization_id', session?.user?.organization_id)
@@ -50,8 +53,6 @@ const RoleFeatureEdit = () => {
             setFeatures(enabledFeatures);
         }
     };
-
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -97,6 +98,7 @@ const RoleFeatureEdit = () => {
             }
         }
         message.success('Changes saved successfully!');
+        fetchRoles();
     };
 
     const showModal = (type, role = null) => {
@@ -147,42 +149,89 @@ const RoleFeatureEdit = () => {
         setModalVisible(false);
     };
 
+    const handleAddRoleColumn = () => {
+        showModal('add');
+    };
+
+    const handleEditRoleColumn = (role) => {
+        showModal('edit', role);
+    };
+
+    const handleDeleteRoleColumn = (role) => {
+        showModal('delete', role);
+    };
+
+    const showDrawer = () => {
+        setDrawerVisible(true);
+    };
+
+    const closeDrawer = () => {
+        setDrawerVisible(false);
+    };
+
+    const handleTableChange = (pagination, filters, sorter) => {
+        if (sorter.field === 'ui_order') {
+            const sortedRoles = [...roles].sort((a, b) => {
+                if (sorter.order === 'ascend') {
+                    return a.ui_order - b.ui_order;
+                } else {
+                    return b.ui_order - a.ui_order;
+                }
+            });
+            setRoles(sortedRoles);
+        }
+    };
+
+    const columns = [
+        {
+            // title: 'Feature',
+            title: (
+                <>
+                    Feature
+                    <Button onClick={handleAddRoleColumn} style={{ marginLeft: 16 }} icon={<PlusOutlined />}>
+                        Add Role
+                    </Button>
+                </>
+            ),
+            dataIndex: 'feature',
+            key: 'feature',
+            render: (text) => camelCaseToTitleCase(text)
+        },
+        ...roles.map((role) => ({
+            key: role?.id,
+            title: (
+                <>
+                    {camelCaseToTitleCase(role?.role_name)}
+                    <Button type="link" size="small" onClick={() => handleEditRoleColumn(role)} icon={<EditOutlined />}></Button>
+                    <Button type="link" size="small" danger onClick={() => handleDeleteRoleColumn(role)} icon={<DeleteOutlined />}></Button>
+                </>
+            ),
+            render: (text, record) => (
+                <Checkbox checked={role?.feature[record?.feature] || false}
+                    onChange={(e) => handleFeatureChange(record?.feature, role?.id, e.target.checked)}
+                />
+            ),
+        })),
+    ];
+
     return (
         <div>
             <Table size={'small'} dataSource={features.map(feature => ({ feature }))}
-                loading={loading} pagination={false} rowKey="feature" >
-                {/* <Table.Column title="Feature" dataIndex="feature" key="feature" /> */}
-                <Table.Column title="Feature" dataIndex="feature" key="feature" render={(text) => camelCaseToTitleCase(text)} />
-                {roles?.map(role => (
-                    <Table.Column
-                        key={role?.id}
-                        title={camelCaseToTitleCase(role?.role_name)}
-                        render={(text, record) => (
-                            <Checkbox checked={role?.feature[record?.feature] || false}
-                                onChange={(e) => handleFeatureChange(record?.feature, role?.id, e.target.checked)}
-                            />
-                        )}
-                    />
-                ))}
+                loading={loading} pagination={false} rowKey="feature" columns={columns} onChange={handleTableChange}
+            >
             </Table>
 
-            <Button type="primary" onClick={handleSaveChanges} style={{ marginTop: 16 }} >
-                Save Changes
-            </Button>
-            <Table dataSource={roles} rowKey="id" pagination={false} style={{ marginTop: "20px" }}>
-                <Table.Column title="Role Name" dataIndex="role_name" key="role_name" />
-                <Table.Column title="UI Order" dataIndex="ui_order" key="ui_order" />
-                <Table.Column
-                    title="Actions"
-                    key="actions"
-                    render={(text, record) => (
-                        <span>
-                            <Button type="link" size="small" onClick={() => showModal('edit', record)}>Edit</Button>
-                            <Button type="link" size="small" danger onClick={() => showModal('delete', record)}>Delete</Button>
-                        </span>
-                    )}
-                />
-            </Table>
+            <Space style={{ marginTop: 16, justifyContent: 'space-between', display: 'flex' }}>
+                <Button type="primary" onClick={handleSaveChanges}>
+                    Save Changes
+                </Button>
+                <Button onClick={showDrawer} icon={<SettingOutlined />}>
+                    Manage Features
+                </Button>
+            </Space>
+            {/* <Button onClick={handleAddRoleColumn} style={{ marginTop: 16, marginLeft: 16 }}>
+                Add Role
+            </Button> */}
             <Modal
                 title={`${camelCaseToTitleCase(modalType)} Role`}
                 visible={modalVisible}
@@ -198,7 +247,16 @@ const RoleFeatureEdit = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-            <Button type="primary" onClick={() => showModal('add')} style={{ marginTop: 16 }} >Add Role</Button>
+            <Drawer
+                title="Organization Features"
+                placement="right"
+                closable={true}
+                onClose={closeDrawer}
+                visible={drawerVisible}
+                width={"30%"}
+            >
+                <OrganizationFeatureEdit onSave={() => { fetchOrganizationFeatures(); setDrawerVisible(false) }} />
+            </Drawer>
         </div>
     );
 };

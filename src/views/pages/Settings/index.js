@@ -22,10 +22,10 @@ const Index = () => {
             label: 'Organization', key: '1',
             children: activeKey === '1' && <Organization />,
         },
-        {
-            label: 'Org Features', key: '2',
-            children: activeKey === '2' && <OrganizationFeatureEdit />,
-        },
+        // {
+        //     label: 'Org Features', key: '2',
+        //     children: activeKey === '2' && <OrganizationFeatureEdit />,
+        // },
         {
             label: 'Roles & Permission', key: '3',
             children: activeKey === '3' && <RoleFeatureEdit />,

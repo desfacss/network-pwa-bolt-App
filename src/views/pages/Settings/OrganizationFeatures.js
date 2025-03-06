@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { camelCaseToTitleCase } from 'components/util-components/utils';
 import { supabase } from 'api/supabaseClient';
 
-const OrganizationFeatureEdit = () => {
+const OrganizationFeatureEdit = ({ onSave }) => {
     const [organizationFeatures, setOrganizationFeatures] = useState({});
     const [features, setFeatures] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -84,6 +84,7 @@ const OrganizationFeatureEdit = () => {
             message.error('Failed to save changes.');
         } else {
             message.success('Changes saved successfully!');
+            onSave()
         }
     };
 
