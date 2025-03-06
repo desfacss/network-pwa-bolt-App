@@ -13,7 +13,7 @@ import { store } from "store";
 
 export const RegisterForm = (props) => {
   // const [isSubmitted, setIsSubmitted] = useState(false);
-  const [enums, setEnums] = useState();
+  // const [enums, setEnums] = useState();
   const [signIn, setSignIn] = useState(false)
   const [schema, setSchema] = useState();
   const [roles, setRoles] = useState();
@@ -47,17 +47,17 @@ export const RegisterForm = (props) => {
   const location = useLocation();
 
   useEffect(() => {
-    const getEnums = async () => {
-      let { data, error } = await supabase.from('enums').select('*');
-      if (data) {
-        console.log(data)
-        setEnums(data);
-      }
-    };
+    // const getEnums = async () => {
+    //   let { data, error } = await supabase.from('enums').select('*');
+    //   if (data) {
+    //     console.log(data)
+    //     setEnums(data);
+    //   }
+    // };
     getForms()
     // getUserType();
     getRoles()
-    getEnums();
+    // getEnums();
   }, []);
 
   const surveyLayout = location.pathname.startsWith("/survey")
@@ -214,28 +214,28 @@ export const RegisterForm = (props) => {
         <App formType={formType} />
       ) : ( */}
       <>
-        {!enums ?
+        {/* {!enums ?
           <Row>
             <Col offset={10}>
               <Spin size="large" className="center" />
             </Col>
-          </Row> :
-          <>
-            <h2 className="mb-4">User Registration</h2>
-            <p>
-              Alredy Registered ? {" "}
-              <Link to={`${APP_PREFIX_PATH}/login`}>Login here...</Link>
-            </p>
-            {/* {schema &&  */}
-            {schema && <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />}
-            {signIn && <>
-              User email already added!,Please
-              <a href="/auth/login"> Login and Continue</a><br /><br />
-              {/* For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a> */}
-            </>
-            }
+          </Row> : */}
+        <>
+          <h2 className="mb-4">User Registration</h2>
+          <p>
+            Alredy Registered ? {" "}
+            <Link to={`${APP_PREFIX_PATH}/login`}>Login here...</Link>
+          </p>
+          {/* {schema &&  */}
+          {schema && <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />}
+          {signIn && <>
+            User email already added!,Please
+            <a href="/auth/login"> Login and Continue</a><br /><br />
+            {/* For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a> */}
           </>
-        }
+          }
+        </>
+        {/* } */}
       </>
       {/* )} */}
     </div>
