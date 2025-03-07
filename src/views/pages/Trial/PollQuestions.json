@@ -1,0 +1,127 @@
+[
+    {
+        "question": "What is your Position/Title?",
+        "type": "text",
+        "key": "PositionTitle"
+    },
+    {
+        "question": "What is the Industry/Sector of your business? (Select all that apply)",
+        "type": "multi-select",
+        "key": "IndustrySector",
+        "options": [
+            "Agriculture & ESG",
+            "Consumer Goods",
+            "E-commerce, D2C & Retail",
+            "Financial Services",
+            "IT and Software Services",
+            "Logistics & Transport",
+            "Manufacturing",
+            "Media and Entertainment",
+            "Pharma & Healthcare",
+            "Professional Services",
+            "Public Administration",
+            "Real Estate & Construction",
+            "Sales and Distribution",
+            "Tourism and Hospitality",
+            "Utility Services",
+            "Others"
+        ]
+    },
+    {
+        "question": "What is the Sub Sector of your business? (Select all that apply, based on Industry/Sector selection)",
+        "type": "multi-select",
+        "key": "SubSector",
+        "options": [
+            "Placeholder 1",
+            "Placeholder 2",
+            "Placeholder 3"
+        ]
+    },
+    {
+        "question": "What is the Legal Structure of your business? (Select all that apply)",
+        "type": "multi-select",
+        "key": "LegalStructure",
+        "options": [
+            "Home Business / Unregistered",
+            "Limited Liability Partnership (LLP)",
+            "Partnership",
+            "Private Limited Company",
+            "Public Limited Company",
+            "Sole Proprietorship"
+        ]
+    },
+    {
+        "question": "What is the level of Nagarathar involvement in your business?",
+        "type": "radio",
+        "key": "NagaratharInvolvement",
+        "options": [
+            "100% ownership",
+            "Less than 50%",
+            "Less than 25%",
+            "Others"
+        ]
+    },
+    {
+        "question": "What is the Annual Turnover Range of your business?",
+        "type": "radio",
+        "key": "AnnualTurnoverRange",
+        "options": [
+            "Prefer not to disclose",
+            "Below 1 crore",
+            "1 Crore to 5 Crore",
+            "5 Crore to 10 Crore",
+            "Above 10 Crore",
+            "Above 100 Crore",
+            "Others"
+        ]
+    },
+    {
+        "question": "How many people does your business directly employ?",
+        "type": "radio",
+        "key": "DirectEmployment",
+        "options": [
+            "1 to 20",
+            "20 to 50",
+            "50 to 100",
+            "more than 100",
+            "more than 500",
+            "more than 1000",
+            "Others"
+        ]
+    },
+    {
+        "question": "How many people does your business indirectly employ?",
+        "type": "radio",
+        "key": "IndirectEmployment",
+        "options": [
+            "1 to 20",
+            "20 to 50",
+            "50 to 100",
+            "more than 100",
+            "more than 500",
+            "more than 1000",
+            "Others",
+            "Not Applicable"
+        ]
+    },
+    {
+        "question": "What is the main location of your business?",
+        "type": "text",
+        "key": "location"
+    },
+    {
+        "question": "What is the Company Name? (Optional)",
+        "type": "text",
+        "key": "CompanyName"
+    },
+    {
+        "question": "What year was your business established?",
+        "type": "number",
+        "key": "YearOfEstablishment"
+    },
+    {
+        "question": "Please provide a brief description of your business. (Optional)",
+        "type": "textarea",
+        "key": "briefDescription"
+    }
+]
