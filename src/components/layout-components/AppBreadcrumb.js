@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Breadcrumb } from 'antd';
-import navigationConfig from "configs/NavigationConfig";
+import navigationConfig from "configs/NavigationConfig/Default";
 import IntlMessage from 'components/util-components/IntlMessage';
 
 let breadcrumbData = {

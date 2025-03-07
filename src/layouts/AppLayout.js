@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import SideNav from "components/layout-components/SideNav";
 import TopNav from "components/layout-components/TopNav";
@@ -9,12 +9,14 @@ import HeaderNav from "components/layout-components/HeaderNav";
 import PageHeader from "components/layout-components/PageHeader";
 import Footer from "components/layout-components/Footer";
 import { Layout, Grid } from "antd";
-import navigationConfig from "configs/NavigationConfig";
+// import navigationConfig from "configs/NavigationConfig/Default";
 import { TEMPLATE, MEDIA_QUERIES } from "constants/ThemeConstant";
 import styled from "@emotion/styled";
 import utils from "utils";
 // import { getUserProfile } from "store/slices/profileSlice";
 import './custom.css'
+import { REACT_APP_WORKSPACE } from "configs/AppConfig";
+import { getNavigationConfig } from "configs/NavigationConfig/navigationUtils";
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -55,6 +57,10 @@ export const AppLayout = ({
 }) => {
   const location = useLocation();
   const dispatch = useDispatch();
+
+  const { session } = useSelector((state) => state.auth);
+  const workspace = session?.user?.organization?.app_settings?.workspace || REACT_APP_WORKSPACE || 'dev'
+  const navigationConfig = getNavigationConfig(workspace);
 
   const currentRouteInfo = utils.getRouteInfo(
     navigationConfig,
