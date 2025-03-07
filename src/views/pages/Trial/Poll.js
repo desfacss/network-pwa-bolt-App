@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input } from 'antd';
+import { Button } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 
@@ -8,34 +8,53 @@ function LivePoll() {
     const [currentSlide, setCurrentSlide] = useState(1);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isParticipant, setIsParticipant] = useState(false);
-    const [activeSession, setActiveSession] = useState(null); // Store the active session data
+    const [activeSession, setActiveSession] = useState(null);
 
     const { session } = useSelector((state) => state.auth);
-
-    const userId = session?.user?.id
+    const userId = session?.user?.id;
     const roleType = session?.user?.role_type;
 
+    // Real-time channel subscription
     useEffect(() => {
-        const channel = supabase.channel('poll-room');
+        console.log("Setting up channel subscription for user:", userId);
+        const channel = supabase.channel('poll-room', { debug: true });
         channel
             .on('broadcast', { event: 'move' }, ({ payload }) => {
+                console.log("Slide move received:", payload);
                 setCurrentSlide(payload?.slide);
             })
+            .on('broadcast', { event: 'session_started' }, ({ payload }) => {
+                console.log("Session started received:", payload);
+                setActiveSession({ id: payload.sessionId, admin_id: payload.adminId, is_live: true });
+                setSessionId(payload.sessionId);
+                setIsAdmin(userId === payload.adminId);
+                if (userId === payload.adminId) setIsParticipant(true);
+            })
             .on('broadcast', { event: 'session_ended' }, () => {
+                console.log("Session ended received for user:", userId);
                 setActiveSession(null);
                 setSessionId('');
                 setIsAdmin(false);
                 setIsParticipant(false);
+                setCurrentSlide(1);
             })
-            .subscribe();
+            .subscribe((status) => {
+                console.log("Channel subscription status for user", userId, ":", status);
+                if (status === 'SUBSCRIBED') {
+                    console.log("Successfully subscribed to poll-room for user:", userId);
+                } else if (status === 'CLOSED' || status === 'ERROR') {
+                    console.error("Channel subscription failed for user:", userId, "Status:", status);
+                }
+            });
 
         return () => {
+            console.log("Cleaning up channel for user:", userId);
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [userId]);
 
+    // Fetch active session on mount and periodically check
     useEffect(() => {
-        // Fetch active session on mount and whenever the component updates.
         const fetchActiveSession = async () => {
             const { data, error } = await supabase
                 .from('live_sessions')
@@ -47,30 +66,47 @@ function LivePoll() {
             if (error) {
                 console.error("Error fetching active session:", error);
             } else if (data && data.length > 0) {
+                console.log("Fetched active session:", data[0]);
                 setActiveSession(data[0]);
                 setSessionId(data[0].id);
                 setIsAdmin(userId === data[0].admin_id);
+                setIsParticipant(data[0].participants?.includes(userId));
             } else {
+                console.log("No active session found");
                 setActiveSession(null);
                 setSessionId('');
+                setIsAdmin(false);
+                setIsParticipant(false);
             }
         };
 
         fetchActiveSession();
-    }, []); // Empty dependency array ensures this runs only on mount and update
 
+        // Fallback: Poll every 5 seconds to ensure state sync
+        const interval = setInterval(fetchActiveSession, 5000);
+        return () => clearInterval(interval);
+    }, [userId]);
 
     const startPoll = async () => {
-        const { data } = await supabase.from('live_sessions').insert([{ admin_id: userId, participants: [userId], is_live: true }]).select();
+        const { data, error } = await supabase
+            .from('live_sessions')
+            .insert([{ admin_id: userId, participants: [userId], is_live: true }])
+            .select();
+        if (error) {
+            console.error("Error starting poll:", error);
+            return;
+        }
+        console.log("Poll started with session:", data[0]);
         setSessionId(data[0]?.id);
-        setActiveSession(data[0]); // Update activeSession state
+        setActiveSession(data[0]);
         setIsAdmin(true);
-        setIsParticipant(true); // Admin is also a participant
-        supabase.channel('poll-room').send({
+        setIsParticipant(true);
+        const { error: broadcastError } = await supabase.channel('poll-room').send({
             type: 'broadcast',
-            event: 'start',
-            payload: { sessionId: data[0]?.id }
+            event: 'session_started',
+            payload: { sessionId: data[0]?.id, adminId: userId }
         });
+        if (broadcastError) console.error("Error sending session_started broadcast:", broadcastError);
     };
 
     const endPoll = async () => {
@@ -79,38 +115,51 @@ function LivePoll() {
             .update({ is_live: false })
             .eq('id', sessionId);
         if (error) {
-            console.error("Error ending session:", error)
+            console.error("Error ending session:", error);
+            return;
         }
-        supabase.channel('poll-room').send({
+        console.log("Session ended by admin:", userId);
+        const { error: broadcastError } = await supabase.channel('poll-room').send({
             type: 'broadcast',
-            event: 'session_ended',
+            event: 'session_ended'
         });
-        // Directly update the state after successful end poll
+        if (broadcastError) console.error("Error sending session_ended broadcast:", broadcastError);
         setActiveSession(null);
         setSessionId('');
         setIsAdmin(false);
         setIsParticipant(false);
+        setCurrentSlide(1);
     };
 
     const joinSession = async () => {
-        if (activeSession) { // Use activeSession from state
+        if (activeSession) {
             const { error } = await supabase.rpc('join_session', { session_id: activeSession.id, participant_id: userId });
             if (error) {
                 console.error("Error joining session:", error);
             } else {
-                console.log("Joined session as participant");
+                console.log("Joined session as participant:", userId);
                 setIsParticipant(true);
+                setActiveSession((prev) => ({
+                    ...prev,
+                    participants: [...(prev.participants || []), userId],
+                }));
             }
         }
     };
 
     const exitSession = async () => {
-        const { error } = await supabase.rpc('exit_session', { session_id: sessionId, participant_id: userId }); // Assuming you have an exit_session RPC
-        if (error) {
-            console.error("Error exiting session:", error);
-        } else {
-            console.log("Exited session");
-            setIsParticipant(false);
+        if (activeSession) {
+            const { error } = await supabase.rpc('exit_session', { session_id: activeSession.id, participant_id: userId });
+            if (error) {
+                console.error("Error exiting session:", error);
+            } else {
+                console.log("Exited session:", userId);
+                setIsParticipant(false);
+                setActiveSession((prev) => ({
+                    ...prev,
+                    participants: (prev.participants || []).filter((id) => id !== userId),
+                }));
+            }
         }
     };
 
@@ -124,45 +173,47 @@ function LivePoll() {
         });
     };
 
-    // ... (rest of the component code for moveSlide, return, etc.)
-
     return (
         <div style={{ padding: '20px', textAlign: 'center' }}>
-            {(roleType === 'admin' || roleType === 'superadmin') ? ( // Conditionally render based on role
+            {(roleType === 'admin' || roleType === 'superadmin') ? (
                 !activeSession ? (
                     <Button onClick={startPoll}>Start Live Poll</Button>
-                ) : isAdmin ? ( // Check isAdmin explicitly
+                ) : isAdmin ? (
                     <Button onClick={endPoll}>End Live Poll</Button>
-                ) : null // Don't show a button if admin but not the one who started the session
+                ) : null
             ) : activeSession ? (
-                <Button onClick={exitSession}>Exit Session</Button>
+                isParticipant ? (
+                    <Button onClick={exitSession}>Exit Session</Button>
+                ) : (
+                    <Button onClick={joinSession}>Join Session</Button>
+                )
             ) : (
-                <Button onClick={joinSession}>Join Session</Button>
+                <p>No active sessions.</p>
             )}
 
-            {activeSession ? (
+            {activeSession && isParticipant ? (
                 <>
-                    {(roleType === 'admin' || roleType === 'superadmin') ?
+                    {(roleType === 'admin' || roleType === 'superadmin') && isAdmin ? (
                         <>
                             <h2>Current Slide: {currentSlide}</h2>
-                            {isAdmin && (
-                                <div>
-                                    <Button onClick={() => moveSlide('prev')} disabled={currentSlide === 1}>Prev</Button>
-                                    <Button onClick={() => moveSlide('next')} disabled={currentSlide === 3}>Next</Button>
-                                </div>
-                            )}
+                            <div>
+                                <Button onClick={() => moveSlide('prev')} disabled={currentSlide === 1}>Prev</Button>
+                                <Button onClick={() => moveSlide('next')} disabled={currentSlide === 3}>Next</Button>
+                            </div>
                         </>
-                        :
+                    ) : (
                         <div style={{ fontSize: '48px', margin: '20px 0' }}>
                             Slide {currentSlide}
                         </div>
-                    }
-                    {/* <Input value={sessionId} readOnly style={{ marginTop: '20px' }} /> */}
+                    )}
                 </>
-            ) :
-                (roleType === 'admin' || roleType === 'superadmin') ? <p>No active sessions yet. Start one!</p>
-                    : (roleType !== 'admin' || roleType !== 'superadmin') && <p>No active sessions.</p>
-            }
+            ) : (
+                (roleType === 'admin' || roleType === 'superadmin') ? (
+                    !activeSession && <p>No active sessions yet. Start one!</p>
+                ) : (
+                    !activeSession && <p>No active sessions.</p>
+                )
+            )}
         </div>
     );
 }
