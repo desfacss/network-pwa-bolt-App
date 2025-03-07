@@ -2,7 +2,7 @@ import { WhatsAppOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import React from 'react';
 
-export default function ShareButton() {
+export default function WhatsAppShareButton() {
     const shareToWhatsApp = () => {
         // Get current page URL
         const currentUrl = window.location.href;

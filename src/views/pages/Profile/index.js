@@ -8,7 +8,7 @@ import ChangePassword from 'views/auth-views/components/ChangePassword';
 import { useNavigate, useParams } from 'react-router-dom';
 import ProfilePic from './ProfilePic';
 import DynamicViews from '../DynamicViews';
-import ShareButton from 'components/common/WhatsappShare';
+import WhatsAppShareButton from 'components/common/WhatsappShare';
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -286,7 +286,7 @@ const Profile = () => {
                     <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
                 </Modal>
             )}
-            <ShareButton />
+            {/* <WhatsAppShareButton /> */}
             <Tabs defaultActiveKey="profile" items={tabItems} />
         </Card>
     );

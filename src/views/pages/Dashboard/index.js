@@ -17,7 +17,7 @@ const Dashboaard = () => {
             {workspace === "ukpe" ? (
                 <DashboaardUKPE />
             ) : workspace === "ibcn" ? (
-                <Schedule /> //<Channels /><Networking />
+                <Schedule /> //<Channels />//<Networking />
             ) : (
                 // <Channels />// 
                 <DefaultDashboard />

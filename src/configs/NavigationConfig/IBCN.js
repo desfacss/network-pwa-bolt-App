@@ -50,8 +50,8 @@ const navigationConfig = [
       //   submenu: [],
       // },
       module_features?.ibNetworking && feature?.ibNetworking && {
-        key: 'ib_networking',
-        path: `${APP_PREFIX_PATH}/networking`,
+        key: 'channels',
+        path: `${APP_PREFIX_PATH}/channels`,
         title: 'Networking',
         icon: TeamOutlined,
         breadcrumb: false,
