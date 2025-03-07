@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Checkbox, Button, message } from 'antd';
 import { useSelector } from 'react-redux';
 import { camelCaseToTitleCase } from 'components/util-components/utils';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 
 const OrganizationFeatureEdit = ({ onSave }) => {
     const [organizationFeatures, setOrganizationFeatures] = useState({});

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Button, List, message, Card, Tag, Select, Checkbox, Form, Upload, Modal, Tabs } from 'antd';
 import { PlusOutlined, DeleteOutlined, UploadOutlined, EyeOutlined } from '@ant-design/icons';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 // import WorkflowVisualizer from './flow';
 // import WorkflowEditor from './workflow';

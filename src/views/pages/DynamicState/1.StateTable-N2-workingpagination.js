@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSyncQueue } from 'state/hooks/useSyncQueue';
 import useTableStore from 'state/stores/useGenericDomainTable';
 import { networkMonitor } from 'state/services/offline/networkMonitor';
@@ -90,16 +90,16 @@ const StateTable = () => {
         return { items: data, total: count, pageParam };
     };
 
-    const { 
-        data, 
-        isLoading, 
-        isFetching, 
-        fetchNextPage, 
-        fetchPreviousPage, 
-        hasNextPage, 
-        hasPreviousPage, 
-        isFetchingNextPage, 
-        isFetchingPreviousPage 
+    const {
+        data,
+        isLoading,
+        isFetching,
+        fetchNextPage,
+        fetchPreviousPage,
+        hasNextPage,
+        hasPreviousPage,
+        isFetchingNextPage,
+        isFetchingPreviousPage
     } = useInfiniteQuery({
         queryKey: ['data', filters],
         queryFn: fetchData,
@@ -168,9 +168,9 @@ const StateTable = () => {
         [onPaginationChange]
     );
 
-    const allItems = useMemo(() => 
+    const allItems = useMemo(() =>
         data?.pages?.flatMap(page => page.items) || []
-    , [data?.pages]);
+        , [data?.pages]);
 
     const totalCount = data?.pages?.[0]?.total || 0;
     const totalPages = Math.ceil(totalCount / pageSize);

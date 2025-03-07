@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from 'api/supabaseClient'; 
+import { supabase } from 'configs/SupabaseConfig';
 import { QueryBuilder, formatQuery } from 'react-querybuilder';
 import 'react-querybuilder/dist/query-builder.css';
 
@@ -60,7 +60,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       // Handle different field types
       if (nestedPath) {
         // JSONB nested field handling
-        return nestedPath 
+        return nestedPath
           ? `${baseField}->>${nestedPath}.${mappedOperator}.${JSON.stringify(value)}`
           : `${baseField}.${mappedOperator}.${JSON.stringify(value)}`;
       }
@@ -81,8 +81,8 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       });
 
       // Join conditions based on the group combinator
-      const combinator = group.combinator === 'and' 
-        ? '(' + conditions.join(',') + ')' 
+      const combinator = group.combinator === 'and'
+        ? '(' + conditions.join(',') + ')'
         : conditions.join(',');
 
       console.log('Processed group conditions:', combinator);
@@ -98,26 +98,26 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
     console.log('Mapping database type:', dbType, 'Item:', item);
 
     if (item && item.foreign_key) {
-      return 'select'; 
+      return 'select';
     }
 
-    switch(dbType) {
-      case 'bigint': 
-      case 'integer': 
+    switch (dbType) {
+      case 'bigint':
+      case 'integer':
         return 'number';
-      case 'character varying': 
-      case 'text': 
-      case 'uuid': 
+      case 'character varying':
+      case 'text':
+      case 'uuid':
         return 'string';
-      case 'timestamp with time zone': 
+      case 'timestamp with time zone':
         return 'datetime';
-      case 'boolean': 
+      case 'boolean':
         return 'boolean';
-      case 'jsonb': 
+      case 'jsonb':
         return 'json';
-      case 'ARRAY': 
-        return 'array'; 
-      default: 
+      case 'ARRAY':
+        return 'array';
+      default:
         console.log('Defaulting to string for unknown type:', dbType);
         return 'string';
     }
@@ -151,7 +151,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
       }
     };
 
-    if (entityType) { 
+    if (entityType) {
       console.log('Entity type provided, fetching fields...');
       loadFields();
     } else {
@@ -208,7 +208,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
             .order(foreignKeyConfig.display_column, { ascending: true });
 
           if (error) throw error;
-          
+
           setOptions(data.map(item => ({
             value: item[foreignKeyConfig.source_column],
             label: item[foreignKeyConfig.display_column]
@@ -239,10 +239,10 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
 
     if (item && item.foreign_key) {
       return (
-        <DynamicSelect 
-          foreignKeyConfig={item.foreign_key} 
-          value={value} 
-          onChange={handleOnChange} 
+        <DynamicSelect
+          foreignKeyConfig={item.foreign_key}
+          value={value}
+          onChange={handleOnChange}
         />
       );
     } else if (fieldData.type === 'boolean') {
@@ -255,7 +255,7 @@ const QueryBuilderComponent = ({ entityType, masterObject }) => {
     } else if (fieldData.type === 'datetime') {
       return <input type="datetime-local" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} />;
     }
-  
+
     return <input type="text" value={value || ''} onChange={(e) => handleOnChange(e.target.value)} />;
   };
 

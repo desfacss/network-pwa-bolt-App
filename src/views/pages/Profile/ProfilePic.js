@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Upload, message, Spin, Image } from 'antd';
 import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
 import Publitio from 'publitio_js_sdk';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 
 // Configuration JSON (you can store this in a separate file if you prefer)

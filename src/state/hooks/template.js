@@ -6,7 +6,7 @@ import { openDB } from 'idb'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import React from 'react'
 import { Table } from 'antd'
-import { supabase } from 'api/supabaseClient'
+import { supabase } from 'configs/SupabaseConfig'
 
 export const useUserStore = create(
     persist(
@@ -155,7 +155,7 @@ export const useViewConfig = (tableId) => {
 // pages/DynamicTable/index.js
 // import React from 'react'
 // import { Table } from 'antd'
-// import { supabase } from 'api/supabaseClient'
+// import { supabase } from 'configs/SupabaseConfig'
 // import { useRecords } from '../../state/hooks/useRecords'
 // import { useViewConfig } from '../../state/hooks/useViewConfig'
 // import { useUserStore } from '../../state/stores/userStore'

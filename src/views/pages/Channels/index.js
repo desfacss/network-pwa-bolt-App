@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, Menu, Input, Button, message, Card, Modal, Popconfirm } from 'antd';
 import { CloseOutlined, PlusOutlined, MenuOutlined } from '@ant-design/icons';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import ForumComment from './Comments';
 

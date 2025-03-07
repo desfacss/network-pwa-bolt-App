@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Select, Input, Button, message, Drawer } from "antd";
-import { supabase } from "api/supabaseClient";
+import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 
 const { Option } = Select;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, Button, message, Space, Popconfirm } from 'antd';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 
 const StateManager = () => {
     const queryClient = useQueryClient();

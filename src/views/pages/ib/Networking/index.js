@@ -3,7 +3,7 @@ import DynamicViews from '../../DynamicViews';
 import Interests from './Interests';
 import CategorySelector from './CategorySelector';
 import { Card, Switch, Tabs } from 'antd';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 
 const Networking = () => {

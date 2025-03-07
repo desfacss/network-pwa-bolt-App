@@ -2,7 +2,7 @@
 /**
  * Real-time subscription service using Supabase
  */
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { indexedDB } from '../cache/indexedDB';
 
 const subscriptions = new Map();

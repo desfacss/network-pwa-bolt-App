@@ -3,7 +3,7 @@
  * Enhanced records hook with offline support and optimistic updates
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { indexedDB } from 'state/services/indexedDB';
 import { useUserStore } from '../stores/userStore';
 // import { indexedDB } from '../../services/cache/indexedDB';

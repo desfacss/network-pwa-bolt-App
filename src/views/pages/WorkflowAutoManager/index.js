@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 // import QueryBuilder from 'react-query-builder'; // Import react-query-builder
-import { QueryBuilder} from 'react-querybuilder';
+import { QueryBuilder } from 'react-querybuilder';
 // import 'react-query-builder/dist/query-builder.css'; // Default styles for QueryBuilder
 // import { supabase } from '../supabaseClient'; // Adjust to your Supabase setup
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 
 // Sample domains for dropdown (replace with your actual domains)
 const domains = ['Users', 'Organizations', 'Clients', 'Tasks', 'Events', 'Projects'];

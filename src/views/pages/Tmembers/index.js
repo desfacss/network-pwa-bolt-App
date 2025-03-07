@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-query';
 // import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 // import { persistQueryClient } from '@tanstack/react-query-persist-client';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import useTableStore from './useTableStore';
 // import { useSyncQueue } from './useSyncQueue';
 import { networkMonitor } from '../../../services/networkMonitor';

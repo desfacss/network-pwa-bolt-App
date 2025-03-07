@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Checkbox, Button, message, Drawer, Row, Col } from "antd";
-import { supabase } from "api/supabaseClient";
+import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 // import { ResponsiveButton } from "views/pages/Trial/ResponsiveButton";
 

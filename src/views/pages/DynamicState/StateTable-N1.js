@@ -1,7 +1,7 @@
 // import React, { useState, useEffect, useMemo } from 'react';
 // import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 // import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-// import { supabase } from 'api/supabaseClient';
+// import { supabase } from 'configs/SupabaseConfig';
 // import { useSyncQueueManager } from 'state/hooks/useSyncQueueManager';
 // import useTableStore from 'state/stores/useTableStore';
 // import { networkMonitor } from 'state/services/offline/networkMonitor';
@@ -222,7 +222,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSyncQueue } from 'state/hooks/useSyncQueue';
 // import useTableStore from 'state/stores/useTableStore';
 import { networkMonitor } from 'state/services/offline/networkMonitor';

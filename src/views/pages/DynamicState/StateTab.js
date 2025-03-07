@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Table, DatePicker, Space, Button, Input, Form } from 'antd';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import useTableStore from 'state/stores/useGenericDomainTable';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
@@ -10,7 +10,7 @@ const { RangePicker } = DatePicker;
 
 const StateTable = () => {
   // Using Zustand store with fallback values
-  const { 
+  const {
     pageSize: storedPageSize = 5, // Default to 5 if not set in store
     currentPage: storedCurrentPage = 1, // Default to 1 if not set in store
     setPagination: storedSetPagination,
@@ -42,44 +42,44 @@ const StateTable = () => {
   // Date range from filters
   const dateRange = filters.dateRange || [dayjs().subtract(3, 'days'), dayjs()];
 
-    const fetchData = async ({ pageParam = currentPage }) => {
-        console.log("Fetching data for page:", pageParam);
-        let query = supabase
-        .from('y_state')
-        .select('id, name, updated_at', { count: 'exact' });
-    
-        if (filters.dateRange?.length === 2) {
-        const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
-        const startIso = startDate.startOf('day').toISOString();
-        const endIso = endDate.endOf('day').toISOString();
-        query = query.gte('updated_at', startIso).lte('updated_at', endIso);
-        }
-    
-        const offset = (pageParam - 1) * pageSize;
-        const { data, error, count } = await query.range(offset, offset + pageSize - 1);
-    
-        if (error) {
-        console.error('Error fetching data:', error);
-        return { items: [], total: 0, pageParam }; // Return empty data instead of throwing
-        }
-    
-        console.log("Data fetched:", data);
-        console.log("Total count:", count);
-    
-        return { items: data || [], total: count || 0, pageParam };
-    };
+  const fetchData = async ({ pageParam = currentPage }) => {
+    console.log("Fetching data for page:", pageParam);
+    let query = supabase
+      .from('y_state')
+      .select('id, name, updated_at', { count: 'exact' });
+
+    if (filters.dateRange?.length === 2) {
+      const [startDate, endDate] = filters.dateRange.map(date => dayjs(date));
+      const startIso = startDate.startOf('day').toISOString();
+      const endIso = endDate.endOf('day').toISOString();
+      query = query.gte('updated_at', startIso).lte('updated_at', endIso);
+    }
+
+    const offset = (pageParam - 1) * pageSize;
+    const { data, error, count } = await query.range(offset, offset + pageSize - 1);
+
+    if (error) {
+      console.error('Error fetching data:', error);
+      return { items: [], total: 0, pageParam }; // Return empty data instead of throwing
+    }
+
+    console.log("Data fetched:", data);
+    console.log("Total count:", count);
+
+    return { items: data || [], total: count || 0, pageParam };
+  };
 
   const queryClient = useQueryClient();
 
   // Use Infinite Query for pagination
-  const { 
-    data, 
-    isLoading, 
-    isFetching, 
-    fetchNextPage, 
-    fetchPreviousPage, 
-    hasNextPage, 
-    hasPreviousPage, 
+  const {
+    data,
+    isLoading,
+    isFetching,
+    fetchNextPage,
+    fetchPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
   } = useInfiniteQuery({
     queryKey: ['data', filters, currentPage],
     queryFn: fetchData,
@@ -122,9 +122,9 @@ const StateTable = () => {
   );
 
   // Compute items for table
-  const allItems = useMemo(() => 
+  const allItems = useMemo(() =>
     data?.pages?.flatMap(page => page.items) || [],
-  [data?.pages]);
+    [data?.pages]);
 
   console.log("All items for table:", allItems);
 
@@ -270,7 +270,7 @@ const StateTable = () => {
           total: totalCount,
           current: currentPage,
           showSizeChanger: true,
-          pageSizeOptions: ['5','10','25','50']
+          pageSizeOptions: ['5', '10', '25', '50']
         }}
         loading={isLoading || isFetching}
       />

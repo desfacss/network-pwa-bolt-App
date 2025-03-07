@@ -1,5 +1,5 @@
 import { Button, Card, Input, Modal, Avatar, Tooltip } from 'antd';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';

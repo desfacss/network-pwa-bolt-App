@@ -1,6 +1,6 @@
 // import { useQuery } from "@tanstack/react-query";
 // import { notification } from "antd";
-// import { supabase } from "api/supabaseClient";
+// import { supabase } from "configs/SupabaseConfig";
 
 // export const useViewConfig = (entityType, setViewConfig) => {
 //     console.log("vd", entityType)
@@ -29,7 +29,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { notification } from "antd";
-import { supabase } from "api/supabaseClient";
+import { supabase } from "configs/SupabaseConfig";
 
 export const useViewConfig = (entityType, setViewConfig) => {
     const { data, error, isLoading } = useQuery({

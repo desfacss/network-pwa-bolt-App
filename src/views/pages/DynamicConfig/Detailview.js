@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Table, Button, Form, Space, Input, Popover } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { Select } from 'antd';
 
 const { Option } = Select;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Checkbox, Button, message, Modal, Form, InputNumber, Input, Space, Drawer } from 'antd';
 import { useSelector } from 'react-redux';
 import { camelCaseToTitleCase } from 'components/util-components/utils';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import OrganizationFeatureEdit from './OrganizationFeatures';
 

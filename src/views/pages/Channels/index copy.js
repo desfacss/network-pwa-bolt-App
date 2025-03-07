@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Input, Button, List, message, Card } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 
 const { TabPane } = Tabs;

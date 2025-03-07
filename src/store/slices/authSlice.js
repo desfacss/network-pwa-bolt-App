@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { supabase } from "api/supabaseClient";
+import { supabase } from "configs/SupabaseConfig";
 import service from "auth/FetchInterceptor";
 import { REACT_APP_WORKSPACE } from "configs/AppConfig";
 import { AUTH_TOKEN } from "constants/AuthConstant";

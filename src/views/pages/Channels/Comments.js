@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message, Empty, ConfigProvider, theme } from 'antd';
 import { UserOutlined, MessageOutlined, DeleteOutlined, RocketOutlined, CloseOutlined, SendOutlined } from '@ant-design/icons';
 import './styles.css';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 

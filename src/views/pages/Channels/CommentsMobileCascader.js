@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer } from 'antd';
 import { UserOutlined, MessageOutlined } from '@ant-design/icons';
 import './styles.css';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import { MobileCascader } from './MobileCascader';
 

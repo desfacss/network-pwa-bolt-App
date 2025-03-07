@@ -4,7 +4,7 @@ import DynamicForm from '../DynamicForm';
 import { widgetConfigs } from './widgets';
 // import JSONInput from 'react-json-editor-ajrm';
 // import locale from 'react-json-editor-ajrm/locale/en';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 // import { QueryFilter } from './QueryBuilder';
 // import { QueryFilter } from './QueryBuilderStatic';
 import AceEditor from 'react-ace';

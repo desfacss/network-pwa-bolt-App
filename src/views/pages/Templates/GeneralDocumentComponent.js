@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Form, Input, Button, Table, DatePicker, Row, Col, Typography, Divider, InputNumber, message } from 'antd';
 import moment from 'moment';
 import { useReactToPrint } from 'react-to-print';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 
 const { TextArea } = Input;

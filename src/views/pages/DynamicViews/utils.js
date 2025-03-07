@@ -1,5 +1,5 @@
 import { notification } from 'antd';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { store } from 'store';
 
 export const handleAllocations = async (formData, allocationsTable, mainEntityId) => {

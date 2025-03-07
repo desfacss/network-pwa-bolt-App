@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Upload, Button, Modal, Input, List, Space, message, Image } from 'antd';
 import { PlusOutlined, DownloadOutlined } from '@ant-design/icons';
 import PublitioAPI from 'publitio_js_sdk';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 
 const FilesTab = ({ editItem, rawData }) => {
     // State for managing folders and files

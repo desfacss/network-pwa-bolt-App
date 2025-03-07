@@ -1,5 +1,5 @@
 import { Card, Tag, Typography } from 'antd';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 

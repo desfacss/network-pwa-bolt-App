@@ -43,7 +43,7 @@ import { useNavigate } from "react-router-dom";
 import { APP_PREFIX_PATH } from "configs/AppConfig";
 import DynamicForm from "views/pages/DynamicForm";
 import Survey from "./Survey";
-import { supabase } from "api/supabaseClient";
+import { supabase } from "configs/SupabaseConfig";
 
 const SurveyPage = () => {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 // Count and display in table
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from 'api/supabaseClient'; // Ensure this path is correct
+import { supabase } from 'configs/SupabaseConfig'; // Ensure this path is correct
 import { QueryBuilder, formatQuery } from 'react-querybuilder';
 import 'react-querybuilder/dist/query-builder.css';
 

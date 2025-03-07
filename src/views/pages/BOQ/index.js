@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Table, Select, Modal, DatePicker, Row, Col } from 'antd';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 // Note: You'll need to import moment for DatePicker to work
 import moment from 'moment';
 const { Option } = Select;

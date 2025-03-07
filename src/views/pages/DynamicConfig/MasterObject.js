@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Button, Form, Table, message, Tooltip, Input } from 'antd';
 import { CheckCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
-import { supabase } from 'api/supabaseClient';
+import { supabase } from 'configs/SupabaseConfig';
 
 const { Option } = Select;
 

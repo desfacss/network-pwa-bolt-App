@@ -1,4 +1,4 @@
-import { supabase } from "api/supabaseClient";
+import { supabase } from "configs/SupabaseConfig";
 import React, { useState } from "react";
 import { QueryBuilder, formatQuery } from "react-querybuilder";
 import "react-querybuilder/dist/query-builder.css";
