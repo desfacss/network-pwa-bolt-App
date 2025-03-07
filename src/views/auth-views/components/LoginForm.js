@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Button, Form, Input, notification, Space } from "antd";
+import { Button, Form, Input, notification, Space, Divider } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined, FacebookOutlined, XOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import {
@@ -11,12 +11,12 @@ import {
 } from "store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
-import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
+import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig';
 
 export const LoginForm = (props) => {
-  const [linkSent, setLinkSent] = useState(false)
-  const [magiclink, setMagicLink] = useState(false)
-  const [changePassword, setChangePassword] = useState(false)
+  const [linkSent, setLinkSent] = useState(false);
+  const [magiclink, setMagicLink] = useState(false);
+  const [changePassword, setChangePassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -45,16 +45,14 @@ export const LoginForm = (props) => {
 
   const onLogin = async (values) => {
     showLoading();
-    // signIn(values);
     const { data, error } = await supabase.auth.signInWithPassword(values);
     if (!error) {
       console.log('Logged In', data, values);
       notification.success({ message: 'Successfully Logged In' });
       window.location.reload();
-      // navigate(`${AUTH_PREFIX_PATH}/update_survey`)
     } else {
       console.log('Error', values);
-      return notification.error({ message: error.message || "Invalid credentials" })
+      return notification.error({ message: error.message || "Invalid credentials" });
     }
   };
 
@@ -110,7 +108,6 @@ export const LoginForm = (props) => {
     showLoading();
     signInWithFacebook();
   };
-
   // useEffect(() => {
   //   if (token !== null && allowRedirect) {
   //     navigate(redirect);
@@ -147,11 +144,12 @@ export const LoginForm = (props) => {
   // 		</div>
   // 	</div>
   // )
+
+
   const oAuth = async (provider) => {
-    // supabase.auth.signOut()
-    // store.dispatch(removeSession());
-    let { data, error } = await supabase.auth.signInWithOAuth({ provider })
-  }
+    let { data, error } = await supabase.auth.signInWithOAuth({ provider });
+  };
+
   return (
     <>
       {/* <Space>
@@ -195,36 +193,34 @@ export const LoginForm = (props) => {
         >
           <Input prefix={<MailOutlined className="text-primary" />} />
         </Form.Item>
-        {!magiclink && <Form.Item
-          // tooltip={"Refer your email"}
-          name="password"
-          label={
-            <div
-              className={`${true
-                ? "d-flex justify-content-between w-100 align-items-center"
-                : ""
-                }`}
-            >
-              <span>Password</span>
-              {true && (
-                <span
-                  onClick={() => setMagicLink(true)}
-                  className="ml-2 cursor-pointer font-size-sm font-weight-normal text-muted"
-                >
-                  Forget Password?
-                </span>
-              )}
-            </div>
-          }
-          rules={[
-            {
-              required: true,
-              message: "Please input your password",
-            },
-          ]}
-        >
-          <Input.Password prefix={<LockOutlined className="text-primary" />} />
-        </Form.Item>}
+        {!magiclink && (
+          <Form.Item
+            name="password"
+            label={
+              <div
+                className={`d-flex justify-content-between w-100 align-items-center`}
+              >
+                <span>Password</span>
+                {true && (
+                  <span
+                    onClick={() => setMagicLink(true)}
+                    className="ml-2 cursor-pointer font-size-sm font-weight-normal text-muted"
+                  >
+                    Forget Password?
+                  </span>
+                )}
+              </div>
+            }
+            rules={[
+              {
+                required: true,
+                message: "Please input your password",
+              },
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined className="text-primary" />} />
+          </Form.Item>
+        )}
         <Form.Item>
 
           {/* {magiclink ? <><Button type="primary" htmlType="submit" block disabled={linkSent}>
@@ -241,12 +237,21 @@ export const LoginForm = (props) => {
           </Button>} */}
           {linkSent && "Check your Email/Spam folder"}
         </Form.Item>
-        {/* {
-					otherSignIn ? renderOtherSignIn : null
-				} */}
+        <Divider>Or continue with</Divider>
+        <Space direction="vertical" align="center" style={{ width: '100%' }}>
+          <Button icon={<GoogleOutlined />} block onClick={() => oAuth('google')}>
+            Continue with Google
+          </Button>
+          {/* Add Facebook and Twitter buttons if needed */}
+          {/* <Button icon={<FacebookOutlined />} block onClick={() => oAuth('facebook')}>
+            Continue with Facebook
+          </Button>
+          <Button icon={<XOutlined />} block onClick={() => oAuth('twitter')}>
+            Continue with Twitter
+          </Button> */}
+        </Space>
         {extra}
       </Form>
-      {/* For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a> */}
     </>
   );
 };
@@ -257,11 +262,6 @@ LoginForm.propTypes = {
   extra: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
 };
 
-// LoginForm.defaultProps = {
-//   otherSignIn: true,
-//   showForgetPassword: false,
-// };
-
 const mapStateToProps = ({ auth }) => {
   const { loading, message, showMessage, token, redirect } = auth;
   return { loading, message, showMessage, token, redirect };
@@ -271,7 +271,7 @@ const mapDispatchToProps = {
   signIn,
   showAuthMessage,
   showLoading,
-  hideAuthMessage
+  hideAuthMessage,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);

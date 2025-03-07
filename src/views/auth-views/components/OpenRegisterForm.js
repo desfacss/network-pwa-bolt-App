@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber, message } from "antd";
+import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber, message, Typography } from "antd";
 import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
 import { useLocation, Link } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
@@ -9,6 +9,7 @@ import { supabase } from "configs/SupabaseConfig";
 import { APP_PREFIX_PATH, REACT_APP_WORKSPACE, SURVEY_PREFIX_PATH } from "configs/AppConfig";
 import DynamicForm from "views/pages/DynamicForm";
 import { store } from "store";
+const { Text } = Typography;
 
 export const OpenRegisterForm = (props) => {
   const [organization, setOrganization] = useState();
@@ -68,7 +69,7 @@ export const OpenRegisterForm = (props) => {
   }, [organization]);
 
   const checkMobileInReferrals = async () => {
-    const { data, error } = await supabase.from('referrals').select('*').eq('mobile', mobile);
+    const { data, error } = await supabase.from('referrals').select('*,users (user_name)').eq('mobile', mobile);
     if (error) {
       return message.error("Error checking mobile number");
     }
@@ -176,6 +177,83 @@ export const OpenRegisterForm = (props) => {
     });
   };
 
+  const handleGoogleSignIn = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
+    if (error) {
+      console.error('Google Sign-In Error:', error);
+      message.error('Google Sign-In failed');
+    }
+  };
+
+  const createUserAndIbMember = async (userId, userDetails, user_name, role) => {
+    const { data: data2, error: error2 } = await supabase.from('users').insert([
+      {
+        id: userId,
+        organization_id: organization?.id,
+        details: userDetails,
+        user_name,
+        role_type: role,
+        role_id: roles?.find(i => i.role_name === role)?.id
+      },
+    ]);
+
+    if (error2) {
+      console.log("Error2", error2);
+      return notification.error({ message: error2.message || "Error" });
+    }
+
+    const { data: data3, error: error3 } = await supabase.from('ib_members').insert([
+      {
+        user_id: userId,
+        details: userDetails,
+        short_name: user_name
+      }
+    ]);
+
+    if (error3) {
+      console.log("Error3", error3);
+      return notification.error({ message: error3.message || "Error inserting into ib_members" });
+    }
+  };
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        if (step === 2) {
+          let user_name = session.user.user_metadata.full_name || session.user.email.split('@')[0];
+          let userDetails = { email: session.user.email, user_name: user_name };
+          await createUserAndIbMember(session.user.id, userDetails, user_name, 'member');
+
+          const fetchUserData = async (session) => {
+            if (!session || !session.user) return;
+
+            const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+
+            if (error) {
+              console.error('Error fetching user data:', error);
+              return;
+            }
+
+            const updatedSession = {
+              ...session,
+              user: {
+                ...session.user,
+                ...data,
+              },
+            };
+            console.log("Session", updatedSession);
+            store.dispatch(setSession(updatedSession));
+          };
+
+          fetchUserData(session);
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [step, organization, roles]);
+
   return (
     <div>
       <p>
@@ -202,6 +280,12 @@ export const OpenRegisterForm = (props) => {
       )}
       {step === 2 && (
         <>
+          {/* <p>Welcome {leadData?.user_name}, you have been refered by {leadData?.users?.user_name}</p> */}
+          <Typography.Paragraph style={{ fontSize: '16px', lineHeight: '1.6' }}>
+            Welcome <Text strong>{leadData?.user_name}</Text>, you have been referred by <Text strong>{leadData?.users?.user_name}</Text>.
+          </Typography.Paragraph>
+          <Button onClick={handleGoogleSignIn}>Continue with Google</Button>
+          <p>or</p>
           <Form layout="vertical" onFinish={onFinish} initialValues={leadData}>
             <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Please input your email!' }]}>
               <Input />
@@ -226,7 +310,6 @@ export const OpenRegisterForm = (props) => {
               <br />
             </>
           )}
-
         </>
       )}
       {step === 3 && (
