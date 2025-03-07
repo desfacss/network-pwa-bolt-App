@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-// import { LockOutlined, MailOutlined, UserOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber, message } from "antd";
 import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
 import { useLocation, Link } from "react-router-dom";
@@ -12,37 +11,37 @@ import DynamicForm from "views/pages/DynamicForm";
 import { store } from "store";
 
 export const OpenRegisterForm = (props) => {
-  // const [isSubmitted, setIsSubmitted] = useState(false);
-  // const [enums, setEnums] = useState();
   const [organization, setOrganization] = useState();
-  const [signIn, setSignIn] = useState(false)
+  const [signIn, setSignIn] = useState(false);
   const [schema, setSchema] = useState();
   const [roles, setRoles] = useState();
+  const [step, setStep] = useState(1);
+  const [mobile, setMobile] = useState("");
+  const [leadData, setLeadData] = useState(null);
 
   const getOrganization = async () => {
-    const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE).single()
+    const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE).single();
     if (error) {
-      return message.error("Organization does not exist") //TODO : Error Message in web page 
+      return message.error("Organization does not exist");
     }
     if (data) {
-      setOrganization(data)
+      setOrganization(data);
     }
-  }
+  };
+
   const getForms = async () => {
-    const { data, error } = await supabase.from('forms').select('*').eq('organization_id', organization?.id).eq('name', "open_user_registration_form").single()
+    const { data, error } = await supabase.from('forms').select('*').eq('organization_id', organization?.id).eq('name', "open_user_registration_form").single();
     if (data) {
-      // console.log("Form Schema", data);
-      setSchema(data)
+      setSchema(data);
     }
-  }
+  };
 
   const getRoles = async () => {
-    const { data, error } = await supabase.from('roles').select('*')
+    const { data, error } = await supabase.from('roles').select('*');
     if (data) {
-      setRoles(data)
+      setRoles(data);
     }
-  }
-
+  };
   const formData = {
     // "role": "Admin",
     // "lastName": "raikar",
@@ -54,36 +53,47 @@ export const OpenRegisterForm = (props) => {
   }
 
   const location = useLocation();
+  const surveyLayout = location.pathname.startsWith("/survey");
+  const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
   useEffect(() => {
-    // const getEnums = async () => {
-    //   let { data, error } = await supabase.from('enums').select('*');
-    //   if (data) {
-    //     console.log(data)
-    //     setEnums(data);
-    //   }
-    // };
-    getOrganization()
-    getRoles()
-    // getUserType();
-    // getEnums();
+    getOrganization();
+    getRoles();
   }, []);
 
   useEffect(() => {
     if (organization) {
-      getForms()
+      getForms();
     }
   }, [organization]);
 
-  const surveyLayout = location.pathname.startsWith("/survey")
-  const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
+  const checkMobileInReferrals = async () => {
+    const { data, error } = await supabase.from('referrals').select('*').eq('mobile', mobile);
+    if (error) {
+      return message.error("Error checking mobile number");
+    }
+
+    if (data && data.length > 0) {
+      console.log("mobile", typeof mobile, data);
+      setLeadData(data[0]);
+      setStep(2);
+    } else {
+      setStep(3);
+    }
+  };
 
   const onFinish = async (values) => {
     if (values?.password !== values?.retypePassword) {
-      return message.error("Password doesn't match")
+      return message.error("Password doesn't match");
     }
-    const user_name = values?.firstName + " " + values?.lastName
-    console.log("payload", values, user_name)
+
+    let user_name = values?.firstName + " " + values?.lastName;
+    let role = values?.role;
+
+    if (leadData) {
+      user_name = leadData.user_name;
+      role = "member";
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email: values?.email,
@@ -97,59 +107,50 @@ export const OpenRegisterForm = (props) => {
     });
 
     if (error) {
-      console.log("Error reg", error)
-      setSignIn(true)
-      return notification.error({ message: error.message || "Registration Error" })
+      console.log("Error reg", error);
+      setSignIn(true);
+      return notification.error({ message: error.message || "Registration Error" });
     }
     if (data) {
-      console.log("reg data", data)
-      // Remove password fields before inserting into details
       const { password, retypePassword, ...detailsWithoutPassword } = values;
       const userDetails = {
         ...detailsWithoutPassword,
         user_name
       };
 
-      // Insert into users table
       const { data: data2, error: error2 } = await supabase.from('users').insert([
         {
           id: data?.user?.id,
           organization_id: organization?.id,
           details: userDetails,
           user_name,
-          role_type: values?.role,
-          // manager_id: user_id,
-          // hr_id: user_id,
-          role_id: roles?.find(i => i.role_name === values?.role)?.id
-          // TODO role_id, location_id
+          role_type: role,
+          role_id: roles?.find(i => i.role_name === role)?.id
         },
       ]);
 
       if (error2) {
         console.log("Error2", error2);
-        return notification.error({ message: error2.message || "Error" })
+        return notification.error({ message: error2.message || "Error" });
       }
 
-      // Insert into ib_members table
       const { data: data3, error: error3 } = await supabase.from('ib_members').insert([
         {
           user_id: data?.user?.id,
-          // reg_info: userDetails, // Assuming reg_info is for registration data
-          details: userDetails, // Assuming details here is for additional user info
-          short_name: user_name // You might want to adjust this based on your table structure
+          details: userDetails,
+          short_name: user_name
         }
       ]);
 
       if (error3) {
         console.log("Error3", error3);
-        return notification.error({ message: error3.message || "Error inserting into ib_members" })
+        return notification.error({ message: error3.message || "Error inserting into ib_members" });
       }
     }
 
     const fetchUserData = async (session) => {
       if (!session || !session.user) return;
 
-      // Fetch user data from the users table
       const { data, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
 
       if (error) {
@@ -157,16 +158,14 @@ export const OpenRegisterForm = (props) => {
         return;
       }
 
-      // Update session.user with the fetched user data
       const updatedSession = {
         ...session,
         user: {
           ...session.user,
-          ...data, // Add the fetched user data here
+          ...data,
         },
       };
-      console.log("Session", updatedSession)
-      // Dispatch the updated session to Redux
+      console.log("Session", updatedSession);
       store.dispatch(setSession(updatedSession));
     };
 
@@ -177,47 +176,72 @@ export const OpenRegisterForm = (props) => {
     });
   };
 
-  // const signOut = async () => {
-  //   supabase.auth.signOut();
-  //   navigate('/');
-  // };
-
   return (
     <div>
-      {/* <div style={{ width: '50%', margin: '0 auto' }}> Container with 50% width at the topmost level */}
-      {/* <Button onClick={signOut}>
-        Sign Out
-      </Button> */}
-      {/* {formType ? (
-        <App formType={formType} />
-      ) : ( */}
-      <>
-        {/* {!enums ?
-          <Row>
-            <Col offset={10}>
-              <Spin size="large" className="center" />
-            </Col>
-          </Row> : */}
+      <p>
+        Alredy Registered ? {" "}
+        <Link to={`${APP_PREFIX_PATH}/login`}>Login here </Link>
+        or
+        <Link to={`${APP_PREFIX_PATH}/landing`}> Home</Link>
+      </p>
+      {step === 1 && (
+        <Form layout="vertical" onFinish={checkMobileInReferrals}>
+          <Form.Item label="Mobile">
+            <Input
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              rules={[{ required: true, message: "Please enter your mobile number" }]}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Continue
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+      {step === 2 && (
         <>
-          {/* <h2 className="mb-4">User Registration</h2> */}
-          <p>
-            Alredy Registered ? {" "}
-            <Link to={`${APP_PREFIX_PATH}/login`}>Login here  </Link>
-            or
-            <Link to={`${APP_PREFIX_PATH}/landing`}>  Home</Link>
-          </p>
-          {/* {schema &&  */}
-          <DynamicForm schemas={schema} onFinish={onFinish} formData={formData} />
-          {signIn && <>
-            User email already added!,Please
-            <a href="/auth/login"> Login and Continue</a><br /><br />
-            {/* For support, contact: <a href="mailto:info@timetrack.app">info@timetrack.app</a> */}
-          </>
-          }
+          <Form layout="vertical" onFinish={onFinish} initialValues={leadData}>
+            <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Please input your email!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please input your password!' }]}>
+              <Input.Password />
+            </Form.Item>
+            <Form.Item label="Retype Password" name="retypePassword" rules={[{ required: true, message: 'Please retype your password!' }]}>
+              <Input.Password />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Register
+              </Button>
+            </Form.Item>
+          </Form>
+          {signIn && (
+            <>
+              User email already added!,Please
+              <a href="/auth/login"> Login and Continue</a>
+              <br />
+              <br />
+            </>
+          )}
+
         </>
-        {/* } */}
-      </>
-      {/* )} */}
+      )}
+      {step === 3 && (
+        <>
+          <DynamicForm schemas={schema} onFinish={onFinish} formData={{}} />
+          {signIn && (
+            <>
+              User email already added!,Please
+              <a href="/auth/login"> Login and Continue</a>
+              <br />
+              <br />
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 };
