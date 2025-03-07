@@ -278,14 +278,20 @@ export const protectedRoutes = (feature, module_features) => {
         },
         // module_features?.ibPoll && feature?.ibPoll && 
         {
-            key: 'ib_poll',
-            path: `${APP_PREFIX_PATH}/ib_poll`,
+            key: 'poll',
+            path: `${APP_PREFIX_PATH}/poll`,
             component: React.lazy(() => import('views/pages/ib/Poll')),
         },
-        // module_features?.trial && feature?.trial && {
-        //     key: 'trial',
-        //     path: `${APP_PREFIX_PATH}/trial`,
-        //     component: React.lazy(() => import('views/pages/Trial')),
+        // module_features?.trial && feature?.trial && 
+        {
+            key: 'trial',
+            path: `${APP_PREFIX_PATH}/trial`,
+            component: React.lazy(() => import('views/pages/Trial')),
+        },
+        // {
+        //     key: 'conf',
+        //     path: `${APP_PREFIX_PATH}/conf`,
+        //     component: React.lazy(() => import('views/pages/Conference')),
         // },
 
         // // module_features?.dynamicViews && feature?.dynamicViews && {

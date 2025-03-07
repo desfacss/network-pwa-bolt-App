@@ -30,10 +30,21 @@ const Poll2 = () => {
         }
     }, [current, questions]);
 
+    // const fetchQuestions = async () => {
+    //     const { data } = await supabase.from('forms').select('*').eq('form_type', 'poll').single();
+    //     console.log("ur", data)
+    //     setQuestions(data?.data_schema || []);
+    //     getResponses();
+    // };
+
     const fetchQuestions = async () => {
-        const { data } = await supabase.from('forms').select('*').eq('form_type', 'poll').single();
-        console.log("ur", data)
-        setQuestions(data?.data_schema || []);
+        const { data, error } = await supabase.from('ib_poll_questions').select('*');
+        if (error) {
+            console.error('Error fetching questions:', error);
+            message.error('Failed to fetch questions.');
+            return;
+        }
+        setQuestions(data || []);
         getResponses();
     };
 
