@@ -349,11 +349,13 @@ function LivePoll() {
                 !activeSession ? (
                     <Button onClick={startPoll}>Start Live Poll</Button>
                 ) : isAdmin ? (
-                    <Button onClick={endPoll}>End Live Poll</Button>
+                    // No need for a separate button here; it will be moved below
+                    null
                 ) : null
             ) : activeSession ? (
                 isParticipant ? (
-                    <Button onClick={exitSession}>Exit Session</Button>
+                    // No need for a separate button here; it will be moved below
+                    null
                 ) : (
                     <Button onClick={joinSession}>Join Session</Button>
                 )
@@ -363,41 +365,72 @@ function LivePoll() {
 
             {activeSession && isParticipant ? (
                 <div>
-                    {(roleType === 'admin' || roleType === 'superadmin') && isAdmin ? (
-                        <div>
-                            <h2>Current Slide: {currentSlide}</h2>
+                    {((roleType === 'admin' || roleType === 'superadmin') && isAdmin) ? (
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: '20px',
+                            }}
+                        >
                             <div>
-                                <Button onClick={() => moveSlide('prev')} disabled={currentSlide === 1}>Prev</Button>
-                                <Button onClick={() => moveSlide('next')} disabled={currentSlide === pollQuestions.length}>Next</Button>
+                                <Button onClick={() => moveSlide('prev')} disabled={currentSlide === 1}>
+                                    Prev
+                                </Button>
+                                <Button
+                                    onClick={() => moveSlide('next')}
+                                    disabled={currentSlide === pollQuestions.length}
+                                    style={{ marginLeft: '10px' }}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                            <div>
+                                {isAdmin ? (
+                                    <Button onClick={endPoll} style={{ marginRight: '10px' }}>
+                                        End Live Poll
+                                    </Button>
+                                ) : (
+                                    <Button onClick={exitSession}>Exit Session</Button>
+                                )}
                             </div>
                         </div>
                     ) : (
-                        <div style={{ fontSize: '48px', margin: '20px 0' }}>
-                            Slide {currentSlide}
-                        </div>
+                        isParticipant && (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    marginBottom: '20px',
+                                }}
+                            >
+                                <Button onClick={exitSession}>Exit Session</Button>
+                            </div>
+                        )
                     )}
                     <h2>{pollQuestions[currentSlide - 1]?.question}</h2>
                     {renderQuestion(pollQuestions[currentSlide - 1])}
-                    <Button onClick={submitAnswer}>Submit</Button>
-                    {responseCounts[pollQuestions[currentSlide - 1]?.key] && (
+                    <Button onClick={submitAnswer} className='mt-2' type='primary' block>Submit</Button>
+                    {/* {responseCounts[pollQuestions[currentSlide - 1]?.key] && (
                         <div>
                             <h3>Response Counts:</h3>
                             <ul>
-                                {Object.entries(responseCounts[pollQuestions[currentSlide - 1]?.key]).map(([option, count]) => (
-                                    <li key={option}>
-                                        {option}: {count}
-                                    </li>
-                                ))}
+                                {Object.entries(responseCounts[pollQuestions[currentSlide - 1]?.key]).map(
+                                    ([option, count]) => (
+                                        <li key={option}>
+                                            {option}: {count}
+                                        </li>
+                                    )
+                                )}
                             </ul>
                         </div>
-                    )}
+                    )} */}
                 </div>
+            ) : (roleType === 'admin' || roleType === 'superadmin') ? (
+                !activeSession && <p>No active sessions yet. Start one!</p>
             ) : (
-                (roleType === 'admin' || roleType === 'superadmin') ? (
-                    !activeSession && <p>No active sessions yet. Start one!</p>
-                ) : (
-                    !activeSession && <p>No active sessions.</p>
-                )
+                !activeSession && <p>No active sessions.</p>
             )}
         </div>
     );
