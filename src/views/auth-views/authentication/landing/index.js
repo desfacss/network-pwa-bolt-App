@@ -182,89 +182,67 @@ import DynamicForm from 'views/pages/DynamicForm';
 const IntroScreen = () => {
   const slides = [
     {
-      title: "Connect with Community",
+      title: "Explore IBCN 2025 Bengaluru",
       content: [
-        "Foster collaboration through networking opportunities.",
-        "Access a network of like-minded professionals.",
-        "Discover new business ventures and partnerships."
+        "Stay updated with the event schedule, speakers, and session tracks.",
+        "Access details on keynote sessions and breakout discussions.",
+        "Plan your agenda and make the most of your experience."
       ]
     },
     {
-      title: "Share Your Insights",
+      title: "Connect & Network",
       content: [
-        "Participate in our survey to help shape community initiatives.",
-        "Influence the future direction of our community projects.",
-        "Contribute to a collective knowledge base."
+        "Engage with industry leaders and fellow attendees.",
+        "Discover new collaborations and business opportunities.",
+        "Join exclusive networking sessions and community meetups."
       ]
     },
     {
-      title: "Privacy Matters",
+      title: "Participate in Business Survey",
       content: [
-        "All responses are kept confidential and used only for statistical purposes.",
-        "Your data is secure and anonymized.",
-        "We respect your privacy in all interactions."
+        "Get insights into entrepreneurship within the Nagarathar community.",
+        "Understand the aspirations of the next generation.",
+        "Support collaboration and business growth through networking."
       ]
     }
-  ];
+];
 
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [schema, setSchema] = useState(null);
   const [autoPlay, setAutoPlay] = useState(false);
 
-  // const generateAbstractShapes = (text) => {
-  //   const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  //   const shapes = [];
-
-  //   for (let i = 0; i < 3; i++) { // Generate 3 shapes
-  //     const size = 80 + ((hash + i) % 40); // Vary size slightly
-  //     const rotate = ((hash * i) % 360) + 'deg'; // Different rotation for each shape
-  //     const lightness = 80 - (i * 10); // Get lighter for each subsequent shape
-  //     const bgColor = `hsl(${(hash + i * 30) % 360}, 70%, ${lightness}%)`; // Vary color slightly
-
-  //     shapes.push({
-  //       width: `${size}px`,
-  //       height: `${size}px`,
-  //       backgroundColor: bgColor,
-  //       position: 'absolute',
-  //       bottom: `${200 + i * 10}px`, // Position shapes slightly apart
-  //       left: `${300 + i * 10}px`,
-  //       borderRadius: '50% 0',
-  //       transform: `rotate(${rotate})`,
-  //       opacity: 0.6 - (i * 0.1), // Decrease opacity slightly for depth
-  //       zIndex: 100 - i // Lower z-index for shapes behind
-  //     });
-  //   }
-
-  //   return shapes;
-  // };
-
   const generateAbstractShapes = (text) => {
     const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const shapes = [];
+    const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    for (let i = 0; i < 3; i++) { // Generate 3 shapes
-      const size = 80 + ((hash + i) % 40); // Vary size slightly
-      const rotate = ((hash * i) % 360) + 'deg'; // Different rotation for each shape
-      const lightness = 80 - (i * 10); // Get lighter for each subsequent shape
-      const bgColor = `hsl(${(hash + i * 30) % 360}, 70%, ${lightness}%)`; // Vary color slightly
+    const shapeCount = getRandom(3, 4); // Randomly choose between 3 or 4 shapes
 
-      shapes.push({
-        width: `${size}px`,
-        height: `${size}px`,
-        backgroundColor: bgColor,
-        position: 'absolute',
-        bottom: `${200 + i * 100}px`, // Each shape starts 100px below the previous one
-        right: `${20 + i * 100}px`, // Each shape starts 100px to the left of the previous one
-        borderRadius: '50% 0',
-        transform: `rotate(${rotate})`,
-        opacity: 0.6 - (i * 0.1), // Decrease opacity slightly for depth
-        zIndex: 100 - i // Lower z-index for shapes behind
-      });
+    for (let i = 0; i < shapeCount; i++) {
+        const size = getRandom(70, 110); // Random size between 50px and 120px
+        const rotate = `${getRandom(0, 360)}deg`; // Random rotation
+        const lightness = getRandom(60, 85); // Random lightness for HSL color
+        const bgColor = `hsl(${(hash + i * 40) % 360}, 70%, ${lightness}%)`; // Vary color slightly
+        const bottom = getRandom(100, 400); // Random vertical position
+        const right = getRandom(20, 300); // Random horizontal position
+
+        shapes.push({
+            width: `${size}px`,
+            height: `${size}px`,
+            backgroundColor: bgColor,
+            position: 'absolute',
+            bottom: `${bottom}px`, // Random Y position
+            right: `${right}px`, // Random X position
+            borderRadius: '50% 0',
+            transform: `rotate(${rotate})`,
+            opacity: getRandom(40, 70) / 100, // Random opacity between 0.4 and 0.7
+            zIndex: getRandom(50, 100) // Random z-index to mix layering
+        });
     }
 
     return shapes;
-  };
+};
 
   useEffect(() => {
     setAutoPlay(true);
@@ -353,12 +331,12 @@ const IntroScreen = () => {
         </Swiper>
       </div>
 
-      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ padding: '20px', margin: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '10px' }}>
-          <Button type="primary" block onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}>Register</Button>
-          <Button type="ghost" block onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}>Login</Button>
+          <Button mb-20 type="primary" block onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}>Register</Button>
+          <Button mb-20 type="ghost" block onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}>Login</Button>
         </div>
-        <Button type='primary' block onClick={showDrawer}>Anonymous Survey</Button>
+        {/* <Button type='primary' block onClick={showDrawer}>Anonymous Survey</Button> */}
       </div>
 
       <Drawer
