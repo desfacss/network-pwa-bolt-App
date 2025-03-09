@@ -237,19 +237,19 @@ export const LoginForm = (props) => {
           </Button>} */}
           {linkSent && "Check your Email/Spam folder"}
         </Form.Item>
-        <Divider>Or continue with</Divider>
-        <Space direction="vertical" align="center" style={{ width: '100%' }}>
-          <Button icon={<GoogleOutlined />} block onClick={() => oAuth('google')}>
-            Continue with Google
-          </Button>
-          {/* Add Facebook and Twitter buttons if needed */}
-          {/* <Button icon={<FacebookOutlined />} block onClick={() => oAuth('facebook')}>
+        <Divider>Or</Divider>
+        {/* <Space direction="vertical" align="center" style={{ width: '100%' }}> */}
+        <Button icon={<GoogleOutlined />} block onClick={() => oAuth('google')}>
+          Continue with Google
+        </Button>
+        {/* Add Facebook and Twitter buttons if needed */}
+        {/* <Button icon={<FacebookOutlined />} block onClick={() => oAuth('facebook')}>
             Continue with Facebook
           </Button>
           <Button icon={<XOutlined />} block onClick={() => oAuth('twitter')}>
             Continue with Twitter
           </Button> */}
-        </Space>
+        {/* </Space> */}
         {extra}
       </Form>
     </>

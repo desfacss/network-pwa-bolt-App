@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber, message, Typography } from "antd";
+import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber, message, Typography, Divider } from "antd";
 import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
 import { useLocation, Link } from "react-router-dom";
 import { supabase } from "configs/SupabaseConfig";
@@ -264,17 +264,23 @@ export const OpenRegisterForm = (props) => {
       </p>
       {step === 1 && (
         <Form layout="vertical" onFinish={checkMobileInReferrals}>
-          <Form.Item label="Mobile">
-            <Input
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              rules={[{ required: true, message: "Please enter your mobile number" }]}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Continue
-            </Button>
+          <Form.Item label="Mobile" style={{ marginBottom: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Form.Item
+                rules={[{ required: true, message: "Please enter your mobile number" }]}
+                style={{ marginBottom: 0, flex: 1 }} // Take up available space
+              >
+                <Input
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                />
+              </Form.Item>
+              <Form.Item style={{ marginBottom: 0, marginLeft: 8 }}>
+                <Button type="primary" htmlType="submit">
+                  Continue
+                </Button>
+              </Form.Item>
+            </div>
           </Form.Item>
         </Form>
       )}
@@ -284,8 +290,8 @@ export const OpenRegisterForm = (props) => {
           <Typography.Paragraph style={{ fontSize: '16px', lineHeight: '1.6' }}>
             Welcome <Text strong>{leadData?.user_name}</Text>, you have been referred by <Text strong>{leadData?.users?.user_name}</Text>.
           </Typography.Paragraph>
-          <Button onClick={handleGoogleSignIn}>Continue with Google</Button>
-          <p>or</p>
+          <Button onClick={handleGoogleSignIn} block>Continue with Google</Button>
+          <Divider>Or</Divider>
           <Form layout="vertical" onFinish={onFinish} initialValues={leadData}>
             <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Please input your email!' }]}>
               <Input />
@@ -297,8 +303,8 @@ export const OpenRegisterForm = (props) => {
               <Input.Password />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Register
+              <Button type="primary" htmlType="submit" block>
+                Register with Email
               </Button>
             </Form.Item>
           </Form>

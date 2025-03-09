@@ -79,14 +79,15 @@ const LoginTwo = (props) => {
         }}
       >
         <Row style={{ width: "100%", padding: "20px" }}>
-          <Col span={24}> {/* Full width */}
+          {/* <p style={{ textAlign: "center", marginBottom: "20px" }}> */}
+          <Col span={24}>
             {/* <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#003764" }}>Sign In</h2> */}
-            <p style={{ textAlign: "center", marginBottom: "20px" }}>
-              New User?{" "}
-              <Link to={`${APP_PREFIX_PATH}/register`}>Register here</Link> or{" "}
-              <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link>
-            </p>
             <div style={{ maxWidth: "500px", margin: "0 auto" }}> {/* Constrain form width */}
+              <p>
+                New User?{" "}
+                <Link to={`${APP_PREFIX_PATH}/register`}>Register here</Link> or{" "}
+                <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link>
+              </p>
               <LoginForm {...props} />
             </div>
           </Col>
