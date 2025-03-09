@@ -107,18 +107,18 @@ const navigationConfig = [
       //   submenu: [],
       // },
       // module_features?.ibIdeas && feature?.ibIdeas && 
-      {
-        key: 'poll_org',
-        path: `${APP_PREFIX_PATH}/poll`,
-        title: 'Poll-org',
-        icon: ApartmentOutlined,
-        breadcrumb: false,
-        submenu: [],
-      },
+      // {
+      //   key: 'poll_org',
+      //   path: `${APP_PREFIX_PATH}/poll`,
+      //   title: 'Poll-org',
+      //   icon: ApartmentOutlined,
+      //   breadcrumb: false,
+      //   submenu: [],
+      // },
       {
         key: 'poll',
         path: `${APP_PREFIX_PATH}/trial`,
-        title: 'Poll',
+        title: 'Live Survey',
         icon: ApartmentOutlined,
         breadcrumb: false,
         submenu: [],

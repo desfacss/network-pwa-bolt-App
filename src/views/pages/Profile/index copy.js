@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Button, Modal, Divider, Tabs, Switch, Drawer } from 'antd';
+import { Card, Descriptions, Button, Modal, Divider, Tabs, Switch, Drawer, Row, Col, Typography, Avatar } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
 import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
@@ -10,11 +10,15 @@ import ProfilePic from './ProfilePic';
 import DynamicViews from '../DynamicViews';
 import WhatsAppShareButton from 'components/common/WhatsappShare';
 
+const { Title, Text } = Typography;
+const { TabPane } = Tabs;
+
 const Profile = () => {
     const { user_name } = useParams();
     const navigate = useNavigate();
     const { session } = useSelector((state) => state.auth);
 
+    const [activeTab, setActiveTab] = useState('1');
     const [schema, setSchema] = useState();
     const [formData, setFormData] = useState();
     const [edit, setEdit] = useState(false);
@@ -241,28 +245,84 @@ const Profile = () => {
             key: 'profile',
             label: 'Profile',
             children: (
-                <Card
-                    title={
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span className='mr-2'>Personal Info</span>
-                            {userData && session?.user?.id === userData?.id && (
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <Button
-                                        icon={details ? <EditOutlined /> : <PlusOutlined />}
-                                        onClick={e => showModal(details, 'user_self_edit_form')}
-                                        style={{ marginRight: '8px' }} // Add some spacing between buttons
-                                    >Edit Profile</Button>
-                                    <ChangePassword />
-                                </div>
-                            )}
+                <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '20px' }}>
+                    {/* Cover and Profile Picture */}
+                    <div style={{ position: 'relative', height: '300px', overflow: 'hidden', borderRadius: '8px', marginBottom: '20px' }}>
+                        <img
+                            src="https://via.placeholder.com/1920x300" // Replace with your cover image URL
+                            alt="Cover"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                        <div style={{ position: 'absolute', bottom: '-60px', left: '30px' }}>
+                            <Avatar size={120} src={userData?.profile_pic} />
                         </div>
-                    }
-                >
-                    <div className='ml-3'>
-                        <ProfilePic />
-                        {renderDynamicDescriptionItems()}
+                        {userData && session?.user?.id === userData?.id && (
+                            <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                                <Button
+                                    icon={details ? <EditOutlined /> : <PlusOutlined />}
+                                    onClick={(e) => showModal(details, 'user_self_edit_form')}
+                                    style={{ marginRight: '8px' }}
+                                >
+                                    {details ? 'Edit Profile' : 'Add Profile'}
+                                </Button>
+                                <ChangePassword />
+                            </div>
+                        )}
                     </div>
-                </Card>
+
+                    {/* User Information */}
+                    <div style={{ padding: '0 20px' }}>
+                        <Title level={2} style={{ marginBottom: '8px' }}>
+                            {userData?.name}
+                        </Title>
+                        <Text type="secondary">{userData?.bio || 'Add a bio'}</Text>
+                        <Divider />
+
+                        {/* Tabs for Different Sections */}
+                        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
+                            <TabPane tab="About" key="1">
+                                <Row gutter={[16, 16]}>
+                                    <Col xs={24} sm={12}>
+                                        <Card title="Personal Information">
+                                            <Text strong>Email:</Text> <Text>{userData?.email || 'N/A'}</Text>
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Text strong>Mobile:</Text> <Text>{userData?.mobile || 'N/A'}</Text>
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Text strong>Location:</Text> <Text>{userData?.location || 'N/A'}</Text>
+                                            {/* ... other personal info ... */}
+                                        </Card>
+                                    </Col>
+                                    <Col xs={24} sm={12}>
+                                        <Card title="Professional Details">
+                                            <Text strong>Occupation:</Text> <Text>{userData?.occupation || 'N/A'}</Text>
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Text strong>Company:</Text> <Text>{userData?.company || 'N/A'}</Text>
+                                            {/* ... other professional info ... */}
+                                        </Card>
+                                    </Col>
+                                </Row>
+                            </TabPane>
+                            <TabPane tab="Posts" key="2">
+                                {/* Display user posts here */}
+                                <Card>
+                                    <Text>No posts yet.</Text>
+                                </Card>
+                            </TabPane>
+                            <TabPane tab="Friends" key="3">
+                                {/* Display user friends here */}
+                                <Card>
+                                    <Text>No friends yet.</Text>
+                                </Card>
+                            </TabPane>
+                            {/* Add more tabs as needed (Photos, etc.) */}
+                        </Tabs>
+
+                        {/* Render dynamic description items if needed */}
+                        {/* <div className='ml-3'>
+                    {renderDynamicDescriptionItems()}
+                  </div> */}
+                    </div>
+                </div>
             ),
         },
         {
