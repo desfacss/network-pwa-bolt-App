@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Button, Modal, Divider, Tabs, Switch } from 'antd';
+import { Card, Descriptions, Button, Modal, Divider, Tabs, Switch, Drawer } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
 import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
@@ -276,15 +276,17 @@ const Profile = () => {
     return (
         <Card>
             {(edit && schema) && (
-                <Modal
-                    footer={null}
-                    title={schema?.data_schema?.title || ""}
+                <Drawer
+                    // footer={null}
+                    title={schema?.data_schema?.title || "Edit Profile"}
                     open={edit}
+                    // closable={true}
                     onOk={handleOk}
-                    onCancel={handleCancel}
+                    onClose={handleCancel}
+                    width={"50%"}
                 >
                     <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
-                </Modal>
+                </Drawer>
             )}
             {/* <WhatsAppShareButton /> */}
             <Tabs defaultActiveKey="profile" items={tabItems} />

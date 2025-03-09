@@ -154,7 +154,7 @@ const SelectableTags = ({ options, value, onChange }) => {
 
     return (
         <div>
-            <label>{title} (Max {maxItems})</label><br />
+            {/* <label>{title} (Max {maxItems})</label><br /> */}
             <div>
                 {enumOptions?.map((tag) => {
                     const isSelected = selectedTags.includes(tag.value); // Access tag.value directly

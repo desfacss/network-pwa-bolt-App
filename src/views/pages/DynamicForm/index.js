@@ -469,6 +469,12 @@ const DynamicForm = ({ schemas, formData, updateId, onFinish }) => {
     let _RJSFSchema = schema && (pageFields ? getPageSchema() : schema?.data_schema);
     const log = (type) => console.log.bind(console, type);
 
+    useEffect(() => {
+        if (pageFields && formData) {
+            setMultiPageFormData(formData);
+        }
+    }, [pageFields, formData]);
+
     return (
         <>
             {schema ? (
