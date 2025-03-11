@@ -38,13 +38,14 @@ const Channels = ({ isPrivate = false }) => {
         let query = supabase
             .from('channels')
             .select('*')
-            .order('inserted_at', { ascending: true });
+            .order('inserted_at', { ascending: true })
+            .eq('is_inbox', isPrivate);
 
-        if (isPrivate) {
-            query = query.eq('slug', 'Private');
-        } else {
-            query = query.neq('slug', 'Private');
-        }
+        // if (isPrivate) {
+        //     query = query.eq('slug', 'Private');
+        // } else {
+        //     query = query.neq('slug', 'Private');
+        // }
 
         const { data, error } = await query;
 

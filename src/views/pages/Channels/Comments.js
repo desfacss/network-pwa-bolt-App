@@ -612,10 +612,18 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                         image={<RocketOutlined style={{ fontSize: '48px', color: '#40a9ff' }} />}
                         imageStyle={{ height: 70 }}
                         description={
-                            <span>
-                                <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Welcome to the {messages[0]?.channel?.slug} Group!</span><br />
-                                This space is ready for your team's conversations and updates. Start by sharing a message or even just a quick "hello!". Let's get this rolling!
-                            </span>
+                            <>
+                                {isPrivate ?
+                                    <span>
+                                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>No Messages</span><br />
+                                    </span>
+                                    :
+                                    <span>
+                                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Welcome to the {messages[0]?.channel?.slug} Group!</span><br />
+                                        This space is ready for your team's conversations and updates. Start by sharing a message or even just a quick "hello!". Let's get this rolling!
+                                    </span>
+                                }
+                            </>
                         }
                     />
                 )}
