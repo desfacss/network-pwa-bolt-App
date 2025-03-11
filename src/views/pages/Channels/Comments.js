@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Avatar, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message, Empty, ConfigProvider, theme } from 'antd';
-import { UserOutlined, MessageOutlined, DeleteOutlined, RocketOutlined, CloseOutlined, SendOutlined } from '@ant-design/icons';
+import { UserOutlined, MessageOutlined, DeleteOutlined, RocketOutlined, CloseOutlined, SendOutlined, EditOutlined } from '@ant-design/icons';
 import './styles.css';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
@@ -43,9 +43,8 @@ const buildTagHierarchy = async () => {
     return rootCategories.map(convertToCascaderFormat);
 };
 
-const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
-    const [mentionUsers] = useState([ /* ... your mentionUsers data */]);
-
+const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
+    const [mentionUsers] = useState([/* ... your mentionUsers data */]);
     const [tagHierarchy, setTagHierarchy] = useState([]);
     const [idToNameMap, setIdToNameMap] = useState(new Map());
 
@@ -80,52 +79,32 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
             onFinish={onSubmit}
             layout="vertical"
             style={{
-                background: 'transparent', // Let ConfigProvider handle background
-                // padding: 8, // Minimal padding for sleekness
-                borderRadius: 4, // Subtle rounding
-                // maxWidth: 400, // Keep it compact
+                background: 'transparent',
+                borderRadius: 4,
             }}
         >
-            {/* Single Control with Light Pastel Purple Background */}
-            {/* Single Control with Light Pastel Purple Background */}
             <div style={{
-                background: '#ccceee', // Light pastel purple
+                background: '#ccceee',
                 borderRadius: 4,
                 overflow: 'hidden',
-                border: '1px solid #D8BFD8', // Subtle purple border
+                border: '1px solid #D8BFD8',
             }}>
                 <Flex gap={8} align="center" style={{ padding: 8, width: '100%' }}>
-                    {/* Message Input (taking most of the space, left-aligned) */}
                     <Form.Item
                         name="message"
                         rules={[{ required: true, message: 'Please write your message' }]}
-                        style={{ flex: 1, margin: 0 }} // Take remaining space, no margins
+                        style={{ flex: 1, margin: 0 }}
                     >
                         <Mentions
-                            rows={2} // Reduce rows for compactness
+                            rows={2}
                             prefix={['@']}
                             placeholder="Write your message (use @ to mention users)"
                             style={{
-                                // background: 'transparent', // Match light purple background
-                                border: 'none', // No borders for sleekness
-                                // color: '#4B0082', // Darker purple text
-                                padding: 0, // Remove padding to align tightly
-                                // Custom scrollbar styling
-                                '::-webkit-scrollbar': {
-                                    width: '4px', // Slim scrollbar
-                                },
-                                '::-webkit-scrollbar-track': {
-                                    background: '#ccceee', // Light pastel purple to match background
-                                    borderRadius: '2px', // Rounded corners
-                                },
-                                '::-webkit-scrollbar-thumb': {
-                                    background: '#D8BFD8', // Light purple for thumb, matching tag/border color
-                                    borderRadius: '2px', // Rounded corners
-                                    '&:hover': {
-                                        background: '#C0C0C0', // Slightly darker on hover for interactivity
-                                    },
-                                },
-                                // Fallback for Firefox
+                                border: 'none',
+                                padding: 0,
+                                '::-webkit-scrollbar': { width: '4px' },
+                                '::-webkit-scrollbar-track': { background: '#ccceee', borderRadius: '2px' },
+                                '::-webkit-scrollbar-thumb': { background: '#D8BFD8', borderRadius: '2px' },
                                 scrollbarWidth: 'thin',
                                 scrollbarColor: '#D8BFD8 #ccceee',
                             }}
@@ -137,29 +116,28 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
                             ))}
                         </Mentions>
                     </Form.Item>
-
-                    {/* Circular "Post Message" Button (right-aligned, same line) */}
                     <Button
                         type="primary"
                         htmlType="submit"
-                        shape="circle" // Makes the button circular
-                        icon={<SendOutlined />} // Paper airplane icon for "Post Message"
+                        shape="circle"
+                        icon={<SendOutlined />}
+                        loading={isSubmitting}
+                        disabled={isSubmitting}
                         style={{
-                            background: '#9370DB', // Medium purple
+                            background: '#9370DB',
                             border: 'none',
-                            fontSize: 16, // Adjust icon size if needed
-                            padding: 8, // Ensure the circle is compact
-                            height: 40, // Match height with input for consistency
-                            width: 40, // Match width for a perfect circle
+                            fontSize: 16,
+                            padding: 8,
+                            height: 40,
+                            width: 40,
                         }}
                     />
                 </Flex>
-
-                {/* Tag Selection and Display in the same field, below the input and button */}
                 <Flex gap={4} align="center" style={{ padding: '0 8px 8px', flexWrap: 'wrap' }}>
                     <Cascader
                         options={tagHierarchy}
                         onChange={handleCascaderChange}
+                        value={tags.map(tag => tag.id)}
                         placeholder="Add tags"
                         style={{
                             width: '100%',
@@ -193,127 +171,6 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
         </Form>
     );
 };
-// const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
-//     const [mentionUsers] = useState([ /* ... your mentionUsers data */]);
-
-//     const [tagHierarchy, setTagHierarchy] = useState([]);
-//     const [idToNameMap, setIdToNameMap] = useState(new Map());
-
-//     useEffect(() => {
-//         const loadHierarchy = async () => {
-//             const hierarchy = await buildTagHierarchy();
-//             setTagHierarchy(hierarchy);
-//             // Building a map of ID to name for easy lookup
-//             const map = new Map();
-//             function buildMap(categories) {
-//                 categories.forEach(cat => {
-//                     map.set(cat.value, cat.label);
-//                     if (cat.children) buildMap(cat.children);
-//                 });
-//             }
-//             buildMap(hierarchy);
-//             setIdToNameMap(map);
-//         };
-//         loadHierarchy();
-//     }, []);
-
-//     // useEffect(() => {
-//     //     const loadHierarchy = async () => {
-//     //         const hierarchy = await buildTagHierarchy();
-//     //         setTagHierarchy(hierarchy);
-//     //     };
-//     //     loadHierarchy();
-//     // }, []);
-
-//     // const handleCascaderChange = (value) => {
-//     //     if (value && value.length > 0) {
-//     //         setTags(value);
-//     //     } else {
-//     //         setTags([]);
-//     //     }
-//     // };
-//     const handleCascaderChange = (value) => {
-//         if (value && value.length > 0) {
-//             // Convert ID array to names array for display
-//             setTags(value.map(id => ({ id, name: idToNameMap.get(id) })));
-//         } else {
-//             setTags([]);
-//         }
-//     };
-
-//     return (
-//         <Form form={form} onFinish={onSubmit}>
-//             <Form.Item
-//                 name="message"
-//                 rules={[{ required: true, message: 'Please write your message' }]}
-//             >
-//                 <Mentions
-//                     rows={4}
-//                     prefix={['@']}
-//                     placeholder="Write your message (use @ to mention users)"
-//                 >
-//                     {mentionUsers?.map((user) => (
-//                         <Option key={user.id} value={user.id}>
-//                             {user.display}
-//                         </Option>
-//                     ))}
-//                 </Mentions>
-//             </Form.Item>
-
-//             <Form.Item label="Add Tags">
-//                 <Flex gap={8}>
-//                     <Cascader
-//                         options={tagHierarchy}
-//                         onChange={handleCascaderChange}
-//                         placeholder="Hierarchical tags"
-//                         style={{ width: 200 }}
-//                         showSearch
-//                     />
-//                     {/* <Input
-//                         placeholder="Free-form tags"
-//                         onPressEnter={(e) => {
-//                             const target = e.target;
-//                             const newTag = target.value.trim();
-//                             if (newTag) {
-//                                 setTags([...tags, newTag]);
-//                                 target.value = '';
-//                             }
-//                         }}
-//                     /> */}
-//                 </Flex>
-//             </Form.Item>
-
-//             <div style={{ marginTop: 16 }}>
-//                 {/* {tags.map((tag) => (
-//                     <Tag
-//                         key={tag}
-//                         closable
-//                         onClose={() => setTags(tags.filter((t) => t !== tag))}
-//                         style={{ marginBottom: 8 }}
-//                     >
-//                         {tag}
-//                     </Tag>
-//                 ))} */}
-//                 {tags.map((tag) => (
-//                     <Tag
-//                         key={tag.id}
-//                         closable
-//                         onClose={() => setTags(tags.filter((t) => t.id !== tag.id))}
-//                         style={{ marginBottom: 8 }}
-//                     >
-//                         {tag.name}
-//                     </Tag>
-//                 ))}
-//             </div>
-
-//             <Form.Item style={{ marginTop: 24 }}>
-//                 <Button type="primary" htmlType="submit">
-//                     Post Message
-//                 </Button>
-//             </Form.Item>
-//         </Form>
-//     );
-// };
 
 const ForumComment = ({ channel_id, isPrivate = false }) => {
     const [form] = Form.useForm();
@@ -328,6 +185,8 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
     const [idToNameMap, setIdToNameMap] = useState(new Map());
     const [searchText, setSearchText] = useState("");
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [editingMessage, setEditingMessage] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -337,16 +196,13 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
     }, []);
 
     useEffect(() => {
-        // Fetch messages on component mount or when channel_id changes
         const fetchMessages = async () => {
             if (channel_id) {
                 let query = supabase
                     .from('channel_posts')
                     .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
-                    // .select('*, user:users(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
                     .eq('channel_id', channel_id);
 
-                // Add filter for visible_to_user_id when private is true
                 if (isPrivate && session?.user?.id) {
                     query = query.eq('visible_to_user_id', session.user.id);
                 }
@@ -357,8 +213,6 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                 if (error) {
                     console.error("Error fetching messages:", error);
                 } else {
-                    console.log("gh", data);
-                    // If we haven't loaded the hierarchy yet, do it now
                     if (idToNameMap.size === 0) {
                         const hierarchy = await buildTagHierarchy();
                         const map = new Map();
@@ -371,10 +225,9 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                         buildMap(hierarchy);
                         setIdToNameMap(map);
                     }
-                    // Process data to include reply_count
                     const processedData = data?.map(item => ({
                         ...item,
-                        reply_count: item?.reply_count[0]?.count || 0, // Default to 0 if no replies
+                        reply_count: item?.reply_count[0]?.count || 0,
                     }));
                     setMessages(processedData || []);
                 }
@@ -386,7 +239,9 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
 
     const handleSubmit = async (values) => {
         if (!session?.user?.id) return;
+        if (tags?.length < 2) return message.error("Enter Tags");;
 
+        setIsSubmitting(true); // Start loading state
         const firstTag = tags?.length > 0 ? tags[0] : null;
         const otherTags = tags?.slice(1);
 
@@ -401,42 +256,89 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
         };
 
         try {
-            const { data, error } = await supabase
-                .from('channel_posts')
-                .insert([newMessage]).select('*');
-            console.log("tt", data);
-            if (error) {
-                console.error("Error inserting message:", error);
-            } else {
-                // Fetch the newly inserted message (it will have the correct timestamp and ID)
-                const { data: insertedMessage } = await supabase
+            if (editingMessage) {
+                const { data, error } = await supabase
                     .from('channel_posts')
-                    .select('*, user:users(user_name)')
-                    .eq('id', data[0].id) // Use the ID from the insert response
-                    .single(); // Expecting only one result
+                    .update({
+                        message: newMessage.message,
+                        details: newMessage.details,
+                    })
+                    .eq('id', editingMessage.id)
+                    .select('*');
 
-                if (insertedMessage) {
-
-                    setMessages([insertedMessage, ...messages]); // Add the fetched message to state
-                    form.resetFields();
-                    setTags([]);
+                if (error) {
+                    console.error("Error updating message:", error);
+                    message.error("Failed to update message.");
                 } else {
-                    console.error("Failed to fetch inserted message")
+                    const updatedMessage = {
+                        ...editingMessage,
+                        message: newMessage.message,
+                        details: newMessage.details,
+                    };
+                    setMessages(messages.map(msg => (msg.id === editingMessage.id ? updatedMessage : msg)));
+                    message.success("Message updated successfully.");
                 }
+            } else {
+                const { data, error } = await supabase
+                    .from('channel_posts')
+                    .insert([newMessage]).select('*');
+                console.log("nwm", data)
+                if (error) {
+                    console.error("Error inserting message:", error);
+                } else {
+                    const { data: insertedMessage, error: insertError } = await supabase
+                        .from('channel_posts')
+                        .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
+                        // .select('*, user:users(user_name)')
+                        .eq('id', data[0].id)
+                        .single();
+                    console.log("nwm1", insertedMessage, insertError)
 
-
-
+                    if (insertedMessage) {
+                        setMessages([{ ...insertedMessage, reply_count: insertedMessage?.reply_count[0]?.count || 0 }, ...messages]);
+                    }
+                }
             }
+
+            // Reset form and state
+            form.resetFields();
+            setTags([]); // Ensure tags are cleared
+            setEditingMessage(null);
         } catch (err) {
             console.error(err);
+            message.error("An error occurred.");
+        } finally {
+            setIsSubmitting(false); // End loading state
         }
     };
 
-    const handleCascaderChange = (value) => {
-        if (value && value.length > 0) {
-            setTags(value); // Directly set the value array as tags
-        } else {
-            setTags([]); // Clear tags if selection is cleared
+    const handleEdit = (message) => {
+        form.setFieldsValue({ message: message.message });
+        const tagsToEdit = [
+            ...(message.details?.category_id ? [{ id: message.details.category_id, name: idToNameMap.get(message.details.category_id) }] : []),
+            ...(message.details?.tags?.map(tag => ({ id: tag, name: idToNameMap.get(tag) })) || []),
+        ];
+        setTags(tagsToEdit);
+        setEditingMessage(message);
+    };
+
+    const handleDelete = async (messageId) => {
+        try {
+            const { error } = await supabase
+                .from('channel_posts')
+                .delete()
+                .eq('id', messageId);
+
+            if (error) {
+                console.error("Error deleting message:", error);
+                message.error("Failed to delete message.");
+            } else {
+                setMessages(messages.filter(msg => msg.id !== messageId));
+                message.success("Message deleted successfully.");
+            }
+        } catch (err) {
+            console.error(err);
+            message.error("An error occurred.");
         }
     };
 
@@ -460,29 +362,9 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
         setFilteredMessages(filterMessages(searchText));
     }, [searchText, messages, idToNameMap]);
 
-    const handleDelete = async (messageId) => {
-        try {
-            const { error } = await supabase
-                .from('channel_posts')
-                .delete()
-                .eq('id', messageId);
-
-            if (error) {
-                console.error("Error deleting message:", error);
-                message.error("Failed to delete message."); // Ant Design message
-            } else {
-                setMessages(messages.filter(msg => msg.id !== messageId)); // Optimistic update
-                message.success("Message deleted successfully."); // Ant Design message
-            }
-        } catch (err) {
-            console.error(err);
-            message.error("An error occurred."); // Ant Design message
-        }
-    };
-
     const formatMessage = (text) => {
         const words = text.split(' ');
-        const boldWords = words.slice(0, 5).join(' '); // First 5 words bold
+        const boldWords = words.slice(0, 5).join(' ');
         const restWords = words.slice(5).join(' ');
         return (
             <span>
@@ -490,28 +372,23 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
             </span>
         );
     };
+
     return (
-        <div className="forum-container"> {/* Main container */}
+        <div className="forum-container">
             <div className="message-list">
-                {/* <Card title={<><MessageOutlined /> New Post</>} style={{ marginTop: 24 }}> */}
-                {!isPrivate &&
+                {!isPrivate && (
                     <>
                         <ConfigProvider
                             theme={{
-                                algorithm: theme.defaultAlgorithm, // Use AntD's default light theme
+                                algorithm: theme.defaultAlgorithm,
                                 token: {
-                                    // colorPrimary: '#9370DB', // Medium purple for buttons and accents
-                                    // colorBgContainer: '#ccceee', // Light pastel purple background
-                                    // colorBgBase: '#ccceee', // Consistent light purple base
-                                    // colorText: '#4B0082', // Darker purple for text (e.g., Indigo)
-                                    colorBorder: '#D8BFD8', // Light purple border for subtle contrast
-                                    borderRadius: 4, // Subtle rounded corners
-                                    fontFamily: 'Inter, sans-serif', // Modern font
+                                    colorBorder: '#D8BFD8',
+                                    borderRadius: 4,
+                                    fontFamily: 'Inter, sans-serif',
                                 },
                             }}
                         >
-
-                            <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
+                            <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} isSubmitting={isSubmitting} />
                         </ConfigProvider>
                         <div style={{ marginBottom: 16 }}>
                             <Input
@@ -521,9 +398,8 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                             />
                         </div>
                     </>
-                }
-                {/* </Card> */}
-                {filteredMessages?.length > 0 ?
+                )}
+                {filteredMessages?.length > 0 ? (
                     <List
                         dataSource={filteredMessages}
                         renderItem={(item) => (
@@ -540,7 +416,6 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                 bodyStyle={{ padding: 0 }}
                                 hoverable
                             >
-                                {/* Row 1: Message and Reply Controls */}
                                 <div
                                     style={{
                                         display: 'flex',
@@ -553,7 +428,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: 8, // Space between reply count and reply button
+                                            gap: 8,
                                         }}
                                     >
                                         <div
@@ -577,20 +452,6 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         >
                                             {item?.reply_count}
                                         </div>
-                                        {/* <Button
-                                            type="link"
-                                            onClick={() => navigate(`/app/networking/${item?.id}`)}
-                                            style={{
-                                                padding: 0,
-                                                fontSize: 13,
-                                                color: '#9370DB',
-                                                fontWeight: 500,
-                                                height: 'auto', // Remove default button height
-                                                lineHeight: 1, // Align with reply count
-                                            }}
-                                        >
-                                            Reply
-                                        </Button> */}
                                     </div>
                                     <div
                                         style={{
@@ -610,16 +471,14 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                                 fontSize: 13,
                                                 color: '#9370DB',
                                                 fontWeight: 500,
-                                                height: 'auto', // Remove default button height
-                                                lineHeight: 1, // Align with reply count
+                                                height: 'auto',
+                                                lineHeight: 1,
                                             }}
                                         >
                                             Reply
                                         </Button>
                                     </div>
                                 </div>
-
-                                {/* Row 2: Username, Tags (center-aligned), Timestamp */}
                                 <div
                                     style={{
                                         display: 'flex',
@@ -629,16 +488,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         borderBottom: '1px solid #f5f5f5',
                                     }}
                                 >
-                                    {/* Left: Avatar and Username */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                                        {/* <Avatar
-                                            icon={<UserOutlined />}
-                                            size={36}
-                                            style={{
-                                                backgroundColor: '#333',
-                                                border: '2px solid #ccceee',
-                                            }}
-                                        /> */}
                                         <div style={{ minWidth: 0 }}>
                                             <span
                                                 style={{
@@ -649,29 +499,8 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                             >
                                                 {item?.user?.user_name}
                                             </span>
-                                            {/* <div
-                                                style={{
-                                                    fontSize: 11,
-                                                    color: '#999',
-                                                    whiteSpace: 'nowrap',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                }}
-                                            >
-                                            {new Date(item?.inserted_at).toLocaleTimeString([], {
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })}{' '}
-                                            ·{' '}
-                                            {new Date(item?.inserted_at).toLocaleDateString([], {
-                                                month: 'short',
-                                                day: 'numeric',
-                                            })}
-                                        </div> */}
                                         </div>
                                     </div>
-
-                                    {/* Center: Tags */}
                                     <div
                                         style={{
                                             flex: 1,
@@ -715,8 +544,6 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                             </Tag>
                                         ))}
                                     </div>
-
-                                    {/* Right: Timestamp */}
                                     <span
                                         style={{
                                             fontSize: 12,
@@ -736,91 +563,83 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         })}
                                     </span>
                                 </div>
-
-                                {/* Delete Button (if authorized) */}
                                 {(session?.user?.role_type === 'superadmin' || session?.user?.id === item.user_id) && (
-                                    <Popconfirm
-                                        title="Are you sure to delete this message?"
-                                        onConfirm={() => handleDelete(item?.id)}
-                                        okText="Yes"
-                                        cancelText="No"
-                                        placement="topRight"
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            top: 16,
+                                            right: 16,
+                                            display: 'flex',
+                                            gap: 8,
+                                        }}
                                     >
-                                        <DeleteOutlined
+                                        <EditOutlined
                                             style={{
-                                                position: 'absolute',
-                                                top: 16,
-                                                right: 16,
                                                 cursor: 'pointer',
-                                                color: '#ff4d4f',
+                                                color: '#1890ff',
                                                 fontSize: 18,
                                                 transition: 'color 0.2s ease',
                                             }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ff7875')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.color = '#ff4d4f')}
+                                            onClick={() => handleEdit(item)}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = '#40a9ff')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = '#1890ff')}
                                         />
-                                    </Popconfirm>
+                                        <Popconfirm
+                                            title="Are you sure to delete this message?"
+                                            onConfirm={() => handleDelete(item?.id)}
+                                            okText="Yes"
+                                            cancelText="No"
+                                            placement="topRight"
+                                        >
+                                            <DeleteOutlined
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    color: '#ff4d4f',
+                                                    fontSize: 18,
+                                                    transition: 'color 0.2s ease',
+                                                }}
+                                                onMouseEnter={(e) => (e.currentTarget.style.color = '#ff7875')}
+                                                onMouseLeave={(e) => (e.currentTarget.style.color = '#ff4d4f')}
+                                            />
+                                        </Popconfirm>
+                                    </div>
                                 )}
                             </Card>
                         )}
                     />
-                    :
-                    <>
-                        {/* <>Start posting your message for everyone in the group to interact!</> */}
-                        <Empty
-                            image={<RocketOutlined style={{ fontSize: '48px', color: '#40a9ff' }} />}
-                            imageStyle={{
-                                height: 70,
-                            }}
-                            description={
-                                <span>
-                                    <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Welcome to the {messages[0]?.channel?.slug} Group!</span><br />
-                                    This space is ready for your team's conversations and updates.  Start by sharing a message or even just a quick "hello!".  Let's get this rolling!
-                                </span>
-                            }
-                        >
-                            {/* <div style={{ marginTop: 16 }}>
-                                <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-                                    Tip: Try typing a message below and pressing Enter to get started.
-                                </span>
-                            </div> */}
-                        </Empty>
-                    </>
-
-                }
+                ) : (
+                    <Empty
+                        image={<RocketOutlined style={{ fontSize: '48px', color: '#40a9ff' }} />}
+                        imageStyle={{ height: 70 }}
+                        description={
+                            <span>
+                                <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Welcome to the {messages[0]?.channel?.slug} Group!</span><br />
+                                This space is ready for your team's conversations and updates. Start by sharing a message or even just a quick "hello!". Let's get this rolling!
+                            </span>
+                        }
+                    />
+                )}
             </div>
-            {/* <div className="new-post-container">
-                <Card title={<>Register for Stream</>} style={{ marginTop: 24 }}>
-
-                </Card>
-            </div> */}
             <Drawer
-                title="New Post"
+                title={editingMessage ? "Edit Post" : "New Post"}
                 placement="bottom"
                 closable={true}
-                onClose={() => setIsDrawerVisible(false)}
+                onClose={() => {
+                    setIsDrawerVisible(false);
+                    setEditingMessage(null);
+                    form.resetFields();
+                    setTags([]);
+                }}
                 visible={isDrawerVisible}
                 style={{ padding: 0 }}
             >
-                <Card style={{ border: 'none', padding: 0 }}>{/* Card inside Drawer */}
+                <Card style={{ border: 'none', padding: 0 }}>
                     <Form form={form} onFinish={handleSubmit}>
-                        <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
-                        {/* ... (Form content - Mentions, Tags, etc.) */}
+                        <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} isSubmitting={isSubmitting} />
                     </Form>
                 </Card>
             </Drawer>
-
-            {/* Floating Button (for smaller screens) */}
-            {/* {isMobile && <div className="new-post-button-container">
-                <Button
-                    type="primary"
-                    icon={<MessageOutlined />}
-                    onClick={() => setIsDrawerVisible(true)}
-                >
-                    New Post
-                </Button>
-            </div>} */}
-        </div >
+        </div>
     );
 };
 

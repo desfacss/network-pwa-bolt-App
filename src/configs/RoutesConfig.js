@@ -272,8 +272,8 @@ export const protectedRoutes = (feature, module_features) => {
         // },
         // module_features?.ibNetworking && feature?.ibNetworking && 
         {
-            key: 'ib_heirarchy',
-            path: `${APP_PREFIX_PATH}/heirarchy`,
+            key: 'tags',
+            path: `${APP_PREFIX_PATH}/tags`,
             component: React.lazy(() => import('views/pages/ib/Heirarchy')),
         },
         // module_features?.ibPoll && feature?.ibPoll && 

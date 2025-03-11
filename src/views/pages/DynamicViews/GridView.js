@@ -43,7 +43,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     console.log("Calculating responsive spans for cardsPerRow:", cardsPerRow);
     return {
       xs: 24,
-      sm: cardsPerRow === 1 ? 24 : 12,
+      sm: 24,
       md: cardsPerRow === 1 ? 24 : Math.floor(24 / Math.min(cardsPerRow, 3)),
       lg: cardsPerRow === 1 ? 24 : Math.floor(24 / cardsPerRow),
     };
@@ -132,7 +132,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
             <Tag
               key={index}
               onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${fieldConfig?.linkParam ? record[fieldConfig?.linkParam] : tag}`)}
-              color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
+              color={style?.bgColor || style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
             >
               {tag}
             </Tag>

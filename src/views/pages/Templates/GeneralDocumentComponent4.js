@@ -1,27 +1,36 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Form, Input, Button, Table, DatePicker, Typography, InputNumber, message } from 'antd';
+import { Form, Input, Button, Table, DatePicker, Typography, InputNumber, message, Modal, Select, Checkbox } from 'antd';
 import { useReactToPrint } from 'react-to-print';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
+import { sendEmail } from 'components/common/SendEmail';
 
 const { TextArea } = Input;
 const { Title } = Typography;
+const { Option } = Select;
 
 const GeneralDocumentComponent = ({ formName, initialData }) => {
   const [form] = Form.useForm();
+  const [shareForm] = Form.useForm(); // Separate form for sharing
   const { session } = useSelector((state) => state.auth);
   const [tableData, setTableData] = useState([]);
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isShareModalVisible, setIsShareModalVisible] = useState(false);
+  const [recipientType, setRecipientType] = useState(null);
+  const [otpEnabled, setOtpEnabled] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [organizations, setOrganizations] = useState([]);
 
   useEffect(() => {
     fetchFormConfig();
+    fetchUsers();
+    fetchOrganizations();
     if (initialData) {
-      // Pre-populate form and table data if initialData is provided
       form.setFieldsValue(initialData);
       setTableData(initialData.tableData || []);
     }
-  }, [formName, initialData]); // Add initialData to dependencies
+  }, [formName, initialData]);
 
   const fetchFormConfig = async () => {
     setLoading(true);
@@ -32,21 +41,31 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
         .eq('name', formName)
         .single();
 
-      if (error) {
-        console.error('Error fetching form config:', formName, error);
-        message.error("Error loading form configuration.");
-      } else if (data) {
+      if (error) throw error;
+      if (data) {
         setConfig(data.data_schema);
-        if (!initialData) {
-          // Only initialize table data from config if no initialData is provided
-          initializeTableData(data.data_schema);
-        }
+        if (!initialData) initializeTableData(data.data_schema);
       } else {
         message.error("Form configuration not found.");
       }
+    } catch (error) {
+      console.error('Error fetching form config:', error);
+      message.error("Error loading form configuration.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchUsers = async () => {
+    const { data, error } = await supabase.from('users').select('*');
+    if (error) console.error('Error fetching users:', error);
+    else setUsers(data);
+  };
+
+  const fetchOrganizations = async () => {
+    const { data, error } = await supabase.from('organizations').select('id, name');
+    if (error) console.error('Error fetching organizations:', error);
+    else setOrganizations(data);
   };
 
   const initializeTableData = (loadedConfig) => {
@@ -57,12 +76,9 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
       updateSummary(initialData, loadedConfig);
     }
   };
+
   const renderField = (field) => {
-    const alignmentMap = {
-      left: 'flex-start',
-      center: 'center',
-      right: 'flex-end'
-    };
+    const alignmentMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
     const alignment = alignmentMap[field.alignment] || 'flex-start';
 
     return (
@@ -79,20 +95,9 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
             <TextArea onChange={(e) => form.setFieldsValue({ [field.name]: e.target.value })} />
           </Form.Item>
         )}
-        {/* {field.type === 'datePicker' && (
-          <Form.Item name={field.name} noStyle>
-            <DatePicker onChange={(date, dateString) => form.setFieldsValue({ [field.name]: dateString })} />
-          </Form.Item>
-        )} */}
         {field.type === 'datePicker' && (
           <Form.Item name={field.name} noStyle>
-            <DatePicker onChange={(date, dateString) => {
-              if (date) { // Check if date is selected
-                form.setFieldsValue({ [field.name]: date });
-              } else {
-                form.setFieldsValue({ [field.name]: null }); // Clear the field if date is invalid or not selected
-              }
-            }} />
+            <DatePicker onChange={(date, dateString) => form.setFieldsValue({ [field.name]: date })} />
           </Form.Item>
         )}
         {field.type === 'signature' && (
@@ -100,9 +105,6 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
             {field.label}
           </div>
         )}
-        {/* {field.type === 'display' && (
-          <span style={{ fontWeight: field.bold ? 'bold' : 'normal' }}>{field.value || field.label}</span>
-        )} */}
         {field.type === 'display' && (
           <Form.Item name={field.key} noStyle>
             <span style={{ fontWeight: field.bold ? 'bold' : 'normal' }}>{form.getFieldValue(field.key) || field.label}</span>
@@ -125,24 +127,15 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
       },
     }));
 
-    // Add a new column for action (Add/Remove row)
     columns.push({
       title: 'Action',
       key: 'action',
-      render: (_, record, index) => (
-        <Button onClick={() => removeRow(index)}>Remove</Button>
-      )
+      render: (_, record, index) => <Button onClick={() => removeRow(index)}>Remove</Button>,
     });
 
     return (
       <div>
-        <Table
-          columns={columns}
-          dataSource={tableData}
-          pagination={false}
-          bordered={true}
-          size="small"
-        />
+        <Table columns={columns} dataSource={tableData} pagination={false} bordered size="small" />
         <Button style={{ marginTop: 10 }} onClick={addRow}>Add Row</Button>
       </div>
     );
@@ -154,16 +147,14 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
     setTableData(newData);
     updateSummary(newData);
   };
-  // ... (rest of your renderField, renderTable, handleTableChange, etc. functions remain unchanged)
 
-  const updateSummary = (data, loadedConfig) => {
+  const updateSummary = (data, loadedConfig = config) => {
     const summarySection = loadedConfig?.summary;
     const calculationConfig = loadedConfig?.summaryCalculation || {};
     const summaryFieldsMapping = loadedConfig?.summaryFieldsMapping || {};
 
     if (summarySection && summarySection.fields) {
       const newValues = {};
-
       const subtotal = data.reduce((sum, item) => {
         const price = parseFloat(item[calculationConfig.priceField] || 0);
         const quantity = parseInt(item[calculationConfig.quantityField] || 0, 10);
@@ -173,11 +164,9 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
       summarySection.fields.forEach((field) => {
         if (summaryFieldsMapping[field.key]) {
           const { calculation, taxRate } = summaryFieldsMapping[field.key];
-          if (calculation === 'subtotal') {
-            newValues[field.key] = subtotal.toFixed(2);
-          } else if (calculation === 'tax') {
-            newValues[field.key] = (subtotal * (taxRate || 0.1)).toFixed(2);
-          } else if (calculation === 'total') {
+          if (calculation === 'subtotal') newValues[field.key] = subtotal.toFixed(2);
+          else if (calculation === 'tax') newValues[field.key] = (subtotal * (taxRate || 0.1)).toFixed(2);
+          else if (calculation === 'total') {
             const tax = parseFloat(newValues.tax || (subtotal * (taxRate || 0.1)).toFixed(2));
             newValues[field.key] = (subtotal + tax).toFixed(2);
           } else if (calculation === 'roundedOff') {
@@ -186,7 +175,6 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
           }
         }
       });
-
       form.setFieldsValue(newValues);
     }
   };
@@ -207,40 +195,76 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
     const newData = [...tableData];
     newData.splice(index, 1);
     setTableData(newData);
-    updateSummary(newData, config); // Pass config here
+    updateSummary(newData);
   };
 
   const reportDataRef = useRef();
 
   const saveToSupabase = async () => {
-    if (!config?.type) {
-      return message.error('No Config Type');
-    }
+    if (!config?.type) return message.error('No Config Type');
     const values = form.getFieldsValue();
-    const details = { ...values, tableData: tableData };
+    const details = { ...values, tableData };
 
     const { data, error } = await supabase
       .from('tmp_templates')
-      .insert([
-        {
-          details: details,
-          user_id: session?.user?.id,
-          organization_id: session?.user?.organization?.id,
-          type: config?.type,
-        },
-      ]);
+      .insert([{ details, user_id: session?.user?.id, organization_id: session?.user?.organization?.id, type: config?.type }]);
 
     if (error) {
       console.error('Error saving to Supabase:', error);
+      message.error('Failed to save document');
     } else {
       message.success('Saved Successfully');
-      // fetchTemplates(); // Refresh templates after saving
     }
   };
 
-  const handlePrint = useReactToPrint({
-    contentRef: reportDataRef,
-  });
+  const handlePrint = useReactToPrint({ contentRef: reportDataRef });
+
+  const handleShare = () => setIsShareModalVisible(true);
+
+  const handleShareOk = async () => {
+    try {
+      const values = await shareForm.validateFields();
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + values.expiry);
+
+      const shareData = {
+        document_id: initialData?.id, // Assuming initialData has the document ID
+        sender_id: session?.user?.id,
+        recipient_type: values.recipientType,
+        ...(values.recipientType === 'email' && { recipient_email: values.recipientEmail }),
+        ...(values.recipientType === 'user' && { recipient_user_id: values.recipientUser }),
+        ...(values.recipientType === 'organization' && { recipient_org_id: values.recipientOrg }),
+        otp: otpEnabled ? values.otp : null,
+        expires_at: expiresAt.toISOString(),
+        created_by: session?.user?.id,
+      };
+
+      const { data, error } = await supabase.from('document_shares').insert(shareData).select().single();
+      if (error) throw error;
+
+      message.success('Document shared successfully');
+      if (values.recipientType === 'email') {
+        const recipientLink = `${window.location.origin}/recipient/${data.id}`;
+        const emailData = [{
+          from: `${session?.user?.user_name} on zoworks ${process.env.REACT_APP_RESEND_FROM_EMAIL}`,
+          to: [values.recipientEmail],
+          subject: `${session?.user?.user_name} on zoworks Shared Document with You`,
+          html: `<p>You have been shared a document. View it here: <a href="${recipientLink}">${recipientLink}</a></p>`,
+        }];
+        await sendEmail(emailData);
+      }
+      setIsShareModalVisible(false);
+      shareForm.resetFields();
+    } catch (error) {
+      console.error('Error sharing document:', error);
+      message.error('Failed to share document');
+    }
+  };
+
+  const handleShareCancel = () => {
+    setIsShareModalVisible(false);
+    shareForm.resetFields();
+  };
 
   const renderForm = () => {
     const sectionOrder = ['header', 'itemsTable', 'summary', 'termsAndConditions', 'footer'];
@@ -289,8 +313,72 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
           <Button onClick={handlePrint} style={{ marginLeft: '10px' }} disabled={loading}>
             Download PDF
           </Button>
+          <Button onClick={handleShare} style={{ marginLeft: '10px' }} disabled={loading}>
+            Share Document
+          </Button>
         </Form.Item>
       </Form>
+
+      <Modal
+        title="Share Document"
+        visible={isShareModalVisible}
+        onOk={handleShareOk}
+        onCancel={handleShareCancel}
+        okText="Share"
+        cancelText="Cancel"
+      >
+        <Form form={shareForm} layout="vertical">
+          <Form.Item label="Recipient Type" name="recipientType" rules={[{ required: true }]}>
+            <Select onChange={(value) => setRecipientType(value)}>
+              <Option value="email">Email</Option>
+              <Option value="user">User</Option>
+              <Option value="organization">Organization</Option>
+            </Select>
+          </Form.Item>
+
+          {recipientType === 'email' && (
+            <Form.Item label="Recipient Email" name="recipientEmail" rules={[{ required: true, type: 'email' }]}>
+              <Input />
+            </Form.Item>
+          )}
+          {recipientType === 'user' && (
+            <Form.Item label="Select User" name="recipientUser" rules={[{ required: true }]}>
+              <Select>
+                {users.map((user) => (
+                  <Option key={user.id} value={user.id}>
+                    {user.user_name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+          {recipientType === 'organization' && (
+            <Form.Item label="Select Organization" name="recipientOrg" rules={[{ required: true }]}>
+              <Select>
+                {organizations.map((org) => (
+                  <Option key={org.id} value={org.id}>
+                    {org.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+
+          <Form.Item name="otpEnabled" valuePropName="checked">
+            <Checkbox onChange={(e) => setOtpEnabled(e.target.checked)}>Require OTP</Checkbox>
+          </Form.Item>
+
+          {otpEnabled && (
+            <Form.Item label="OTP" name="otp" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+          )}
+
+          <Form.Item label="Expiry (minutes)" name="expiry" rules={[{ required: true }]}>
+            <InputNumber min={1} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

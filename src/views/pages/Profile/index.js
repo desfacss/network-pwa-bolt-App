@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ProfilePic from './ProfilePic';
 import DynamicViews from '../DynamicViews';
 import WhatsAppShareButton from 'components/common/WhatsappShare';
+import Channels from '../Channels';
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -21,7 +22,7 @@ const Profile = () => {
     const [updateId, setUpdateId] = useState();
     const [profileFields, setProfileFields] = useState([]);
     const [userData, setUserData] = useState();
-    const [privacySettings, setPrivacySettings] = useState({}); // Store privacy settings
+    const [privacySettings, setPrivacySettings] = useState({});
 
     const filters = [{ column: 'user_id', value: userData?.id || session?.user?.id }];
 
@@ -32,7 +33,7 @@ const Profile = () => {
 
             const { data, error } = await supabase
                 .from('users')
-                .select('*, profile_privacy') // Include profile_privacy column
+                .select('*, profile_privacy')
                 .eq('user_name', userName)
                 .single();
 
@@ -40,7 +41,7 @@ const Profile = () => {
                 console.error("Error fetching user data:", error);
             } else {
                 setUserData(data);
-                setPrivacySettings(data?.profile_privacy || {}); // Load privacy settings
+                setPrivacySettings(data?.profile_privacy || {});
             }
         };
         if (user_name) {
@@ -163,6 +164,72 @@ const Profile = () => {
         return custom_format?.replace(/{(\d+)}/g, (_, index) => values[index] || '');
     };
 
+    const renderDynamicDescriptionItemsTabs = (group) => {
+        const isGroupPrivate = group?.private || privacySettings[group?.name];
+        const canEditPrivacy = session?.user?.id === userData?.id;
+        const showGroup = !isGroupPrivate || canEditPrivacy;
+
+        if (!showGroup) return null;
+
+        return (
+            <div key={group?.name}>
+                {group?.show_group_name && (
+                    <Descriptions
+                        title={
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                {group?.name}
+                                {group?.privacy_control && canEditPrivacy && (
+                                    <Switch
+                                        checkedChildren={<EyeOutlined />}
+                                        unCheckedChildren={<EyeInvisibleOutlined />}
+                                        checked={!privacySettings[group?.name]}
+                                        onChange={(checked) => togglePrivacy(group?.name, !checked)}
+                                        style={{ marginLeft: 8 }}
+                                    />
+                                )}
+                            </div>
+                        }
+                        column={1}
+                    />
+                )}
+                <Descriptions column={1}>
+                    {group?.fields?.sort((a, b) => a.order - b.order)?.map(field => {
+                        const isFieldPrivate = field?.private || privacySettings[field?.value];
+                        const showField = !isFieldPrivate || canEditPrivacy;
+
+                        if (!showField) return null;
+
+                        return (
+                            <Descriptions.Item
+                                key={field?.value}
+                                label={
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        {field?.label}
+                                        {field?.privacy_control && canEditPrivacy && (
+                                            <Switch
+                                                checkedChildren={<EyeOutlined />}
+                                                unCheckedChildren={<EyeInvisibleOutlined />}
+                                                checked={!privacySettings[field?.value]}
+                                                onChange={(checked) => togglePrivacy(field?.value, !checked)}
+                                                style={{ marginLeft: 8 }}
+                                            />
+                                        )}
+                                    </div>
+                                }
+                            >
+                                {field?.custom_format
+                                    ? formatCustomValue(userData, field?.custom_path, field?.custom_format)
+                                    : (Array.isArray(getValueByPath(userData, field?.path))
+                                        ? getValueByPath(userData, field?.path).join(', ')
+                                        : getValueByPath(userData, field?.path) || 'N/A')}
+                            </Descriptions.Item>
+                        );
+                    })}
+                </Descriptions>
+            </div>
+        );
+    };
+
     const renderDynamicDescriptionItems = () => {
         const groups = profileFields?.groups?.sort((a, b) => a.order - b.order);
 
@@ -236,33 +303,21 @@ const Profile = () => {
 
     if (!userData) return null;
 
+    // Dynamic tabs from profileFields.groups
+    const dynamicTabs = profileFields?.groups?.sort((a, b) => a.order - b.order).map(group => ({
+        key: group?.name?.toLowerCase(),
+        label: group?.name,
+        children: renderDynamicDescriptionItemsTabs(group),
+    })) || [];
+
+    // Add the static "Businesses" tab at the end
     const tabItems = [
+        ...dynamicTabs,
         {
-            key: 'profile',
-            label: 'Profile',
+            key: 'info',
+            label: 'Info',
             children: (
-                <Card
-                    title={
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span className='mr-2'>Personal Info</span>
-                            {userData && session?.user?.id === userData?.id && (
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <Button
-                                        icon={details ? <EditOutlined /> : <PlusOutlined />}
-                                        onClick={e => showModal(details, 'user_self_edit_form')}
-                                        style={{ marginRight: '8px' }} // Add some spacing between buttons
-                                    >Edit Profile</Button>
-                                    <ChangePassword />
-                                </div>
-                            )}
-                        </div>
-                    }
-                >
-                    <div className='ml-3'>
-                        <ProfilePic />
-                        {renderDynamicDescriptionItems()}
-                    </div>
-                </Card>
+                <>{renderDynamicDescriptionItems()}</>
             ),
         },
         {
@@ -272,16 +327,94 @@ const Profile = () => {
                 <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} />
             ),
         },
+        {
+            key: 'inbox',
+            label: 'Inbox',
+            children: (
+                <Channels isPrivate={true} />
+            ),
+        },
     ];
 
     return (
-        <Card>
-            {(edit && schema) && (
+        <div style={{ position: 'relative', minHeight: '100vh' }}>
+            {/* Background Cover */}
+            <div
+                style={{
+                    height: '300px',
+                    backgroundImage: 'url(https://i.pxbyte.com/1680x420/photo/nature/serene-mountain-lake-reflection-9907.jpg)', // Replace with your cover image URL
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    position: 'relative',
+                }}
+            >
+                {/* Overlay for better contrast */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)', // Optional: Dark overlay for readability
+                    }}
+                />
+            </div>
+
+            {/* Profile Content */}
+            <Card
+                style={{
+                    maxWidth: '1200px',
+                    margin: '0 auto',
+                    position: 'relative',
+                    top: '-100px', // Overlap the cover image
+                }}
+            >
+                {/* Profile Picture and Name */}
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginBottom: '20px',
+                    }}
+                >
+                    <div
+                        style={{
+                            marginRight: '20px',
+                            position: 'relative',
+                            top: '-50px', // Adjust to overlap the cover
+                        }}
+                    >
+                        <ProfilePic />
+                    </div>
+                    <div>
+                        <h2 style={{ margin: 0, fontSize: '24px' }}>
+                            {userData?.details?.firstName} {userData?.details?.lastName}
+                        </h2>
+                        {userData && session?.user?.id === userData?.id && (
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px' }}>
+                                <Button className='mr-2'
+                                    icon={details ? <EditOutlined /> : <PlusOutlined />}
+                                    onClick={(e) => showModal(details, 'user_self_edit_form')}
+                                // style={{ marginTop: '8px' }}
+                                >
+                                    Edit Profile
+                                </Button>
+                                <ChangePassword />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Tabs */}
+                <Tabs defaultActiveKey={dynamicTabs[0]?.key || 'businesses'} items={tabItems} />
+            </Card>
+
+            {/* Drawer for Editing Profile */}
+            {edit && schema && (
                 <Drawer
-                    // footer={null}
                     title={schema?.data_schema?.title || "Edit Profile"}
                     open={edit}
-                    // closable={true}
                     onOk={handleOk}
                     onClose={handleCancel}
                     width={"50%"}
@@ -289,9 +422,7 @@ const Profile = () => {
                     <DynamicForm schemas={schema} formData={formData} updateId={updateId} onFinish={onFinish} />
                 </Drawer>
             )}
-            {/* <WhatsAppShareButton /> */}
-            <Tabs defaultActiveKey="profile" items={tabItems} />
-        </Card>
+        </div>
     );
 };
 
