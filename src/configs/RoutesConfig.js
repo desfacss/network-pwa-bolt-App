@@ -282,6 +282,16 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/poll`,
             component: React.lazy(() => import('views/pages/ib/Poll')),
         },
+        {
+            key: 'sender',
+            path: `${APP_PREFIX_PATH}/sender`,
+            component: React.lazy(() => import('views/pages/DocumentShare/DocumentSender')),
+        },
+        {
+            key: 'recipient',
+            path: `${APP_PREFIX_PATH}/recipient/:id`,
+            component: React.lazy(() => import('views/pages/DocumentShare/DocumentRecipient')),
+        },
         // module_features?.trial && feature?.trial && 
         {
             key: 'trial',

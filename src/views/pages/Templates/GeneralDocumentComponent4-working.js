@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 const { TextArea } = Input;
 const { Title } = Typography;
 
-const GeneralDocumentComponent = ({ formName, initialData }) => {
+const GeneralDocumentComponent = ({ formName }) => {
   const [form] = Form.useForm();
   const { session } = useSelector((state) => state.auth);
   const [tableData, setTableData] = useState([]);
@@ -16,47 +16,40 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
 
   useEffect(() => {
     fetchFormConfig();
-    if (initialData) {
-      // Pre-populate form and table data if initialData is provided
-      form.setFieldsValue(initialData);
-      setTableData(initialData.tableData || []);
-    }
-  }, [formName, initialData]); // Add initialData to dependencies
+  }, [formName]); // Fetch config when formName changes
 
   const fetchFormConfig = async () => {
-    setLoading(true);
+    setLoading(true); // Set loading to true while fetching
     try {
       const { data, error } = await supabase
         .from('forms')
         .select('data_schema')
         .eq('name', formName)
-        .single();
+        .single(); // Use single() to get a single record
 
       if (error) {
         console.error('Error fetching form config:', formName, error);
         message.error("Error loading form configuration.");
       } else if (data) {
-        setConfig(data.data_schema);
-        if (!initialData) {
-          // Only initialize table data from config if no initialData is provided
-          initializeTableData(data.data_schema);
-        }
+        setConfig(data.data_schema); // Set the config from data_schema
+        initializeTableData(data.data_schema); // Initialize table after config is set
       } else {
         message.error("Form configuration not found.");
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // Set loading to false after fetch, regardless of success/failure
     }
   };
 
   const initializeTableData = (loadedConfig) => {
-    const tableSection = Object.keys(loadedConfig || {}).find((key) => loadedConfig[key].columns);
+    const tableSection = Object.keys(loadedConfig || {}).find(key => loadedConfig[key].columns);
     if (tableSection) {
       const initialData = loadedConfig[tableSection].data || loadedConfig[tableSection].rows || [];
       setTableData(initialData);
-      updateSummary(initialData, loadedConfig);
+      updateSummary(initialData, loadedConfig); // Pass loadedConfig to updateSummary
     }
   };
+
   const renderField = (field) => {
     const alignmentMap = {
       left: 'flex-start',
@@ -154,31 +147,58 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
     setTableData(newData);
     updateSummary(newData);
   };
-  // ... (rest of your renderField, renderTable, handleTableChange, etc. functions remain unchanged)
 
-  const updateSummary = (data, loadedConfig) => {
-    const summarySection = loadedConfig?.summary;
-    const calculationConfig = loadedConfig?.summaryCalculation || {};
-    const summaryFieldsMapping = loadedConfig?.summaryFieldsMapping || {};
+  // const updateSummary = (data) => {
+  //   let subtotal = 0;
+  //   data.forEach(item => {
+  //     const price = parseFloat(item.price || 0);
+  //     const quantity = parseInt(item.quantity || 0, 10);
+  //     subtotal += price * quantity;
+  //   });
+
+  //   const taxRate = 0.1; // 10% tax
+  //   const tax = subtotal * taxRate;
+  //   const total = subtotal + tax;
+
+  //   form.setFieldsValue({
+  //     subtotal: subtotal.toFixed(2),
+  //     tax: tax.toFixed(2),
+  //     total: total.toFixed(2)
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   if (tableData.length > 0) {
+  //     updateSummary(tableData);
+  //   }
+  // }, [tableData]); // Dependency on tableData to recalculate when data changes
+
+  const updateSummary = (data, loadedConfig) => { // Accept loadedConfig as a parameter
+    const summarySection = loadedConfig?.summary; // Use loadedConfig here
+    const calculationConfig = loadedConfig?.summaryCalculation || {}; // And here
+    const summaryFieldsMapping = loadedConfig?.summaryFieldsMapping || {}; // And here
 
     if (summarySection && summarySection.fields) {
       const newValues = {};
 
+      // Calculate basic values
       const subtotal = data.reduce((sum, item) => {
         const price = parseFloat(item[calculationConfig.priceField] || 0);
         const quantity = parseInt(item[calculationConfig.quantityField] || 0, 10);
-        return sum + price * quantity;
+        return sum + (price * quantity);
       }, 0);
 
-      summarySection.fields.forEach((field) => {
+      // Map and calculate summary values based on config
+      summarySection.fields.forEach(field => {
         if (summaryFieldsMapping[field.key]) {
           const { calculation, taxRate } = summaryFieldsMapping[field.key];
+
           if (calculation === 'subtotal') {
             newValues[field.key] = subtotal.toFixed(2);
           } else if (calculation === 'tax') {
-            newValues[field.key] = (subtotal * (taxRate || 0.1)).toFixed(2);
+            newValues[field.key] = (subtotal * (taxRate || 0.1)).toFixed(2); // Default 10% if not specified
           } else if (calculation === 'total') {
-            const tax = parseFloat(newValues.tax || (subtotal * (taxRate || 0.1)).toFixed(2));
+            const tax = parseFloat(newValues.tax || (subtotal * (taxRate || 0.1)).toFixed(2)); // Use calculated tax if available
             newValues[field.key] = (subtotal + tax).toFixed(2);
           } else if (calculation === 'roundedOff') {
             const total = parseFloat(newValues.total || 0);
@@ -187,18 +207,20 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
         }
       });
 
+      console.log("updateSummary", data, newValues);
       form.setFieldsValue(newValues);
     }
   };
 
   const addRow = () => {
-    const tableSection = Object.keys(config).find((key) => config[key].columns);
+    const tableSection = Object.keys(config).find(key => config[key].columns);
     if (tableSection) {
-      const tableConfig = config[tableSection];
+      const tableConfig = config[tableSection]; // Here we define tableConfig
       const newRow = tableConfig.columns.reduce((acc, col) => {
         acc[col.key] = col.type === 'number' ? 0 : '';
         return acc;
-      }, { key: Date.now() });
+      }, { key: Date.now() }); // Use timestamp as a unique key for each row
+
       setTableData([...tableData, newRow]);
     }
   };
@@ -207,17 +229,18 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
     const newData = [...tableData];
     newData.splice(index, 1);
     setTableData(newData);
-    updateSummary(newData, config); // Pass config here
-  };
+    updateSummary(newData);
+  }
 
   const reportDataRef = useRef();
 
+  // Function to save data to Supabase
   const saveToSupabase = async () => {
     if (!config?.type) {
       return message.error('No Config Type');
     }
     const values = form.getFieldsValue();
-    const details = { ...values, tableData: tableData };
+    const details = { ...values, tableData: tableData, }; // Combine form values with config
 
     const { data, error } = await supabase
       .from('tmp_templates')
@@ -226,36 +249,42 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
           details: details,
           user_id: session?.user?.id,
           organization_id: session?.user?.organization?.id,
-          type: config?.type,
-        },
+          type: config?.type
+        }
       ]);
 
     if (error) {
       console.error('Error saving to Supabase:', error);
     } else {
       message.success('Saved Successfully');
-      // fetchTemplates(); // Refresh templates after saving
+      console.log('Data saved successfully:', data);
     }
   };
 
+  // Setup for react-to-print
   const handlePrint = useReactToPrint({
-    contentRef: reportDataRef,
+    contentRef: reportDataRef
   });
 
+  // Render function for the form and table
   const renderForm = () => {
-    const sectionOrder = ['header', 'itemsTable', 'summary', 'termsAndConditions', 'footer'];
-    if (loading) return <div>Loading form configuration...</div>;
-    if (!config) return <div>Form configuration not found.</div>;
+    const sectionOrder = ['header', 'itemsTable', 'summary', 'termsAndConditions', 'footer']; // Define the desired order
+    if (loading) {
+      return <div>Loading form configuration...</div>; // Display loading message
+    }
 
+    if (!config) {
+      return <div>Form configuration not found.</div>; // Display not found message if config is still null after loading
+    }
     return (
       <div ref={reportDataRef}>
-        {sectionOrder.map((sectionKey) => {
+        {sectionOrder?.map((sectionKey) => { // Iterate through the ordered array
           if (config[sectionKey]) {
             const section = config[sectionKey];
             if (section.fields) {
               return (
                 <div key={sectionKey}>
-                  <Title level={4}>{sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}</Title>
+                  <Title level={4}>{sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Title>
                   {section.fields.map((field, fieldIndex) => (
                     <Form.Item key={fieldIndex} name={field.name || field.label}>
                       {renderField(field)}
@@ -266,7 +295,7 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
             } else if (section.columns) {
               return (
                 <div key={sectionKey}>
-                  <Title level={4}>{sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}</Title>
+                  <Title level={4}>{sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Title>
                   {renderTable(section)}
                 </div>
               );
@@ -283,12 +312,8 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
       <Form form={form} layout="vertical">
         {renderForm()}
         <Form.Item style={{ textAlign: 'right', marginTop: '20px' }}>
-          <Button type="primary" onClick={saveToSupabase} disabled={loading}>
-            Save Document
-          </Button>
-          <Button onClick={handlePrint} style={{ marginLeft: '10px' }} disabled={loading}>
-            Download PDF
-          </Button>
+          <Button type="primary" onClick={saveToSupabase} disabled={loading}>Save Document</Button>
+          <Button onClick={handlePrint} style={{ marginLeft: '10px' }} disabled={loading}>Download PDF</Button>
         </Form.Item>
       </Form>
     </div>

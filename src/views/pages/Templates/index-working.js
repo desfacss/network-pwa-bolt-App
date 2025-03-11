@@ -1,5 +1,5 @@
-import { Button, Card, Drawer, Select } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Button, Card, Drawer } from 'antd';
+import React, { useState } from 'react';
 // import InvoiceEntryPage from './invoice';
 import Invoice from './inv'
 import Template from './Template';
@@ -14,46 +14,17 @@ import workOrderConfig from './configs4/workOrderConfig.json';
 import completionCertificateConfig from './configs4/completionCertificateConfig.json';
 import BillOfQuantity from './BOQ';
 import boqData from './boq_v2.json';
-import { supabase } from 'configs/SupabaseConfig';
 
-const { Option } = Select;
 const App = () => {
 
   const [visibleDrawer, setVisibleDrawer] = useState(null);
-  const [templates, setTemplates] = useState([]); // To store fetched templates
-  const [selectedTemplate, setSelectedTemplate] = useState(null); // To store the selected template
-
-  // Fetch templates from tmp_templates on component mount
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  const fetchTemplates = async () => {
-    const { data, error } = await supabase
-      .from('tmp_templates')
-      .select('id, type, details');
-
-    if (error) {
-      console.error('Error fetching templates:', error);
-    } else {
-      setTemplates(data);
-    }
-  };
 
   const showDrawer = (type) => {
     setVisibleDrawer(type);
-    setSelectedTemplate(null); // Reset selected template when opening a new form
   };
 
   const closeDrawer = () => {
     setVisibleDrawer(null);
-    setSelectedTemplate(null); // Reset on close
-  };
-
-  const handleTemplateSelect = (templateId) => {
-    const template = templates.find((t) => t.id === templateId);
-    setSelectedTemplate(template);
-    setVisibleDrawer(template?.type || null); // Set the formName based on the selected template's type
   };
 
   const formNameMap = {
@@ -66,7 +37,7 @@ const App = () => {
 
   const renderComponent = () => {
     if (visibleDrawer) {
-      return <GeneralDocumentComponent formName={visibleDrawer} initialData={selectedTemplate?.details || null} />;
+      return <GeneralDocumentComponent formName={visibleDrawer} />;
     }
     return null;
   };
@@ -93,19 +64,6 @@ const App = () => {
       <GeneralDocumentComponent config={completionCertificateConfig} /> */}
 
       <div style={{ marginBottom: 16 }}>
-        <Select
-          style={{ width: 200, marginRight: 16 }}
-          placeholder="Select a template"
-          onChange={handleTemplateSelect}
-          allowClear
-        >
-          {templates.map((template) => (
-            <Option key={template.id} value={template.id}>
-              {template.type} (ID: {template.id})
-            </Option>
-          ))}
-        </Select>
-
         {Object.keys(formNameMap).map((formName) => ( // Dynamically render buttons
           <Button
             key={formName}
