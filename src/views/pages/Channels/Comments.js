@@ -315,7 +315,7 @@ const NewPostForm = ({ form, onSubmit, tags, setTags }) => {
 //     );
 // };
 
-const ForumComment = ({ channel_id }) => {
+const ForumComment = ({ channel_id, isPrivate = false }) => {
     const [form] = Form.useForm();
     const [tags, setTags] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -340,10 +340,18 @@ const ForumComment = ({ channel_id }) => {
         // Fetch messages on component mount or when channel_id changes
         const fetchMessages = async () => {
             if (channel_id) {
-                const { data, error } = await supabase
+                let query = supabase
                     .from('channel_posts')
-                    .select('*, user:users(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
-                    .eq('channel_id', channel_id)
+                    .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
+                    // .select('*, user:users(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
+                    .eq('channel_id', channel_id);
+
+                // Add filter for visible_to_user_id when private is true
+                if (isPrivate && session?.user?.id) {
+                    query = query.eq('visible_to_user_id', session.user.id);
+                }
+
+                const { data, error } = await query
                     .order('inserted_at', { ascending: false });
 
                 if (error) {
@@ -363,7 +371,6 @@ const ForumComment = ({ channel_id }) => {
                         buildMap(hierarchy);
                         setIdToNameMap(map);
                     }
-                    // setMessages(data || []);
                     // Process data to include reply_count
                     const processedData = data?.map(item => ({
                         ...item,
@@ -487,31 +494,35 @@ const ForumComment = ({ channel_id }) => {
         <div className="forum-container"> {/* Main container */}
             <div className="message-list">
                 {/* <Card title={<><MessageOutlined /> New Post</>} style={{ marginTop: 24 }}> */}
-                <ConfigProvider
-                    theme={{
-                        algorithm: theme.defaultAlgorithm, // Use AntD's default light theme
-                        token: {
-                            // colorPrimary: '#9370DB', // Medium purple for buttons and accents
-                            // colorBgContainer: '#ccceee', // Light pastel purple background
-                            // colorBgBase: '#ccceee', // Consistent light purple base
-                            // colorText: '#4B0082', // Darker purple for text (e.g., Indigo)
-                            colorBorder: '#D8BFD8', // Light purple border for subtle contrast
-                            borderRadius: 4, // Subtle rounded corners
-                            fontFamily: 'Inter, sans-serif', // Modern font
-                        },
-                    }}
-                >
+                {!isPrivate &&
+                    <>
+                        <ConfigProvider
+                            theme={{
+                                algorithm: theme.defaultAlgorithm, // Use AntD's default light theme
+                                token: {
+                                    // colorPrimary: '#9370DB', // Medium purple for buttons and accents
+                                    // colorBgContainer: '#ccceee', // Light pastel purple background
+                                    // colorBgBase: '#ccceee', // Consistent light purple base
+                                    // colorText: '#4B0082', // Darker purple for text (e.g., Indigo)
+                                    colorBorder: '#D8BFD8', // Light purple border for subtle contrast
+                                    borderRadius: 4, // Subtle rounded corners
+                                    fontFamily: 'Inter, sans-serif', // Modern font
+                                },
+                            }}
+                        >
 
-                    <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
-                </ConfigProvider>
+                            <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} />
+                        </ConfigProvider>
+                        <div style={{ marginBottom: 16 }}>
+                            <Input
+                                placeholder="Search by user name, message or tag"
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                            />
+                        </div>
+                    </>
+                }
                 {/* </Card> */}
-                <div style={{ marginBottom: 16 }}>
-                    <Input
-                        placeholder="Search by user name, message or tag"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                    />
-                </div>
                 {filteredMessages?.length > 0 ?
                     <List
                         dataSource={filteredMessages}

@@ -19,7 +19,7 @@ const useMediaQuery = (query) => {
     return matches;
 };
 
-const Channels = () => {
+const Channels = ({ isPrivate = false }) => {
     const [channels, setChannels] = useState([]);
     const [activeChannel, setActiveChannel] = useState(null);
     const [newChannelSlug, setNewChannelSlug] = useState('');
@@ -28,14 +28,26 @@ const Channels = () => {
     const [userNames, setUserNames] = useState({});
 
     const { session } = useSelector((state) => state.auth);
-    const isDesktop = useMediaQuery('(min-width: 768px)'); // Adjust breakpoint as needed
+    const isDesktop = useMediaQuery('(min-width: 768px)');
 
     useEffect(() => {
         fetchChannels();
-    }, []);
+    }, [isPrivate]);
 
     const fetchChannels = async () => {
-        const { data, error } = await supabase.from('channels').select('*').order('inserted_at', { ascending: true });
+        let query = supabase
+            .from('channels')
+            .select('*')
+            .order('inserted_at', { ascending: true });
+
+        if (isPrivate) {
+            query = query.eq('slug', 'Private');
+        } else {
+            query = query.neq('slug', 'Private');
+        }
+
+        const { data, error } = await query;
+
         if (error) {
             console.error('Error fetching channels:', error);
             message.error("Failed to load channels.");
@@ -74,9 +86,9 @@ const Channels = () => {
     const handleAddChannel = async () => {
         if (!newChannelSlug) return;
         const { error } = await supabase.from('channels').insert([{
-            slug: newChannelSlug,
+            slug: isPrivate ? 'Private' : newChannelSlug,
             created_by: session?.user?.id,
-            organization_id: session?.user?.organization?.id
+            organization_id: session?.user?.organization?.id,
         }]);
         if (error) {
             console.error("Error creating channel:", error);
@@ -144,9 +156,9 @@ const Channels = () => {
         const isSubscribed = session?.user?.subscriptions?.channels?.includes(channel.id);
 
         if (channel.is_public) {
-            return <ForumComment channel_id={channel.id} />;
+            return <ForumComment channel_id={channel.id} isPrivate={isPrivate} />;
         } else if (isSubscribed || session.user.id === channel.created_by || session.user.role_type === 'superadmin') {
-            return <ForumComment channel_id={channel.id} />;
+            return <ForumComment channel_id={channel.id} isPrivate={isPrivate} />;
         } else if ((channel?.join_requests || [])?.includes(session.user.id)) {
             return <>Requested to Join</>;
         } else {
@@ -168,10 +180,6 @@ const Channels = () => {
             }}
             style={{ width: '100%' }}
         >
-            {/* Register for Stream */}
-            {/* <Card title={<>Register for Stream</>} style={{ marginTop: 24 }}>
-
-            </Card> */}
             {channels?.map(channel => (
                 <Menu.Item key={channel.slug}>
                     <span>
@@ -226,9 +234,9 @@ const Channels = () => {
 
     return (
         <>
-            <Card style={{ paddingRight: isDesktop ? 320 : 0 }}>
-                {/* Mobile Layout with Drawer */}
-                {!isDesktop && (
+            <Card style={{ paddingRight: isDesktop && !isPrivate ? 320 : 0 }}>
+                {/* Mobile Layout with Drawer - Only show when not private */}
+                {!isPrivate && !isDesktop && (
                     <>
                         <Button
                             icon={<MenuOutlined />}
@@ -252,24 +260,24 @@ const Channels = () => {
                 {/* Content Area */}
                 {activeChannel && (
                     <div>
-                        <h3>{activeChannel.slug}</h3>
+                        {!isPrivate && <h3>{activeChannel.slug}</h3>}
                         {renderChannelContent(activeChannel)}
                     </div>
                 )}
             </Card>
 
-            {/* Desktop Fixed Menu (Below Header) */}
-            {isDesktop && (
+            {/* Desktop Fixed Menu - Only show when not private */}
+            {!isPrivate && isDesktop && (
                 <div
                     style={{
                         position: 'fixed',
-                        top: 80, // Adjust this value to account for your header height (e.g., 60px header + 20px padding)
+                        top: 80,
                         right: 16,
                         width: 300,
                         background: '#fff',
                         borderRadius: 4,
                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                        zIndex: 1000, // Higher zIndex to stay above other elements
+                        zIndex: 1000,
                     }}
                 >
                     {renderMenu()}
@@ -277,18 +285,20 @@ const Channels = () => {
             )}
 
             {/* Modal for adding new channel */}
-            <Modal
-                title="Add New Channel"
-                visible={isModalVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-            >
-                <Input
-                    placeholder="New channel slug"
-                    value={newChannelSlug}
-                    onChange={(e) => setNewChannelSlug(e.target.value)}
-                />
-            </Modal>
+            {!isPrivate && (
+                <Modal
+                    title="Add New Channel"
+                    visible={isModalVisible}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                >
+                    <Input
+                        placeholder="New channel slug"
+                        value={newChannelSlug}
+                        onChange={(e) => setNewChannelSlug(e.target.value)}
+                    />
+                </Modal>
+            )}
         </>
     );
 };
