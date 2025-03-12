@@ -1,8 +1,6 @@
-// Delete row to be added later
-
 import React, { useState, useEffect } from 'react';
-import { Select, Button, Form, Table, message, Tooltip, Input } from 'antd';
-import { CheckCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
+import { Select, Button, Form, Table, message, Tooltip, Input, Popconfirm } from 'antd';
+import { CheckCircleFilled, ExclamationCircleFilled, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from 'configs/SupabaseConfig';
 
 const { Option } = Select;
@@ -18,32 +16,11 @@ const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
             try {
                 const columnsResponse = await supabase.rpc('get_domain_columns_v1', { tablename: entityType });
                 console.log('Data from get_domain_columns_v1:', columnsResponse.data);
-                // const masterObjectResponse = await supabase
-                //     .from('y_view_config')
-                //     .select('master_object')
-                //     .eq('entity_type', entityType)
-                //     .single();
-                // console.log('Data from master_object:', masterObjectResponse.data);
-                // if (masterObjectResponse.error) throw masterObjectResponse.error;
 
                 if (columnsResponse.error) throw columnsResponse.error;
 
                 setColumns(columnsResponse.data || []);
-                // setMasterObject(masterObjectResponse.data?.master_object || {});
 
-                // // Set form initial values based on existing data
-                // const initialValues = columnsResponse.data.reduce((acc, col) => {
-                //     const masterObjEntry = masterObject[col.key] || {};
-                //     acc[col.key] = {
-                //         type: masterObjEntry.type || col.type,
-                //         source_table: masterObjEntry.foreign_key?.source_table || col.foreign_key?.source_table || col.potential_fk?.source_table || '',
-                //         source_column: masterObjEntry.foreign_key?.source_column || col.foreign_key?.source_column || col.potential_fk?.source_column || '',
-                //         display_column: masterObjEntry.foreign_key?.display_column || col.foreign_key?.display_column || col.potential_fk?.display_column || ''
-                //     };
-                //     return acc;
-                // }, {});
-
-                // Process the new format of masterObject
                 const initialValues = columnsResponse?.data?.reduce((acc, col) => {
                     const masterObjEntry = masterObject?.find(item => item.key === col.key) || {};
                     acc[col.key] = {
@@ -68,10 +45,12 @@ const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
             fetchData();
         }
     }, [entityType, masterObject, form]);
+
     useEffect(() => {
-        console.log("mo", masterObjectInit)
-        setMasterObject(masterObjectInit)
-    }, [masterObjectInit])
+        console.log("mo", masterObjectInit);
+        setMasterObject(masterObjectInit);
+    }, [masterObjectInit]);
+
     const onFinish = async (values) => {
         try {
             const masterObjectData = Object.entries(values).map(([key, field]) => {
@@ -108,12 +87,21 @@ const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
 
             message.success('Configuration saved successfully!');
             setMasterObject(masterObjectData);
-            fetchConfigs()
-            // setMasterObject(masterObjectData?.reduce((acc, obj) => ({ ...acc, [obj.key]: obj }), {}));
+            fetchConfigs();
         } catch (error) {
             console.error('Error in onFinish:', error);
             message.error('Failed to save configuration: ' + error.message);
         }
+    };
+
+    const handleDelete = (record) => {
+        const updatedMasterObject = masterObject.filter(item => item.key !== record.key);
+        setMasterObject(updatedMasterObject);
+
+        // Update form fields to reflect deletion.
+        const updatedValues = { ...form.getFieldsValue() };
+        delete updatedValues[record.key];
+        form.setFieldsValue(updatedValues);
     };
 
     if (loading) return <div>Loading...</div>;
@@ -130,15 +118,12 @@ const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
             dataIndex: 'key',
             key: 'key',
             render: (text, record) => {
-                // console.log("trd", masterObject);
                 const masterObjectTemp = masterObject?.reduce((acc, item) => {
-                    acc[item.key] = item; // Use the key as the property name and the entire item as the value
+                    acc[item.key] = item;
                     return acc;
                 }, {});
                 const isUpdated = masterObjectTemp && masterObjectTemp[record?.key] && masterObjectTemp[record?.key]?.type === record?.type;
                 const isNew = masterObjectTemp && (!masterObjectTemp[record?.key] || masterObjectTemp[record?.key]?.type !== record?.type);
-                // const isUpdated = masterObject && masterObject[record?.key] && masterObject[record?.key]?.type !== record?.type;
-                // const isNew = masterObject && !masterObject[record?.key];
                 const rowStyle = isUpdated ? { backgroundColor: 'lightgreen' } : isNew ? { backgroundColor: 'lightpink' } : {};
                 return (
                     <span style={rowStyle}>
@@ -157,31 +142,20 @@ const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
                 </Form.Item>
             )
         },
-        // {
-        //     title: 'UI Field type',
-        //     dataIndex: 'key',
-        //     key: 'key',
-        // },
         {
             title: 'Data Type (Select)',
             dataIndex: ['type'],
             key: 'type',
             render: (_, record) => {
-                // const masterObjectTemp2 = Object.entries(masterObject)
                 const masterObjectTemp = masterObject?.reduce((acc, item) => {
-                    acc[item.key] = item; // Use the key as the property name and the entire item as the value
+                    acc[item.key] = item;
                     return acc;
                 }, {});
-                // if (record?.key === 'details2.web') {
-                //     console.log("tw1", masterObjectTemp[record?.key]?.type, record?.type, masterObjectTemp, masterObject);
-                // }
 
                 const isUpdated = masterObjectTemp && masterObjectTemp[record?.key] && masterObjectTemp[record?.key]?.type === record?.type;
                 const isNew = masterObjectTemp && (!masterObjectTemp[record?.key] || masterObjectTemp[record?.key]?.type !== record?.type);
                 const rowStyle = isUpdated ? { backgroundColor: 'lightgreen' } : isNew ? { backgroundColor: 'lightpink' } : {};
-                // const masterEntry = masterObject?.find(item => item.key === record.key);
-                // const isUpdated = masterEntry && masterEntry.type !== record.type;
-                // const isNew = !masterEntry;
+
                 return (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         {isUpdated && (
@@ -234,16 +208,22 @@ const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
                     <Input placeholder="Display Column" defaultValue={masterObject && masterObject[record.key]?.foreign_key?.display_column || record?.foreign_key?.display_column || record?.potential_fk?.display_column || ''} />
                 </Form.Item>
             )
-        }
+        },
+        {
+            title: 'Actions',
+            key: 'action',
+            render: (_, record) => (
+                <Popconfirm
+                    title="Are you sure you want to delete this field?"
+                    onConfirm={() => handleDelete(record)}
+                    okText="Yes"
+                    cancelText="No"
+                >
+                    <Button icon={<DeleteOutlined />} danger size="small" />
+                </Popconfirm>
+            ),
+        },
     ];
-
-    // const data = columns.map(col => ({
-    //     key: col.key,
-    //     ...col,
-    //     type: col.type,
-    //     foreign_key: col.foreign_key || {},
-    //     potential_fk: col.potential_fk || {}
-    // }));
 
     const data = columns?.map(col => {
         const masterObjEntry = masterObject && Object.entries(masterObject)?.find(item => item.key === col.key) || {};
@@ -256,21 +236,7 @@ const MasterObject = ({ entityType, masterObjectInit, fetchConfigs }) => {
             potential_fk: col?.potential_fk || {}
         };
     });
-    console.log("dat1", data)
-
-    // const data = columns?.map(col => {
-    //     const masterObjEntry = Array.isArray(masterObject)
-    //         ? masterObject.find(item => item.key === col.key)
-    //         : {};
-
-    //     return {
-    //         key: col?.key,
-    //         ...col,
-    //         type: masterObjEntry?.type || col?.type,
-    //         foreign_key: masterObjEntry?.foreign_key || col?.foreign_key || {},
-    //         potential_fk: col?.potential_fk || {}
-    //     };
-    // });
+    console.log("dat1", data);
 
     return (
         <Form form={form} onFinish={onFinish}>

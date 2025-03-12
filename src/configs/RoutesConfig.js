@@ -294,9 +294,9 @@ export const protectedRoutes = (feature, module_features) => {
         },
         // module_features?.trial && feature?.trial && 
         {
-            key: 'trial',
-            path: `${APP_PREFIX_PATH}/trial`,
-            component: React.lazy(() => import('views/pages/Trial')),
+            key: 'live',
+            path: `${APP_PREFIX_PATH}/live`,
+            component: React.lazy(() => import('views/pages/Live')),
         },
         // {
         //     key: 'conf',

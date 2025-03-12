@@ -200,11 +200,12 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
             if (channel_id) {
                 let query = supabase
                     .from('channel_posts')
-                    .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
+                    // .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
+                    .select('*, user:users!channel_posts_user_id_fkey(user_name), channel:channels(slug), reply_count:channel_post_messages(count)')
                     .eq('channel_id', channel_id);
 
                 if (isPrivate && session?.user?.id) {
-                    query = query.eq('visible_to_user_id', session.user.id);
+                    query = query.eq('receiver_user_id', session.user.id);
                 }
 
                 const { data, error } = await query
@@ -288,7 +289,8 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                 } else {
                     const { data: insertedMessage, error: insertError } = await supabase
                         .from('channel_posts')
-                        .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
+                        // .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
+                        .select('*, user:users!channel_posts_user_id_fkey(user_name), channel:channels(slug), reply_count:channel_post_messages(count)')
                         // .select('*, user:users(user_name)')
                         .eq('id', data[0].id)
                         .single();

@@ -27,6 +27,7 @@ import { setSession } from "store/slices/authSlice";
 import { store } from "store";
 import Notifications from "components/common/Notifications";
 import OrganiztionSelect from "./OrganiztionSelect";
+import LivePollHeaderButton from "./LivePollHeaderButton";
 // import lightIcon from 'img/ibcn/light.png'; // 
 
 export const HeaderNav = (props) => {
@@ -193,6 +194,7 @@ export const HeaderNav = (props) => {
             {/* <div className="border-bottom d-flex justify-content-between align-items-center px-3 py-2">
               <Button onClick={onLogOut}>LogOut</Button>
             </div> */}
+            <LivePollHeaderButton />
             {session && <NavProfile profileData={session} mode={navMode} />}
           </NavEdge>
         </Nav>

@@ -48,6 +48,7 @@ async function fetchMessages(channel_post_id) {
     const { data, error } = await supabase
         .from('channel_post_messages')
         .select('*')
+        // .select('*, users!channel_posts_user_id_fkey(*)')
         .eq('channel_post_id', channel_post_id)
         .order('created_at', { ascending: true })
 

@@ -1,53 +1,76 @@
 import { Card, Tag, Typography } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
-const { Title, Paragraph } = Typography;
+const { Paragraph } = Typography;
 
 const PostCard = ({ channel_post_id }) => {
-    // const { channel_post_id } = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [createdBy, setCreatedBy] = useState(null);
     const [tags, setTags] = useState([]);
+    const [isPrivate, setIsPrivate] = useState(false);
 
     useEffect(() => {
-        const fetchPost = async () => {
+        const fetchPostAndChannel = async () => {
             if (!channel_post_id) return;
 
             setLoading(true);
-            const { data, error } = await supabase
+
+            // Fetch the post
+            const { data: postData, error: postError } = await supabase
                 .from('channel_posts')
-                .select('id, message, details,user:users(user_name)')
+                .select('id, channel_id, message, details, user:users!channel_posts_user_id_fkey(user_name)')
                 .eq('id', channel_post_id)
                 .single();
 
-            console.log("channel_post", data);
-            if (error) {
-                console.error('Error fetching post:', error);
+            console.log("channel_post", postData);
+            if (postError) {
+                console.error('Error fetching post:', postError);
                 setLoading(false);
                 return;
             }
-            setPost(data);
 
-            // Fetch created_by user
-            if (data?.created_by) {
+            // Fetch the channel using channel_id
+            const { data: channelData, error: channelError } = await supabase
+                .from('channels')
+                .select('id, is_inbox')
+                .eq('id', postData?.channel_id)
+                .single();
+
+            if (channelError) {
+                console.error('Error fetching channel:', channelError);
+                setLoading(false);
+                return;
+            }
+
+            // Check if the channel is private (is_inbox === true)
+            if (channelData?.is_inbox === true) {
+                setIsPrivate(true);
+                setLoading(false);
+                return; // Stop further processing if private
+            }
+
+            // If not private, proceed with setting post data
+            setPost(postData);
+
+            // Fetch created_by user (if needed separately)
+            if (postData?.created_by) {
                 const { data: userData } = await supabase
                     .from('users')
-                    .select('user_name') // Assuming `users` table has `name`
-                    .eq('id', data?.created_by)
+                    .select('user_name')
+                    .eq('id', postData?.created_by)
                     .single();
 
                 setCreatedBy(userData?.user_name || 'Unknown');
             }
 
-            // Fetch tags (user names)
-            if (data?.details?.tags?.length) {
+            // Fetch tags
+            if (postData?.details?.tags?.length) {
                 const { data: tagUsers } = await supabase
                     .from('ib_categories')
                     .select('id, category_name')
-                    .in('id', data?.details?.tags);
+                    .in('id', postData?.details?.tags);
 
                 setTags(tagUsers || []);
             }
@@ -55,11 +78,19 @@ const PostCard = ({ channel_post_id }) => {
             setLoading(false);
         };
 
-        fetchPost();
+        fetchPostAndChannel();
     }, [channel_post_id]);
 
     if (loading) return <Card loading />;
 
+    // If the channel is private (is_inbox === true), don't show the post
+    if (isPrivate) {
+        return (
+            <></>
+        );
+    }
+
+    // Render the post if not private
     return (
         <Card title={post?.title}>
             <Paragraph>

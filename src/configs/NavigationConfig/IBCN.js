@@ -115,14 +115,14 @@ const navigationConfig = [
       //   breadcrumb: false,
       //   submenu: [],
       // },
-      {
-        key: 'poll',
-        path: `${APP_PREFIX_PATH}/trial`,
-        title: 'Live Survey',
-        icon: ApartmentOutlined,
-        breadcrumb: false,
-        submenu: [],
-      },
+      // {
+      //   key: 'poll',
+      //   path: `${APP_PREFIX_PATH}/trial`,
+      //   title: 'Live Survey',
+      //   icon: ApartmentOutlined,
+      //   breadcrumb: false,
+      //   submenu: [],
+      // },
       // {
       //   key: 'blank',
       //   path: `#`,

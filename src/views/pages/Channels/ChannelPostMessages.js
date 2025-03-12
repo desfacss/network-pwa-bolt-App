@@ -152,7 +152,7 @@ const ChannelPostMessages = () => {
                     autoSize={{ minRows: 3, maxRows: 6 }}
                 />
             </Modal> */}
-            <Button onClick={() => navigate(`app/networking`)}>Back</Button>
+            <Button onClick={() => navigate(-1)}>Back</Button>
             <PostCard channel_post_id={channel_post_id} />
             <div className="message-container"> {/* Container for messages */}
                 <h2>Messages</h2>
