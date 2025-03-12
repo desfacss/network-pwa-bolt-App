@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Drawer, notification, Spin, Tabs } from 'antd';
+import { Button, Card, Drawer, Modal, notification, Spin, Tabs } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import dayjs from 'dayjs';
@@ -19,6 +19,7 @@ import ExportImportButtons from './CSVOptions';
 import DynamicForm from '../DynamicForm';
 import DetailsView from './DetailsView';
 import { removeNullFields, transformData } from './utils';
+import PostMessage from '../Channels/PostMessage';
 // import SchedularView from './SchedularView';
 
 // const entityType = 'y_sales'
@@ -135,7 +136,15 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [messageReceiverId, setMessageReceiverId] = useState(null);
 
+    const handleOpenMessageModal = (receiverId) => {
+        setMessageReceiverId(receiverId);
+    };
+
+    const handleCloseModal = () => {
+        setMessageReceiverId(null);
+    };
 
     const openDrawer = addEditFunction || ((item = null, view = false, form = "") => {
         if (item) {
@@ -688,7 +697,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         tabItems.push({
             label: 'Grid',
             key: '2',
-            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />
+            children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} />
         })
     }
     if ((tabs ? tabs.includes('timelineview') : true) && viewConfig?.views_config?.timelineview && viewConfig?.timelineview) {
@@ -799,6 +808,20 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                         }}
                     />}
             </Drawer>
+            <Modal
+                title="Send Message"
+                visible={!!messageReceiverId}
+                onCancel={handleCloseModal}
+                footer={null}
+            >
+                {messageReceiverId && (
+                    <PostMessage
+                        user_id={session.user.id}
+                        receiver_user_id={messageReceiverId}
+                        closeModal={handleCloseModal}
+                    />
+                )}
+            </Modal>
         </Card>
     );
 }

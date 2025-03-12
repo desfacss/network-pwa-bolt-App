@@ -312,7 +312,7 @@ const Profile = () => {
 
     // Add the static "Businesses" tab at the end
     const tabItems = [
-        ...dynamicTabs,
+        // ...dynamicTabs,
         {
             key: 'info',
             label: 'Info',
@@ -329,7 +329,7 @@ const Profile = () => {
         },
         {
             key: 'inbox',
-            label: 'Inbox',
+            label: 'Messages',
             children: (
                 <Channels isPrivate={true} />
             ),

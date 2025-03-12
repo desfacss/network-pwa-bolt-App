@@ -8,27 +8,13 @@ import { ResponsiveButton } from 'views/pages/Trial/ResponsiveButton';
 
 const { Title, Text } = Typography;
 
-// // Helper function to trim whitespace - try removing empty white rows - if no value is available
-// const trimValue = (value) => {
-//   return typeof value === 'string' ? value.trim() : value;
-// };
-
-// // Helper function to format array values - adding comma if we have array value - looking like tags (with grey background)
-// const formatArrayValue = (value) => {
-//   if (Array.isArray(value)) {
-//     return value.map(trimValue).filter(Boolean).join(', ');
-//   }
-//   return trimValue(value);
-// };
-
-const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openDrawer, setCurrentPage, totalItems }) => {
+const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openDrawer, setCurrentPage, totalItems, openMessageModal }) => {
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
   const { session } = useSelector((state) => state.auth);
   const gridViewConfig = viewConfig?.gridview;
   const { showFeatures, exportOptions, globalSearch, groupBy, viewLink } = viewConfig?.gridview;
 
-  // Extract layout config
   const {
     cardsPerRow = 4,
     spacing = 16,
@@ -36,11 +22,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     aspectRatio = 'auto'
   } = gridViewConfig?.layout || {};
 
-  console.log("Layout Config:", { cardsPerRow, spacing, cardStyle, aspectRatio });
-
-  // Calculate responsive column spans
   const getResponsiveSpans = (cardsPerRow) => {
-    console.log("Calculating responsive spans for cardsPerRow:", cardsPerRow);
     return {
       xs: 24,
       sm: 24,
@@ -49,25 +31,14 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     };
   };
 
-  // Helper function to access deep values using dot notation
-  // const getNestedValue = (obj, path) => {
-  //   console.log("ptr", path?.split('-').reduce((acc, key) => acc && acc[key], obj));
-  //   return path?.split('-').reduce((acc, key) => acc && acc[key], obj);
-  // };
-
   const getNestedValue = (obj, path) => {
     if (!obj || !path) return undefined;
-
     const keys = path.split('-');
-
     return keys.reduce((result, key) => {
       if (!result) return undefined;
-
-      // If result is an array, map over it and extract the next key
       if (Array.isArray(result)) {
-        return result.map(item => item[key]).filter(Boolean); // Remove undefined values
+        return result.map(item => item[key]).filter(Boolean);
       }
-
       return result[key];
     }, obj);
   };
@@ -76,55 +47,75 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     return rules?.some(rule => {
       const sessionValue = getNestedValue(session?.user, rule?.a);
       const itemValue = Array.isArray(rule.b) ? rule?.b : getNestedValue(item, rule?.b);
-
-      if (rule?.op === "eq") {
-        return sessionValue === itemValue;
-      }
-      if (rule?.op === "in") {
-        return rule?.b?.includes(sessionValue);
-      }
+      if (rule?.op === "eq") return sessionValue === itemValue;
+      if (rule?.op === "in") return rule?.b?.includes(sessionValue);
       return false;
     });
   };
 
-  // Function to get field value, now with whitespace and array handling
   const getFieldValue = (record, fieldConfig) => {
-    // console.log("ft-Getting field value for record:", record);
     if (!fieldConfig) return null;
-    // if (!fieldConfig) return '';
-
-    // let value = fieldConfig?.fieldPath
-    //   ? getNestedValue(record, fieldConfig?.fieldPath)
-    //   : record[fieldConfig?.fieldName];
-    let value = getNestedValue(record, fieldConfig?.fieldPath)
+    let value = getNestedValue(record, fieldConfig?.fieldPath);
 
     // Handle comma-separated display for subfields
     if (fieldConfig?.display === "comma_separated" && fieldConfig?.subFields?.length > 0) {
       value = fieldConfig.subFields
-        .map(subField => getNestedValue(record, subField.fieldPath))
-        .filter(Boolean) // Remove any undefined or null values
+        .map(subField => {
+          const subValue = getNestedValue(record, subField.fieldPath);
+          return subValue;
+        })
+        .filter(Boolean)
         .join(', ');
     }
-    // Array.isArray(value) && console.log("tyu", value);
-    // // If value is an array of objects, map to get the category_name
-    // if (Array.isArray(value) && value[0][fieldConfig?.fieldValue]) {
-    //   value = value.map(item => item[fieldConfig?.fieldValue]);
-    // }
-
     return value;
   };
 
-
-
-  // Render field based on config
   const renderField = (record, fieldConfig) => {
     const value = getFieldValue(record, fieldConfig);
-    const { style = {} } = fieldConfig;
+    const { style = {}, subFields = [] } = fieldConfig;
     const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
-    // Return null if value is null, undefined, or empty string to prevent empty line
+
     if (value === null || value === undefined || value === '' || (Array.isArray(value) && value?.length === 0)) {
       return null;
     }
+
+    // Handle subfields with icons and webLinks
+    if (fieldConfig?.display === "comma_separated" && subFields.length > 0) {
+      const subFieldValues = subFields?.map(subField => {
+        const subValue = getNestedValue(record, subField?.fieldPath);
+        const SubIconComponent = subField?.icon ? Icons[subField.icon] : null;
+        const content = subValue && (
+          <Text
+            style={{
+              ...subField?.style,
+              display: 'inline-block',
+              marginRight: 8,
+            }}
+          >
+            {SubIconComponent && <SubIconComponent style={{ marginRight: 4 }} />}
+            {subValue}
+          </Text>
+        );
+
+        return subField?.webLink ? (
+          <a
+            href={subValue?.startsWith('http') ? subValue : `https://${subValue}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            key={subField?.fieldPath}
+            style={subField?.style}
+          >
+            {content}
+          </a>
+        ) : (
+          content
+        );
+      }).filter(Boolean);
+
+      return <Space wrap>{subFieldValues}</Space>;
+    }
+
+    // Handle tags rendering
     if (style?.render === 'tag' && Array.isArray(value)) {
       return (
         <Space wrap>
@@ -146,117 +137,39 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     }
 
     const content = value && (
-      <>
-        {value && <Text
-          style={{
-            ...style,
-            display: 'block',
-            whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
-            overflow: style?.ellipsis ? 'hidden' : 'visible',
-            textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
-          }}
-        >
-          {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-          {/* {(value && fieldConfig?.label) && `${fieldConfig?.fieldName}: ` || null} */}
-          {(fieldConfig?.fieldName) && `${fieldConfig?.fieldName}: `}
-          {value}
-        </Text>}
-      </>
+      <Text
+        style={{
+          ...style,
+          display: 'block',
+          whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
+          overflow: style?.ellipsis ? 'hidden' : 'visible',
+          textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
+        }}
+      >
+        {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
+        {(fieldConfig?.fieldName) && `${fieldConfig?.fieldName}: `}
+        {value}
+      </Text>
     );
 
-    //   //****
-    //   // // Function to get field value, now with whitespace and array handling
-    // const getFieldValue = (record, fieldConfig) => {
-    //   console.log("ft-Getting field value for record:", record);
-    //   if (!fieldConfig) return '';
-
-    //   let value = fieldConfig?.fieldPath
-    //     ? getNestedValue(record, fieldConfig?.fieldPath)
-    //     : record[fieldConfig?.fieldName];
-
-    //   // Handle comma-separated display for subfields or array fields
-    //   if ((fieldConfig?.display === "comma_separated" && fieldConfig.subFields) || Array.isArray(value)) {
-    //     value = formatArrayValue(value);
-    //   } else if (value) {
-    //     value = trimValue(value);
-    //   }
-
-    //   return value || ''; // Return an empty string if value is undefined or null
-    // };
-
-    // // Render field based on config, now handling empty or whitespace-only values and arrays
-    // const renderField = (record, fieldConfig) => {
-    //   const value = getFieldValue(record, fieldConfig);
-    //   const { style = {} } = fieldConfig;
-    //   const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
-
-    //   if (!value && !fieldConfig.label) return null; // Skip rendering if there's no value and no label
-
-    //   if (style?.render === 'tag' && Array.isArray(value)) {
-    //     return (
-    //       <Space wrap>
-    //         {value.split(', ').map((tag, index) => (
-    //           <Tag
-    //             key={index}
-    //             onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${tag}`)}
-    //             color={style?.colorMapping?.[tag?.toLowerCase()] || 'default'}
-    //           >
-    //             {tag}
-    //           </Tag>
-    //         ))}
-    //       </Space>
-    //     );
-    //   }
-
-    //   if (style.badge) {
-    //     return <Badge status={style.color?.[value?.toLowerCase()] || 'default'} text={value} />;
-    //   }
-
-    //   const content = (
-    //     <Text
-    //       style={{
-    //         ...style,
-    //         display: 'block',
-    //         whiteSpace: style?.ellipsis ? 'nowrap' : 'normal',
-    //         overflow: style?.ellipsis ? 'hidden' : 'visible',
-    //         textOverflow: style?.ellipsis ? 'ellipsis' : 'clip',
-    //       }}
-    //     >
-    //       {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
-    //       {fieldConfig?.label && `${fieldConfig?.label} `}
-    //       {value}
-    //     </Text>
-    //   );
-
-    //   //******* */ */
-
-    // Check if webLink is true to open link in a new tab
     if (fieldConfig?.webLink) {
-      // Ensure the value is a full URL or prepend 'http://' if it's not
-      const fullUrl = value?.startsWith('https') ? value : `https://${value}`;
+      const fullUrl = value?.startsWith('http') ? value : `https://${value}`;
       return (
-        <a
-          href={fullUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href={fullUrl} target="_blank" rel="noopener noreferrer">
           {content}
         </a>
       );
     }
 
     return fieldConfig?.link ? (
-      <a onClick={() => navigate(`/app${fieldConfig?.link}${fieldConfig?.linkParam ? record[fieldConfig?.linkParam] : value}`)}>{content}</a>
+      <a onClick={() => navigate(`/app${fieldConfig?.link}${fieldConfig?.linkParam ? record[fieldConfig?.linkParam] : value}`)}>
+        {content}
+      </a>
     ) : content;
   };
 
-  // Filter data based on search
   const filteredData = useMemo(() => {
-    console.log("Filtering data with searchText:", searchText);
-    if (!searchText) {
-      console.log("No searchText, returning full data.");
-      return data;
-    }
+    if (!searchText) return data;
     return data?.filter(item =>
       gridViewConfig?.fields?.some(field => {
         const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
@@ -266,21 +179,18 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     );
   }, [data, searchText, gridViewConfig?.fields]);
 
-  // Action menu for each card
   const getActionMenu = (record) => {
     const allowedActions = gridViewConfig?.actions?.row?.filter(action => {
       if (action === 'edit') return canEditOrDelete(record, viewConfig?.access_config?.canEdit);
       if (action === 'delete') return canEditOrDelete(record, viewConfig?.access_config?.canDelete);
       return true;
     });
-    console.log("aa", allowedActions)
     return (
       <Menu>
         {allowedActions?.map(action => (
           <Menu.Item
             key={action?.name}
             onClick={() => {
-              console.log(`Executing action '${action?.name}' for record:`, record);
               switch (action?.name) {
                 case 'view':
                   navigate(`/app${gridViewConfig?.viewLink}${record?.id}`);
@@ -290,6 +200,15 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                   break;
                 case 'delete':
                   deleteData(record);
+                  break;
+                case 'message':
+                  // const receiverId = record[action.form]; // Get the field value from form (user_id)
+                  // setSelectedReceiverId(receiverId);
+                  // setMessageModalVisible(true);
+                  // If parent needs to handle the modal, call the prop function
+                  if (openMessageModal) {
+                    openMessageModal(record[action.form]);
+                  }
                   break;
                 default:
                   console.log(`Action ${action?.name} not implemented`);
@@ -310,32 +229,6 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       console.log(`Bulk action "${action?.name}" triggered. Placeholder for now.`);
     }
   };
-
-  const dynamicBulkActions = viewConfig?.gridview?.actions?.bulk?.filter(action =>
-    action?.name?.includes("add_")
-  );
-
-
-  // const ResponsiveButton = ({ ...props }) => {
-  //   const ButtonComponent = isMobile ? FloatButton : Button;
-  //   return <ButtonComponent {...props} />;
-  // };
-
-  // const ResponsiveButton = ({ ...props }) => {
-  //   const isMobile = window.innerWidth < 768
-  //   const IconComponent = Icons[props.floatIcon || 'FileOutlined']
-  //   if (isMobile) {
-  //     return (
-  //       <FloatButton
-  //         {...props}
-  //         icon={<IconComponent />} // Default icon, you might want to make this dynamic based on action
-  //         tooltip={props.children || 'Action'} // Use children as tooltip if available, otherwise a default string
-  //       />
-  //     );
-  //   }
-
-  //   return <Button {...props} />;
-  // }
 
   return (
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
@@ -362,7 +255,6 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
               type="primary"
               style={{ marginRight: 0, marginTop: 0 }}
               onClick={() => handleBulkAction(action)}
-            // floatIcon={'SearchOutlined'}
             >
               {action?.name
                 ?.split('_')
@@ -373,14 +265,12 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         </div>
       </div>
 
-      {/* Grid Layout */}
       <Row gutter={[gridViewConfig?.layout?.spacing, gridViewConfig?.layout?.spacing]}>
         {filteredData.map((record, index) => {
           const fields = gridViewConfig?.fields?.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0)) || [];
           const titleFields = fields?.filter(f => f.cardSection === 'title');
           const footerFields = fields?.filter(f => f.cardSection === 'footer');
           const bodyFields = fields?.filter(f => !f.cardSection || f.cardSection === 'body');
-          //console.log("Fields", titleFields, bodyFields, footerFields)
 
           return (
             <Col key={record?.id || index} {...getResponsiveSpans(gridViewConfig?.layout?.cardsPerRow)}>
@@ -404,22 +294,13 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                   )
                 }
               >
-                {/* <div key={fieldConfig?.fieldPath}>
-                      {renderField(record, fieldConfig)}
-                    </div> */}
                 <Space direction="vertical" style={{ width: '100%' }}>
-                  {bodyFields?.map((fieldConfig) => (
-                    renderField(record, fieldConfig)
-                  ))?.filter(Boolean)}
+                  {bodyFields?.map((fieldConfig) => renderField(record, fieldConfig))?.filter(Boolean)}
                 </Space>
-                {/* <div key={fieldConfig?.fieldPath}>
-                        </div> */}
                 {footerFields?.length > 0 && (
                   <div style={{ marginTop: '10px' }}>
                     <Space wrap>
-                      {footerFields?.map(fieldConfig => (
-                        renderField(record, fieldConfig)
-                      ))?.filter(Boolean)}
+                      {footerFields?.map(fieldConfig => renderField(record, fieldConfig))?.filter(Boolean)}
                     </Space>
                   </div>
                 )}
