@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Card, Row, Col, Space, Button, Input, Dropdown, Menu, Badge, Tag, Typography, FloatButton } from 'antd';
+import { Card, Row, Col, Space, Button, Input, Dropdown, Menu, Badge, Tag, Typography, FloatButton, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import * as Icons from '@ant-design/icons';
 import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
@@ -183,6 +183,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     const allowedActions = gridViewConfig?.actions?.row?.filter(action => {
       if (action === 'edit') return canEditOrDelete(record, viewConfig?.access_config?.canEdit);
       if (action === 'delete') return canEditOrDelete(record, viewConfig?.access_config?.canDelete);
+      if (action?.name === 'message') return (session?.user?.id !== record[action.form]);
       return true;
     });
     return (
@@ -281,18 +282,30 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
                   boxShadow: "none",
                   ...gridViewConfig?.layout?.cardStyle,
                 }}
-                title={titleFields?.length > 0 ? (
-                  <Space>
-                    {titleFields?.map(field => renderField(record, field))}
-                  </Space>
-                ) : null}
-                extra={
-                  gridViewConfig?.actions?.row?.length > 0 && getActionMenu(record)?.props?.children?.length > 0 && (
-                    <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
-                      <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
-                    </Dropdown>
-                  )
+                title={
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Space>
+                      {titleFields?.length > 0 && titleFields?.map(field => renderField(record, field))}
+                    </Space>
+                    {gridViewConfig?.actions?.row?.length > 0 && getActionMenu(record)?.props?.children?.length > 0 && (
+                      <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+                        <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
+                      </Dropdown>
+                    )}
+                  </div>
                 }
+              // title={titleFields?.length > 0 ? (
+              //   <Space>
+              //     {titleFields?.map(field => renderField(record, field))}
+              //   </Space>
+              // ) : null}
+              // extra={
+              //   gridViewConfig?.actions?.row?.length > 0 && getActionMenu(record)?.props?.children?.length > 0 && (
+              //     <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+              //       <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
+              //     </Dropdown>
+              //   )
+              // }
               >
                 <Space direction="vertical" style={{ width: '100%' }}>
                   {bodyFields?.map((fieldConfig) => renderField(record, fieldConfig))?.filter(Boolean)}

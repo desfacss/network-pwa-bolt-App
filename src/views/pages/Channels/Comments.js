@@ -201,11 +201,12 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                 let query = supabase
                     .from('channel_posts')
                     // .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
-                    .select('*, user:users!channel_posts_user_id_fkey(user_name), channel:channels(slug), reply_count:channel_post_messages(count)')
+                    .select('*, user:users!channel_posts_user_id_fkey(user_name), receiver:users!channel_posts_receiver_user_id_fkey(user_name), channel:channels(slug), reply_count:channel_post_messages(count)')
                     .eq('channel_id', channel_id);
 
                 if (isPrivate && session?.user?.id) {
-                    query = query.eq('receiver_user_id', session.user.id);
+                    // query = query.eq('receiver_user_id', session.user.id);
+                    query = query.or(`receiver_user_id.eq.${session.user.id},user_id.eq.${session.user.id}`);
                 }
 
                 const { data, error } = await query
@@ -230,6 +231,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                         ...item,
                         reply_count: item?.reply_count[0]?.count || 0,
                     }));
+                    console.log("Posts", data, processedData)
                     setMessages(processedData || []);
                 }
             }
@@ -426,7 +428,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         marginBottom: 14,
                                     }}
                                 >
-                                    <div
+                                    {!isPrivate && <div
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center',
@@ -454,7 +456,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         >
                                             {item?.reply_count}
                                         </div>
-                                    </div>
+                                    </div>}
                                     <div
                                         style={{
                                             flex: 1,
@@ -499,7 +501,10 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                                     fontSize: 15,
                                                 }}
                                             >
-                                                {item?.user?.user_name}
+                                                {isPrivate ?
+                                                    (item?.user_id === session?.user?.id ? (item?.receiver?.user_name) : (item?.user?.user_name)
+                                                    ) : (item?.user?.user_name)
+                                                }
                                             </span>
                                         </div>
                                     </div>

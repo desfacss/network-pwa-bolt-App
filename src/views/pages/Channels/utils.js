@@ -20,15 +20,26 @@ async function createChat(name, user_id) {
 
 // addMessage.js
 
-async function addMessage(channel_post_id, name, message, user_id) {
+async function addMessage(channel_post_id, name, message, user_id, isInbox) {
     const { data, error } = await supabase
         .from('channel_post_messages')
         .insert([{ channel_post_id, name, message, user_id }])
-        .single()
+        .single();
 
     if (error) {
-        console.error('Error adding message:', error)
-        return null
+        console.error('Error adding message:', error);
+        return null;
+    }
+
+    if (isInbox) { // Use the cached isInbox value
+        const { error: updateError } = await supabase
+            .from('channel_posts')
+            .update({ message: message })
+            .eq('id', channel_post_id);
+
+        if (updateError) {
+            console.error('Error updating channel_post:', updateError);
+        }
     }
 
     const { updateError } = await supabase.rpc('increment_chat_count', { channel_post_id });
@@ -36,8 +47,6 @@ async function addMessage(channel_post_id, name, message, user_id) {
     if (updateError) {
         console.error('Error updating count in ib_posts:', updateError);
     }
-
-    return data
 }
 
 // fetchMessages.js

@@ -19,12 +19,42 @@ const ChannelPostMessages = () => {
     const { session } = useSelector((state) => state.auth);
     const navigate = useNavigate();
 
+    const [isInbox, setIsInbox] = useState(null);
+
     useEffect(() => {
         const fetchMessagesForChat = async () => {
             if (channel_post_id) {
                 const messages = await fetchMessages(channel_post_id);
                 console.log("msg", messages);
                 setMessages(messages);
+                // Fetch is_inbox only once when channel_post_id changes
+                const { data: postData, error: postError } = await supabase
+                    .from('channel_posts')
+                    .select('channel_id')
+                    .eq('id', channel_post_id)
+                    .single();
+
+                if (postError) {
+                    console.error('Error fetching channel_post:', postError);
+                    return;
+                }
+
+                if (postData && postData?.channel_id) {
+                    const { data: channelData, error: channelError } = await supabase
+                        .from('channels')
+                        .select('is_inbox')
+                        .eq('id', postData?.channel_id)
+                        .single();
+
+                    if (channelError) {
+                        console.error('Error fetching channel:', channelError);
+                        return;
+                    }
+
+                    if (channelData) {
+                        setIsInbox(channelData?.is_inbox); // Set is_inbox using setIsInbox
+                    }
+                }
             }
         };
         fetchMessagesForChat();
@@ -55,7 +85,7 @@ const ChannelPostMessages = () => {
         // setNewMessage('');
 
         if (newMessage.trim() === '' || !channel_post_id) return
-        const message = await addMessage(channel_post_id, session?.user?.user_name, newMessage, session?.user?.id) // Replace with actual client_id and owner_id
+        await addMessage(channel_post_id, session?.user?.user_name, newMessage, session?.user?.id, isInbox) // Replace with actual client_id and owner_id
         // setMessages([...messages, { name: session?.user?.user_name, message: newMessage }])
         setNewMessage('')
     };

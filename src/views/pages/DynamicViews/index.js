@@ -808,7 +808,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                         }}
                     />}
             </Drawer>
-            <Modal
+            {messageReceiverId && <Modal
                 title="Send Message"
                 visible={!!messageReceiverId}
                 onCancel={handleCloseModal}
@@ -821,7 +821,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                         closeModal={handleCloseModal}
                     />
                 )}
-            </Modal>
+            </Modal>}
         </Card>
     );
 }

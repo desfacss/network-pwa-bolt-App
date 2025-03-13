@@ -83,6 +83,12 @@ const PostMessage = ({ user_id, receiver_user_id, closeModal }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { session } = useSelector((state) => state.auth);
 
+    useEffect(() => {
+        return () => {
+            form.resetFields();
+        };
+    }, [form]);
+
     // Fetch the inbox channel ID where is_inbox = true
     const fetchInboxChannelId = async () => {
         const { data, error } = await supabase
