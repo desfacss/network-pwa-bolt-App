@@ -185,18 +185,18 @@ const navigationConfig = [
         breadcrumb: false,
         isGroupTitle: true,
         submenu: [
-          {
-            key: 'ysales',
-            path: `${APP_PREFIX_PATH}/ysales`,
-            title: 'Sales',
-            icon: FundOutlined,
-            breadcrumb: false,
-            submenu: [],
-          },
           module_features?.clients && feature?.clients && {
             key: 'clients',
             path: `${APP_PREFIX_PATH}/clients`,
             title: 'Clients',
+            icon: IdcardOutlined,
+            breadcrumb: false,
+            submenu: [],
+          },
+          module_features?.clients && feature?.clients && {
+            key: 'clients_contacts',
+            path: `${APP_PREFIX_PATH}/clients_contacts`,
+            title: 'Client Contacts',
             icon: IdcardOutlined,
             breadcrumb: false,
             submenu: [],
@@ -210,6 +210,14 @@ const navigationConfig = [
             breadcrumb: false,
             submenu: [],
           },
+          {
+            key: 'ysales',
+            path: `${APP_PREFIX_PATH}/ysales`,
+            title: 'Sales pipeline',
+            icon: FundOutlined,
+            breadcrumb: false,
+            submenu: [],
+          }
         ]?.filter(Boolean)
       },
       {

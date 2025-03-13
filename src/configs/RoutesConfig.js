@@ -298,11 +298,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/live`,
             component: React.lazy(() => import('views/pages/Live')),
         },
-        // {
-        //     key: 'conf',
-        //     path: `${APP_PREFIX_PATH}/conf`,
-        //     component: React.lazy(() => import('views/pages/Conference')),
-        // },
+        {
+            key: 'conf',
+            path: `${APP_PREFIX_PATH}/conf`,
+            component: React.lazy(() => import('views/pages/Conference')),
+        },
 
         // // module_features?.dynamicViews && feature?.dynamicViews && {
         // module_features?.a && feature?.rnd && {
@@ -315,6 +315,11 @@ export const protectedRoutes = (feature, module_features) => {
             key: 'ysales',
             path: `${APP_PREFIX_PATH}/ysales`,
             component: React.lazy(() => import('views/pages/CRM/Sales')),
+        },
+        {
+            key: 'clients_contacts',
+            path: `${APP_PREFIX_PATH}/clients_contacts`,
+            component: React.lazy(() => import('views/pages/CRM/Sales_contacts')),
         },
         // module_features?.rnd && feature?.rnd && {
         //     key: 'yformbuilder',

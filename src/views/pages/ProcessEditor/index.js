@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 // import WorkflowEditor from './workflow';
 
 // import workflowData from './processv0.json';
-import workflowData from './processv2.json';
+import workflowData from './processv5.json';
 import workflowData2 from './ProcessViewer/processvg.json';
 // import ProcessEditor from './processEditor-processv0';
 // import ProcessEditor from './processEditor-processv2';
