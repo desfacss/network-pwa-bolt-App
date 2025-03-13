@@ -82,7 +82,8 @@ const Users = () => {
     const fetchUsers = async () => {
         let { data, error } = await supabase.from('users')
             // .select(`*,location (name), hr:users (user_name), manager:users (user_name)`);
-            .select(`*,location:location_id (*), hr:hr_id (*), manager:manager_id (*)`)
+            // .select(`*,location:location_id (*), hr:hr_id (*), manager:manager_id (*)`)
+            .select(`*`) //TODO: how to make these dynamic
             .eq('organization_id', session?.user?.organization_id).eq('is_active', true).order('user_name', { ascending: true });
         if (data) {
             setUsers(data);

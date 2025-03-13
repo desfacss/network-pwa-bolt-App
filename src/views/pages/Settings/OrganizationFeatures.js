@@ -40,7 +40,7 @@ const OrganizationFeatureEdit = ({ onSave }) => {
             .single();
 
         if (error) {
-            console.error('Error fetching features:', error);
+            console.error('Error fetching features from Enum table:', error);
             message.error('Failed to fetch available features.');
         } else {
             setFeatures(data?.options || []);

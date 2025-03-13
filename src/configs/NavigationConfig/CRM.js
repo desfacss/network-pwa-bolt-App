@@ -178,31 +178,14 @@ const navigationConfig = [
       //   breadcrumb: false,
       //   submenu: [],
       // },
-      {
+      module_features?.crm && feature?.crm && {
         key: 'crm',
         title: 'CRM',
         icon: HeatMapOutlined,
         breadcrumb: false,
         isGroupTitle: true,
         submenu: [
-          module_features?.clients && feature?.clients && {
-            key: 'clients',
-            path: `${APP_PREFIX_PATH}/clients`,
-            title: 'Clients',
-            icon: IdcardOutlined,
-            breadcrumb: false,
-            submenu: [],
-          },
-          module_features?.clients && feature?.clients && {
-            key: 'clients_contacts',
-            path: `${APP_PREFIX_PATH}/clients_contacts`,
-            title: 'Client Contacts',
-            icon: IdcardOutlined,
-            breadcrumb: false,
-            submenu: [],
-          },
-          // module_features?.services && feature?.services && 
-          {
+          module_features?.crm && feature?.crm && {
             key: 'services',
             path: `${APP_PREFIX_PATH}/services`,
             title: 'Services',
@@ -210,7 +193,23 @@ const navigationConfig = [
             breadcrumb: false,
             submenu: [],
           },
-          {
+          module_features?.crm && feature?.crm && {
+            key: 'clients',
+            path: `${APP_PREFIX_PATH}/clients`,
+            title: 'Clients',
+            icon: IdcardOutlined,
+            breadcrumb: false,
+            submenu: [],
+          },
+          module_features?.crm && feature?.crm && {
+            key: 'clients_contacts',
+            path: `${APP_PREFIX_PATH}/clients_contacts`,
+            title: 'Client Contacts',
+            icon: IdcardOutlined,
+            breadcrumb: false,
+            submenu: [],
+          },
+          module_features?.crm && feature?.crm && {
             key: 'ysales',
             path: `${APP_PREFIX_PATH}/ysales`,
             title: 'Sales pipeline',
@@ -220,14 +219,14 @@ const navigationConfig = [
           }
         ]?.filter(Boolean)
       },
-      {
+      module_features?.planning && feature?.planning && {
         key: 'inventory',
         title: 'Budget & Plan',
         icon: HeatMapOutlined,
         breadcrumb: false,
         isGroupTitle: true,
         submenu: [
-          {
+          module_features?.planning && feature?.planning && {
             key: 'boq',
             path: `${APP_PREFIX_PATH}/boq`,
             title: 'BOQ',
@@ -235,7 +234,7 @@ const navigationConfig = [
             breadcrumb: false,
             submenu: [],
           },
-          {
+          module_features?.planning && feature?.planning && {
             key: 'materials',
             path: `${APP_PREFIX_PATH}/materials`,
             title: 'Materials',
@@ -244,7 +243,7 @@ const navigationConfig = [
             submenu: [],
           },
           // module_features?.services && feature?.services && 
-          {
+          module_features?.planning && feature?.planning && {
             key: 'suppliers',
             path: `${APP_PREFIX_PATH}/suppliers`,
             title: 'Suppliers',
@@ -254,14 +253,22 @@ const navigationConfig = [
           },
         ]?.filter(Boolean)
       },
-      {
+      module_features?.projects && feature?.projects && {
         key: 'instance',
         title: 'Projects',
         icon: HeatMapOutlined,
         breadcrumb: false,
         isGroupTitle: true,
         submenu: [
-          {
+          module_features?.projects && feature?.projects && {
+            key: 'projects',
+            path: `${APP_PREFIX_PATH}/yprojects`,
+            title: 'Tasks',
+            icon: FundOutlined,
+            breadcrumb: false,
+            submenu: [],
+          },
+          module_features?.projects && feature?.projects && {
             key: 'projects',
             path: `${APP_PREFIX_PATH}/yprojects`,
             title: 'Projects',
@@ -269,7 +276,7 @@ const navigationConfig = [
             breadcrumb: false,
             submenu: [],
           },
-          module_features?.expenses && feature?.expenses && {
+          module_features?.projects && feature?.projects && {
             key: 'expenses',
             path: `${APP_PREFIX_PATH}/expenses`,
             title: 'Expense',
