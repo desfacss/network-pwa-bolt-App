@@ -16,7 +16,7 @@ export const OpenRegisterForm = (props) => {
   const [signIn, setSignIn] = useState(false);
   const [schema, setSchema] = useState();
   const [roles, setRoles] = useState();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(3);
   const [mobile, setMobile] = useState("");
   const [leadData, setLeadData] = useState(null);
 
