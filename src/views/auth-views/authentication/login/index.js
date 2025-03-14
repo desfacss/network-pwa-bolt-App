@@ -62,7 +62,7 @@ const LoginTwo = (props) => {
         }}
       >
         <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
-        <h1 style={{ margin: 0 }}>Login</h1>
+        <h1 style={{ margin: 0 }}>IBCN NetworkX</h1>
         <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} />
       </div>
 
@@ -83,11 +83,12 @@ const LoginTwo = (props) => {
           <Col span={24}>
             {/* <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#003764" }}>Sign In</h2> */}
             <div style={{ maxWidth: "500px", margin: "0 auto" }}> {/* Constrain form width */}
-              <p>
+              {/* <p>
                 New User?{" "}
                 <Link to={`${APP_PREFIX_PATH}/register`}>Register here</Link> or{" "}
                 <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link>
-              </p>
+              </p> */}
+              <h3>Register</h3>
               <LoginForm {...props} />
             </div>
           </Col>
