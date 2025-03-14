@@ -1,0 +1,146 @@
+.ticket-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+  background-color: #f5f5f5;
+}
+
+.ticket-card {
+  background: #fff;
+  color: #333;
+  border: 1px dashed #999;
+  padding: 0;
+  width: 100%;
+  max-width: 400px; /* Consistent width for all screens */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Common styles for ticket sections */
+.ticket-section {
+  position: relative;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-top: 1px dashed #999;
+  border-bottom: 1px dashed #999;
+}
+
+.event-section {
+  border-top: none;
+}
+
+.food-section {
+  border-bottom: none;
+}
+
+/* Barcode Section */
+.barcode-section {
+  padding: 8px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Color overlay */
+.ticket-section > .color-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.4;
+  z-index: 0;
+}
+
+.ticket-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Event Section (Header) */
+.ticket-header {
+  padding: 8px 0;
+  text-align: center;
+}
+
+.ticket-header h1 {
+  font-size: 18px;
+  margin: 0;
+  color: #1890ff;
+}
+
+/* Profile Section */
+.profile-placeholder {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.profile-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1890ff;
+}
+
+.upload-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-placeholder:hover .upload-button {
+  opacity: 1;
+}
+
+/* User Section (Middle) */
+.user-section {
+  text-align: center;
+}
+
+/* Food Section */
+.food-section .ant-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.food-section .ant-col:first-child {
+  text-align: left;
+}
+
+.food-section .ant-col:last-child {
+  text-align: right;
+}
+
+/* Responsive Adjustments */
+@media (min-width: 769px) {
+  .ticket-header h1 {
+    font-size: 24px;
+  }
+  .profile-image {
+    width: 120px;
+    height: 120px;
+  }
+}
