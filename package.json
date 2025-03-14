@@ -44,6 +44,7 @@
     "react": "^18.2.0",
     "react-ace": "^13.0.0",
     "react-apexcharts": "^1.7.0",
+    "react-barcode": "^1.5.3",
     "react-big-calendar": "^1.17.0",
     "react-big-schedule": "^4.4.5",
     "react-calendar-timeline": "^0.28.0",
