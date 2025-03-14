@@ -1,22 +1,16 @@
-import React from 'react';
-import { Row, Col, Typography } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Typography, Button, message } from 'antd';
+import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import Barcode from 'react-barcode';
 import './TicketPage.css';
+import { supabase } from 'configs/SupabaseConfig'; // Assuming you have this configured
+import { useSelector } from 'react-redux';
+import DynamicForm from '../DynamicForm'; // Assuming this is available
+import Drawer from 'antd/es/drawer';
+import { useNavigate } from 'react-router-dom';
+import ProfilePic from '../Profile/ProfilePic';
 
 const { Title, Text } = Typography;
-
-const userData = {
-  track: 'Finance & Fintech', // Only track is needed
-  name: 'Mr. Ravi Shankar',
-  company: 'TechCorp',
-  gender: 'Male',
-  city: 'Bengaluru',
-  native: 'Karaikudi',
-  kovil: 'Mathoor',
-  foodPreference: 'Veg',
-  roomNumber: '200',
-};
 
 const trackColors = {
   'Finance & Fintech': '#e6f7ff',
@@ -34,16 +28,153 @@ const foodColors = {
 };
 
 const TicketPage = () => {
-  const trackColor = trackColors[userData.track] || trackColors['Finance & Fintech'];
-  const foodColor = foodColors[userData.foodPreference] || '#fff';
+  const { session } = useSelector((state) => state.auth); // Get authenticated user session
+  const [userData, setUserData] = useState(null);
+  const [edit, setEdit] = useState(false);
+  const [schema, setSchema] = useState();
+  const [formData, setFormData] = useState();
+
+  const navigate = useNavigate();
+
+  // Fetch user data from Supabase
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('details, additional_details')
+        .eq('id', session?.user?.id) // Assuming you want the logged-in user's data
+        .single();
+
+      if (error) {
+        console.error("Error fetching user data:", error);
+      } else {
+        const details = data?.details || {};
+        const additionalDetails = data?.additional_details || {};
+
+        // Map the required fields from details and additional_details
+        const mappedData = {
+          ...details,
+          ...additionalDetails,
+          name: details.user_name || `${details.firstName} ${details.lastName}`,
+          company: details.company || 'N/A',
+          city: details.location || 'N/A',
+          native: details.native || 'N/A',
+          kovil: details.kovil || 'N/A',
+          foodPreference: additionalDetails.food || 'N/A',
+          gender: additionalDetails.gender || 'N/A',
+          streams: additionalDetails.streams,// || 'Finance & Fintech', // Default to first stream
+          streams_secondary: additionalDetails.streams_secondary,// || 'Finance & Fintech', // Default to first stream
+          roomNumber: additionalDetails.room_no || 'TBA',
+        };
+        setUserData(mappedData);
+      }
+    };
+
+    if (session?.user?.id) {
+      fetchUserData();
+    }
+  }, [session]);
+
+  const trackColor = trackColors[userData?.streams] || trackColors['Finance & Fintech'];
+  const foodColor = foodColors[userData?.foodPreference] || '#fff';
 
   // Determine profile icon based on gender
-  const profileIcon = userData.gender === 'Male'
+  const profileIcon = userData?.gender === 'Male'
     ? 'https://cdn-icons-png.flaticon.com/512/0/93.png'
     : 'https://cdn-icons-png.flaticon.com/512/0/94.png';
 
   // Generate barcode value using name and kovil
-  const barcodeValue = `${userData.name.replace(/\s/g, '')}-${userData.kovil.replace(/\s/g, '')}`; // Example: "Mr.RaviShankar-Mathoor"
+  const barcodeValue = userData
+    ? `${userData.name.replace(/\s/g, '')}-${userData.kovil.replace(/\s/g, '')}`
+    : 'Default-Barcode'; // Example: "Mr.RaviShankar-Mathoor"
+
+  // Edit profile logic
+  const getForms = async (formName) => {
+    const { data, error } = await supabase
+      .from('forms')
+      .select('*')
+      .eq('name', formName)
+      .eq('organization_id', session?.user?.organization_id)
+      .single();
+    if (data) {
+      setSchema(data);
+    }
+  };
+
+  const showModal = async (data, formName) => {
+    getForms(formName);
+    setFormData(data); // Pass current user data to form
+    setEdit(true);
+  };
+
+  const onFinish = async (values) => {
+    const user_name = values?.firstName + " " + values?.lastName;
+
+    const updatedDetails = {
+      ...userData,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      intro: values.intro,
+      membership_type: values.membership_type,
+      email: values.email,
+      mobile: values.mobile,
+      kovil: values.kovil,
+      native: values.native,
+      location: values.location,
+      address: values.address,
+      web: values.web,
+      twitter: values.twitter,
+      linkedin: values.linkedin,
+      facebook: values.facebook,
+      instagram: values.instagram,
+      company: values.company,
+      user_name,
+      // orgName: values.orgName,
+    };
+
+    const updatedAdditionalDetails = {
+      food: values.food,
+      gender: values.gender,
+      streams: values.streams || [userData.streams],
+      streams_secondary: values.streams_secondary || [userData.streams_secondary],
+      // room_no: values.room_no || userData.roomNumber,
+    };
+
+    const { error: userError } = await supabase
+      .from('users')
+      .update({
+        details: updatedDetails,
+        additional_details: updatedAdditionalDetails,
+      })
+      .eq('id', session?.user?.id);
+
+    if (userError) {
+      console.log("Error updating users table:", userError.message);
+    } else {
+      setUserData({
+        name: user_name,
+        company: values.company || userData.company,
+        city: values.location || userData.city,
+        native: values.native || userData.native,
+        kovil: values.kovil || userData.kovil,
+        foodPreference: values.food || userData.foodPreference,
+        gender: values.gender || userData.gender,
+        streams: values.streams || userData.streams,
+        streams_secondary: values.streams_secondary || userData.streams_secondary,
+        roomNumber: values.room_no || userData.roomNumber,
+      });
+      setEdit(false);
+      message.success("Updated Sucessfully")
+    }
+    navigate(0);
+  };
+
+  const handleOk = () => setEdit(false);
+  const handleCancel = () => setEdit(false);
+
+  if (!userData) {
+    return <div>Loading...</div>; // Show loading state while fetching data
+  }
 
   return (
     <div className="ticket-page">
@@ -67,14 +198,15 @@ const TicketPage = () => {
         <div className="ticket-section user-section">
           <div className="color-overlay" style={{ backgroundColor: trackColor }}></div>
           <div className="profile-placeholder">
-            <img src={profileIcon} alt="Profile" className="profile-image" />
+            {/* <img src={profileIcon} alt="Profile" className="profile-image" />
             <div
               className="upload-button"
               onClick={() => alert('Add profile image')}
               style={{ cursor: 'pointer' }}
             >
               <PlusOutlined style={{ fontSize: '20px', color: '#fff' }} />
-            </div>
+            </div> */}
+            <ProfilePic />
           </div>
           <Title level={3} className="user-name">
             {userData.name}
@@ -84,10 +216,33 @@ const TicketPage = () => {
             {userData.native} --- {userData.kovil}
           </Text>
           <div style={{ marginTop: '20px' }}>
-            <h3>Track: {userData.track}</h3> {/* Using track directly */}
+            <h3>Track: {userData.streams}</h3> {/* Using streams directly */}
             <p>2 Nights @ Hilton (Double Sharing)</p>
             <p>Award Nights Party</p>
           </div>
+          {/* Edit Profile Button */}
+          {session?.user?.id && (
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => showModal(
+                {
+                  ...userData,
+                  firstName: userData.name.split(' ')[0],
+                  lastName: userData.name.split(' ').slice(1).join(' '),
+                  company: userData.company,
+                  location: userData.city,
+                  food: userData.foodPreference,
+                  streams: userData.streams,
+                  streams_secondary: userData.streams_secondary,
+                  room_no: userData.roomNumber,
+                },
+                'user_self_edit_form' // Adjust form name as per your setup
+              )}
+              style={{ marginTop: '10px' }}
+            >
+              Edit Profile
+            </Button>
+          )}
         </div>
 
         {/* Barcode Section */}
@@ -118,6 +273,23 @@ const TicketPage = () => {
           </Row>
         </div>
       </div>
+
+      {/* Drawer for Editing Profile */}
+      {edit && schema && (
+        <Drawer
+          title={schema?.data_schema?.title || "Edit Profile"}
+          open={edit}
+          onOk={handleOk}
+          onClose={handleCancel}
+          width={"50%"}
+        >
+          <DynamicForm
+            schemas={schema}
+            formData={formData}
+            onFinish={onFinish}
+          />
+        </Drawer>
+      )}
     </div>
   );
 };

@@ -299,10 +299,15 @@ export const protectedRoutes = (feature, module_features) => {
             component: React.lazy(() => import('views/pages/Live')),
         },
         {
-            key: 'conf',
-            path: `${APP_PREFIX_PATH}/conf`,
-            component: React.lazy(() => import('views/pages/Conference')),
+            key: 'pass',
+            path: `${APP_PREFIX_PATH}/pass`,
+            component: React.lazy(() => import('views/pages/ib/Ticket')),
         },
+        // {
+        //     key: 'conf',
+        //     path: `${APP_PREFIX_PATH}/conf`,
+        //     component: React.lazy(() => import('views/pages/Conference')),
+        // },
 
         // // module_features?.dynamicViews && feature?.dynamicViews && {
         // module_features?.a && feature?.rnd && {

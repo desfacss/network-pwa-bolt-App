@@ -90,34 +90,109 @@ const Profile = () => {
 
     const showModal = async (data, formName, id) => {
         getForms(formName);
-        setFormData(data);
+        setFormData({ ...data, name: data.user_name });
         id && setUpdateId(id);
         setEdit(true);
     };
 
+    // const onFinish = async (values) => {
+    //     const user_name = values?.firstName + " " + values?.lastName;
+
+    //     const { data: userData, error: userError } = await supabase
+    //         .from('users')
+    //         .update({
+    //             role_type: values?.role_type,
+    //             user_name: user_name,
+    //             details: { ...values, user_name: user_name },
+    //         })
+    //         .eq('id', session?.user?.id);
+
+    //     if (userError) {
+    //         console.log("Error updating users table:", userError.message);
+    //         return;
+    //     }
+
+    //     const { data: memberData, error: memberError } = await supabase
+    //         .from('ib_members')
+    //         .update({
+    //             user_id: session?.user?.id,
+    //             short_name: user_name,
+    //             details: { ...values, user_name: user_name },
+    //         })
+    //         .eq('user_id', session?.user?.id);
+
+    //     if (memberError) {
+    //         console.log("Error updating ib_members table:", memberError.message);
+    //     }
+
+    //     setEdit(false);
+    //     navigate(0);
+    // };
+
     const onFinish = async (values) => {
         const user_name = values?.firstName + " " + values?.lastName;
 
-        const { data: userData, error: userError } = await supabase
+        // Prepare updated details object
+        const updatedDetails = {
+            ...userData?.details, // Preserve existing fields not in the form
+            user_name,
+            native: values.native || userData?.details?.native,
+            kovil: values.kovil || userData?.details?.kovil,
+            location: values.location || userData?.details?.location,
+            orgName: values.orgName || userData?.details?.orgName,
+            firstName: values.firstName || userData?.details?.firstName,
+            lastName: values.lastName || userData?.details?.lastName,
+
+            intro: values.intro,
+            membership_type: values.membership_type,
+            email: values.email,
+            mobile: values.mobile,
+            address: values.address,
+            web: values.web,
+            twitter: values.twitter,
+            linkedin: values.linkedin,
+            facebook: values.facebook,
+            instagram: values.instagram,
+            company: values.company,
+            user_name,
+            // Add other fields from details if needed
+        };
+
+        // Prepare updated additional_details object
+        const updatedAdditionalDetails = {
+            ...userData?.additional_details, // Preserve existing fields not in the form
+            food: values.food || userData?.additional_details?.food,
+            gender: values.gender || userData?.additional_details?.gender,
+            streams: values.streams || userData?.additional_details?.streams || [userData?.additional_details?.streams?.[0]],
+            room_no: values.room_no || userData?.additional_details?.room_no,
+            // Add other fields from additional_details if needed
+        };
+
+        // Update the users table
+        const { data: updatedUserData, error: userError } = await supabase
             .from('users')
             .update({
-                role_type: values?.role_type,
+                role_type: values?.role_type || userData?.role_type, // Preserve role_type if not in form
                 user_name: user_name,
-                details: { ...values, user_name: user_name },
+                details: updatedDetails,
+                additional_details: updatedAdditionalDetails,
             })
-            .eq('id', session?.user?.id);
+            .eq('id', session?.user?.id)
+            .select()
+            .single();
 
         if (userError) {
             console.log("Error updating users table:", userError.message);
             return;
         }
 
+        // Update ib_members table (similar to TicketPage)
         const { data: memberData, error: memberError } = await supabase
             .from('ib_members')
             .update({
                 user_id: session?.user?.id,
                 short_name: user_name,
-                details: { ...values, user_name: user_name },
+                details: { ...values, user_name: user_name }, // Using form values directly as in original
             })
             .eq('user_id', session?.user?.id);
 
@@ -125,8 +200,10 @@ const Profile = () => {
             console.log("Error updating ib_members table:", memberError.message);
         }
 
+        // Update local state with new data
+        setUserData(updatedUserData);
         setEdit(false);
-        navigate(0);
+        navigate(0); // Refresh the page as in original
     };
 
     const handleOk = () => setEdit(false);
@@ -395,7 +472,7 @@ const Profile = () => {
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px' }}>
                                 <Button className='mr-2'
                                     icon={details ? <EditOutlined /> : <PlusOutlined />}
-                                    onClick={(e) => showModal(details, 'user_self_edit_form')}
+                                    onClick={(e) => showModal({ ...details, ...userData?.additional_details }, 'user_self_edit_form')}
                                 // style={{ marginTop: '8px' }}
                                 >
                                     Edit Profile

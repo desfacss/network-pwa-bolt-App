@@ -41,6 +41,14 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
+      {
+        key: 'pass',
+        path: `${APP_PREFIX_PATH}/pass`,
+        title: 'Event Pass',
+        icon: DashboardOutlined,
+        breadcrumb: false,
+        submenu: [],
+      },
       // module_features?.ibIdeas && feature?.ibIdeas && {
       //   key: 'process',
       //   path: `${APP_PREFIX_PATH}/process`,

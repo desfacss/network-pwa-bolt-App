@@ -350,7 +350,7 @@ export const LoginForm = (props) => {
       <Button type="primary" block onClick={checkReferral}>
         Check Registration
       </Button> */}
-      {referralExists === true && (
+      {/* {referralExists === true && (
         <Button
           icon={<GoogleOutlined />}
           block
@@ -359,7 +359,7 @@ export const LoginForm = (props) => {
         >
           Sign in with Google (Referral)
         </Button>
-      )}
+      )} */}
     </Form>
   );
 };

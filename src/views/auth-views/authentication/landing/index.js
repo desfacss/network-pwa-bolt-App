@@ -205,7 +205,7 @@ const IntroScreen = () => {
         "Support collaboration and business growth through networking."
       ]
     }
-];
+  ];
 
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
@@ -220,29 +220,29 @@ const IntroScreen = () => {
     const shapeCount = getRandom(3, 4); // Randomly choose between 3 or 4 shapes
 
     for (let i = 0; i < shapeCount; i++) {
-        const size = getRandom(70, 110); // Random size between 50px and 120px
-        const rotate = `${getRandom(0, 360)}deg`; // Random rotation
-        const lightness = getRandom(60, 85); // Random lightness for HSL color
-        const bgColor = `hsl(${(hash + i * 40) % 360}, 70%, ${lightness}%)`; // Vary color slightly
-        const bottom = getRandom(100, 400); // Random vertical position
-        const right = getRandom(20, 300); // Random horizontal position
+      const size = getRandom(70, 110); // Random size between 50px and 120px
+      const rotate = `${getRandom(0, 360)}deg`; // Random rotation
+      const lightness = getRandom(60, 85); // Random lightness for HSL color
+      const bgColor = `hsl(${(hash + i * 40) % 360}, 70%, ${lightness}%)`; // Vary color slightly
+      const bottom = getRandom(100, 400); // Random vertical position
+      const right = getRandom(20, 300); // Random horizontal position
 
-        shapes.push({
-            width: `${size}px`,
-            height: `${size}px`,
-            backgroundColor: bgColor,
-            position: 'absolute',
-            bottom: `${bottom}px`, // Random Y position
-            right: `${right}px`, // Random X position
-            borderRadius: '50% 0',
-            transform: `rotate(${rotate})`,
-            opacity: getRandom(40, 70) / 100, // Random opacity between 0.4 and 0.7
-            zIndex: getRandom(50, 100) // Random z-index to mix layering
-        });
+      shapes.push({
+        width: `${size}px`,
+        height: `${size}px`,
+        backgroundColor: bgColor,
+        position: 'absolute',
+        bottom: `${bottom}px`, // Random Y position
+        right: `${right}px`, // Random X position
+        borderRadius: '50% 0',
+        transform: `rotate(${rotate})`,
+        opacity: getRandom(40, 70) / 100, // Random opacity between 0.4 and 0.7
+        zIndex: getRandom(50, 100) // Random z-index to mix layering
+      });
     }
 
     return shapes;
-};
+  };
 
   useEffect(() => {
     setAutoPlay(true);
@@ -333,8 +333,8 @@ const IntroScreen = () => {
 
       <div style={{ padding: '20px', margin: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '10px' }}>
-          <Button mb-20 type="primary" block onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}>Register</Button>
-          <Button mb-20 type="ghost" block onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}>Login</Button>
+          {/* <Button mb-20 type="primary" block onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}>Register</Button> */}
+          <Button mb-20 type="ghost" block onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}>Continue</Button>
         </div>
         {/* <Button type='primary' block onClick={showDrawer}>Anonymous Survey</Button> */}
       </div>
