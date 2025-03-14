@@ -598,7 +598,7 @@ const Schedule = () => {
           </Carousel>
         </Card>
 
-        {/* Streams Carousel (Responsive with fixed card width) */}
+        {/* Streams Carousel (Responsive with fixed card width)
          <Card style={{ marginBottom: '20px' }}>
            <h2>Parallel Streams</h2>
           <Carousel
@@ -651,7 +651,7 @@ const Schedule = () => {
               </div>
             ))}
           </Carousel>
-        </Card>
+        </Card> */}
 
        
 
