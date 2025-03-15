@@ -281,7 +281,7 @@ const TicketPage = () => {
           open={edit}
           onOk={handleOk}
           onClose={handleCancel}
-          width={"50%"}
+          width={"90%"}
         >
           <DynamicForm
             schemas={schema}
@@ -289,6 +289,7 @@ const TicketPage = () => {
             onFinish={onFinish}
           />
         </Drawer>
+        
       )}
     </div>
   );
