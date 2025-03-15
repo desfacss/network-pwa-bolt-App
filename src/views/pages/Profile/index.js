@@ -484,7 +484,7 @@ const Profile = () => {
                 </div>
 
                 {/* Tabs */}
-                <Tabs defaultActiveKey={dynamicTabs[0]?.key || 'businesses'} items={tabItems} />
+                <Tabs defaultActiveKey={dynamicTabs[0]?.key || 'info'} items={tabItems} />
             </Card>
 
             {/* Drawer for Editing Profile */}

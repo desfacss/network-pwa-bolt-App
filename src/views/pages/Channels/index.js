@@ -27,6 +27,8 @@ const Channels = ({ isPrivate = false }) => {
   const [isChannelsDrawerVisible, setIsChannelsDrawerVisible] = useState(false);
   const [isMessageDrawerVisible, setIsMessageDrawerVisible] = useState(false);
   const [userNames, setUserNames] = useState({});
+  const [searchText, setSearchText] = useState('');
+
   const { session } = useSelector((state) => state.auth);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
@@ -151,9 +153,9 @@ const Channels = ({ isPrivate = false }) => {
     const isSubscribed = session?.user?.subscriptions?.channels?.includes(channel.id);
 
     if (channel.is_public) {
-      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} />;
+      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} searchText={searchText} />;
     } else if (isSubscribed || session.user.id === channel.created_by || session.user.role_type === 'superadmin') {
-      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} />;
+      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} searchText={searchText} />;
     } else if ((channel?.join_requests || [])?.includes(session.user.id)) {
       return <>Requested to Join</>;
     } else {
@@ -232,15 +234,15 @@ const Channels = ({ isPrivate = false }) => {
     <div style={{ padding: 0 }}>
       <Card style={{ width: '100%' }}>
         {/* Top Row: Channel Name and Channels Button */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
           marginBottom: 16,
           flexWrap: 'wrap'
         }}>
-          <h3 style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {!isPrivate && (<h3 style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {activeChannel ? activeChannel.slug : 'Select a Channel'}
-          </h3>
+          </h3>)}
           {!isPrivate && (
             <Button
               icon={<MenuOutlined />}
@@ -254,24 +256,30 @@ const Channels = ({ isPrivate = false }) => {
 
         {/* Search and Post Message Row */}
         {!isPrivate && (
-          <div style={{ 
-            display: 'flex', 
-            gap: 8, 
+          <div style={{
+            display: 'flex',
+            gap: 8,
             marginBottom: 16,
             flexWrap: 'wrap'
           }}>
-            <Input
+            {/* <Input
               placeholder="Search messages"
               prefix={<SearchOutlined />}
               style={{ flex: 1, minWidth: 0 }}
+            /> */}
+            <Input
+              placeholder="Search by user name, message or tag"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ borderColor: '#ccceee', color: '#333333', flex: 1, minWidth: 0 }}
             />
-            <Button
+            {/* <Button
               type="primary"
               onClick={() => setIsMessageDrawerVisible(true)}
               style={{ minWidth: 200 }}
             >
               Post Message
-            </Button>
+            </Button> */}
           </div>
         )}
 

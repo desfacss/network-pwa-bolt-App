@@ -37,7 +37,7 @@ const buildTagHierarchy = async () => {
   return rootCategories.map(convertToCascaderFormat);
 };
 
-const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
+export const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
   const [tagHierarchy, setTagHierarchy] = useState([]);
   const [idToNameMap, setIdToNameMap] = useState(new Map());
 
@@ -63,8 +63,8 @@ const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
   };
 
   return (
-    <Form form={form} onFinish={onSubmit} layout="vertical">
-      <div style={{ background: '#ccceee', borderRadius: 4, border: '1px solid #ccceee', padding: 8 }}>
+    <Form form={form} onFinish={onSubmit} layout="vertical" style={{ width: '100%' }}>
+      <div style={{ background: '#ccceee', borderRadius: 4, border: '1px solid #ccceee', padding: 8, width: '100%' }}>
         <Flex gap={8} align="center">
           <Form.Item
             name="message"
@@ -106,12 +106,12 @@ const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
   );
 };
 
-const ForumComment = ({ channel_id, isPrivate = false }) => {
+const ForumComment = ({ channel_id, isPrivate = false, searchText = '' }) => {
   const [form] = Form.useForm();
   const [tags, setTags] = useState([]);
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
-  const [searchText, setSearchText] = useState('');
+  // const [searchText, setSearchText] = useState('');
   const [editingMessage, setEditingMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [idToNameMap, setIdToNameMap] = useState(new Map());
@@ -271,17 +271,17 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
   return (
     <div className="forum-container">
       {!isPrivate && (
-        <ConfigProvider theme={{ 
+        <ConfigProvider theme={{
           algorithm: theme.defaultAlgorithm,
           token: { colorBorder: '#ccceee', borderRadius: 4, fontFamily: 'Inter, sans-serif' }
         }}>
           <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} isSubmitting={isSubmitting} />
-          <Input
+          {/* <Input
             placeholder="Search by user name, message or tag"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ borderColor: '#ccceee', color: '#333333', margin: '16px 0' }}
-          />
+          /> */}
         </ConfigProvider>
       )}
 
