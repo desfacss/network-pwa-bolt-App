@@ -1360,13 +1360,40 @@ const Schedule = () => {
       }}
     >
       {/* Background Cover - Mobile First */}
-      <div
+      {/* <div
         style={{
           height: '50vh',
           minHeight: '200px',
           backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
           backgroundSize: 'cover',
           backgroundPosition: 'top center', // Adjusted for mobile to focus on top center
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      > */}
+        {/* Gradient Overlay */}
+        {/* <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)', // Lighter gradient for mobile
+          }}
+        /> */}
+
+        {/* Background Cover - Mobile First */}
+      <div
+        style={{
+          height: '50vh',
+          minHeight: '200px',
+          backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'top center',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -1382,9 +1409,10 @@ const Schedule = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)', // Lighter gradient for mobile
+            background: 'linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)', // Gradient only at bottom
           }}
         />
+
         {/* Event Header */}
         <h1
           style={{
@@ -1488,10 +1516,18 @@ const Schedule = () => {
               style={{ display: 'flex', justifyContent: 'center' }}
             >
               <img
-                src={src}
+                src={`${process.env.PUBLIC_URL}${src}`} // Ensure absolute path for mobile
                 alt={`Platinum Sponsor ${index + 1}`}
-                style={{ maxWidth: '100px', height: 'auto', objectFit: 'contain' }}
-                onError={(e) => (e.target.style.display = 'none')}
+                style={{ 
+                  maxWidth: '100px', 
+                  height: 'auto', 
+                  objectFit: 'contain',
+                  display: 'block', // Ensure visibility on mobile
+                }}
+                onError={(e) => {
+                  console.log(`Failed to load Platinum Sponsor image: ${src}`);
+                  e.target.style.display = 'none';
+                }}
               />
             </Col>
           ))}
@@ -1511,10 +1547,18 @@ const Schedule = () => {
               style={{ display: 'flex', justifyContent: 'center' }}
             >
               <img
-                src={src}
+                src={`${process.env.PUBLIC_URL}${src}`} // Ensure absolute path for mobile
                 alt={`Gold Sponsor ${index + 1}`}
-                style={{ maxWidth: '100px', height: 'auto', objectFit: 'contain' }}
-                onError={(e) => (e.target.style.display = 'none')}
+                style={{ 
+                  maxWidth: '100px', 
+                  height: 'auto', 
+                  objectFit: 'contain',
+                  display: 'block', // Ensure visibility on mobile
+                }}
+                onError={(e) => {
+                  console.log(`Failed to load Gold Sponsor image: ${src}`);
+                  e.target.style.display = 'none';
+                }}
               />
             </Col>
           ))}
@@ -1539,6 +1583,17 @@ const Schedule = () => {
 
       {/* Inline CSS for Media Queries */}
       <style jsx>{`
+        /* Mobile devices (up to 767px) */
+        @media (max-width: 767px) {
+          div[style*="background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)"] {
+            background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%) !important;
+          }
+          img[style*="max-width: 100px"] {
+            max-width: 80px !important; // Slightly smaller for mobile, but ensure visibility
+            display: block !important; // Force display on mobile
+            margin: 0 auto; // Center align
+          }
+        }
         /* Tablet (iPad) and larger */
         @media (min-width: 768px) {
           .ant-carousel .slick-slide {
@@ -1546,10 +1601,10 @@ const Schedule = () => {
           }
           div[style*="height: 50vh"] {
             height: 60vh;
-            background-position: center !important; // Revert to center for larger screens
+            background-position: center !important;
           }
-          div[style*="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)"] {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%) !important; // Original gradient for larger screens
+          div[style*="background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)"] {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%) !important;
           }
           h1 {
             font-size: 2rem !important;
