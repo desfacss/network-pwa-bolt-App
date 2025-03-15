@@ -283,11 +283,12 @@ export const LoginForm = (props) => {
 
     if (error || !data || data?.email) {
       setReferralExists(false);
-      notification.error({ message: "No referral found for this mobile number" });
+      notification.error({ message: "Registration information for this Mobile number is not available, Please register fresh or login if you have already registered... " });
+      // No referral found for this mobile number
       navigate(`${APP_PREFIX_PATH}/register`);
     } else {
       setReferralExists(true);
-      notification.success({ message: "Referral found! Please sign in with Google." });
+      notification.success({ message: "Registration information for this Mobile number is available! You can sign in with Google or email & password" });
     }
   };
 
@@ -317,7 +318,7 @@ export const LoginForm = (props) => {
           Sign in with Google (Referral)
         </Button>
       )}
-      <Divider>Or</Divider>
+      <Divider>Or Login</Divider>
       <Form.Item name="email" label="Email" rules={[{ required: true, type: "email" }]}>
         <Input prefix={<MailOutlined />} />
       </Form.Item>
