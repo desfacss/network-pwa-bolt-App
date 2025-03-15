@@ -889,9 +889,9 @@ const Profile = () => {
                 style={{
                     height: '50vh',
                     minHeight: '200px',
-                    backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`, // Updated to match Schedule
+                    backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                    backgroundPosition: 'top center', // Adjusted for mobile to focus on top center
                     position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
@@ -907,7 +907,7 @@ const Profile = () => {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%)',
+                        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)', // Lighter gradient for mobile
                     }}
                 />
                 {/* User Name */}
@@ -998,6 +998,10 @@ const Profile = () => {
                 @media (min-width: 768px) {
                     div[style*="height: 50vh"] {
                         height: 60vh;
+                        background-position: center !important; // Revert to center for larger screens
+                    }
+                    div[style*="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)"] {
+                        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%) !important; // Original gradient for larger screens
                     }
                     h1 {
                         font-size: 2rem !important;

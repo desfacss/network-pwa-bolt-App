@@ -1005,6 +1005,305 @@
 
 
 
+// import { Card, Col, Row, Carousel } from 'antd';
+// import {
+//   HomeOutlined,
+//   MedicineBoxOutlined,
+//   BankOutlined,
+//   ShopOutlined,
+//   LaptopOutlined,
+//   AccountBookFilled,
+//   RocketOutlined,
+// } from '@ant-design/icons';
+// import React from 'react';
+
+// const Schedule = () => {
+//   // Stream data with corresponding icons
+//   const streams = [
+//     { name: 'Real Estate & Construction', icon: <HomeOutlined /> },
+//     { name: 'Pharma & Healthcare', icon: <MedicineBoxOutlined /> },
+//     { name: 'Finance & Fintech', icon: <BankOutlined /> },
+//     { name: 'Nagarathar Enterprises', icon: <ShopOutlined /> },
+//     { name: 'IT & Electronics', icon: <LaptopOutlined /> },
+//     { name: 'Industries & Edutech', icon: <AccountBookFilled /> },
+//     { name: 'Aspiring Entrepreneurs', icon: <RocketOutlined /> },
+//   ];
+
+//   // Group streams into sets of 4 for each carousel slide
+//   const groupedStreams = [];
+//   for (let i = 0; i < streams.length; i += 4) {
+//     groupedStreams.push(streams.slice(i, i + 4));
+//   }
+
+//   // Sponsor images with specific file paths
+//   const platinumSponsors = [
+//     '/img/sponsors/platinum/1.png',
+//     '/img/sponsors/platinum/2.png',
+//     '/img/sponsors/platinum/3.png',
+//   ];
+//   const goldSponsors = [
+//     '/img/sponsors/gold/2.png',
+//     '/img/sponsors/gold/3.png',
+//     '/img/sponsors/gold/4.png',
+//     '/img/sponsors/gold/5.png',
+//     '/img/sponsors/gold/6.png',
+//     '/img/sponsors/gold/7.png',
+//     '/img/sponsors/gold/8.png',
+//   ];
+
+//   return (
+//     <div
+//       style={{
+//         position: 'relative',
+//         minHeight: '100vh',
+//         backgroundColor: '#f5f8fa',
+//         fontFamily: 'Arial, sans-serif',
+//       }}
+//     >
+//       {/* Background Cover - Mobile First */}
+//       <div
+//         style={{
+//           height: '50vh',
+//           minHeight: '200px',
+//           backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
+//           backgroundSize: 'cover',
+//           backgroundPosition: 'center',
+//           position: 'relative',
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: 'center',
+//           width: '100%',
+//         }}
+//       >
+//         {/* Gradient Overlay */}
+//         <div
+//           style={{
+//             position: 'absolute',
+//             top: 0,
+//             left: 0,
+//             right: 0,
+//             bottom: 0,
+//             background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%)',
+//           }}
+//         />
+//         {/* Event Header */}
+//         <h1
+//           style={{
+//             textAlign: 'center',
+//             fontSize: '1.5rem',
+//             color: '#fff',
+//             zIndex: 1,
+//             padding: '0 15px',
+//             lineHeight: '1.2',
+//           }}
+//         >
+//           IBCN 2025 Bengaluru
+//         </h1>
+//       </div>
+
+//       {/* Content Section */}
+//       <div
+//         style={{
+//           position: 'relative',
+//           top: '-100px',
+//           padding: '15px',
+//           maxWidth: '1200px',
+//           margin: '0 auto',
+//           zIndex: 2,
+//         }}
+//       >
+//         {/* Event Dates and Venue */}
+//         <Card style={{ marginBottom: '15px', textAlign: 'center' }}>
+//           <h2 style={{ fontSize: '1.2rem' }}>Event Dates & Venue</h2>
+//           <p style={{ fontSize: '1rem' }}>
+//             <strong>Dates:</strong> 11, 12, 13 July 2025
+//           </p>
+//           <p style={{ fontSize: '1rem' }}>
+//             <strong>Venue:</strong> Hilton Bengaluru, Embassy Manyata Business Park
+//           </p>
+//         </Card>
+
+//         {/* Overall Schedule */}
+//         <Card style={{ marginBottom: '15px' }}>
+//           <h2 style={{ fontSize: '1.2rem' }}>Schedule</h2>
+//           <p style={{ fontStyle: 'italic', fontSize: '1rem' }}>Coming Soon</p>
+//         </Card>
+
+//         {/* Key Speakers */}
+//         <Card style={{ marginBottom: '15px' }}>
+//           <h2 style={{ fontSize: '1.2rem' }}>Key Speakers</h2>
+//           <p style={{ fontStyle: 'italic', fontSize: '1rem' }}>Coming Soon</p>
+//         </Card>
+
+//         {/* Streams Carousel */}
+//         <Card style={{ marginBottom: '15px' }}>
+//           <h2 style={{ fontSize: '1.2rem' }}>Parallel Streams</h2>
+//           <Carousel
+//             autoplay
+//             dots={{ className: 'carousel-dots' }}
+//             style={{ padding: '15px' }}
+//           >
+//             {groupedStreams.map((group, groupIndex) => (
+//               <div key={groupIndex}>
+//                 <Row gutter={[8, 8]} justify="center">
+//                   {group.map((stream, index) => (
+//                     <Col xs={24} sm={12} md={6} key={index}>
+//                       <Card
+//                         hoverable
+//                         style={{
+//                           textAlign: 'center',
+//                           background: '#f0f2f5',
+//                           height: '120px',
+//                           display: 'flex',
+//                           flexDirection: 'column',
+//                           justifyContent: 'center',
+//                           alignItems: 'center',
+//                         }}
+//                       >
+//                         <div style={{ fontSize: '1.5em', marginBottom: '8px' }}>
+//                           {stream.icon}
+//                         </div>
+//                         <p style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+//                           {stream.name}
+//                         </p>
+//                       </Card>
+//                     </Col>
+//                   ))}
+//                 </Row>
+//               </div>
+//             ))}
+//           </Carousel>
+//         </Card>
+
+//         {/* Platinum Sponsors */}
+//         <h3 style={{ textAlign: 'center', marginBottom: '10px', fontSize: '1.2rem' }}>
+//           Platinum Sponsors
+//         </h3>
+//         <Row gutter={[8, 8]} justify="center" style={{ marginBottom: '15px' }}>
+//           {platinumSponsors.map((src, index) => (
+//             <Col
+//               xs={12}
+//               sm={8}
+//               md={4}
+//               key={index}
+//               style={{ display: 'flex', justifyContent: 'center' }}
+//             >
+//               <img
+//                 src={src}
+//                 alt={`Platinum Sponsor ${index + 1}`}
+//                 style={{ maxWidth: '100px', height: 'auto', objectFit: 'contain' }}
+//                 onError={(e) => (e.target.style.display = 'none')}
+//               />
+//             </Col>
+//           ))}
+//         </Row>
+
+//         {/* Gold Sponsors */}
+//         <h3 style={{ textAlign: 'center', marginBottom: '10px', fontSize: '1.2rem' }}>
+//           Gold Sponsors
+//         </h3>
+//         <Row gutter={[8, 8]} justify="center">
+//           {goldSponsors.map((src, index) => (
+//             <Col
+//               xs={12}
+//               sm={8}
+//               md={4}
+//               key={index}
+//               style={{ display: 'flex', justifyContent: 'center' }}
+//             >
+//               <img
+//                 src={src}
+//                 alt={`Gold Sponsor ${index + 1}`}
+//                 style={{ maxWidth: '100px', height: 'auto', objectFit: 'contain' }}
+//                 onError={(e) => (e.target.style.display = 'none')}
+//               />
+//             </Col>
+//           ))}
+//         </Row>
+
+//         {/* Footer Link */}
+//         <p
+//           style={{
+//             textAlign: 'center',
+//             fontSize: '0.85rem',
+//             color: '#888',
+//             marginTop: '15px',
+//           }}
+//         >
+//           Visit{' '}
+//           <a href="https://www.ibcn2025.com" target="_blank" rel="noopener noreferrer">
+//             www.ibcn2025.com
+//           </a>{' '}
+//           for more details.
+//         </p>
+//       </div>
+
+//       {/* Inline CSS for Media Queries */}
+//       <style jsx>{`
+//         /* Tablet (iPad) and larger */
+//         @media (min-width: 768px) {
+//           .ant-carousel .slick-slide {
+//             height: auto !important;
+//           }
+//           div[style*="height: 50vh"] {
+//             height: 60vh;
+//           }
+//           h1 {
+//             font-size: 2rem !important;
+//           }
+//           div[style*="top: -100px"] {
+//             top: -150px;
+//           }
+//           div[style*="padding: 15px"] {
+//             padding: 20px;
+//           }
+//           h2 {
+//             font-size: 1.5rem !important;
+//           }
+//           p {
+//             font-size: 1.1rem !important;
+//           }
+//           div[style*="height: 120px"] {
+//             height: 150px !important;
+//           }
+//           div[style*="font-size: 1.5em"] {
+//             font-size: 2em !important;
+//           }
+//           p[style*="font-size: 0.9rem"] {
+//             font-size: 1rem !important;
+//           }
+//           img {
+//             max-width: 150px !important;
+//           }
+//         }
+
+//         /* Desktop */
+//         @media (min-width: 992px) {
+//           div[style*="height: 50vh"] {
+//             height: 70vh;
+//             max-height: 500px;
+//           }
+//           h1 {
+//             font-size: 2.5rem !important;
+//           }
+//           div[style*="top: -100px"] {
+//             top: -180px;
+//           }
+//           h2 {
+//             font-size: 1.7rem !important;
+//           }
+//           p {
+//             font-size: 1.2rem !important;
+//           }
+//         }
+//       `}</style>
+//     </div>
+//   );
+// };
+
+// export default Schedule;
+
+
 import { Card, Col, Row, Carousel } from 'antd';
 import {
   HomeOutlined,
@@ -1042,7 +1341,6 @@ const Schedule = () => {
     '/img/sponsors/platinum/3.png',
   ];
   const goldSponsors = [
-    '/img/sponsors/gold/1.png',
     '/img/sponsors/gold/2.png',
     '/img/sponsors/gold/3.png',
     '/img/sponsors/gold/4.png',
@@ -1068,7 +1366,7 @@ const Schedule = () => {
           minHeight: '200px',
           backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'top center', // Adjusted for mobile to focus on top center
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -1084,7 +1382,7 @@ const Schedule = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%)',
+            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)', // Lighter gradient for mobile
           }}
         />
         {/* Event Header */}
@@ -1248,6 +1546,10 @@ const Schedule = () => {
           }
           div[style*="height: 50vh"] {
             height: 60vh;
+            background-position: center !important; // Revert to center for larger screens
+          }
+          div[style*="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)"] {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%) !important; // Original gradient for larger screens
           }
           h1 {
             font-size: 2rem !important;
@@ -1259,7 +1561,7 @@ const Schedule = () => {
             padding: 20px;
           }
           h2 {
-            font-size: 1.5rem !important;
+            fontSize: 1.5rem !important;
           }
           p {
             font-size: 1.1rem !important;
