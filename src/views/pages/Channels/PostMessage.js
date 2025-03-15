@@ -24,10 +24,10 @@ const NewPostForm = ({ form, onSubmit, isSubmitting }) => {
             }}
         >
             <div style={{
-                background: '#ccceee',
+                background: '#D3E0EA',
                 borderRadius: 4,
                 overflow: 'hidden',
-                border: '1px solid #D8BFD8',
+                border: '1px solid #ECF4FB',
             }}>
                 <div style={{ padding: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Form.Item
@@ -38,15 +38,15 @@ const NewPostForm = ({ form, onSubmit, isSubmitting }) => {
                         <Mentions
                             rows={2}
                             prefix={['@']}
-                            placeholder="Write your message (use @ to mention users)"
+                            placeholder="Write your message"
                             style={{
                                 border: 'none',
                                 padding: 0,
                                 '::-webkit-scrollbar': { width: '4px' },
-                                '::-webkit-scrollbar-track': { background: '#ccceee', borderRadius: '2px' },
-                                '::-webkit-scrollbar-thumb': { background: '#D8BFD8', borderRadius: '2px' },
+                                '::-webkit-scrollbar-track': { background: '#D3E0EA', borderRadius: '2px' },
+                                '::-webkit-scrollbar-thumb': { background: '#ECF4FB', borderRadius: '2px' },
                                 scrollbarWidth: 'thin',
-                                scrollbarColor: '#D8BFD8 #ccceee',
+                                scrollbarColor: '#ECF4FB #D3E0EA',
                             }}
                         >
                             {mentionUsers.map((user) => (
@@ -64,7 +64,7 @@ const NewPostForm = ({ form, onSubmit, isSubmitting }) => {
                         loading={isSubmitting}
                         disabled={isSubmitting}
                         style={{
-                            background: '#9370DB',
+                            background: '#4A90E2',
                             border: 'none',
                             fontSize: 16,
                             padding: 8,
@@ -204,7 +204,7 @@ const PostMessage = ({ user_id, receiver_user_id, closeModal }) => {
                 theme={{
                     algorithm: theme.defaultAlgorithm,
                     token: {
-                        colorBorder: '#D8BFD8',
+                        colorBorder: '#ECF4FB',
                         borderRadius: 4,
                         fontFamily: 'Inter, sans-serif',
                     },

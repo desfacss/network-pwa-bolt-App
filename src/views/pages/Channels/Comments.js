@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 
 const { Option } = Mentions;
 
-
 // Function to fetch and build tag hierarchy
 const buildTagHierarchy = async () => {
     const { data, error } = await supabase
@@ -20,10 +19,8 @@ const buildTagHierarchy = async () => {
         return [];
     }
 
-    // Create a map for easy lookup of parent-child relationships
     const categoryMap = new Map(data.map(category => [category.id, { ...category, children: [] }]));
 
-    // Build the hierarchy
     const rootCategories = [];
     for (let category of data) {
         if (category.parent_category_id === null) {
@@ -33,7 +30,6 @@ const buildTagHierarchy = async () => {
         }
     }
 
-    // Convert to the format expected by Cascader
     const convertToCascaderFormat = (category) => ({
         value: category.id,
         label: category.category_name,
@@ -87,7 +83,7 @@ const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
                 background: '#ccceee',
                 borderRadius: 4,
                 overflow: 'hidden',
-                border: '1px solid #D8BFD8',
+                border: '1px solid #ccceee',
             }}>
                 <Flex gap={8} align="center" style={{ padding: 8, width: '100%' }}>
                     <Form.Item
@@ -98,15 +94,15 @@ const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
                         <Mentions
                             rows={2}
                             prefix={['@']}
-                            placeholder="Write your message (use @ to mention users)"
+                            placeholder="Write your message "
                             style={{
                                 border: 'none',
                                 padding: 0,
                                 '::-webkit-scrollbar': { width: '4px' },
                                 '::-webkit-scrollbar-track': { background: '#ccceee', borderRadius: '2px' },
-                                '::-webkit-scrollbar-thumb': { background: '#D8BFD8', borderRadius: '2px' },
+                                // '::-webkit-scrollbar-thumb': { background: '#333333', borderRadius: '2px' },
                                 scrollbarWidth: 'thin',
-                                scrollbarColor: '#D8BFD8 #ccceee',
+                                scrollbarColor: '#333333 #ccceee',
                             }}
                         >
                             {mentionUsers?.map((user) => (
@@ -124,7 +120,7 @@ const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
                         loading={isSubmitting}
                         disabled={isSubmitting}
                         style={{
-                            background: '#9370DB',
+                            background: '#333333',
                             border: 'none',
                             fontSize: 16,
                             padding: 8,
@@ -143,29 +139,12 @@ const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
                             width: '100%',
                             background: 'transparent',
                             border: 'none',
-                            color: '#4B0082',
+                            color: '#333333',
                             marginBottom: 4,
                         }}
                         showSearch
-                        dropdownStyle={{ background: '#ccceee', color: '#4B0082' }} // Light purple dropdown
+                        dropdownStyle={{ background: '#ccceee', color: '#333333' }}
                     />
-                    {/* {tags.map((tag) => (
-                        <Tag
-                            key={tag.id}
-                            closable
-                            onClose={() => setTags(tags.filter((t) => t.id !== tag.id))}
-                            style={{
-                                background: '#D8BFD8', // Light purple for tags
-                                color: '#4B0082',
-                                borderRadius: 2,
-                                marginBottom: 4,
-                                fontSize: 12, // Smaller text for compactness
-                            }}
-                            closeIcon={<CloseOutlined style={{ color: '#9370DB', fontSize: 10 }} />}
-                        >
-                            {tag.name}
-                        </Tag>
-                    ))} */}
                 </Flex>
             </div>
         </Form>
@@ -200,12 +179,10 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
             if (channel_id) {
                 let query = supabase
                     .from('channel_posts')
-                    // .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
                     .select('*, user:users!channel_posts_user_id_fkey(user_name), receiver:users!channel_posts_receiver_user_id_fkey(user_name), channel:channels(slug), reply_count:channel_post_messages(count)')
                     .eq('channel_id', channel_id);
 
                 if (isPrivate && session?.user?.id) {
-                    // query = query.eq('receiver_user_id', session.user.id);
                     query = query.or(`receiver_user_id.eq.${session.user.id},user_id.eq.${session.user.id}`);
                 }
 
@@ -220,18 +197,17 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                         const map = new Map();
                         function buildMap(categories) {
                             categories.forEach(cat => {
-                                map?.set(cat?.value, cat?.label);
-                                if (cat?.children) buildMap(cat?.children);
+                                map.set(cat.value, cat.label);
+                                if (cat.children) buildMap(cat.children);
                             });
                         }
                         buildMap(hierarchy);
                         setIdToNameMap(map);
                     }
-                    const processedData = data?.map(item => ({
+                    const processedData = data.map(item => ({
                         ...item,
-                        reply_count: item?.reply_count[0]?.count || 0,
+                        reply_count: item.reply_count[0]?.count || 0,
                     }));
-                    console.log("Posts", data, processedData)
                     setMessages(processedData || []);
                 }
             }
@@ -242,19 +218,19 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
 
     const handleSubmit = async (values) => {
         if (!session?.user?.id) return;
-        if (tags?.length < 2) return message.error("Enter Tags");;
+        if (tags.length < 2) return message.error("Enter Tags");
 
-        setIsSubmitting(true); // Start loading state
-        const firstTag = tags?.length > 0 ? tags[0] : null;
-        const otherTags = tags?.slice(1);
+        setIsSubmitting(true);
+        const firstTag = tags.length > 0 ? tags[0] : null;
+        const otherTags = tags.slice(1);
 
         const newMessage = {
             message: values.message,
-            user_id: session?.user?.id,
+            user_id: session.user.id,
             channel_id: channel_id,
             details: {
-                tags: otherTags?.map(tag => tag?.id),
-                category_id: firstTag?.id,
+                tags: otherTags.map(tag => tag.id),
+                category_id: firstTag.id,
             },
         };
 
@@ -285,34 +261,30 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                 const { data, error } = await supabase
                     .from('channel_posts')
                     .insert([newMessage]).select('*');
-                console.log("nwm", data)
+
                 if (error) {
                     console.error("Error inserting message:", error);
                 } else {
                     const { data: insertedMessage, error: insertError } = await supabase
                         .from('channel_posts')
-                        // .select('*, user:users!messages_user_id_fkey(user_name),channel:channels(slug),reply_count:channel_post_messages(count)')
                         .select('*, user:users!channel_posts_user_id_fkey(user_name), channel:channels(slug), reply_count:channel_post_messages(count)')
-                        // .select('*, user:users(user_name)')
                         .eq('id', data[0].id)
                         .single();
-                    console.log("nwm1", insertedMessage, insertError)
 
                     if (insertedMessage) {
-                        setMessages([{ ...insertedMessage, reply_count: insertedMessage?.reply_count[0]?.count || 0 }, ...messages]);
+                        setMessages([{ ...insertedMessage, reply_count: insertedMessage.reply_count[0]?.count || 0 }, ...messages]);
                     }
                 }
             }
 
-            // Reset form and state
             form.resetFields();
-            setTags([]); // Ensure tags are cleared
+            setTags([]);
             setEditingMessage(null);
         } catch (err) {
             console.error(err);
             message.error("An error occurred.");
         } finally {
-            setIsSubmitting(false); // End loading state
+            setIsSubmitting(false);
         }
     };
 
@@ -354,8 +326,8 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
             return messages.filter(message => {
                 const userName = message.user?.user_name?.toLowerCase() || '';
                 const messageContent = message.message?.toLowerCase() || '';
-                const tags = message.details?.tags?.map(tag => idToNameMap?.get(tag) || tag).join(' ').toLowerCase() || '';
-                const category = idToNameMap.get(message?.details?.category_id)?.toLowerCase() || message.details?.category_id?.toLowerCase() || '';
+                const tags = message.details?.tags?.map(tag => idToNameMap.get(tag) || tag).join(' ').toLowerCase() || '';
+                const category = idToNameMap.get(message.details.category_id)?.toLowerCase() || message.details.category_id?.toLowerCase() || '';
                 return userName.includes(lowerCaseSearchText) ||
                     messageContent.includes(lowerCaseSearchText) ||
                     tags.includes(lowerCaseSearchText) ||
@@ -386,7 +358,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                             theme={{
                                 algorithm: theme.defaultAlgorithm,
                                 token: {
-                                    colorBorder: '#D8BFD8',
+                                    colorBorder: '#ccceee',
                                     borderRadius: 4,
                                     fontFamily: 'Inter, sans-serif',
                                 },
@@ -399,11 +371,12 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                 placeholder="Search by user name, message or tag"
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
+                                style={{ borderColor: '#ccceee', color: '#333333' }}
                             />
                         </div>
                     </>
                 )}
-                {filteredMessages?.length > 0 ? (
+                {filteredMessages.length > 0 ? (
                     <List
                         dataSource={filteredMessages}
                         renderItem={(item) => (
@@ -411,11 +384,12 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                 style={{
                                     marginBottom: 16,
                                     borderRadius: 10,
-                                    background: '#fff',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                                    background: 'rgb(238, 241, 246)',
+                                    // boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                                    // #E6F7FF
                                     padding: '16px',
                                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                                    border: '1px solid #f0f0f0',
+                                    // border: '1px solid #ccceee',
                                 }}
                                 bodyStyle={{ padding: 0 }}
                                 hoverable
@@ -428,52 +402,54 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         marginBottom: 14,
                                     }}
                                 >
-                                    {!isPrivate && <div
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 8,
-                                        }}
-                                    >
+                                    {!isPrivate && (
                                         <div
                                             style={{
-                                                width: 28,
-                                                height: 28,
-                                                background: '#ccceee',
-                                                borderRadius: '50%',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontWeight: 700,
-                                                fontSize: 14,
-                                                color: '#9370DB',
-                                                cursor: 'pointer',
-                                                transition: 'background 0.2s ease',
+                                                gap: 8,
                                             }}
-                                            onClick={() => navigate(`/app/networking/${item.id}`)}
-                                            onMouseEnter={(e) => (e.currentTarget.style.background = '#D8BFD8')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.background = '#ccceee')}
                                         >
-                                            {item?.reply_count}
+                                            <div
+                                                style={{
+                                                    width: 40,
+                                                    height: 40,
+                                                    background: '#333333',
+                                                    borderRadius: '50%',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontWeight: 700,
+                                                    fontSize: 20,
+                                                    color: '#ffffff',
+                                                    cursor: 'pointer',
+                                                    transition: 'background 0.2s ease',
+                                                }}
+                                                onClick={() => navigate(`/app/networking/${item.id}`)}
+                                                onMouseEnter={(e) => (e.currentTarget.style.background = '#333333')}
+                                                onMouseLeave={(e) => (e.currentTarget.style.background = '#ccceee')}
+                                            >
+                                                {item.reply_count}
+                                            </div>
                                         </div>
-                                    </div>}
+                                    )}
                                     <div
                                         style={{
                                             flex: 1,
-                                            color: '#333',
-                                            fontSize: 14.5,
+                                            color: '#333333',
+                                            fontSize: 16,
                                             lineHeight: 1.5,
                                             wordBreak: 'break-word',
                                         }}
                                     >
-                                        {formatMessage(item?.message)}
+                                        {formatMessage(item.message)}
                                         <Button
                                             type="link"
-                                            onClick={() => navigate(`/app/networking/${item?.id}`)}
+                                            onClick={() => navigate(`/app/networking/${item.id}`)}
                                             style={{
-                                                padding: 0,
+                                                paddingLeft: 20, 
                                                 fontSize: 13,
-                                                color: '#9370DB',
+                                                color: '#333CCC',
                                                 fontWeight: 500,
                                                 height: 'auto',
                                                 lineHeight: 1,
@@ -489,7 +465,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
                                         paddingBottom: 10,
-                                        borderBottom: '1px solid #f5f5f5',
+                                        borderBottom: '1px solid #ccceee',
                                     }}
                                 >
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
@@ -497,14 +473,15 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                             <span
                                                 style={{
                                                     fontWeight: 600,
-                                                    color: '#333eee',
+                                                    color: '#333333',
                                                     fontSize: 15,
                                                 }}
                                             >
-                                                {isPrivate ?
-                                                    (item?.user_id === session?.user?.id ? (item?.receiver?.user_name) : (item?.user?.user_name)
-                                                    ) : (item?.user?.user_name)
-                                                }
+                                                {isPrivate
+                                                    ? item.user_id === session.user.id
+                                                        ? item.receiver?.user_name
+                                                        : item.user?.user_name
+                                                    : item.user?.user_name}
                                             </span>
                                         </div>
                                     </div>
@@ -519,58 +496,58 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                             padding: '0 10px',
                                         }}
                                     >
-                                        {item?.details?.category_id && (
+                                        {item.details.category_id && (
                                             <Tag
                                                 style={{
                                                     borderRadius: 12,
-                                                    background: '#ccceee',
-                                                    color: '#333eee',
+                                                    background: '#efefef',
+                                                    color: '#333333',
                                                     fontSize: 12,
                                                     padding: '2px 8px',
                                                     border: 'none',
                                                     fontWeight: 500,
                                                 }}
                                             >
-                                                {idToNameMap.get(item?.details?.category_id) || item?.details?.category_id}
+                                                {idToNameMap.get(item.details.category_id) || item.details.category_id}
                                             </Tag>
                                         )}
-                                        {item?.details?.tags?.map((tag) => (
+                                        {item.details.tags?.map((tag) => (
                                             <Tag
                                                 key={tag}
                                                 style={{
                                                     borderRadius: 12,
-                                                    background: '#ccceee',
-                                                    color: '#333eee',
+                                                    background: '#efefec',
+                                                    color: '#333333',
                                                     fontSize: 12,
                                                     padding: '2px 8px',
                                                     border: 'none',
                                                     fontWeight: 500,
                                                 }}
                                             >
-                                                {idToNameMap?.get(tag) || tag}
+                                                {idToNameMap.get(tag) || tag}
                                             </Tag>
                                         ))}
                                     </div>
                                     <span
                                         style={{
                                             fontSize: 12,
-                                            color: '#888',
+                                            color: '#333333',
                                             fontStyle: 'italic',
                                             whiteSpace: 'nowrap',
                                         }}
                                     >
-                                        {new Date(item?.inserted_at).toLocaleTimeString([], {
+                                        {new Date(item.inserted_at).toLocaleTimeString([], {
                                             hour: '2-digit',
                                             minute: '2-digit',
                                         })}{' '}
                                         ·{' '}
-                                        {new Date(item?.inserted_at).toLocaleDateString([], {
+                                        {new Date(item.inserted_at).toLocaleDateString([], {
                                             month: 'short',
                                             day: 'numeric',
                                         })}
                                     </span>
                                 </div>
-                                {(session?.user?.role_type === 'superadmin' || session?.user?.id === item.user_id) && (
+                                {(session.user.role_type === 'superadmin' || session.user.id === item.user_id) && (
                                     <div
                                         style={{
                                             position: 'absolute',
@@ -583,17 +560,17 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                         <EditOutlined
                                             style={{
                                                 cursor: 'pointer',
-                                                color: '#1890ff',
+                                                color: '#333333',
                                                 fontSize: 18,
                                                 transition: 'color 0.2s ease',
                                             }}
                                             onClick={() => handleEdit(item)}
-                                            onMouseEnter={(e) => (e.currentTarget.style.color = '#40a9ff')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.color = '#1890ff')}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ccceee')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = '#333333')}
                                         />
                                         <Popconfirm
                                             title="Are you sure to delete this message?"
-                                            onConfirm={() => handleDelete(item?.id)}
+                                            onConfirm={() => handleDelete(item.id)}
                                             okText="Yes"
                                             cancelText="No"
                                             placement="topRight"
@@ -601,12 +578,12 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                                             <DeleteOutlined
                                                 style={{
                                                     cursor: 'pointer',
-                                                    color: '#ff4d4f',
+                                                    color: '#333333',
                                                     fontSize: 18,
                                                     transition: 'color 0.2s ease',
                                                 }}
-                                                onMouseEnter={(e) => (e.currentTarget.style.color = '#ff7875')}
-                                                onMouseLeave={(e) => (e.currentTarget.style.color = '#ff4d4f')}
+                                                onMouseEnter={(e) => (e.currentTarget.style.color = '#ccceee')}
+                                                onMouseLeave={(e) => (e.currentTarget.style.color = '#333333')}
                                             />
                                         </Popconfirm>
                                     </div>
@@ -616,20 +593,20 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                     />
                 ) : (
                     <Empty
-                        image={<RocketOutlined style={{ fontSize: '48px', color: '#40a9ff' }} />}
+                        image={<RocketOutlined style={{ fontSize: '48px', color: '#333333' }} />}
                         imageStyle={{ height: 70 }}
                         description={
                             <>
-                                {isPrivate ?
+                                {isPrivate ? (
                                     <span>
-                                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>No Messages</span><br />
+                                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#333333' }}>No Messages</span><br />
                                     </span>
-                                    :
+                                ) : (
                                     <span>
-                                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>Welcome to the {messages[0]?.channel?.slug} Group!</span><br />
+                                        <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#333333' }}>Welcome to the {messages[0]?.channel?.slug} Group!</span><br />
                                         This space is ready for your team's conversations and updates. Start by sharing a message or even just a quick "hello!". Let's get this rolling!
                                     </span>
-                                }
+                                )}
                             </>
                         }
                     />
@@ -648,7 +625,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                 visible={isDrawerVisible}
                 style={{ padding: 0 }}
             >
-                <Card style={{ border: 'none', padding: 0 }}>
+                <Card style={{ border: 'none', padding: 0, background: '#ccceee' }}>
                     <Form form={form} onFinish={handleSubmit}>
                         <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} isSubmitting={isSubmitting} />
                     </Form>
