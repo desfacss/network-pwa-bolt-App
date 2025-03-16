@@ -1350,6 +1350,33 @@ const Schedule = () => {
     '/img/sponsors/gold/8.png',
   ];
 
+  // Carousel settings for sponsors
+  const sponsorCarouselSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4, // Default for desktop
+    slidesToScroll: 1, // Slide one at a time
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+      {
+        breakpoint: 767, // Mobile (up to 767px)
+        settings: {
+          slidesToShow: 2, // Show 2 logos on mobile
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768, // Tablet and above
+        settings: {
+          slidesToShow: 4, // Show 4 logos on desktop
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
+
   return (
     <div
       style={{
@@ -1360,40 +1387,13 @@ const Schedule = () => {
       }}
     >
       {/* Background Cover - Mobile First */}
-      {/* <div
-        style={{
-          height: '50vh',
-          minHeight: '200px',
-          backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'top center', // Adjusted for mobile to focus on top center
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-        }}
-      > */}
-        {/* Gradient Overlay */}
-        {/* <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)', // Lighter gradient for mobile
-          }}
-        /> */}
-
-        {/* Background Cover - Mobile First */}
       <div
         style={{
-          height: '50vh',
-          minHeight: '200px',
-          backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
+          height: '40vh',
+          minHeight: '300px',
+          backgroundImage: `url(${window.location.origin}/img/ibcn/ibcn-banner.jpg)`, // Full URL for domain
           backgroundSize: 'cover',
-          backgroundPosition: 'top center',
+          backgroundPosition: 'center -55px', 
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -1405,11 +1405,8 @@ const Schedule = () => {
         <div
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)', // Gradient only at bottom
+            inset: 0, // Simplified from top/left/right/bottom
+            background: 'linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)', // Same for all screens
           }}
         />
 
@@ -1463,106 +1460,109 @@ const Schedule = () => {
         </Card>
 
         {/* Streams Carousel */}
-        <Card style={{ marginBottom: '15px' }}>
-          <h2 style={{ fontSize: '1.2rem' }}>Parallel Streams</h2>
-          <Carousel
-            autoplay
-            dots={{ className: 'carousel-dots' }}
-            style={{ padding: '15px' }}
-          >
-            {groupedStreams.map((group, groupIndex) => (
-              <div key={groupIndex}>
-                <Row gutter={[8, 8]} justify="center">
-                  {group.map((stream, index) => (
-                    <Col xs={24} sm={12} md={6} key={index}>
-                      <Card
-                        hoverable
-                        style={{
-                          textAlign: 'center',
-                          background: '#f0f2f5',
-                          height: '120px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div style={{ fontSize: '1.5em', marginBottom: '8px' }}>
-                          {stream.icon}
-                        </div>
-                        <p style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                          {stream.name}
-                        </p>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-            ))}
-          </Carousel>
-        </Card>
+      <Card style={{ marginBottom: '15px' }}>
+        <h2 style={{ fontSize: '1.2rem' }}>Parallel Streams</h2>
+        <Carousel
+          autoplay
+          dots={{ className: 'carousel-dots' }}
+          slidesToShow={4} // Default for desktop
+          slidesToScroll={1} // Scroll one at a time
+          autoplaySpeed={3000}
+          responsive={[
+            {
+              breakpoint: 767, // Mobile
+              settings: {
+                slidesToShow: 2, // 2 cards on mobile
+                slidesToScroll: 1,
+              },
+            },
+            {
+              breakpoint: 768, // Tablet and above
+              settings: {
+                slidesToShow: 4, // 4 cards on desktop
+                slidesToScroll: 1,
+              },
+            },
+          ]}
+          style={{ padding: '15px' }}
+        >
+          {streams.map((stream, index) => (
+            <div key={index} style={{ padding: '0 8px' }}>
+              <Card
+                hoverable
+                style={{
+                  textAlign: 'center',
+                  background: '#f0f2f5',
+                  height: '120px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <div style={{ fontSize: '1.5em', marginBottom: '8px' }}>
+                  {stream.icon}
+                </div>
+                <p style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                  {stream.name}
+                </p>
+              </Card>
+            </div>
+          ))}
+        </Carousel>
+      </Card>
 
         {/* Platinum Sponsors */}
         <h3 style={{ textAlign: 'center', marginBottom: '10px', fontSize: '1.2rem' }}>
           Platinum Sponsors
         </h3>
-        <Row gutter={[8, 8]} justify="center" style={{ marginBottom: '15px' }}>
+        <Carousel {...sponsorCarouselSettings} style={{ marginBottom: '15px' }}>
           {platinumSponsors.map((src, index) => (
-            <Col
-              xs={12}
-              sm={8}
-              md={4}
-              key={index}
-              style={{ display: 'flex', justifyContent: 'center' }}
-            >
+            <div key={index} style={{ textAlign: 'center' }}>
               <img
-                src={`${process.env.PUBLIC_URL}${src}`} // Ensure absolute path for mobile
+                src={`${window.location.origin}${src}`} // Full URL for domain
                 alt={`Platinum Sponsor ${index + 1}`}
-                style={{ 
-                  maxWidth: '100px', 
-                  height: 'auto', 
+                style={{
+                  maxWidth: '100px',
+                  height: 'auto',
                   objectFit: 'contain',
-                  display: 'block', // Ensure visibility on mobile
+                  display: 'block',
+                  margin: '0 auto',
                 }}
                 onError={(e) => {
                   console.log(`Failed to load Platinum Sponsor image: ${src}`);
                   e.target.style.display = 'none';
                 }}
               />
-            </Col>
+            </div>
           ))}
-        </Row>
+        </Carousel>
 
         {/* Gold Sponsors */}
         <h3 style={{ textAlign: 'center', marginBottom: '10px', fontSize: '1.2rem' }}>
           Gold Sponsors
         </h3>
-        <Row gutter={[8, 8]} justify="center">
+        <Carousel {...sponsorCarouselSettings}>
           {goldSponsors.map((src, index) => (
-            <Col
-              xs={12}
-              sm={8}
-              md={4}
-              key={index}
-              style={{ display: 'flex', justifyContent: 'center' }}
-            >
+            <div key={index} style={{ textAlign: 'center' }}>
               <img
-                src={`${process.env.PUBLIC_URL}${src}`} // Ensure absolute path for mobile
+                src={`${window.location.origin}${src}`} // Full URL for domain
                 alt={`Gold Sponsor ${index + 1}`}
-                style={{ 
-                  maxWidth: '100px', 
-                  height: 'auto', 
+                style={{
+                  maxWidth: '100px',
+                  height: 'auto',
                   objectFit: 'contain',
-                  display: 'block', // Ensure visibility on mobile
+                  display: 'block',
+                  margin: '0 auto',
                 }}
                 onError={(e) => {
                   console.log(`Failed to load Gold Sponsor image: ${src}`);
                   e.target.style.display = 'none';
                 }}
               />
-            </Col>
+            </div>
           ))}
-        </Row>
+        </Carousel>
 
         {/* Footer Link */}
         <p
@@ -1585,13 +1585,10 @@ const Schedule = () => {
       <style jsx>{`
         /* Mobile devices (up to 767px) */
         @media (max-width: 767px) {
-          div[style*="background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)"] {
-            background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%) !important;
-          }
           img[style*="max-width: 100px"] {
-            max-width: 80px !important; // Slightly smaller for mobile, but ensure visibility
-            display: block !important; // Force display on mobile
-            margin: 0 auto; // Center align
+            max-width: 80px !important;
+            display: block !important;
+            margin: 0 auto;
           }
         }
         /* Tablet (iPad) and larger */
@@ -1601,10 +1598,7 @@ const Schedule = () => {
           }
           div[style*="height: 50vh"] {
             height: 60vh;
-            background-position: center !important;
-          }
-          div[style*="background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)"] {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%) !important;
+            background-position: center 50px !important; // Adjusted for desktop
           }
           h1 {
             font-size: 2rem !important;
@@ -1630,7 +1624,7 @@ const Schedule = () => {
           p[style*="font-size: 0.9rem"] {
             font-size: 1rem !important;
           }
-          img {
+          img[style*="max-width: 100px"] {
             max-width: 150px !important;
           }
         }

@@ -884,14 +884,14 @@ const Profile = () => {
                 fontFamily: 'Arial, sans-serif',
             }}
         >
-            {/* Background Cover - Mobile First
+            {/* Background Cover - Mobile First */}
             <div
                 style={{
                     height: '50vh',
                     minHeight: '200px',
-                    backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
+                    backgroundImage: `url(${window.location.origin}/img/ibcn/ibcn-banner.jpg)`, // Full URL for domain
                     backgroundSize: 'cover',
-                    backgroundPosition: 'top center', // Adjusted for mobile to focus on top center
+                    backgroundPosition: 'center -55px', // Between top and center, matching Schedule
                     position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
@@ -900,43 +900,13 @@ const Profile = () => {
                 }}
             >
                 {/* Gradient Overlay */}
-                {/* <div
+                <div
                     style={{
                         position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)', // Lighter gradient for mobile
+                        inset: 0, // Simplified, matching Schedule
+                        background: 'linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)', // Bottom-only gradient for all screens
                     }}
-                /> */}
-
-                {/* Background Cover - Mobile First */}
-      <div
-        style={{
-          height: '50vh',
-          minHeight: '200px',
-          backgroundImage: `url(/img/ibcn/ibcn-banner.jpg)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'top center',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-        }}
-      >
-        {/* Gradient Overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)', // Gradient only at bottom
-          }}
-        />
+                />
                 {/* User Name */}
                 <h1
                     style={{
@@ -1021,22 +991,16 @@ const Profile = () => {
 
             {/* Inline CSS for Media Queries */}
             <style jsx>{`
-            /* Mobile devices (up to 767px) */
-        @media (max-width: 767px) {
-          div[style*="background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)"] {
-            background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%) !important; // Ensure mobile gradient
-          }
-        }
+                /* Mobile devices (up to 767px) */
+                @media (max-width: 767px) {
+                    /* No gradient override needed since it’s consistent */
+                }
                 /* Tablet (iPad) and larger */
-        @media (min-width: 768px) {
-          div[style*="height: 50vh"] {
-            height: 60vh;
-            background-position: center !important;
-          }
-          div[style*="background: linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)"] {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #f5f8fa 100%) !important; // Original full gradient for larger screens
-          }
-                
+                @media (min-width: 768px) {
+                    div[style*="height: 50vh"] {
+                        height: 60vh;
+                        background-position: '75px center' !important; // Consistent with mobile
+                    }
                     h1 {
                         font-size: 2rem !important;
                     }
