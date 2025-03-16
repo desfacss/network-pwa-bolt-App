@@ -1391,7 +1391,9 @@ const Schedule = () => {
         style={{
           height: '40vh',
           minHeight: '300px',
-          backgroundImage: `url(${window.location.origin}/img/ibcn/ibcn-banner.jpg)`, // Full URL for domain
+          // backgroundImage: `url(${window.location.origin}/img/ibcn/ibcn-banner.jpg)`, // Full URL for domain
+          // backgroundImage: `/img/ibcn/ibcn-banner.jpg`, 
+          backgroundImage: `url('/img/ibcn/ibcn-banner.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center -55px', 
           position: 'relative',

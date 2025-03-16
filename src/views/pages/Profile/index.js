@@ -889,7 +889,8 @@ const Profile = () => {
                 style={{
                     height: '50vh',
                     minHeight: '200px',
-                    backgroundImage: `url(${window.location.origin}/img/ibcn/ibcn-banner.jpg)`, // Full URL for domain
+                    // backgroundImage: `url(${window.location.origin}/img/ibcn/ibcn-banner.jpg)`, // Full URL for domain
+                    backgroundImage: `url('/img/ibcn/ibcn-banner.jpg')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center -55px', // Between top and center, matching Schedule
                     position: 'relative',
