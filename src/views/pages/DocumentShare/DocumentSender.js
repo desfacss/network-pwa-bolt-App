@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Select, Button, message } from 'antd';
+import { Form, Select, Button, message, Card } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import GeneralDocumentComponent from '../Templates/GeneralDocumentComponent4';
@@ -37,7 +37,7 @@ const SenderComponent = () => {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
+        <Card style={{ padding: '20px' }}>
             <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Form.Item label="Select Document" name="document" rules={[{ required: true, message: 'Please select a document' }]}>
                     <Select onChange={handleDocumentSelect} placeholder="Choose a document">
@@ -59,7 +59,7 @@ const SenderComponent = () => {
             {selectedDocument && (
                 <GeneralDocumentComponent formName={selectedDocument.type} initialData={selectedDocument} />
             )}
-        </div>
+        </Card>
     );
 };
 

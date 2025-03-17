@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Form, Input, Button, Table, DatePicker, Typography, InputNumber, message, Modal, Select, Checkbox } from 'antd';
+import { Form, Input, Button, Table, DatePicker, Typography, InputNumber, message, Modal, Select } from 'antd';
 import { useReactToPrint } from 'react-to-print';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import { sendEmail } from 'components/common/SendEmail';
+import { REACT_APP_RESEND_FROM_EMAIL } from 'configs/AppConfig'
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -18,7 +19,7 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
   const [loading, setLoading] = useState(true);
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
   const [recipientType, setRecipientType] = useState(null);
-  const [otpEnabled, setOtpEnabled] = useState(false);
+  // const [otpEnabled, setOtpEnabled] = useState(false);
   const [users, setUsers] = useState([]);
   const [organizations, setOrganizations] = useState([]);
 
@@ -234,7 +235,7 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
         ...(values.recipientType === 'email' && { recipient_email: values.recipientEmail }),
         ...(values.recipientType === 'user' && { recipient_user_id: values.recipientUser }),
         ...(values.recipientType === 'organization' && { recipient_org_id: values.recipientOrg }),
-        otp: otpEnabled ? values.otp : null,
+        otp: values?.otp,
         expires_at: expiresAt.toISOString(),
         created_by: session?.user?.id,
       };
@@ -244,9 +245,9 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
 
       message.success('Document shared successfully');
       if (values.recipientType === 'email') {
-        const recipientLink = `${window.location.origin}/recipient/${data.id}`;
+        const recipientLink = `${window.location.origin}/app/recipient/${data.id}`;
         const emailData = [{
-          from: `${session?.user?.user_name} on zoworks ${process.env.REACT_APP_RESEND_FROM_EMAIL}`,
+          from: `${session?.user?.user_name} on zoworks <${REACT_APP_RESEND_FROM_EMAIL}>`,
           to: [values.recipientEmail],
           subject: `${session?.user?.user_name} on zoworks Shared Document with You`,
           html: `<p>You have been shared a document. View it here: <a href="${recipientLink}">${recipientLink}</a></p>`,
@@ -364,15 +365,15 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
             </Form.Item>
           )}
 
-          <Form.Item name="otpEnabled" valuePropName="checked">
+          {/* <Form.Item name="otpEnabled" valuePropName="checked">
             <Checkbox onChange={(e) => setOtpEnabled(e.target.checked)}>Require OTP</Checkbox>
-          </Form.Item>
+          </Form.Item> */}
 
-          {otpEnabled && (
-            <Form.Item label="OTP" name="otp" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-          )}
+          {/* {otpEnabled && ( */}
+          <Form.Item label="OTP" name="otp">
+            <Input />
+          </Form.Item>
+          {/* )} */}
 
           <Form.Item label="Expiry (minutes)" name="expiry" rules={[{ required: true }]}>
             <InputNumber min={1} />
