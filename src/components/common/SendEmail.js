@@ -1,10 +1,10 @@
 import { Resend } from 'resend';
 import { store } from 'store';
-import { REACT_APP_RESEND_API_KEY, REACT_APP_SUPABASE_BASE_URL } from 'configs/AppConfig';
+import { REACT_APP_RESEND_API_KEY, REACT_APP_SUPABASE_BASE_URL, REACT_APP_RESEND_FROM_EMAIL } from 'configs/AppConfig';
 
 // const resend = new Resend('re_VTPe8tkE_GRsdfSsRF2'); // Replace 'YOUR_API_KEY' with your Resend API key
 // const resend = new Resend(REACT_APP_RESEND_API_KEY); // Replace 'YOUR_API_KEY' with your Resend API key
-const resend = new Resend("re_P7vxVnHN_Za4pwWX9UdLn77LXvuNMD2Pm" || REACT_APP_RESEND_API_KEY); // Replace 'YOUR_API_KEY' with your Resend API key
+const resend = new Resend(REACT_APP_RESEND_API_KEY); // Replace 'YOUR_API_KEY' with your Resend API key
 
 
 export const sendEmail = async (emails) => {
@@ -115,7 +115,7 @@ export const generateEmailData = (type, action, details) => {
     // Return the email data object
     return {
         // from: process.env.REACT_APP_RESEND_FROM_EMAIL,
-        from: `UKPE Timesheet <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
+        from: `UKPE Timesheet <${REACT_APP_RESEND_FROM_EMAIL}>`,
         to: recipients,
         subject: subject,
         html: `<p>${body}</p><p>If you are not the intended recipient, you can safely ignore this message or contact your HR for assistance.
