@@ -1,8 +1,10 @@
 import { Resend } from 'resend';
 import { store } from 'store';
+import { REACT_APP_RESEND_API_KEY, REACT_APP_SUPABASE_BASE_URL } from 'configs/AppConfig';
 
 // const resend = new Resend('re_VTPe8tkE_GRsdfSsRF2'); // Replace 'YOUR_API_KEY' with your Resend API key
-const resend = new Resend(process.env.REACT_APP_RESEND_API_KEY); // Replace 'YOUR_API_KEY' with your Resend API key
+// const resend = new Resend(REACT_APP_RESEND_API_KEY); // Replace 'YOUR_API_KEY' with your Resend API key
+const resend = new Resend("re_P7vxVnHN_Za4pwWX9UdLn77LXvuNMD2Pm" || REACT_APP_RESEND_API_KEY); // Replace 'YOUR_API_KEY' with your Resend API key
 
 
 export const sendEmail = async (emails) => {
@@ -26,7 +28,8 @@ export const sendEmail = async (emails) => {
             console.error('Emails array is empty or invalid');
             return;
         }
-        const response = await fetch(`https://azzqopnihybgniqzrszl.supabase.co/functions/v1/send_email`, {
+        const response = await fetch(`${"https://azzqopnihybgniqzrszl.supabase.co" || REACT_APP_SUPABASE_BASE_URL}/functions/v1/send_email`, {
+            // const response = await fetch(`https://azzqopnihybgniqzrszl.supabase.co/functions/v1/send_email`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
