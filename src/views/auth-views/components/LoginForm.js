@@ -304,7 +304,7 @@ export const LoginForm = (props) => {
             />
           </Form.Item>
           <Button type="primary" block onClick={checkReferral}>
-            Check Registration
+            Check Registeration
           </Button>
         </>)
       }
@@ -334,7 +334,7 @@ export const LoginForm = (props) => {
         {linkSent && "Check your Email/Spam folder"}
       </Form.Item>
 
-      <Divider>Or</Divider>
+      {/* <Divider>Or</Divider> */}
 
       <Button icon={<GoogleOutlined />} block onClick={() => oAuth('direct-login')}>
         Sign in with Google
