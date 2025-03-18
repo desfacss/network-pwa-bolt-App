@@ -25,7 +25,7 @@ const RecipientComponent = () => {
         setError(null); // Reset error state
         const { data, error: fetchError } = await supabase
             .from('document_shares')
-            .select('*, documents(content, type)')
+            .select('*')
             .eq('id', id)
             .single();
 
@@ -62,15 +62,36 @@ const RecipientComponent = () => {
             setOtpRequired(true);
             setLoading(false);
         } else {
-            setDocument(data.documents);
-            setLoading(false);
+            fetchDocumentContent(data); // Fetch document content based on document_type
         }
+    };
+
+    const fetchDocumentContent = async (shareData) => {
+        const tableName = shareData.document_table;
+        const documentId = shareData.document_id;
+
+        const { data: documentData, error: documentError } = await supabase
+            .from(tableName)
+            .select('*')
+            .eq('id', documentId)
+            .single();
+
+        if (documentError) {
+            console.error('Error fetching document content:', documentError);
+            message.error('Failed to fetch document content.');
+            setError('Failed to fetch document content.');
+            setLoading(false);
+            return;
+        }
+
+        setDocument(documentData);
+        setLoading(false);
     };
 
     const handleOtpSubmit = async (values) => {
         if (values.otp === shareData.otp) {
             setOtpRequired(false);
-            setDocument(shareData.documents);
+            fetchDocumentContent(shareData); // Fetch document after OTP verification
         } else {
             message.error('Invalid OTP');
         }
@@ -91,12 +112,12 @@ const RecipientComponent = () => {
                         </Button>
                     </Form.Item>
                 </Form>
-            ) : document ? ( // Corrected check
-                <GeneralDocumentComponent formName={document.type} initialData={document.content} />
+            ) : document ? (
+                <GeneralDocumentComponent formName={shareData?.document_type} initialData={document} /> // Use document_type from shareData
             ) : error ? (
-                <div>{error}</div> // Show error message if present
+                <div>{error}</div>
             ) : (
-                <div>Invalid or expired share link...</div> // Default message if no document and no error
+                <div>Invalid or expired share link...</div>
             )}
         </Card>
     );
