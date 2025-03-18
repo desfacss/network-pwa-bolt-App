@@ -9,19 +9,25 @@ const SenderComponent = () => {
     const { session } = useSelector((state) => state.auth);
     const [documents, setDocuments] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState(null);
+    const [selectedTable, setSelectedTable] = useState('documents'); // Default table
 
     useEffect(() => {
-        fetchDocuments();
-    }, []);
+        fetchDocuments(selectedTable);
+    }, [selectedTable]);
 
-    const fetchDocuments = async () => {
-        const { data, error } = await supabase.from('documents').select('id, title, content, type');
+    const fetchDocuments = async (tableName) => {
+        const { data, error } = await supabase.from(tableName).select('id, name, content, type');
         if (error) {
-            console.error('Error fetching documents:', error);
-            message.error('Failed to load documents');
+            console.error(`Error fetching documents from ${tableName}:`, error);
+            message.error(`Failed to load documents from ${tableName}`);
         } else {
             setDocuments(data);
         }
+    };
+
+    const handleTableSelect = (value) => {
+        setSelectedTable(value);
+        setSelectedDocument(null); // Reset selected document when table changes
     };
 
     const handleDocumentSelect = (value) => {
@@ -39,16 +45,24 @@ const SenderComponent = () => {
     return (
         <Card style={{ padding: '20px' }}>
             <Form form={form} layout="vertical" onFinish={onFinish}>
-                <Form.Item label="Select Document" name="document" rules={[{ required: true, message: 'Please select a document' }]}>
-                    <Select onChange={handleDocumentSelect} placeholder="Choose a document">
-                        {documents.map((doc) => (
-                            <Select.Option key={doc.id} value={doc.id}>
-                                {doc.title}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <Form.Item label="" name="table" rules={[{ required: true, message: 'Please select a table' }]}>
+                        <Select onChange={handleTableSelect} placeholder="Choose a table" defaultValue="documents" style={{ flex: 1 }}>
+                            <Select.Option value="documents">Documents</Select.Option>
+                            <Select.Option value="invoices">Invoices</Select.Option>
+                        </Select>
+                    </Form.Item>
 
+                    <Form.Item label="" name="document" rules={[{ required: true, message: 'Please select a document' }]} style={{ flex: 2 }}>
+                        <Select onChange={handleDocumentSelect} placeholder="Choose a document" style={{ width: '200px' }}>
+                            {documents.map((doc) => (
+                                <Select.Option key={doc.id} value={doc.id}>
+                                    {doc.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                </div>
                 {/* <Form.Item>
                     <Button type="primary" htmlType="submit">
                         Load Document
@@ -57,7 +71,7 @@ const SenderComponent = () => {
             </Form>
 
             {selectedDocument && (
-                <GeneralDocumentComponent formName={selectedDocument.type} initialData={selectedDocument} />
+                <GeneralDocumentComponent formName={selectedDocument.type} initialData={selectedDocument} documentTable={selectedTable} />
             )}
         </Card>
     );

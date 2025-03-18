@@ -374,6 +374,14 @@ const navigationConfig = [
           {
             key: 'template',
             path: `${APP_PREFIX_PATH}/template`,
+            title: 'Templates',
+            icon: ApartmentOutlined,
+            breadcrumb: false,
+            submenu: [],
+          },
+          {
+            key: 'sender',
+            path: `${APP_PREFIX_PATH}/sender`,
             title: 'Documents',
             icon: ApartmentOutlined,
             breadcrumb: false,

@@ -10,7 +10,7 @@ const { TextArea } = Input;
 const { Title } = Typography;
 const { Option } = Select;
 
-const GeneralDocumentComponent = ({ formName, initialData }) => {
+const GeneralDocumentComponent = ({ formName, initialData, documentTable }) => {
   const [form] = Form.useForm();
   const [shareForm] = Form.useForm(); // Separate form for sharing
   const { session } = useSelector((state) => state.auth);
@@ -230,6 +230,8 @@ const GeneralDocumentComponent = ({ formName, initialData }) => {
 
       const shareData = {
         document_id: initialData?.id, // Assuming initialData has the document ID
+        document_type: initialData?.type, // Assuming initialData has the document ID
+        document_table: documentTable, // Assuming initialData has the document ID
         sender_id: session?.user?.id,
         recipient_type: values.recipientType,
         ...(values.recipientType === 'email' && { recipient_email: values.recipientEmail }),
