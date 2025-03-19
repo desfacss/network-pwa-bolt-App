@@ -43,7 +43,7 @@ const Index = () => {
 
     // Custom filter components passed as props
     const customFilters = (
-        <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ display: 'flex', gap: 8 }}>
             <Select
                 placeholder="Select Industry Sector"
                 style={{ width: 200 }}

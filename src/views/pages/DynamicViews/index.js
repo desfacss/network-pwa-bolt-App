@@ -437,6 +437,10 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                         tabBarExtraContent={{
                             right: (
                                 <div style={{ display: "flex", alignItems: "center" }}>
+                                    <div style={{ marginRight: 8 }}>
+                                        {customFilters}
+                                    </div>
+                                    {renderFilters(viewConfig?.global?.search, data)}
                                     {viewItems.length > 1 && viewItems.map(view => (
                                         <Button
                                             key={view.key}
@@ -449,8 +453,6 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                                             }}
                                         />
                                     ))}
-                                    {customFilters}
-                                    {renderFilters(viewConfig?.global?.search, data)}
                                     <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
                                         {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                                     </Button>
@@ -468,6 +470,10 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                                 {filterTabItems.length > 0 && (filterTabItems[0]?.label || 'Default View')}
                             </Typography.Title>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ marginRight: 8 }}>
+                                    {customFilters}
+                                </div>
+                                {renderFilters(viewConfig?.global?.search, data)}
                                 {viewItems.length > 1 && viewItems.map(view => (
                                     <Button
                                         key={view.key}
@@ -480,8 +486,6 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                                         }}
                                     />
                                 ))}
-                                {customFilters}
-                                {renderFilters(viewConfig?.global?.search, data)}
                                 <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
                                     {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                                 </Button>
