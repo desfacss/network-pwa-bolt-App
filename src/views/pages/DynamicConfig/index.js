@@ -16,6 +16,7 @@ import ConfigEditor from './Detailview';
 import GridViewConfig from './GridViewConfig';
 import DynamicViews from '../DynamicViews';
 import KanbanViewConfig from './KanbanViewConfig';
+import OrganizationProfileSettings from './UserProfileSettingsEditor';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -426,6 +427,9 @@ const YViewConfigManager = () => {
         </TabPane>
         <TabPane tab="Kanban View" key="kanbanview">
           {selectedConfig && activeTab === "kanbanview" && renderTabContent('kanbanview')}
+        </TabPane>
+        <TabPane tab="Profile Config" key="Profile Config">
+          {activeTab === "Profile Config" && <OrganizationProfileSettings />}
         </TabPane>
         <TabPane tab="View" key="view">
           {activeTab === 'view' && activeTab === "view" && <DynamicViews entityType={selectedConfig?.entity_type} />}

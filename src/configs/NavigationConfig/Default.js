@@ -41,7 +41,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.reports && feature?.reports && {
+      feature?.reports && {
         key: 'reports',
         path: `${APP_PREFIX_PATH}/reports`,
         title: 'Reports',
@@ -366,8 +366,8 @@ const navigationConfig = [
           },
         ]?.filter(Boolean)
       },
-    ],
+    ]?.filter(Boolean),
   },
-];
+]?.filter(Boolean);
 
 export default navigationConfig;

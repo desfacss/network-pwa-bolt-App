@@ -859,14 +859,14 @@ const Profile = () => {
                 <>{renderDynamicDescriptionItems()}</>
             ),
         },
-        {
+        session?.user?.features?.fetaure?.profileBusinesses && {
             key: 'businesses',
             label: 'Businesses',
             children: (
                 <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} />
             ),
         },
-        {
+        session?.user?.features?.fetaure?.messages && {
             key: 'inbox',
             label: 'Messages',
             children: (

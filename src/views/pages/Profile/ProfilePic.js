@@ -5,11 +5,11 @@ import Publitio from 'publitio_js_sdk';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 
-// Configuration JSON (you can store this in a separate file if you prefer)
+// Configuration JSON
 const uploadConfig = {
     maxFileSize: 5, // 5MB
-    allowedTypes: ['image/jpeg', 'image/png', 'image/gif'], // Example image types
-    maxFileNameLength: 100, // Example
+    allowedTypes: ['image/jpeg', 'image/png', 'image/gif'],
+    maxFileNameLength: 100,
 };
 
 const publitio = new Publitio('xr7tJHfDaqk5ov18TkJX', 'aApiZqz6Di1eacmemfof14xwN63lyJHG');
@@ -39,25 +39,74 @@ const ProfilePic = () => {
         const isLtMaxSize = file.size / 1024 / 1024 < uploadConfig.maxFileSize;
         if (!isLtMaxSize) {
             message.error(`File must be smaller than ${uploadConfig.maxFileSize}MB!`);
+            return false;
         }
 
         const isImageType = uploadConfig.allowedTypes.includes(file.type);
         if (!isImageType) {
             message.error(`You can only upload ${uploadConfig.allowedTypes.join(', ')} files!`);
+            return false;
         }
 
         if (file.name.length > uploadConfig.maxFileNameLength) {
             message.error(`File name is too long. Maximum length is ${uploadConfig.maxFileNameLength} characters.`);
+            return false;
         }
 
-        return isLtMaxSize && isImageType && file.name.length <= uploadConfig.maxFileNameLength; // Return false to prevent upload if conditions not met
+        return true; // Proceed with upload if all conditions are met
     };
 
+    // Function to compress and resize image
+    const compressAndResizeImage = (file, maxWidth = 200) => {
+        return new Promise((resolve, reject) => {
+            const img = new window.Image();
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                img.src = e.target.result;
+            };
+
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Calculate new dimensions while maintaining aspect ratio
+                const aspectRatio = img.height / img.width;
+                const newWidth = maxWidth;
+                const newHeight = maxWidth * aspectRatio;
+
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+
+                // Draw and compress image
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                // Convert to blob with compression (quality: 0.7)
+                canvas.toBlob(
+                    (blob) => {
+                        const compressedFile = new File([blob], file.name, {
+                            type: file.type,
+                            lastModified: Date.now(),
+                        });
+                        resolve(compressedFile);
+                    },
+                    file.type,
+                    0.7 // Compression quality (0 to 1, where 1 is highest quality)
+                );
+            };
+
+            img.onerror = (error) => reject(error);
+            reader.onerror = (error) => reject(error);
+        });
+    };
 
     const handleUpload = async (file) => {
         setLoading(true);
         try {
-            const response = await publitio.uploadFile(file);
+            // Compress and resize the image before uploading
+            const compressedFile = await compressAndResizeImage(file, 200);
+            const response = await publitio.uploadFile(compressedFile);
             const publicUrl = response?.url_preview;
 
             const { error: supabaseError } = await supabase
@@ -73,8 +122,8 @@ const ProfilePic = () => {
                 message.success('Profile picture updated successfully!');
             }
         } catch (error) {
-            console.error("Publitio upload error:", error);
-            message.error('File upload to Publitio failed.');
+            console.error("Error during upload:", error);
+            message.error('File upload failed.');
         } finally {
             setLoading(false);
         }
@@ -143,7 +192,7 @@ const ProfilePic = () => {
                     fileList={fileList}
                     onPreview={handlePreview}
                     onChange={handleChange}
-                    beforeUpload={beforeUpload} // Add beforeUpload prop
+                    beforeUpload={beforeUpload}
                 >
                     {fileList.length >= 1 ? null : uploadButton}
                 </Upload>

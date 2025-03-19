@@ -69,7 +69,7 @@ const MenuItemSignOut = (props) => {
     store.dispatch(setSelectedOrganization())
     store.dispatch(setSelectedUser())
     store.dispatch(setSession())
-    navigate(`${APP_PREFIX_PATH}/login`)
+    navigate(`${APP_PREFIX_PATH}`)
   }
 
 
@@ -103,7 +103,7 @@ export const NavProfile = ({ mode, profileData }) => {
         />
       ),
     }),
-    profileData && ({
+    profileData?.user?.features?.feature?.profile && ({
       key: "My Profile",
       label: (
         <MenuItem

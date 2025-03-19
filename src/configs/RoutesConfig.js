@@ -219,12 +219,12 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/yform`,
             component: React.lazy(() => import('views/pages/DynamicFormBuilder')),
         },
-        module_features?.ibBusinesses && feature?.ibBusinesses && {
+        feature?.businessDirectory && {
             key: 'ib_businesses',
             path: `${APP_PREFIX_PATH}/businesses`,
             component: React.lazy(() => import('views/pages/Businesses')),
         },
-        module_features?.ibMembers && feature?.ibMembers && {
+        feature?.memberDirectory && {
             key: 'ib_members',
             path: `${APP_PREFIX_PATH}/members`,
             component: React.lazy(() => import('views/pages/Members')),
@@ -293,12 +293,12 @@ export const protectedRoutes = (feature, module_features) => {
             component: React.lazy(() => import('views/pages/DocumentShare/DocumentRecipient')),
         },
         // module_features?.trial && feature?.trial && 
-        {
+        feature?.liveSurvey && {
             key: 'live',
             path: `${APP_PREFIX_PATH}/live`,
             component: React.lazy(() => import('views/pages/Live')),
         },
-        {
+        feature?.eventPass && {
             key: 'pass',
             path: `${APP_PREFIX_PATH}/pass`,
             component: React.lazy(() => import('views/pages/ib/Ticket')),

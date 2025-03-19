@@ -389,7 +389,7 @@ const navigationConfig = [
           },
         ]?.filter(Boolean)
       },
-    ],
+    ]?.filter(Boolean),
   },
 ];
 

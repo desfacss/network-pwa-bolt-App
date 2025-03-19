@@ -14,6 +14,7 @@ const RoleFeatureEdit = () => {
     const [modalType, setModalType] = useState('add');
     const [selectedRole, setSelectedRole] = useState(null);
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const [rowSelections, setRowSelections] = useState({});
 
     const [form] = Form.useForm();
 
@@ -83,6 +84,13 @@ const RoleFeatureEdit = () => {
         });
 
         setRoles(updatedRoles);
+
+        // Update row selection state
+        const allCheckedInRow = updatedRoles.every(role => role.feature[featureKey]);
+        setRowSelections(prev => ({
+            ...prev,
+            [featureKey]: allCheckedInRow
+        }));
     };
 
     const handleSaveChanges = async () => {
@@ -182,9 +190,50 @@ const RoleFeatureEdit = () => {
         }
     };
 
+    // Add handler for row toggle
+    const handleRowToggle = (featureKey, checked) => {
+        setRowSelections(prev => ({
+            ...prev,
+            [featureKey]: checked
+        }));
+
+        const updatedRoles = roles.map(role => ({
+            ...role,
+            feature: {
+                ...role.feature,
+                [featureKey]: checked
+            }
+        }));
+        setRoles(updatedRoles);
+    };
+
+    // Add handler for column toggle
+    const handleColumnToggle = (roleId, checked) => {
+        const updatedRoles = roles.map(role => {
+            if (role.id === roleId) {
+                const newFeatures = {};
+                features.forEach(feature => {
+                    newFeatures[feature] = checked;
+                });
+                return {
+                    ...role,
+                    feature: newFeatures
+                };
+            }
+            return role;
+        });
+        setRoles(updatedRoles);
+
+        // Update row selections based on new state
+        const newRowSelections = {};
+        features.forEach(feature => {
+            newRowSelections[feature] = updatedRoles.every(role => role.feature[feature]);
+        });
+        setRowSelections(newRowSelections);
+    };
+
     const columns = [
         {
-            // title: 'Feature',
             title: (
                 <>
                     Feature
@@ -195,29 +244,44 @@ const RoleFeatureEdit = () => {
             ),
             dataIndex: 'feature',
             key: 'feature',
-            render: (text) => camelCaseToTitleCase(text)
+            render: (text, record) => (
+                <Space>
+                    <Checkbox
+                        checked={rowSelections[text] || false}
+                        onChange={(e) => handleRowToggle(text, e.target.checked)}
+                    />
+                    {camelCaseToTitleCase(text)}
+                </Space>
+            )
         },
         ...roles.map((role) => ({
             key: role?.id,
             title: (
                 <>
                     {camelCaseToTitleCase(role?.role_name)}
+                    <Checkbox
+                        checked={roles.every(r => r.id === role.id ? true : r.feature[features[0]] === role.feature[features[0]])}
+                        onChange={(e) => handleColumnToggle(role.id, e.target.checked)}
+                        style={{ marginLeft: 8 }}
+                    />
                     <Button type="link" size="small" onClick={() => handleEditRoleColumn(role)} icon={<EditOutlined />}></Button>
                     <Button type="link" size="small" danger onClick={() => handleDeleteRoleColumn(role)} icon={<DeleteOutlined />}></Button>
                 </>
             ),
             render: (text, record) => (
-                <Checkbox checked={role?.feature[record?.feature] || false}
+                <Checkbox
+                    checked={role?.feature[record?.feature] || false}
                     onChange={(e) => handleFeatureChange(record?.feature, role?.id, e.target.checked)}
                 />
             ),
         })),
     ];
 
+
     return (
         <div>
-            <Table size={'small'} dataSource={features.map(feature => ({ feature }))}
-                loading={loading} pagination={false} rowKey="feature" columns={columns} onChange={handleTableChange}
+            <Table size={'small'} dataSource={features.map(feature => ({ feature }))} scroll={{ x: 'max-content', y: 400, sticky: true }}
+                loading={loading} pagination={false} rowKey="feature" columns={columns} onChange={handleTableChange} virtual={true}
             >
             </Table>
 
@@ -226,7 +290,7 @@ const RoleFeatureEdit = () => {
                     Save Changes
                 </Button>
                 <Button onClick={showDrawer} icon={<SettingOutlined />}>
-                    Manage Features
+                    Manage Org Features
                 </Button>
             </Space>
             {/* <Button onClick={handleAddRoleColumn} style={{ marginTop: 16, marginLeft: 16 }}>

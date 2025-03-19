@@ -39,7 +39,7 @@ const flattenData = (data, masterObject) => {
     return flatData;
 };
 
-const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters, tabs, tabOptions }) => {
+const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters, tabs, tabOptions, customFilters }) => {
     const defaultStartDate = dayjs().subtract(30, 'days');
     const defaultEndDate = dayjs();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
@@ -177,6 +177,21 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
         let query = supabase.from(entityType).select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true);
 
+        // Apply fetchFilters from parent component
+        if (fetchFilters && fetchFilters.length > 0) {
+            fetchFilters.forEach(filter => {
+                const { column, value } = filter;
+                if (column && value !== undefined) {
+                    if (column.includes('.')) {
+                        const [jsonField, jsonKey] = column.split('.');
+                        query = query.eq(`${jsonField}->>${jsonKey}`, value);
+                    } else {
+                        query = query.eq(column, value);
+                    }
+                }
+            });
+        }
+
         const currentTabFilters = tabOptions?.find(option => option.key === selectedTab)?.fetchFilters || [];
         currentTabFilters?.forEach(filter => {
             const { column, value } = filter;
@@ -199,33 +214,33 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         if (error) throw error;
 
         if (data) {
-            let sales = [];
-            for (let sale of data) {
-                for (const field of viewConfig?.master_object) {
-                    if (field.foreign_key) {
-                        const foreignKeyValue = sale[field.key];
-                        if (foreignKeyValue) {
-                            const { source_table, source_column, display_column } = field.foreign_key;
-                            let relatedData;
-                            let relatedError;
-                            if (Array.isArray(foreignKeyValue)) {
-                                ({ data: relatedData, error: relatedError } = await supabase
-                                    .from(source_table)
-                                    .select('*')
-                                    .in(source_column, foreignKeyValue));
-                            } else {
-                                ({ data: relatedData, error: relatedError } = await supabase
-                                    .from(source_table)
-                                    .select('*')
-                                    .eq(source_column, foreignKeyValue));
-                            }
-                            if (relatedError) throw relatedError;
-                            sale.related_data = sale.related_data || {};
-                            sale.related_data[field.key] = Array.isArray(foreignKeyValue) ? relatedData : relatedData?.[0];
-                        }
-                    }
-                }
-            }
+            // let sales = [];
+            // for (let sale of data) {
+            //     for (const field of viewConfig?.master_object) {
+            //         if (field.foreign_key) {
+            //             const foreignKeyValue = sale[field.key];
+            //             if (foreignKeyValue) {
+            //                 const { source_table, source_column, display_column } = field.foreign_key;
+            //                 let relatedData;
+            //                 let relatedError;
+            //                 if (Array.isArray(foreignKeyValue)) {
+            //                     ({ data: relatedData, error: relatedError } = await supabase
+            //                         .from(source_table)
+            //                         .select('*')
+            //                         .in(source_column, foreignKeyValue));
+            //                 } else {
+            //                     ({ data: relatedData, error: relatedError } = await supabase
+            //                         .from(source_table)
+            //                         .select('*')
+            //                         .eq(source_column, foreignKeyValue));
+            //                 }
+            //                 if (relatedError) throw relatedError;
+            //                 sale.related_data = sale.related_data || {};
+            //                 sale.related_data[field.key] = Array.isArray(foreignKeyValue) ? relatedData : relatedData?.[0];
+            //             }
+            //         }
+            //     }
+            // }
             console.log("Dtr", data);
             setAllData(data);
             setData(data);
@@ -273,7 +288,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 setCallFetch(() => fetchData);
             }
         }
-    }, [currentPage, viewConfig, selectedTab]);
+    }, [currentPage, viewConfig, selectedTab, fetchFilters]);
 
     const updateData = async (updatedRow) => {
         const { id, ...updates } = updatedRow;
@@ -434,6 +449,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                                             }}
                                         />
                                     ))}
+                                    {customFilters}
                                     {renderFilters(viewConfig?.global?.search, data)}
                                     <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
                                         {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
@@ -449,7 +465,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                     <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                             <Typography.Title level={4} style={{ margin: 0 }}>
-                                {filterTabItems[0]?.label || 'Default View'}
+                                {filterTabItems.length > 0 && (filterTabItems[0]?.label || 'Default View')}
                             </Typography.Title>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 {viewItems.length > 1 && viewItems.map(view => (
@@ -464,6 +480,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                                         }}
                                     />
                                 ))}
+                                {customFilters}
                                 {renderFilters(viewConfig?.global?.search, data)}
                                 <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
                                     {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}

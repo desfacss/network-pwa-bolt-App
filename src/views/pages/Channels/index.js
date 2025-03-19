@@ -243,7 +243,7 @@ const Channels = ({ isPrivate = false }) => {
           {!isPrivate && (<h3 style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {activeChannel ? activeChannel.slug : 'Select a Channel'}
           </h3>)}
-          {!isPrivate && (
+          {(!isPrivate) && session?.user?.features?.feature?.channels && (
             <Button
               icon={<MenuOutlined />}
               onClick={() => setIsChannelsDrawerVisible(true)}

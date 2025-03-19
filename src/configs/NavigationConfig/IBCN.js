@@ -41,7 +41,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      {
+      feature?.eventPass && {
         key: 'pass',
         path: `${APP_PREFIX_PATH}/pass`,
         title: 'Event Pass',
@@ -57,7 +57,7 @@ const navigationConfig = [
       //   breadcrumb: false,
       //   submenu: [],
       // },
-      module_features?.ibNetworking && feature?.ibNetworking && {
+      feature?.ibNetworking && {
         key: 'channels',
         path: `${APP_PREFIX_PATH}/channels`,
         title: 'Networking',
@@ -65,7 +65,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.ibBusinesses && feature?.ibBusinesses && {
+      feature?.businessDirectory && {
         key: 'ib_businesses',
         path: `${APP_PREFIX_PATH}/businesses`,
         title: 'Businesses',
@@ -73,7 +73,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      module_features?.ibMembers && feature?.ibMembers && {
+      feature?.memberDirectory && {
         key: 'ib_members',
         path: `${APP_PREFIX_PATH}/members`,
         title: 'Members',
@@ -90,7 +90,7 @@ const navigationConfig = [
       //   submenu: [],
       // },
       // module_features?.survey && feature?.survey &&
-      {
+      feature?.survey && {
         key: 'survey',
         path: `${APP_PREFIX_PATH}/survey`,
         title: 'Survey',
@@ -187,7 +187,7 @@ const navigationConfig = [
       //   breadcrumb: false,
       //   submenu: [],
       // },
-    ],
+    ]?.filter(Boolean),
   },
 ];
 
