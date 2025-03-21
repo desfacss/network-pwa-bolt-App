@@ -323,10 +323,19 @@ export const LoginForm = (props) => {
         <Input prefix={<MailOutlined />} />
       </Form.Item>
       {!magiclink && (
-        <Form.Item name="password" label="Password" rules={[{ required: true }]}>
+        <Form.Item name="password" label={
+          <span>
+            Password {" "}
+            <span style={{ paddingLeft: 5 }}>
+              <a href={`${APP_PREFIX_PATH}/confirm-signup`}>Forgot Password?</a>
+            </span>
+          </span>
+        } rules={[{ required: true }]}
+        >
           <Input.Password prefix={<LockOutlined />} />
         </Form.Item>
-      )}
+      )
+      }
       <Form.Item>
         <Button type="primary" htmlType="submit" block disabled={linkSent}>
           {magiclink ? "Send login link" : "Login"}
@@ -361,7 +370,7 @@ export const LoginForm = (props) => {
           Sign in with Google (Referral)
         </Button>
       )} */}
-    </Form>
+    </Form >
   );
 };
 

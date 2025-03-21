@@ -647,14 +647,16 @@ const IntroScreen = () => {
     onClose();
   };
 
+  const headerHeight = 90;
+
   return (
     <div style={{
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      background: '#f8f9fa'
+      // background: '#f8f9fa'
     }}>
-      <header style={{
+      {/* <header style={{
         padding: '10px 15px',
         color: '#003764',
         display: 'flex',
@@ -665,7 +667,22 @@ const IntroScreen = () => {
         <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} />
         <h1 style={{ margin: 0, fontSize: '1.2rem' }}>IBCN NetworkX</h1>
         <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '50px' }} />
-      </header>
+      </header> */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "20px",
+          color: "#003764",
+          height: `${headerHeight}px`,
+          background: "#fff",
+        }}
+      >
+        <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
+        <h1 style={{ margin: 0 }}>IBCN NetworkX</h1>
+        <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} />
+      </div>
 
       <main style={{
         flex: '1 0 auto',
@@ -676,7 +693,7 @@ const IntroScreen = () => {
           autoplay={autoPlay}
           loop
           autoplayInterval={4000}
-          style={{ 
+          style={{
             flex: '1 0 auto',
             minHeight: '300px', // Minimum height of 300px
             maxHeight: 'calc(100vh - 200px)' // Still respects viewport constraints
@@ -693,8 +710,8 @@ const IntroScreen = () => {
                   overflowY: 'auto',
                   minHeight: '300px' // Match Swiper minHeight
                 }}>
-                  <div style={{ 
-                    position: 'relative', 
+                  <div style={{
+                    position: 'relative',
                     zIndex: 200
                   }}>
                     <h2 style={{
@@ -712,7 +729,7 @@ const IntroScreen = () => {
                           paddingLeft: '15px',
                           position: 'relative'
                         }}>
-                          <span style={{ 
+                          <span style={{
                             position: 'absolute',
                             left: '0',
                             fontWeight: 'bold',
@@ -740,10 +757,10 @@ const IntroScreen = () => {
           bottom: 0,
           zIndex: 1000
         }}>
-          <Button 
-            type="ghost" 
-            block 
-            style={{ 
+          <Button
+            type="ghost"
+            block
+            style={{
               marginBottom: '10px',
               fontSize: '1rem'
             }}

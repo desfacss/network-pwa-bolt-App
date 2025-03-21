@@ -286,7 +286,7 @@ const SurveyLayout = ({ children }) => {
       <Row justify="center" className="align-items-stretch h-100">
         <Col xs={24} sm={24} md={isMobile ? 24 : 20} lg={isMobile ? 24 : 16}> {/* Conditional width */}
           <div className="container d-flex flex-column justify-content-center h-100">
-            <Row justify="center" className="mt-5">
+            <Row justify="center" >
               <Col xs={24} sm={24} md={20} lg={24} xl={24}>
                 {children}
               </Col>
@@ -309,61 +309,61 @@ const SurveyLayout = ({ children }) => {
               }}
             >
               {/* ... (rest of the right side content remains the same) */}
-               <div className="text-right">
-              {/* <img src="/img/knba.png" alt="logo" style={{ height: '80px' }} /> */}
-            </div>
-            <Row>
-              <Col xs={0} sm={0} md={0} lg={20}>
-                <div
-                  style={{
-                    minHeight: 'calc(100vh - 150px)', // Ensure the content has enough height
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <img
-                    className="img-fluid mb-5"
-                    src="/img/others/img-19.png"
-                    alt=""
-                  />
-                  <div>
-                    {/* <img
+              <div className="text-right">
+                {/* <img src="/img/knba.png" alt="logo" style={{ height: '80px' }} /> */}
+              </div>
+              <Row>
+                <Col xs={0} sm={0} md={0} lg={20}>
+                  <div
+                    style={{
+                      minHeight: 'calc(100vh - 150px)', // Ensure the content has enough height
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <img
+                      className="img-fluid mb-5"
+                      src="/img/others/img-19.png"
+                      alt=""
+                    />
+                    <div>
+                      {/* <img
                       // src="/img/ukpe_logo.png"
                       src={`/img/${workspace}/logo_light.png`}
                       alt={`${workspace}`} style={{ height: '30px' }} /> */}
-                    <img
-                      src={`/img/${workspace}/logo_light.png`}
-                      alt={`${workspace}`}
-                      style={{ height: '30px' }}
-                      onError={(e) => {
-                        e.target.style.display = 'none'; // Hide the image
-                        e.target.nextSibling.style.display = 'block'; // Show the h1 element
-                      }}
-                    />
-                    <h1 style={{ display: 'none', fontSize: '20px', margin: 0 }}>{name}</h1>
+                      <img
+                        src={`/img/${workspace}/logo_light.png`}
+                        alt={`${workspace}`}
+                        style={{ height: '30px' }}
+                        onError={(e) => {
+                          e.target.style.display = 'none'; // Hide the image
+                          e.target.nextSibling.style.display = 'block'; // Show the h1 element
+                        }}
+                      />
+                      <h1 style={{ display: 'none', fontSize: '20px', margin: 0 }}>{name}</h1>
+                    </div>
+                    <br /><br /><br /><br />
+                    <h3 className="text-white">
+                      IBCN 2025, BENGALURU
+                    </h3>
+                    <br />
+                    <p>
+                      &rdquo;Enhancing Nagarathar Businesses Through Technology&rdquo;
+                    </p>
                   </div>
-                  <br /><br /><br /><br />
-                  <h3 className="text-white">
-                    IBCN 2025, BENGALURU  
-                  </h3>
-                  <br />
-                  <p>
-                    &rdquo;Enhancing Nagarathar Businesses Through Technology&rdquo;
-                  </p>
-                </div>
-              </Col>
-            </Row>
-            <div
-              className="d-none d-lg-flex flex-column justify-content-end pb-4"
-              style={{
-                position: 'absolute',
-                bottom: '10px',
-                width: '100%',
-              }}
-            >
-              <div>
-                {/* <span
+                </Col>
+              </Row>
+              <div
+                className="d-none d-lg-flex flex-column justify-content-end pb-4"
+                style={{
+                  position: 'absolute',
+                  bottom: '10px',
+                  width: '100%',
+                }}
+              >
+                <div>
+                  {/* <span
                   className="d-block"
                   style={{
                     color: 'white',
@@ -372,7 +372,7 @@ const SurveyLayout = ({ children }) => {
                 >
                   Copyright © Claritiz 2024. All rights reserved.
                 </span> */}
-                {/* <span
+                  {/* <span
                   className="d-block"
                   style={{
                     color: 'white',
@@ -392,8 +392,8 @@ const SurveyLayout = ({ children }) => {
                     www.claritiz.com
                   </a>
                 </span> */}
+                </div>
               </div>
-            </div>
             </div>
           </Col>
         )}
