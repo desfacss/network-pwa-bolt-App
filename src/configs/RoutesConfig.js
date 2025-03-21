@@ -265,11 +265,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/networking/:channel_post_id`,
             component: React.lazy(() => import('views/pages/Channels/ChannelPostMessages')),
         },
-        // module_features?.ibNetworking && feature?.ibNetworking && {
-        //     key: 'ib_networking',
-        //     path: `${APP_PREFIX_PATH}/networking`,
-        //     component: React.lazy(() => import('views/pages/ib/Networking')),
-        // },
+        {
+            key: 'ib_networking',
+            path: `${APP_PREFIX_PATH}/networking`,
+            component: React.lazy(() => import('views/pages/ib/Networking')),
+        },
         // module_features?.ibNetworking && feature?.ibNetworking && 
         {
             key: 'tags',

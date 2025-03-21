@@ -273,13 +273,13 @@ const Channels = ({ isPrivate = false }) => {
               onChange={(e) => setSearchText(e.target.value)}
               style={{ borderColor: '#ccceee', color: '#333333', flex: 1, minWidth: 0 }}
             />
-            {/* <Button
+            <Button
               type="primary"
               onClick={() => setIsMessageDrawerVisible(true)}
               style={{ minWidth: 200 }}
             >
               Post Message
-            </Button> */}
+            </Button>
           </div>
         )}
 

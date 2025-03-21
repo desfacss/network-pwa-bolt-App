@@ -1,20 +1,120 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Form, Button, List, Mentions, Flex, Popconfirm, message, Empty, ConfigProvider, theme, Tag } from 'antd'; // Added Tag
-import { EditOutlined, DeleteOutlined, RocketOutlined } from '@ant-design/icons';
+import { Card, Form, Button, List, Input, Cascader, Tag, Mentions, Flex, Drawer, Popconfirm, message, Empty, ConfigProvider, theme } from 'antd';
+import { SendOutlined, EditOutlined, DeleteOutlined, RocketOutlined } from '@ant-design/icons';
 import './styles.css';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import CategorySelector from './CategorySelector';
+
+const { Option } = Mentions;
+
+const buildTagHierarchy = async () => {
+  const { data, error } = await supabase
+    .from('ib_categories')
+    .select('id, category_name, parent_category_id');
+
+  if (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+
+  const categoryMap = new Map(data.map(category => [category.id, { ...category, children: [] }]));
+  const rootCategories = [];
+  for (let category of data) {
+    if (category.parent_category_id === null) {
+      rootCategories.push(categoryMap.get(category.id));
+    } else if (categoryMap.has(category.parent_category_id)) {
+      categoryMap.get(category.parent_category_id).children.push(categoryMap.get(category.id));
+    }
+  }
+
+  const convertToCascaderFormat = (category) => ({
+    value: category.id,
+    label: category.category_name,
+    children: category.children.map(convertToCascaderFormat)
+  });
+
+  return rootCategories.map(convertToCascaderFormat);
+};
+
+export const NewPostForm = ({ form, onSubmit, tags, setTags, isSubmitting }) => {
+  const [tagHierarchy, setTagHierarchy] = useState([]);
+  const [idToNameMap, setIdToNameMap] = useState(new Map());
+
+  useEffect(() => {
+    const loadHierarchy = async () => {
+      const hierarchy = await buildTagHierarchy();
+      setTagHierarchy(hierarchy);
+      const map = new Map();
+      const buildMap = (categories) => {
+        categories.forEach(cat => {
+          map.set(cat.value, cat.label);
+          if (cat.children) buildMap(cat.children);
+        });
+      };
+      buildMap(hierarchy);
+      setIdToNameMap(map);
+    };
+    loadHierarchy();
+  }, []);
+
+  const handleCascaderChange = (value) => {
+    setTags(value ? value.map(id => ({ id, name: idToNameMap.get(id) })) : []);
+  };
+
+  return (
+    <Form form={form} onFinish={onSubmit} layout="vertical" style={{ width: '100%' }}>
+      <div style={{ background: '#ccceee', borderRadius: 4, border: '1px solid #ccceee', padding: 8, width: '100%' }}>
+        <Flex gap={8} align="center">
+          <Form.Item
+            name="message"
+            rules={[{ required: true, message: 'Please write your message' }]}
+            style={{ flex: 1, margin: 0 }}
+          >
+            <Mentions
+              rows={2}
+              prefix={['@']}
+              placeholder="Write your message"
+              style={{
+                border: 'none',
+                padding: 0,
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#333333 #ccceee',
+              }}
+            />
+          </Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            shape="circle"
+            icon={<SendOutlined />}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+            style={{ background: '#333333', border: 'none', height: 40, width: 40 }}
+          />
+        </Flex>
+        <Cascader
+          options={tagHierarchy}
+          onChange={handleCascaderChange}
+          value={tags.map(tag => tag.id)}
+          placeholder="Add tags"
+          style={{ width: '100%', marginTop: 8 }}
+          showSearch
+        />
+      </div>
+    </Form>
+  );
+};
 
 const ForumComment = ({ channel_id, isPrivate = false, searchText = '' }) => {
   const [form] = Form.useForm();
+  const [tags, setTags] = useState([]);
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
+  // const [searchText, setSearchText] = useState('');
   const [editingMessage, setEditingMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [idToNameMap, setIdToNameMap] = useState(new Map());
-  const [drawerVisible, setDrawerVisible] = useState(false);
   const { session } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -39,14 +139,16 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText = '' }) => {
       }
 
       if (idToNameMap.size === 0) {
-        const { data: categories, error: catError } = await supabase
-          .from('ib_categories')
-          .select('id, category_name, parent_category_id');
-
-        if (!catError) {
-          const map = new Map(categories.map(cat => [cat.id, cat.category_name]));
-          setIdToNameMap(map);
-        }
+        const hierarchy = await buildTagHierarchy();
+        const map = new Map();
+        const buildMap = (categories) => {
+          categories.forEach(cat => {
+            map.set(cat.value, cat.label);
+            if (cat.children) buildMap(cat.children);
+          });
+        };
+        buildMap(hierarchy);
+        setIdToNameMap(map);
       }
 
       const processedData = data.map(item => ({
@@ -77,20 +179,70 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText = '' }) => {
     setFilteredMessages(filterMessages());
   }, [searchText, messages, idToNameMap]);
 
-  const handleSubmit = (data, isUpdate) => {
-    setIsSubmitting(false);
-    if (isUpdate) {
-      setMessages(messages.map(msg => msg.id === data.id ? data : msg));
-    } else {
-      setMessages([data, ...messages]);
+  const handleSubmit = async (values) => {
+    if (!session?.user?.id) return;
+    if (!isPrivate && tags.length < 2) {
+      message.error("Please add at least 2 tags");
+      return;
     }
-    setEditingMessage(null);
-    form.resetFields();
+
+    setIsSubmitting(true);
+    const firstTag = tags.length > 0 ? tags[0] : null;
+    const otherTags = tags.slice(1);
+    const newMessage = {
+      message: values.message,
+      user_id: session.user.id,
+      channel_id: channel_id,
+      details: isPrivate ? {} : {
+        tags: otherTags.map(tag => tag.id),
+        category_id: firstTag?.id,
+      },
+    };
+
+    try {
+      if (editingMessage) {
+        const { data, error } = await supabase
+          .from('channel_posts')
+          .update({
+            message: newMessage.message,
+            details: newMessage.details,
+          })
+          .eq('id', editingMessage.id)
+          .select('*');
+
+        if (error) throw error;
+        setMessages(messages.map(msg => msg.id === editingMessage.id ? { ...msg, ...data[0] } : msg));
+        message.success("Message updated successfully.");
+      } else {
+        const { data, error } = await supabase
+          .from('channel_posts')
+          .insert([newMessage])
+          .select('*, user:users!channel_posts_user_id_fkey(user_name), channel:channels(slug), reply_count:channel_post_messages(count)')
+          .single();
+
+        if (error) throw error;
+        setMessages([{ ...data, reply_count: data.reply_count[0]?.count || 0 }, ...messages]);
+      }
+
+      form.resetFields();
+      setTags([]);
+      setEditingMessage(null);
+    } catch (err) {
+      console.error("Error:", err);
+      message.error("Failed to save message.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEdit = (message) => {
+    form.setFieldsValue({ message: message.message });
+    const tagsToEdit = [
+      ...(message.details?.category_id ? [{ id: message.details.category_id, name: idToNameMap.get(message.details.category_id) }] : []),
+      ...(message.details?.tags?.map(tag => ({ id: tag, name: idToNameMap.get(tag) })) || []),
+    ];
+    setTags(tagsToEdit);
     setEditingMessage(message);
-    setDrawerVisible(true);
   };
 
   const handleDelete = async (messageId) => {
@@ -123,27 +275,13 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText = '' }) => {
           algorithm: theme.defaultAlgorithm,
           token: { colorBorder: '#ccceee', borderRadius: 4, fontFamily: 'Inter, sans-serif' }
         }}>
-          <Button
-            type="primary"
-            onClick={() => setDrawerVisible(true)}
-            style={{ marginBottom: 16 }}
-          >
-            New Post
-          </Button>
-          <CategorySelector
-            visible={drawerVisible}
-            onClose={() => {
-              setDrawerVisible(false);
-              setEditingMessage(null);
-              form.resetFields();
-            }}
-            chatId={editingMessage?.id}
-            channel_id={channel_id}
-            form={form}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-            session={session}
-          />
+          <NewPostForm form={form} onSubmit={handleSubmit} tags={tags} setTags={setTags} isSubmitting={isSubmitting} />
+          {/* <Input
+            placeholder="Search by user name, message or tag"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ borderColor: '#ccceee', color: '#333333', margin: '16px 0' }}
+          /> */}
         </ConfigProvider>
       )}
 
