@@ -3,7 +3,7 @@ import { Tabs, Button, message, Select, Input, Modal } from 'antd';
 import Form from '@rjsf/antd';
 import { RJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import { supabase } from 'configs/SupabaseConfig'; // Import Supabase client
 import TableViewConfig from './TableViewConfig'; // Import the TableViewConfig component
 // import CrudTableConfig from './FormSchema';

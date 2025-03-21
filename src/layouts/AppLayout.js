@@ -1,20 +1,18 @@
 import React, { Suspense, useEffect } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SideNav from "components/layout-components/SideNav";
 import TopNav from "components/layout-components/TopNav";
 import Loading from "components/shared-components/Loading";
-import MobileNav from "components/layout-components/MobileNav";
 import HeaderNav from "components/layout-components/HeaderNav";
 import PageHeader from "components/layout-components/PageHeader";
 import Footer from "components/layout-components/Footer";
 import { Layout, Grid } from "antd";
-// import navigationConfig from "configs/NavigationConfig/Default";
+import { TabBar } from "antd-mobile";
 import { TEMPLATE, MEDIA_QUERIES } from "constants/ThemeConstant";
 import styled from "@emotion/styled";
 import utils from "utils";
-// import { getUserProfile } from "store/slices/profileSlice";
-import './custom.css'
+import './custom.css';
 import { REACT_APP_WORKSPACE } from "configs/AppConfig";
 import { getNavigationConfig } from "configs/NavigationConfig/navigationUtils";
 
@@ -45,7 +43,17 @@ const AppContent = styled("div")`
 
   @media ${MEDIA_QUERIES.MOBILE} {
     padding: ${TEMPLATE.LAYOUT_CONTENT_GUTTER_SM}px;
+    padding-bottom: 60px; /* Space for TabBar */
   }
+`;
+
+const StyledTabBar = styled(TabBar)`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* Bring TabBar to the top layer */
+  background: #f5f5f5; /* Ensure background is solid */
 `;
 
 export const AppLayout = ({
@@ -56,27 +64,24 @@ export const AppLayout = ({
   profile,
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { session } = useSelector((state) => state.auth);
-  const workspace = session?.user?.organization?.app_settings?.workspace || REACT_APP_WORKSPACE || 'dev'
+  const workspace = session?.user?.organization?.app_settings?.workspace || REACT_APP_WORKSPACE || 'dev';
   const navigationConfig = getNavigationConfig(workspace);
 
-  const currentRouteInfo = utils.getRouteInfo(
-    navigationConfig,
-    location.pathname
-  );
+  const currentRouteInfo = utils.getRouteInfo(navigationConfig, location.pathname);
   const screens = utils.getBreakPoint(useBreakpoint());
   const isMobile = screens.length === 0 ? false : !screens.includes("lg");
   const isNavSide = navType === TEMPLATE.NAV_TYPE_SIDE;
   const isNavTop = navType === TEMPLATE.NAV_TYPE_TOP;
+
   const getLayoutGutter = () => {
     if (isNavTop || isMobile) {
       return 0;
     }
-    return navCollapsed
-      ? TEMPLATE.SIDE_NAV_COLLAPSED_WIDTH
-      : TEMPLATE.SIDE_NAV_WIDTH;
+    return navCollapsed ? TEMPLATE.SIDE_NAV_COLLAPSED_WIDTH : TEMPLATE.SIDE_NAV_WIDTH;
   };
 
   const getLayoutDirectionGutter = () => {
@@ -89,12 +94,28 @@ export const AppLayout = ({
     return { paddingLeft: getLayoutGutter() };
   };
 
+  // Flatten navigationConfig for TabBar
+  const tabBarItems = navigationConfig
+    .flatMap((group) => group.submenu)
+    .filter(Boolean)
+    .map((item) => ({
+      key: item.key,
+      title: item.title,
+      icon: <item.icon />,
+      path: item.path,
+    }));
+
+  const handleTabClick = (path) => {
+    // console.log("xz", path)
+    navigate(path); // Navigate to the clicked item's path
+  };
+
   useEffect(() => {
     // dispatch(getUserProfile());
   }, []);
 
   return (
-    <Layout>
+    <Layout style={{ minHeight: "100vh" }}>
       <HeaderNav profileData={profile} isMobile={isMobile} />
       {isNavTop && !isMobile ? <TopNav routeInfo={currentRouteInfo} /> : null}
       <Layout>
@@ -102,7 +123,7 @@ export const AppLayout = ({
           <SideNav routeInfo={currentRouteInfo} />
         ) : null}
         <Layout style={getLayoutDirectionGutter()}>
-          <AppContent>
+          <AppContent isNavTop={isNavTop}>
             <PageHeader
               display={currentRouteInfo?.breadcrumb}
               title={currentRouteInfo?.title}
@@ -112,11 +133,36 @@ export const AppLayout = ({
                 {children}
               </Suspense>
             </Content>
+            <Footer />
           </AppContent>
-          <Footer />
         </Layout>
       </Layout>
-      {isMobile && <MobileNav />}
+      {isMobile && (
+        <StyledTabBar
+          unselectedTintColor="#949494"
+          tintColor="#1890ff"
+          barTintColor="#f5f5f5"
+        >
+          {/* {tabBarItems.map((item) => (
+            <TabBar.Item
+              key={item.key}
+              title={item.title}
+              icon={item.icon}
+              selected={location.pathname === item.path}
+              onPress={() => handleTabClick(item.path)} // Handle navigation
+            />
+          ))} */}
+          {tabBarItems.map((item) => (
+            <TabBar.Item
+              key={item.key}
+              title={item.title}
+              icon={item.icon} // THIS IS THE CRITICAL CHANGE!
+              selected={location.pathname === item.path}
+              onClick={() => handleTabClick(item.path)}
+            />
+          ))}
+        </StyledTabBar>
+      )}
     </Layout>
   );
 };
