@@ -1,12 +1,16 @@
+/* Main container */
 .ticket-page {
+  height: 100vh; /* Full viewport height */
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 16px;
-  background-color: #f5f5f5;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  padding: 16px; /* Consistent padding */
+  background-color: #f5f5f5; /* Subtle background */
+  overflow: hidden; /* Prevent page-level scrolling */
+  position: relative; /* For FAB positioning */
 }
 
+/* Ticket card */
 .ticket-card {
   background: #fff;
   color: #333;
@@ -16,9 +20,12 @@
   max-width: 400px; /* Consistent width for all screens */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* Hide overflow outside card */
   display: flex;
   flex-direction: column;
+  height: auto; /* Natural height */
+  max-height: calc(100vh - 32px); /* Account for 16px padding top and bottom */
+  z-index: 1; /* Below FAB */
 }
 
 /* Common styles for ticket sections */
@@ -31,6 +38,8 @@
   justify-content: space-between;
   border-top: 1px dashed #999;
   border-bottom: 1px dashed #999;
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding in width */
 }
 
 .event-section {
@@ -134,13 +143,37 @@
   text-align: right;
 }
 
+/* FAB Button Styling */
+.fab-button {
+  position: fixed;
+  bottom: 54px; /* Standard spacing from bottom */
+  right: 24px; /* Standard spacing from right */
+  z-index: 10; /* Float above card */
+  background-color: #1890ff; /* Ant Design primary blue */
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.fab-button:hover {
+  background-color: #40a9ff; /* Lighter blue on hover */
+}
+
 /* Responsive Adjustments */
 @media (min-width: 769px) {
+  .ticket-page {
+    padding: 20px; /* Slightly more padding on desktop */
+  }
+  .ticket-card {
+    max-height: none; /* No height restriction on desktop */
+  }
   .ticket-header h1 {
     font-size: 24px;
   }
   .profile-image {
     width: 120px;
     height: 120px;
+  }
+  .fab-button {
+    display: none; /* Hide FAB on desktop */
   }
 }
