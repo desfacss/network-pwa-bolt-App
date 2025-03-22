@@ -249,7 +249,6 @@ import {
   Form,
   Button,
   List,
-  Mentions,
   Flex,
   message,
   Empty,

@@ -289,7 +289,7 @@
 //             onFinish={onFinish}
 //           />
 //         </Drawer>
-        
+
 //       )}
 //     </div>
 //   );
@@ -891,7 +891,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Typography, Button, message } from 'antd';
-import { PlusOutlined, EditOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 import Barcode from 'react-barcode';
 import './TicketPage.css';
 import { supabase } from 'configs/SupabaseConfig';

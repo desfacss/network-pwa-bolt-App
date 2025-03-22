@@ -507,7 +507,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Button, Modal, Divider, Tabs, Switch, Drawer } from 'antd';
+import { Card, Descriptions, Button, Divider, Tabs, Switch, Drawer } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
 import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined } from '@ant-design/icons';
@@ -516,7 +516,7 @@ import ChangePassword from 'views/auth-views/components/ChangePassword';
 import { useNavigate, useParams } from 'react-router-dom';
 import ProfilePic from './ProfilePic';
 import DynamicViews from '../DynamicViews';
-import WhatsAppShareButton from 'components/common/WhatsappShare';
+// import WhatsAppShareButton from 'components/common/WhatsappShare';
 import Channels from '../Channels';
 
 const Profile = () => {
