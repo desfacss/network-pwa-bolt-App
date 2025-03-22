@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Button, Form, Input, Select, notification, Row, Col, Spin, InputNumber, message, Typography, Divider } from "antd";
 import { signUp, showAuthMessage, showLoading, hideAuthMessage, setSession } from "store/slices/authSlice";
 import { useLocation, Link } from "react-router-dom";
@@ -20,18 +20,23 @@ export const OpenRegisterForm = (props) => {
   const [mobile, setMobile] = useState("");
   const [leadData, setLeadData] = useState(null);
 
-  const getOrganization = async () => {
-    const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE).single();
-    if (error) {
-      return message.error("Organization does not exist");
-    }
-    if (data) {
-      setOrganization(data);
-    }
-  };
+  const { defaultOrganization } = useSelector((state) => state.auth);
+
+  // const getOrganization = async () => {
+  //   const { data, error } = await supabase.from('organizations').select('*').eq('app_settings->>workspace', REACT_APP_WORKSPACE).single();
+  //   if (error) {
+  //     return message.error("Organization does not exist");
+  //   }
+  //   if (data) {
+  //     setOrganization(data);
+  //   }
+  // };
 
   const getForms = async () => {
-    const { data, error } = await supabase.from('forms').select('*').eq('organization_id', organization?.id).eq('name', "open_user_registration_form").single();
+    const { data, error } = await supabase.from('forms').select('*').eq('organization_id', defaultOrganization?.id).eq('name', "open_user_registration_form").single();
+    if (error) {
+      return message.error("Forms does not exist");
+    }
     if (data) {
       setSchema(data);
     }
@@ -39,6 +44,9 @@ export const OpenRegisterForm = (props) => {
 
   const getRoles = async () => {
     const { data, error } = await supabase.from('roles').select('*');
+    if (error) {
+      return message.error("Roles does not exist");
+    }
     if (data) {
       setRoles(data);
     }
@@ -58,15 +66,11 @@ export const OpenRegisterForm = (props) => {
   const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
   useEffect(() => {
-    getOrganization();
-    getRoles();
-  }, []);
-
-  useEffect(() => {
-    if (organization) {
+    if (defaultOrganization) {
+      getRoles();
       getForms();
     }
-  }, [organization]);
+  }, [defaultOrganization]);
 
   const checkMobileInReferrals = async () => {
     const { data, error } = await supabase.from('referrals').select('*,users (user_name)').eq('mobile', mobile);
@@ -122,7 +126,7 @@ export const OpenRegisterForm = (props) => {
       const { data: data2, error: error2 } = await supabase.from('users').insert([
         {
           id: data?.user?.id,
-          organization_id: organization?.id,
+          organization_id: defaultOrganization?.id,
           details: userDetails,
           user_name,
           role_type: role,
@@ -191,7 +195,7 @@ export const OpenRegisterForm = (props) => {
     const { data: data2, error: error2 } = await supabase.from('users').insert([
       {
         id: userId,
-        organization_id: organization?.id,
+        organization_id: defaultOrganization?.id,
         details: userDetails,
         user_name,
         role_type: role,
@@ -252,7 +256,7 @@ export const OpenRegisterForm = (props) => {
       }
     });
     return () => subscription.unsubscribe();
-  }, [step, organization, roles]);
+  }, [step, defaultOrganization, roles]);
 
   return (
     <div>

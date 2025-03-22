@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { connect } from "react-redux";
-import { Button, Form, Input, notification, Divider } from "antd";
+import { connect, useSelector } from "react-redux";
+import { Button, Form, Input, notification, Divider, message } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import {
   signIn,
@@ -10,16 +10,39 @@ import {
 } from "store/slices/authSlice";
 import { supabase } from "configs/SupabaseConfig";
 import { useNavigate, useLocation } from "react-router-dom";
-import { APP_PREFIX_PATH } from 'configs/AppConfig';
+import { APP_PREFIX_PATH, REACT_APP_WORKSPACE } from 'configs/AppConfig';
 
 export const LoginForm = (props) => {
   const [linkSent, setLinkSent] = useState(false);
   const [magiclink, setMagicLink] = useState(false);
   const [mobile, setMobile] = useState("");
   const [referralExists, setReferralExists] = useState(null);
+  const [roles, setRoles] = useState();
+
+  const { defaultOrganization } = useSelector((state) => state.auth);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { showLoading } = props;
+
+  const defaultRole = "delegate";
+
+  const getRoles = async () => {
+    const { data, error } = await supabase.from('roles').select('*').eq('organization_id', defaultOrganization?.id);
+    if (error) {
+      return message.error("Roles does not exist");
+    }
+    if (data) {
+      setRoles(data);
+    }
+    console.log("klo", defaultOrganization?.id, defaultRole, data?.find(i => i.role_name === defaultRole)?.id)
+  };
+
+  useEffect(() => {
+    if (defaultOrganization) {
+      getRoles();
+    }
+  }, [defaultOrganization]);
 
   useEffect(() => {
     const hash = location.hash;
@@ -167,6 +190,7 @@ export const LoginForm = (props) => {
         }
 
         if (!existingUser) {
+          // console.log("g6", defaultOrganization?.id, defaultRole, roles, roles?.find(i => i.role_name === defaultRole)?.id)
           const { error: insertError } = await supabase
             .from('users')
             .insert({
@@ -174,8 +198,10 @@ export const LoginForm = (props) => {
               auth_id: session.user.id,
               details: { email: userEmail, mobile: userMobile }, // Store mobile in details
               user_name: userEmail?.split('@')[0] || userEmail,
-              // organization_id: "20e899a5-6261-40d9-8c9a-00666248d91a",
-              // role_id: "4f074c42-cf61-4403-9460-da2382a2b003"
+              organization_id: defaultOrganization?.id,
+              // role_id: "4f074c42-cf61-4403-9460-da2382a2b003",
+              role_type: defaultRole,
+              role_id: roles?.find(i => i.role_name === defaultRole)?.id || "3dcb9d19-6197-4816-81c8-70435464a201"
             });
 
           if (insertError) {
