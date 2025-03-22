@@ -62,7 +62,7 @@ const LoginTwo = (props) => {
         }}
       >
         <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
-        <h1 style={{ margin: 0 }}>IBCN NetworkX</h1>
+        <h2 style={{ margin: 0 }}>IBCN NetworkX</h2>
         <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} />
       </div>
 

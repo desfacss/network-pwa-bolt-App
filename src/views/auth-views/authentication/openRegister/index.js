@@ -39,7 +39,7 @@ const RegisterTwo = (props) => {
         }}
       >
         <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
-        <h1 style={{ margin: 0 }}>Register</h1>
+        <h2 style={{ margin: 0 }}>IBCN NetworkX</h2>
         <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} />
       </div>
 

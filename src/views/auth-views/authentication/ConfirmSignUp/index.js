@@ -35,7 +35,7 @@ const Index = () => {
                 throw error;
             }
             setIsOtpSent(true);
-            message.success('OTP sent successfully. Check your email!');
+            message.success('If your email is registered, OTP will be sent. Check your email!');
         } catch (error) {
             message.error(error.message || 'Failed to send OTP.');
         } finally {
@@ -73,7 +73,7 @@ const Index = () => {
                 throw error;
             }
             // setIsOtpSent(true);
-            message.success('OTP sent successfully. Check your email!');
+            message.success('If your email is registered, OTP will be sent. Check your email!');
         } catch (error) {
             message.error(error.message || 'Failed to send OTP.');
         } finally {
