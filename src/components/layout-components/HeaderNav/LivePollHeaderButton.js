@@ -46,13 +46,13 @@ function LivePollHeaderButton() {
 
     if (roleType === 'admin' || roleType === 'superadmin') {
         return (
-            <Button onClick={handleClick}>
+            <Button onClick={handleClick} style={{ marginTop: '4px' }}>
                 Start Live Poll
             </Button>
         );
     } else if (activeSession) {
         return (
-            <Button onClick={handleClick}>
+            <Button onClick={handleClick} style={{ marginTop: '4px' }}>
                 Join Session
             </Button>
         );

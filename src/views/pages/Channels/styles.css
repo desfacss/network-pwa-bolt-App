@@ -1,51 +1,89 @@
-/* styles.css */
 .forum-container {
+    padding: 0;
+  }
+  
+  .post {
     display: flex;
-    /* Use flexbox for layout */
-    gap: 24px;
-    /* Space between the two divs */
     align-items: flex-start;
-    /* Align items to the top */
-    padding: 0px;
-    /* Add padding to the container */
-    min-height: 500px;
-    /* Ensure content is visible even if empty */
-    /* Make the layout responsive */
+    padding: 8px 10px;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .post-own {
+    flex-direction: row-reverse;
+  }
+  
+  .post-avatar {
+    flex-shrink: 0;
+  }
+  
+  .post-bubble {
+    flex: 1; /* Take up remaining space */
+    padding: 8px 12px;
+    background: #f1f4f7;
+    border-radius: 12px;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+  
+  .post-own .post-bubble {
+    background: #ecf2fa;
+  }
+  
+  .post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  .post-author {
+    font-size: 12px;
+    font-style: italic;
+    color: #888;
+  }
+  
+  .post-timestamp {
+    font-size: 11px;
+    font-style: italic;
+    color: #888;
+    white-space: nowrap;
+  }
+  
+  .post-actions {
+    display: flex;
+    gap: 4px;
+  }
+  
+  .post-content {
+    font-size: 14px;
+    color: #666666;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  
+  .post-tags {
+    display: flex;
     flex-wrap: wrap;
-    /* Allow wrapping on smaller screens */
-}
-
-.message-list {
-    flex: 1;
-    /* Take up available space */
-    min-width: 50%;
-    /* Ensure a minimum width */
-}
-
-.new-post-container {
-    width: 300px;
-    /* Fixed width for the new post section */
-    /* Responsive adjustments */
-}
-
-/* Styles for smaller screens */
-@media (max-width: 768px) {
-
-    /* Adjust breakpoint as needed */
-    .new-post-container {
-        display: none;
-        /* Hide the new post section */
+    gap: 4px;
+  }
+  
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .forum-container {
+      padding: 0;
     }
-
-    .new-post-button-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1000;
-        /* Ensure it's on top */
+  
+    .post {
+      padding: 6px 8px;
     }
-
-    .ant-drawer-content {
-        padding: 0;
+  
+    .post-bubble {
+      padding: 6px 10px;
     }
-}
+  
+    .post-content {
+      font-size: 14px;
+    }
+  }

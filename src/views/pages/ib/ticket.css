@@ -1,0 +1,274 @@
+.ticket-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+  background: #f0f0f0; /* Background to show cuts */
+}
+
+.ticket-card {
+  background: #fff;
+  color: #000;
+  border: 1px dashed #ccc; /* Border to mimic ticket edge */
+  border-radius: 0; /* Remove default radius for custom cuts */
+  padding: 16px;
+  width: 100%;
+  max-width: 400px; /* Restrict width for mobile */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(
+    10px 0, /* Top-left cut */
+    calc(100% - 10px) 0, /* Top-right cut */
+    100% 10px, /* Top-right corner */
+    100% calc(100% - 10px), /* Bottom-right cut */
+    calc(100% - 10px) 100%, /* Bottom-right corner */
+    10px 100%, /* Bottom-left cut */
+    0 calc(100% - 10px), /* Bottom-left corner */
+    0 10px /* Top-left corner */
+  );
+}
+
+.ticket-header {
+  padding: 8px 0;
+}
+
+.ticket-logo {
+  height: 30px; /* Adjusted to match the smaller logo size in the reference */
+  vertical-align: middle;
+}
+
+.event-title {
+  margin: 0;
+  font-size: 12px; /* Smaller font to match reference */
+  text-align: center;
+  color: #1890ff;
+}
+
+.user-name {
+  margin: 0;
+  color: #1890ff;
+}
+
+.ticket-image {
+  width: 150px; /* Match the plane image width from reference */
+  height: 50px;
+  object-fit: contain;
+}
+
+.ticket-perforation {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #fff 0,
+    #fff 2px,
+    #ccc 2px,
+    #ccc 4px
+  );
+}
+
+/* Profile Picture with Upload Button */
+.profile-placeholder {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.upload-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.profile-placeholder:hover .upload-button {
+  opacity: 1;
+}
+
+/* Mobile Specific */
+.mobile-ticket {
+  text-align: center;
+}
+
+.ticket-top-section {
+  padding: 16px;
+}
+
+.ticket-middle-section {
+  padding: 16px;
+}
+
+.ticket-food-section {
+  padding: 16px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Web Specific */
+.web-ticket {
+  max-width: 800px; /* Wider for horizontal layout */
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.ticket-left-section {
+  padding: 24px;
+  width: 40%;
+}
+
+.ticket-right-section {
+  padding: 24px;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket-food-section {
+  padding: 16px;
+}
+
+.ticket-separator {
+  width: 100%;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ccc 0,
+    #ccc 2px,
+    #fff 2px,
+    #fff 4px
+  );
+  position: relative;
+  margin: 8px 0;
+}
+
+.ticket-separator::before,
+.ticket-separator::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  background: #f0f0f0; /* Match page background to show cut */
+  border: 2px dashed #ccc;
+  border-radius: 50%;
+}
+
+.ticket-separator::before {
+  left: 0;
+}
+
+.ticket-separator::after {
+  right: 0;
+}
+
+.horizontal-separator {
+  width: 100%;
+  height: 2px;
+  margin: 8px 0;
+}
+
+.horizontal-separator::before,
+.horizontal-separator::after {
+  top: -10px;
+}
+
+@media (min-width: 769px) {
+  .ticket-logo {
+    height: 40px; /* Larger logos for web */
+  }
+  .event-title {
+    font-size: 14px;
+  }
+  .ticket-image {
+    width: 200px; /* Larger image for web */
+    height: 60px;
+  }
+  .ticket-card {
+    padding: 0;
+  }
+  .ticket-separator {
+    width: 2px;
+    height: 100%;
+    margin: 0 8px;
+  }
+  .ticket-separator::before,
+  .ticket-separator::after {
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    right: auto;
+  }
+  .ticket-separator::after {
+    left: auto;
+    right: 0;
+  }
+  .web-ticket .ticket-right-section {
+    justify-content: space-between;
+  }
+  .web-ticket .ticket-food-section {
+    margin-top: auto;
+  }
+}
+
+/* Apply track color dynamically */
+.ticket-top-section,
+.ticket-food-section {
+  background-color: inherit; /* Inherits from inline style */
+}
+
+
+
+.ticket-page {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 80px; /* Add padding to avoid overlap with FAB on mobile */
+}
+
+.ticket-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 500px; /* Optional: limit card width for better desktop view */
+  margin: 0 auto; /* Center the card */
+}
+
+/* FAB Button Styling */
+.fab-button {
+  position: fixed;
+  bottom: 24px; /* Standard spacing from bottom */
+  right: 24px; /* Standard spacing from right */
+  z-index: 10; /* Ensure it floats above other content */
+  background-color: #1890ff; /* Ant Design primary blue */
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for elevation */
+}
+
+.fab-button:hover {
+  background-color: #40a9ff; /* Lighter blue on hover */
+}
+
+/* Hide FAB on desktop */
+@media (min-width: 769px) {
+  .fab-button {
+    display: none;
+  }
+}
+
+/* Ensure card isn't squeezed */
+.ticket-section {
+  width: 100%;
+}
