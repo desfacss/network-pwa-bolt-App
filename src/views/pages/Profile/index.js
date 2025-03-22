@@ -510,7 +510,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Descriptions, Button, Modal, Divider, Tabs, Switch, Drawer } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
-import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -851,6 +851,8 @@ const Profile = () => {
         children: renderDynamicDescriptionItemsTabs(group),
     })) || [];
 
+    const profileOwner = session?.user?.id === userData?.id;
+
     const tabItems = [
         {
             key: 'info',
@@ -859,14 +861,16 @@ const Profile = () => {
                 <>{renderDynamicDescriptionItems()}</>
             ),
         },
-        session?.user?.features?.fetaure?.profileBusinesses && {
+        session?.user?.features?.feature?.profileBusinesses && profileOwner &&
+        {
             key: 'businesses',
             label: 'Businesses',
             children: (
                 <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} />
             ),
         },
-        session?.user?.features?.fetaure?.messages && {
+        session?.user?.features?.feature?.privateMessages && profileOwner &&
+        {
             key: 'inbox',
             label: 'Messages',
             children: (
@@ -908,6 +912,26 @@ const Profile = () => {
                         background: 'linear-gradient(to bottom, transparent 50%, #f5f8fa 100%)', // Bottom-only gradient for all screens
                     }}
                 />
+                {!profileOwner && <Button
+                    type="text" label="Back"
+                    icon={<LeftOutlined />}
+                    onClick={() => navigate(-1)} // Navigate back on click
+                    style={{
+                        position: 'absolute',
+                        top: '20px',
+                        left: '20px',
+                        color: '#fff',
+                        fontSize: '24px',
+                        zIndex: 2,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                />}
                 {/* User Name */}
                 <h1
                     style={{

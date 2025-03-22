@@ -353,11 +353,11 @@ export const protectedRoutes = (feature, module_features) => {
         //     path: `${APP_PREFIX_PATH}/users`,
         //     component: React.lazy(() => import('views/pages/Users')),
         // },
-        // {
-        //     key: 'user_info',
-        //     path: `${APP_PREFIX_PATH}/users/:user_id`,
-        //     component: React.lazy(() => import('views/pages/UserInfo')),
-        // },
+        {
+            key: 'member_info',
+            path: `${APP_PREFIX_PATH}/members/:user_name`,
+            component: React.lazy(() => import('views/pages/Profile/index')),
+        },
         // {
         //     key: 'error-page-1',
         //     path: `${APP_PREFIX_PATH}/error-page-1`,
