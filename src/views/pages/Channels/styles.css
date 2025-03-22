@@ -6,7 +6,7 @@
     /* Space between the two divs */
     align-items: flex-start;
     /* Align items to the top */
-    padding: 24px;
+    padding: 0px;
     /* Add padding to the container */
     min-height: 500px;
     /* Ensure content is visible even if empty */

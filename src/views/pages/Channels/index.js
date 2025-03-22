@@ -255,18 +255,13 @@ const Channels = ({ isPrivate = false }) => {
         </div>
 
         {/* Search and Post Message Row */}
-        {!isPrivate && (
+        {/* {!isPrivate && (
           <div style={{
             display: 'flex',
             gap: 8,
             marginBottom: 16,
             flexWrap: 'wrap'
           }}>
-            {/* <Input
-              placeholder="Search messages"
-              prefix={<SearchOutlined />}
-              style={{ flex: 1, minWidth: 0 }}
-            /> */}
             <Input
               placeholder="Search by user name, message or tag"
               value={searchText}
@@ -281,7 +276,7 @@ const Channels = ({ isPrivate = false }) => {
               Post Message
             </Button>
           </div>
-        )}
+        )} */}
 
         {/* Channels Drawer (Right Side) */}
         <Drawer

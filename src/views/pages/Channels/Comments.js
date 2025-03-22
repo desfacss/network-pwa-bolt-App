@@ -257,6 +257,7 @@ import {
   theme,
   Tag,
   Modal,
+  Input,
 } from "antd";
 import { EditOutlined, DeleteOutlined, RocketOutlined } from "@ant-design/icons";
 import "./styles.css";
@@ -265,7 +266,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CategorySelector from "./CategorySelector";
 
-const ForumComment = ({ channel_id, isPrivate = false, searchText = "" }) => {
+const ForumComment = ({ channel_id, isPrivate = false }) => {
   const [form] = Form.useForm();
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
@@ -275,6 +276,8 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText = "" }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
+  const [searchText, setSearchText] = useState('');
+
   const { session } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -393,22 +396,37 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText = "" }) => {
   return (
     <div className="forum-container">
       {!isPrivate && (
-        <ConfigProvider
-          theme={{
-            algorithm: theme.defaultAlgorithm,
-            token: { colorBorder: "#ccceee", borderRadius: 4, fontFamily: "Inter, sans-serif" },
-          }}
-        >
+        <div style={{
+          display: 'flex',
+          gap: 8,
+          marginBottom: 16,
+          flexWrap: 'wrap', width: '100%',
+        }}>
+          <Input
+            placeholder="Search by user name, message or tag"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ flex: 1, minWidth: '58%' }}
+          />
           <Button
             type="primary"
             onClick={() => {
               setEditingMessage(null); // Ensure new post mode
               setDrawerVisible(true);
             }}
-            style={{ marginBottom: 16 }}
+            style={{ flex: 1, minWidth: '38%' }}
           >
             New Post
           </Button>
+        </div>
+      )}
+      {!isPrivate && (
+        <ConfigProvider
+          theme={{
+            algorithm: theme.defaultAlgorithm,
+            token: { colorBorder: "#ccceee", borderRadius: 4, fontFamily: "Inter, sans-serif" },
+          }}
+        >
           <CategorySelector
             visible={drawerVisible}
             onClose={() => {
@@ -550,7 +568,7 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText = "" }) => {
           <Button
             key="cancel"
             onClick={() => setDeleteModalVisible(false)}
-            style={{ width: "45%", marginRight: "10%" }}
+            style={{ width: "45%", marginRight: "5%" }}
             size="large"
           >
             No
@@ -568,7 +586,7 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText = "" }) => {
         ]}
         bodyStyle={{ padding: "16px", textAlign: "center" }}
       >
-        <p style={{ fontSize: "16px", color: "#333333" }}>Are you sure you want to delete this message?</p>
+        <p style={{ fontSize: "16px", color: "#333333" }}>Are you sure you want to delete this Post?</p>
       </Modal>
     </div>
   );

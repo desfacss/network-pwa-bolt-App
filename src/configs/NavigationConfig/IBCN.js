@@ -1,26 +1,16 @@
 import {
   DashboardOutlined,
-  UserOutlined,
-  FundOutlined,
-  IdcardOutlined,
-  ContainerOutlined,
-  RadarChartOutlined,
-  WalletOutlined,
-  ClockCircleOutlined,
-  CalendarOutlined,
   TeamOutlined,
   ShopOutlined,
   UsergroupAddOutlined,
-  ApartmentOutlined,
   FormOutlined,
-  HeatMapOutlined
+  BookOutlined,
 } from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig';
 import { store } from 'store';
 
 const state = store.getState();
 const feature = state?.auth?.session?.user?.features?.feature;
-const module_features = state?.auth?.session?.user?.organization?.module_features;
 
 
 const navigationConfig = [
@@ -45,7 +35,7 @@ const navigationConfig = [
         key: 'pass',
         path: `${APP_PREFIX_PATH}/pass`,
         title: 'Event Pass',
-        icon: DashboardOutlined,
+        icon: BookOutlined,
         breadcrumb: false,
         submenu: [],
       },
