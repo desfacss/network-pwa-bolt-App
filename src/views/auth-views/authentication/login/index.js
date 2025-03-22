@@ -90,8 +90,10 @@ const LoginTwo = (props) => {
               </p> */}
               <h3>Register</h3>
               <p pb-2>IBCN 2025 Delegates can login with your mobile number and Google account or Email directly... For others, You can
-                <Link to={`${APP_PREFIX_PATH}/register`}> Register here</Link> or Go to{" "}
-                <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link></p>
+                <Link to={`${APP_PREFIX_PATH}/register`}> Register here</Link> 
+                {/* or Go to{" "}
+                <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link> */}
+                </p>
               <LoginForm {...props} />
             </div>
           </Col>

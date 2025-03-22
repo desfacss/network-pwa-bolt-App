@@ -55,7 +55,7 @@ const Index = () => {
                     <Option key={option} value={option}>{option}</Option>
                 ))}
             </Select>
-            <Select
+            {/* <Select
                 placeholder="Select Legal Structure"
                 style={{ width: 200 }}
                 onChange={setLegalStructureFilter}
@@ -65,7 +65,7 @@ const Index = () => {
                 {legalStructureOptions.map(option => (
                     <Option key={option} value={option}>{option}</Option>
                 ))}
-            </Select>
+            </Select> */}
         </div>
     );
     return (

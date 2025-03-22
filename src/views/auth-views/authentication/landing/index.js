@@ -561,6 +561,232 @@
 // export default IntroScreen;
 
 
+// import React, { useState, useEffect } from 'react';
+// import { Swiper, Button } from 'antd-mobile';
+// import { Drawer } from 'antd';
+// import { useNavigate } from 'react-router-dom';
+// import { APP_PREFIX_PATH } from 'configs/AppConfig';
+// import DynamicForm from 'views/pages/DynamicForm';
+
+// const IntroScreen = () => {
+//   const slides = [
+//     {
+//       title: "Explore IBCN 2025 Bengaluru",
+//       content: [
+//         "Stay updated with the event schedule, speakers, and session tracks.",
+//         "Access details on keynote sessions and breakout discussions.",
+//         "Plan your agenda and make the most of your experience."
+//       ]
+//     },
+//     {
+//       title: "Connect & Network",
+//       content: [
+//         "Engage with industry leaders and fellow attendees.",
+//         "Discover new collaborations and business opportunities.",
+//         "Join exclusive networking sessions and community meetups."
+//       ]
+//     },
+//     {
+//       title: "Participate in Business Survey",
+//       content: [
+//         "Get insights into entrepreneurship within the Nagarathar community.",
+//         "Understand the aspirations of the next generation.",
+//         "Support collaboration and business growth through networking."
+//       ]
+//     }
+//   ];
+
+//   const navigate = useNavigate();
+//   const [visible, setVisible] = useState(false);
+//   const [schema, setSchema] = useState(null);
+//   const [autoPlay, setAutoPlay] = useState(false);
+
+//   const generateAbstractShapes = (text) => {
+//     const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+//     const shapes = [];
+//     const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+//     const shapeCount = getRandom(3, 4);
+//     const containerMinHeight = 300; // Minimum height of the container
+//     const maxShapeSize = 90; // Maximum size of shapes
+
+//     for (let i = 0; i < shapeCount; i++) {
+//       const size = getRandom(50, maxShapeSize);
+//       const rotate = `${getRandom(0, 360)}deg`;
+//       const lightness = getRandom(60, 85);
+//       const bgColor = `hsl(${(hash + i * 40) % 360}, 70%, ${lightness}%)`;
+//       // Position shapes in the bottom 200px of the container
+//       const bottom = getRandom(0, 200 - size); // Ensure shapes stay within bottom 200px and don't get cut off
+//       const right = getRandom(10, 150);
+
+//       shapes.push({
+//         width: `${size}px`,
+//         height: `${size}px`,
+//         backgroundColor: bgColor,
+//         position: 'absolute',
+//         bottom: `${bottom}px`,
+//         right: `${right}px`,
+//         borderRadius: '50% 0',
+//         transform: `rotate(${rotate})`,
+//         opacity: getRandom(40, 70) / 100,
+//         zIndex: getRandom(50, 100)
+//       });
+//     }
+//     return shapes;
+//   };
+
+//   useEffect(() => {
+//     setAutoPlay(true);
+//     return () => setAutoPlay(false);
+//   }, []);
+
+//   const showDrawer = () => setVisible(true);
+//   const onClose = () => setVisible(false);
+//   const onFinish = (values) => {
+//     console.log('Form submitted:', values);
+//     onClose();
+//   };
+
+//   const headerHeight = 90;
+
+//   return (
+//     <div style={{
+//       minHeight: '100vh',
+//       display: 'flex',
+//       flexDirection: 'column',
+//       // background: '#f8f9fa'
+//     }}>
+//       {/* <header style={{
+//         padding: '10px 15px',
+//         color: '#003764',
+//         display: 'flex',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         flexShrink: 0
+//       }}>
+//         <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} />
+//         <h1 style={{ margin: 0, fontSize: '1.2rem' }}>IBCN NetworkX</h1>
+//         <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '50px' }} />
+//       </header> */}
+//       <div
+//         style={{
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//           padding: "20px",
+//           color: "#003764",
+//           height: `${headerHeight}px`,
+//           background: "#fff",
+//         }}
+//       >
+//         <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
+//         <h2 style={{ margin: 0 }}>IBCN NetworkX</h2>
+//         <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} />
+//       </div>
+
+//       <main style={{
+//         flex: '1 0 auto',
+//         display: 'flex',
+//         flexDirection: 'column'
+//       }}>
+//         <Swiper
+//           autoplay={autoPlay}
+//           loop
+//           autoplayInterval={4000}
+//           style={{
+//             flex: '1 0 auto',
+//             minHeight: '300px', // Minimum height of 300px
+//             maxHeight: 'calc(100vh - 200px)' // Still respects viewport constraints
+//           }}
+//         >
+//           {slides.map((slide, index) => {
+//             const shapeStyles = generateAbstractShapes(slide.title + slide.content.join(''));
+//             return (
+//               <Swiper.Item key={index}>
+//                 <div style={{
+//                   height: '100%',
+//                   padding: '15px',
+//                   position: 'relative',
+//                   overflowY: 'auto',
+//                   minHeight: '300px' // Match Swiper minHeight
+//                 }}>
+//                   <div style={{
+//                     position: 'relative',
+//                     zIndex: 200
+//                   }}>
+//                     <h2 style={{
+//                       marginBottom: '15px',
+//                       fontSize: '1.2rem',
+//                       color: '#003764'
+//                     }}>{slide.title}</h2>
+//                     <ul style={{
+//                       padding: 0,
+//                       listStyleType: 'none'
+//                     }}>
+//                       {slide.content.map((bullet, bulletIndex) => (
+//                         <li key={bulletIndex} style={{
+//                           marginBottom: '10px',
+//                           paddingLeft: '15px',
+//                           position: 'relative'
+//                         }}>
+//                           <span style={{
+//                             position: 'absolute',
+//                             left: '0',
+//                             fontWeight: 'bold',
+//                             color: '#003764'
+//                           }}>•</span>
+//                           {bullet}
+//                         </li>
+//                       ))}
+//                     </ul>
+//                   </div>
+//                   {/* Render shapes at the bottom */}
+//                   {shapeStyles.map((style, idx) => <div key={idx} style={style}></div>)}
+//                 </div>
+//               </Swiper.Item>
+//             );
+//           })}
+//         </Swiper>
+
+//         <footer style={{
+//           padding: '15px',
+//           flexShrink: 0,
+//           background: '#fff',
+//           borderTop: '1px solid #eee',
+//           position: 'sticky',
+//           bottom: 0,
+//           zIndex: 1000
+//         }}>
+//           <Button
+//             type="ghost"
+//             block
+//             style={{
+//               marginBottom: '10px',
+//               fontSize: '1rem'
+//             }}
+//             onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}
+//           >
+//             Get Started
+//           </Button>
+//         </footer>
+//       </main>
+
+//       <Drawer
+//         title="Business Survey"
+//         placement="right"
+//         width={Math.min(520, window.innerWidth - 20)}
+//         onClose={onClose}
+//         visible={visible}
+//       >
+//         {schema && <DynamicForm schemas={schema} onFinish={onFinish} />}
+//       </Drawer>
+//     </div>
+//   );
+// };
+
+// export default IntroScreen;
+
+
 import React, { useState, useEffect } from 'react';
 import { Swiper, Button } from 'antd-mobile';
 import { Drawer } from 'antd';
@@ -600,6 +826,7 @@ const IntroScreen = () => {
   const [visible, setVisible] = useState(false);
   const [schema, setSchema] = useState(null);
   const [autoPlay, setAutoPlay] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null); // State to store the prompt event
 
   const generateAbstractShapes = (text) => {
     const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -607,16 +834,15 @@ const IntroScreen = () => {
     const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     const shapeCount = getRandom(3, 4);
-    const containerMinHeight = 300; // Minimum height of the container
-    const maxShapeSize = 90; // Maximum size of shapes
+    const containerMinHeight = 300;
+    const maxShapeSize = 90;
 
     for (let i = 0; i < shapeCount; i++) {
       const size = getRandom(50, maxShapeSize);
       const rotate = `${getRandom(0, 360)}deg`;
       const lightness = getRandom(60, 85);
       const bgColor = `hsl(${(hash + i * 40) % 360}, 70%, ${lightness}%)`;
-      // Position shapes in the bottom 200px of the container
-      const bottom = getRandom(0, 200 - size); // Ensure shapes stay within bottom 200px and don't get cut off
+      const bottom = getRandom(0, 200 - size);
       const right = getRandom(10, 150);
 
       shapes.push({
@@ -634,6 +860,35 @@ const IntroScreen = () => {
     }
     return shapes;
   };
+
+  // Handle the install prompt
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      // Prevent the default mini-infobar from appearing
+      e.preventDefault();
+      // Store the event
+      setDeferredPrompt(e);
+      // Trigger the prompt immediately
+      e.prompt();
+      // Handle the user's response
+      e.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the A2HS prompt');
+        } else {
+          console.log('User dismissed the A2HS prompt');
+        }
+        setDeferredPrompt(null); // Clear the prompt after use
+      });
+    };
+
+    // Add the event listener
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Cleanup the event listener
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
 
   useEffect(() => {
     setAutoPlay(true);
@@ -654,20 +909,7 @@ const IntroScreen = () => {
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      // background: '#f8f9fa'
     }}>
-      {/* <header style={{
-        padding: '10px 15px',
-        color: '#003764',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexShrink: 0
-      }}>
-        <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} />
-        <h1 style={{ margin: 0, fontSize: '1.2rem' }}>IBCN NetworkX</h1>
-        <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '50px' }} />
-      </header> */}
       <div
         style={{
           display: "flex",
@@ -695,8 +937,8 @@ const IntroScreen = () => {
           autoplayInterval={4000}
           style={{
             flex: '1 0 auto',
-            minHeight: '300px', // Minimum height of 300px
-            maxHeight: 'calc(100vh - 200px)' // Still respects viewport constraints
+            minHeight: '300px',
+            maxHeight: 'calc(100vh - 200px)'
           }}
         >
           {slides.map((slide, index) => {
@@ -708,7 +950,7 @@ const IntroScreen = () => {
                   padding: '15px',
                   position: 'relative',
                   overflowY: 'auto',
-                  minHeight: '300px' // Match Swiper minHeight
+                  minHeight: '300px'
                 }}>
                   <div style={{
                     position: 'relative',
@@ -740,7 +982,6 @@ const IntroScreen = () => {
                       ))}
                     </ul>
                   </div>
-                  {/* Render shapes at the bottom */}
                   {shapeStyles.map((style, idx) => <div key={idx} style={style}></div>)}
                 </div>
               </Swiper.Item>
@@ -785,4 +1026,3 @@ const IntroScreen = () => {
 };
 
 export default IntroScreen;
-
