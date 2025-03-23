@@ -97,7 +97,7 @@ const PostCard = ({ channel_post_id }) => {
                 <strong>Created by:</strong> {post?.user?.user_name || 'N/A'}
             </Paragraph>
             <Paragraph>
-                <strong>Description:</strong> {post?.message || 'No message'}
+                <strong>Message:</strong> {post?.message || 'No message'}
             </Paragraph>
             <Paragraph>
                 <strong>Tags:</strong>{' '}

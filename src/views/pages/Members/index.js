@@ -37,23 +37,23 @@ const Index = () => {
         <div style={{ display: 'flex', gap: 8 }}>
             <Select
                 placeholder="Select Native"
-                style={{ width: 200 }}
+                style={{ width: 150 }}
                 onChange={setNativeFilter}
                 value={nativeFilter}
-                allowClear
+                allowClear showSearch
             >
-                {nativeOptions.map(option => (
+                {nativeOptions?.map(option => (
                     <Option key={option} value={option}>{option}</Option>
                 ))}
             </Select>
             <Select
                 placeholder="Select Kovil"
-                style={{ width: 200 }}
+                style={{ width: 150 }}
                 onChange={setKovilFilter}
                 value={kovilFilter}
-                allowClear
+                allowClear showSearch
             >
-                {kovilOptions.map(option => (
+                {kovilOptions?.map(option => (
                     <Option key={option} value={option}>{option}</Option>
                 ))}
             </Select>

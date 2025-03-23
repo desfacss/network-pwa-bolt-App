@@ -87,7 +87,7 @@ const Survey = () => {
             <Drawer
                 title="Business Survey"
                 placement="right"
-                width={520}
+                width={"90%"}
                 onClose={onClose}
                 visible={visible}
             >

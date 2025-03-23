@@ -499,7 +499,8 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             )}
             {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType} visible={visible} viewConfig={viewConfig} onCancel={() => { fetchData(); setVisible(false); }} data={vd} />}
             <Drawer
-                width={viewMode ? "100%" : "50%"}
+                // width={viewMode ? "100%" : "50%"}
+                width={"90%"}
                 title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}
                 open={isDrawerVisible}
                 onClose={closeDrawer}

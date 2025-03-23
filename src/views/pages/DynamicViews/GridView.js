@@ -120,7 +120,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       return (
         <Space wrap>
           {value?.map((tag, index) => (
-            <Tag
+            <Tag //Ravi Tag alignment
               key={index}
               onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${fieldConfig?.linkParam ? record[fieldConfig?.linkParam] : tag}`)}
               color={style?.bgColor || style?.colorMapping?.[tag?.toLowerCase()] || 'default'}

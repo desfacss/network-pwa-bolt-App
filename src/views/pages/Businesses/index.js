@@ -49,7 +49,7 @@ const Index = () => {
                 style={{ width: 200 }}
                 onChange={setIndustrySectorFilter}
                 value={industrySectorFilter}
-                allowClear
+                allowClear showSearch
             >
                 {industrySectorOptions.map(option => (
                     <Option key={option} value={option}>{option}</Option>
@@ -60,7 +60,7 @@ const Index = () => {
                 style={{ width: 200 }}
                 onChange={setLegalStructureFilter}
                 value={legalStructureFilter}
-                allowClear
+                allowClear showSearch
             >
                 {legalStructureOptions.map(option => (
                     <Option key={option} value={option}>{option}</Option>
