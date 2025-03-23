@@ -191,7 +191,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
             token: { colorBorder: "#ccceee", borderRadius: 4, fontFamily: "Inter, sans-serif" },
           }}
         >
-          <CategorySelector
+          <CategorySelector //Ravi Post message Post categorySelector
             visible={drawerVisible}
             onClose={() => {
               setDrawerVisible(false);
