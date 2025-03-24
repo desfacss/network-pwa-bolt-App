@@ -1,6 +1,7 @@
 import { Select } from 'antd';
 import React, { useState } from 'react';
 import DynamicViews from '../DynamicViews';
+import Profile from '../Profile';
 const { Option } = Select;
 
 const Index = () => {
@@ -59,8 +60,22 @@ const Index = () => {
             </Select>
         </div>
     );
+
+    // Define routes to pass to DynamicViews
+    const routes = [
+        {
+            path: '/app/members/:user_name',
+            component: Profile, // Component to render for this route
+        },
+        // Add more routes as needed, e.g., for locations or other views
+        // {
+        //     path: '/app/locations/:id',
+        //     component: LocationProfile, // Hypothetical component
+        // },
+    ];
+
     return (
-        <DynamicViews entityType={'users'} fetchFilters={fetchFilters} customFilters={customFilters} />
+        <DynamicViews entityType={'users'} fetchFilters={fetchFilters} customFilters={customFilters} routes={routes} />
     );
 }
 

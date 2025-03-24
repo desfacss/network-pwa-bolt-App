@@ -17,6 +17,7 @@ import GridViewConfig from './GridViewConfig';
 import DynamicViews from '../DynamicViews';
 import KanbanViewConfig from './KanbanViewConfig';
 import OrganizationProfileSettings from './UserProfileSettingsEditor';
+import DetailsOverviewConfig from './DetailsOverviewConfig';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -269,6 +270,16 @@ const YViewConfigManager = () => {
         />
       );
     }
+    if (viewName === 'details_overview') {
+      return (
+        <DetailsOverviewConfig
+          configData={formData}
+          availableColumns={data || availableColumns} // Pass dynamically fetched columns
+          onSave={(updatedData) => handleSave(viewName, updatedData)}
+          masterObject={selectedConfig?.master_object}
+        />
+      );
+    }
 
     return (
       <Form
@@ -424,6 +435,9 @@ const YViewConfigManager = () => {
         </TabPane>
         <TabPane tab="Detail View" key="detailview">
           {selectedConfig && activeTab === "detailview" && renderTabContent('detailview')}
+        </TabPane>
+        <TabPane tab="Details OverView" key="details_overview">
+          {selectedConfig && activeTab === "details_overview" && renderTabContent('details_overview')}
         </TabPane>
         <TabPane tab="Kanban View" key="kanbanview">
           {selectedConfig && activeTab === "kanbanview" && renderTabContent('kanbanview')}

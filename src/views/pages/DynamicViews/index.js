@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Drawer, Modal, notification, Spin, Tabs, Typography } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined, TableOutlined, AppstoreOutlined, ScheduleOutlined, BarsOutlined, FundOutlined, CalendarOutlined, DashboardOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import TableView from './TableView';
 import GridView from './GridView';
@@ -20,6 +21,7 @@ import DynamicForm from '../DynamicForm';
 import DetailsView from './DetailsView';
 import { removeNullFields, transformData } from './utils';
 import PostMessage from '../Channels/PostMessage';
+import { protectedRoutes } from 'configs/RoutesConfig';
 
 const flattenData = (data, masterObject) => {
     let flatData = {};
@@ -39,7 +41,7 @@ const flattenData = (data, masterObject) => {
     return flatData;
 };
 
-const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters, tabs, tabOptions, customFilters }) => {
+const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters, tabs, tabOptions, customFilters, routes = [] }) => {
     const defaultStartDate = dayjs().subtract(30, 'days');
     const defaultEndDate = dayjs();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
@@ -54,6 +56,77 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [messageReceiverId, setMessageReceiverId] = useState(null);
     const [selectedTab, setSelectedTab] = useState(tabOptions?.[0]?.key || '');
     const [selectedView, setSelectedView] = useState(null); // Initially null, set after viewItems is computed
+
+    const [drawerPath, setDrawerPath] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalPath, setModalPath] = useState(null);
+    // const history = useHistory();
+    const navigate = useNavigate();
+
+    const openDrawerWithPath = (path) => {
+        setDrawerPath(path);
+        setIsDrawerVisible(true);
+    };
+
+    const closeDrawerWithPath = () => {
+        setDrawerPath(null);
+        setIsDrawerVisible(false);
+    };
+
+    const openModalWithPath = (path) => {
+        setModalPath(path);
+        setIsModalVisible(true);
+    };
+
+    const closeModalWithPath = () => {
+        setModalPath(null);
+        setIsModalVisible(false);
+    };
+
+    const enhancedOpenDrawer = (item = null, view = false, form = "", path = null, mode = 'navigate') => {
+        if (path) {
+            switch (mode) {
+                case 'navigate':
+                    navigate(path); // Navigate in current tab
+                    break;
+                case 'new-tab':
+                    window.open(path, '_blank', 'noopener,noreferrer'); // Open in new tab
+                    break;
+                case 'modal':
+                    openModalWithPath(path); // Open in Modal
+                    break;
+                case 'drawer':
+                    openDrawerWithPath(path); // Open in Drawer
+                    break;
+                default:
+                    navigate(path); // Default to navigate
+            }
+        } else {
+            // Handle existing form/view logic
+            setEditItem(item);
+            setViewMode(view);
+            setIsDrawerVisible(true);
+            if (form) fetchFormSchema(form, item);
+        }
+    };
+
+    // Render routes dynamically based on the provided routes prop
+    const renderRoutes = (path) => {
+        console.log('Rendering routes for path:', path); // Debug log
+        return (
+            <Routes>
+                {/* {routes.map((route, index) => ( */}
+                {protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.map((route, index) => (
+                    <Route
+                        key={index}
+                        path={route.path}
+                        element={<route.component />}
+                    />
+                ))}
+                <Route path="*" element={<div>Route not found</div>} />
+            </Routes>
+        );
+    };
 
     const handleOpenMessageModal = (receiverId) => {
         setMessageReceiverId(receiverId);
@@ -398,7 +471,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     // Define view items with icons
     const viewItems = [
         { key: '1', icon: <TableOutlined />, children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
-        { key: '2', icon: <AppstoreOutlined />, children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} /> },
+        { key: '2', icon: <AppstoreOutlined />, children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} openDrawerWithPath={enhancedOpenDrawer} /> },
         { key: '3', icon: <ScheduleOutlined />, children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
         { key: '4', icon: <BarsOutlined />, children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
         { key: '5', icon: <FundOutlined />, children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
@@ -502,12 +575,14 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 // width={viewMode ? "100%" : "50%"}
                 width={"90%"}
                 title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}
-                open={isDrawerVisible}
+                open={isDrawerVisible && !drawerPath}
                 onClose={closeDrawer}
                 footer={null}
             >
                 {viewMode ?
-                    <DetailsView entityType={entityType} viewConfig={memoizedViewConfig} editItem={editItem} rawData={rawData} DetailsCard={<GridView data={data} viewConfig={memoizedViewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />} />
+                    (editItem && <DetailsView openMessageModal={handleOpenMessageModal} entityType={entityType}
+                        viewConfig={memoizedViewConfig} editItem={editItem} rawData={rawData}
+                        DetailsCard={<GridView data={data} viewConfig={memoizedViewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} />} />)
                     : <DynamicForm schemas={schemas} formData={editItem || {}} onFinish={(formData) => { handleAddOrEdit(formData, editItem); closeDrawer(); }} />}
             </Drawer>
             {messageReceiverId && (
@@ -515,6 +590,27 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                     <PostMessage user_id={session.user.id} receiver_user_id={messageReceiverId} closeModal={handleCloseModal} />
                 </Modal>
             )}
+            {/* Drawer for mode: 'drawer' */}
+            <Drawer
+                width="90%"
+                title="Details"
+                open={isDrawerVisible && drawerPath}
+                onClose={closeDrawerWithPath}
+                footer={null}
+            >
+                {drawerPath && renderRoutes(drawerPath)}
+            </Drawer>
+
+            {/* Modal for mode: 'modal' */}
+            <Modal
+                title="Details"
+                visible={isModalVisible}
+                onCancel={closeModalWithPath}
+                footer={null}
+                width="80%"
+            >
+                {modalPath && renderRoutes(modalPath)}
+            </Modal>
         </Card>
     );
 };
