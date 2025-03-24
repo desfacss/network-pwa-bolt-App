@@ -106,7 +106,10 @@ const DetailOverview = ({ data, config, openMessageModal }) => {
 
     return (
         <Card className="detail-overview-card">
-            {sortedGroups?.map((group, index) => (
+            {sortedGroups?.filter(group => {
+                const privacyGroups = Object.values(data["privacy.groups"] || {});
+                return !privacyGroups.includes(group.name);
+            }).map((group, index) => (
                 <React.Fragment key={group.name}>
                     {config.dividers.includes(group.name) && index > 0 && <Divider />}
                     {renderGroup(group)}

@@ -133,18 +133,29 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     return content;
   };
 
-  // Flatten fields from groups for filtering
-  const allFields = useMemo(() => gridViewConfig?.groups?.flatMap(group => group.fields) || [], [gridViewConfig?.groups]);
+  // Map fields with their parent group name if group is not explicitly set
+  const allFields = useMemo(() => {
+    return gridViewConfig?.groups?.flatMap(group =>
+      group.fields.map(field => ({
+        ...field,
+        group: field.group || group.name // Assign parent group name if field.group is not set
+      }))
+    ) || [];
+  }, [gridViewConfig?.groups]);
 
   const filteredData = useMemo(() => {
     if (!searchText) return data;
-    return data?.filter(item =>
-      allFields.some(field => {
+    return data?.filter(item => {
+      const privacyGroups = item["privacy.groups"] || [];
+      const visibleFields = allFields.filter(field =>
+        !privacyGroups.includes(field.group)
+      );
+      return visibleFields.some(field => {
         const value1 = getNestedValue(item, field?.fieldPath || field?.fieldName);
         const value = Array.isArray(value1) ? value1?.map(item => item)?.join(', ') : value1 ?? null;
         return String(value).toLowerCase().includes(searchText?.toLowerCase());
-      })
-    );
+      });
+    });
   }, [data, searchText, allFields]);
 
   const getActionMenu = (record) => {
@@ -162,6 +173,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
               case 'view': navigate(`/app${gridViewConfig?.viewLink}${record?.id}`); break;
               case 'edit': openDrawer(record, false, action?.form); break;
               case 'delete': deleteData(record); break;
+              case 'details': openDrawer(record, true); break;
               case 'message': openMessageModal && openMessageModal(record[action.form]); break;
               default: console.log(`Action ${action?.name} not implemented`);
             }
@@ -204,9 +216,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
       <Row gutter={[spacing, spacing]}>
         {filteredData.map((record, index) => {
           const allFieldsSorted = allFields.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-          const titleFields = allFieldsSorted.filter(f => f.cardSection === 'title');
-          const footerFields = allFieldsSorted.filter(f => f.cardSection === 'footer');
-          const bodyFields = allFieldsSorted.filter(f => !f.cardSection || f.cardSection === 'body');
+          const privacyGroups = record["privacy.groups"] || [];
+          const titleFields = allFieldsSorted.filter(f => f.cardSection === 'title' && !privacyGroups.includes(f.group));
+          const footerFields = allFieldsSorted.filter(f => f.cardSection === 'footer' && !privacyGroups.includes(f.group));
+          const bodyFields = allFieldsSorted.filter(f => (!f.cardSection || f.cardSection === 'body') && !privacyGroups.includes(f.group));
 
           return (
             <Col key={record?.id || index} {...getResponsiveSpans(cardsPerRow)}>

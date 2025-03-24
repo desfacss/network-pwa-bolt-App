@@ -12,7 +12,7 @@ const DynamicComponent = lazy(() => import('../Details/DynamicTab'));
 // const AllocationsTab = lazy(() => import('src/views/pages/DynamicViews/Details/Allocations.js'));
 
 const DetailsView = ({ entityType, viewConfig, editItem, DetailsCard, rawData, openMessageModal }) => {
-    const [activeKey, setActiveKey] = useState('1'); // Initialize active tab
+    const [activeKey, setActiveKey] = useState('Overview'); // Initialize active tab
 
     const onChange = (key) => {
         setActiveKey(key);
