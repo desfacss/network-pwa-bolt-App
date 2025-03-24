@@ -505,6 +505,14 @@ const Schedule = () => {
         </Card>
 
         {/* Key Speakers */}
+
+        
+        <Card style={{ marginBottom: '15px' }}>
+          <h2 style={{ fontSize: '1.2rem' }}>Key Speakers</h2>
+          <p style={{ fontStyle: 'italic', fontSize: '1rem' }}>Coming Soon</p>
+        </Card>
+        
+{/* Parallel Streams */}
         <Card style={{ marginBottom: '15px' }}>
   <h2 style={{ fontSize: '1.2rem' }}>Parallel Streams</h2>
   <Carousel
