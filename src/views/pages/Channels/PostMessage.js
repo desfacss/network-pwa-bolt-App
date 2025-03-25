@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Mentions, ConfigProvider, theme, message } from 'antd';
+import { Form, Button, Mentions, message } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
@@ -23,9 +23,9 @@ const NewPostForm = ({ form, onSubmit, isSubmitting, onClose }) => {
       >
         <div style={{
           flex: 1,
-          background: '#D3E0EA',
-          borderRadius: 4,
-          padding: 8,
+          // background: '#D3E0EA',
+          // borderRadius: 4,
+          // padding: 8,
           border: '1px solid #ECF4FB',
         }}>
           <Form.Item
@@ -54,28 +54,30 @@ const NewPostForm = ({ form, onSubmit, isSubmitting, onClose }) => {
             </Mentions>
           </Form.Item>
         </div>
-        <Button
-          type="primary"
-          htmlType="submit"
-          icon={<SendOutlined />}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          style={{
-            marginTop: 16,
-            background: '#4A90E2',
-            border: 'none',
-            width: '100%',
-            height: 40,
-          }}
-        >
-          Send Message
-        </Button>
-        <Button
-          onClick={onClose}
-          style={{ marginTop: 8, width: '100%', height: 40 }}
-        >
-          Cancel
-        </Button>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Button
+            onClick={onClose}
+            style={{ marginTop: 16, width: '48%', height: 40 }} // Adjust width as needed
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            // icon={<SendOutlined />}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+            style={{
+              marginTop: 16,
+              background: '#4A90E2',
+              border: 'none',
+              width: '48%', // Adjust width as needed
+              height: 40,
+            }}
+          >
+            Send Message
+          </Button>
+        </div>
       </Form>
     </div>
   );
@@ -197,23 +199,14 @@ const PostMessage = ({ user_id, receiver_user_id, closeModal }) => {
   };
 
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.defaultAlgorithm,
-        token: {
-          colorBorder: '#ECF4FB',
-          borderRadius: 4,
-          fontFamily: 'Inter, sans-serif',
-        },
-      }}
-    >
+    <>
       <NewPostForm
         form={form}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         onClose={closeModal}
       />
-    </ConfigProvider>
+    </>
   );
 };
 

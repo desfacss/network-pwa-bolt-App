@@ -38,7 +38,7 @@ const Index = () => {
         <div style={{ display: 'flex', gap: 8 }}>
             <Select
                 placeholder="Select Native"
-                style={{ width: 150 }}
+                style={{ width: "50%" }}
                 onChange={setNativeFilter}
                 value={nativeFilter}
                 allowClear showSearch
@@ -49,7 +49,7 @@ const Index = () => {
             </Select>
             <Select
                 placeholder="Select Kovil"
-                style={{ width: 150 }}
+                style={{ width: "50%" }}
                 onChange={setKovilFilter}
                 value={kovilFilter}
                 allowClear showSearch

@@ -1,182 +1,277 @@
-import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { LockOutlined, MailOutlined } from "@ant-design/icons";
-import { Button, Form, Input, notification } from "antd";
-import {
-  signUp,
-  showAuthMessage,
-  showLoading,
-  hideAuthMessage,
-} from "store/slices/authSlice";
-import { useNavigate } from "react-router-dom";
-// import { motion } from "framer-motion"
-
-const rules = {
-  name: [
-    {
-      required: true,
-      message: "Please input your fullname",
-    },
-    {
-      type: "name",
-      message: "Please enter your name!",
-    },
-  ],
-  email: [
-    {
-      required: true,
-      message: "Please input your email address",
-    },
-    {
-      type: "email",
-      message: "Please enter a valid email!",
-    },
-  ],
-  mobile: [
-    {
-      required: true,
-      message: "Please input your mobile",
-    },
-    {
-      type: "mobile",
-      message: "Please enter a validate mobile!",
-    },
-  ],
-  password: [
-    {
-      required: true,
-      message: "Please input your password",
-    },
-  ],
-  confirm: [
-    {
-      required: true,
-      message: "Please confirm your password!",
-    },
-    ({ getFieldValue }) => ({
-      validator(_, value) {
-        if (!value || getFieldValue("password") === value) {
-          return Promise.resolve();
-        }
-        return Promise.reject("Passwords do not match!");
-      },
-    }),
-  ],
-};
+import React, { useState, useEffect } from "react";
+import { connect, useSelector } from "react-redux";
+import { Button, Form, Input, notification, Divider, message } from "antd";
+import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
+import { showLoading } from "store/slices/authSlice";
+import { supabase } from "configs/SupabaseConfig";
+import { useNavigate, useLocation } from "react-router-dom";
+import { APP_PREFIX_PATH } from 'configs/AppConfig';
 
 export const RegisterForm = (props) => {
-  const {
-    signUp,
-    showLoading,
-    token,
-    loading,
-    redirect,
-    showMessage,
-    hideAuthMessage,
-    allowRedirect = true,
-  } = props;
-  const [form] = Form.useForm();
+  const [linkSent, setLinkSent] = useState(false);
+  const [mobile, setMobile] = useState("");
+  const [referralExists, setReferralExists] = useState(null);
+  const [roles, setRoles] = useState();
+
+  const { defaultOrganization } = useSelector((state) => state.auth);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { showLoading } = props;
 
-  const onSignUp = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        showLoading();
-        signUp(values).then((data) => {
-          notification.success({
-            message: "Signup successfully",
-          });
-          console.log(data);
-          if (data?.type === "auth/signUp/fulfilled") {
-            navigate("/auth/login");
-          }
-        });
-      })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
+  const defaultRole = "delegate";
+
+  const getRoles = async () => {
+    const { data, error } = await supabase.from('roles').select('*').eq('organization_id', defaultOrganization?.id);
+    if (error) {
+      return message.error("Roles does not exist");
+    }
+    if (data) {
+      setRoles(data);
+    }
   };
 
-  // useEffect(() => {
-  //   if (token !== null && allowRedirect) {
-  //     navigate(redirect);
-  //   }
-  //   if (showMessage) {
-  //     const timer = setTimeout(() => hideAuthMessage(), 3000);
-  //     return () => {
-  //       clearTimeout(timer);
-  //     };
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (defaultOrganization) {
+      getRoles();
+    }
+  }, [defaultOrganization]);
+
+  useEffect(() => {
+    const hash = location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash.replace('#', ''));
+      const idToken = params.get('id_token');
+      const accessToken = params.get('access_token');
+      const state = params.get('state');
+
+      if (idToken && accessToken) {
+        let stateType, mobileFromState;
+        try {
+          const decodedState = JSON.parse(atob(state));
+          stateType = decodedState.type;
+          mobileFromState = decodedState.mobile;
+        } catch (e) {
+          stateType = state;
+        }
+        handleOAuthCallback(idToken, accessToken, stateType, mobileFromState);
+      } else {
+        notification.error({ message: "Missing tokens from Google response" });
+      }
+    }
+  }, [location]);
+
+  const handleOAuthCallback = async (idToken, accessToken, state, mobileFromState) => {
+    showLoading();
+    try {
+      const googleUserResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const googleUser = await googleUserResponse.json();
+      const userEmail = googleUser.email;
+
+      if (state === 'referral-check') {
+        const userMobile = mobileFromState;
+
+        const { data: { session }, error: signInError } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: idToken,
+        });
+
+        if (signInError) {
+          notification.error({ message: signInError.message });
+          return;
+        }
+
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('details, auth_id')
+          .eq('details->>email', userEmail)
+          .single();
+
+        if (!existingUser) {
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert({
+              id: session.user.id,
+              auth_id: session.user.id,
+              details: { email: userEmail, mobile: userMobile },
+              user_name: userEmail?.split('@')[0] || userEmail,
+              organization_id: defaultOrganization?.id,
+              role_type: defaultRole,
+              role_id: roles?.find(i => i.role_name === defaultRole)?.id || "3dcb9d19-6197-4816-81c8-70435464a201"
+            });
+
+          if (insertError) {
+            notification.error({ message: "Error creating user record: " + insertError.message });
+            return;
+          }
+
+          await supabase
+            .from('referrals')
+            .update({ email: userEmail })
+            .eq('mobile', userMobile);
+        }
+
+        notification.success({ message: "Successfully Registered" });
+        window.location.reload();
+      }
+    } catch (error) {
+      notification.error({ message: "Failed to process Google registration" });
+    }
+  };
+
+  const oAuth = (stateType) => {
+    showLoading();
+    const clientId = '684934400219-qeftq7ldff5kchnkaqfi7kukefkl22st.apps.googleusercontent.com';
+    const redirectUri = `${window.location.origin}/app/register`;
+    const scope = 'profile email openid';
+
+    const url = new URL('https://accounts.google.com/o/oauth2/auth');
+    url.searchParams.append('client_id', clientId);
+    url.searchParams.append('redirect_uri', redirectUri);
+    url.searchParams.append('response_type', 'id_token token');
+    url.searchParams.append('scope', scope);
+
+    const stateObj = { type: stateType };
+    if (stateType === 'referral-check' && mobile) {
+      stateObj.mobile = mobile;
+    }
+    const encodedState = btoa(JSON.stringify(stateObj));
+    url.searchParams.append('state', encodedState);
+
+    window.location.href = url.toString();
+  };
+
+  const onRegister = async (values) => {
+    showLoading();
+    const { data, error } = await supabase.auth.signUp({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (error) {
+      notification.error({ message: error.message });
+      return;
+    }
+
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert({
+        id: data.user.id,
+        auth_id: data.user.id,
+        details: { email: values.email, mobile: mobile },
+        user_name: values.email?.split('@')[0] || values.email,
+        organization_id: defaultOrganization?.id,
+        role_type: defaultRole,
+        role_id: roles?.find(i => i.role_name === defaultRole)?.id || "3dcb9d19-6197-4816-81c8-70435464a201"
+      });
+
+    if (insertError) {
+      notification.error({ message: "Error creating user record: " + insertError.message });
+      return;
+    }
+
+    await supabase
+      .from('referrals')
+      .update({ email: values.email })
+      .eq('mobile', mobile);
+
+    notification.success({ message: "Successfully Registered" });
+    window.location.reload();
+  };
+
+  const checkReferral = async () => {
+    if (!mobile) {
+      notification.error({ message: "Please enter a mobile number" });
+      return;
+    }
+    showLoading();
+    const { data, error } = await supabase
+      .from('referrals')
+      .select('*')
+      .eq('mobile', mobile)
+      .single();
+
+    if (error || !data) {
+      setReferralExists(false);
+      notification.error({
+        message: "Registration information not found",
+        description: "Please register first or use existing credentials to login"
+      });
+    } else if (data.email) {
+      setReferralExists(false);
+      notification.error({
+        message: "Mobile number already registered",
+        description: "Please login with your existing credentials"
+      });
+    } else {
+      setReferralExists(true);
+      notification.success({
+        message: "Registration available!",
+        description: "You can register with Google or email & password"
+      });
+    }
+  };
 
   return (
-    <>
-      {/* <motion.div 
-				initial={{ opacity: 0, marginBottom: 0 }} 
-				animate={{ 
-					opacity: showMessage ? 1 : 0,
-					marginBottom: showMessage ? 20 : 0 
-				}}> 
-				<Alert type="error" showIcon message={message}></Alert>
-			</motion.div> */}
-      <Form
-        form={form}
-        layout="vertical"
-        name="register-form"
-        onFinish={onSignUp}
-      >
-        <Form.Item name="name" label="Name" rules={rules.name} hasFeedback>
-          <Input prefix={<MailOutlined className="text-primary" />} />
-        </Form.Item>
-        <Form.Item name="email" label="Email" rules={rules.email} hasFeedback>
-          <Input prefix={<MailOutlined className="text-primary" />} />
-        </Form.Item>
-        <Form.Item
-          name="mobile"
-          label="mobile"
-          rules={rules.mobile}
-          hasFeedback
-        >
-          <Input prefix={<MailOutlined className="text-primary" />} />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          label="Password"
-          rules={rules.password}
-          hasFeedback
-        >
-          <Input.Password prefix={<LockOutlined className="text-primary" />} />
-        </Form.Item>
-        <Form.Item
-          name="confirm"
-          label="ConfirmPassword"
-          rules={rules.confirm}
-          hasFeedback
-        >
-          <Input.Password prefix={<LockOutlined className="text-primary" />} />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block loading={loading}>
-            Sign Up
-          </Button>
-        </Form.Item>
+    <div>
+      <Form layout="vertical" name="register-form" onFinish={onRegister}>
+        {referralExists !== true && (
+          <>
+            <Form.Item label="Registered Email / Mobile">
+              <Input
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="Enter mobile number"
+              />
+            </Form.Item>
+            <Button type="primary" block onClick={checkReferral}>
+              Check Registration
+            </Button>
+          </>
+        )}
+        {referralExists === true && (
+          <>
+            <Button
+              icon={<GoogleOutlined />}
+              block
+              onClick={() => oAuth('referral-check')}
+              style={{ backgroundColor: '#DB4437', color: 'white', borderColor: '#DB4437' }}
+            >
+              Register with Google
+            </Button>
+            <Divider>Or</Divider>
+            <Form.Item name="email" label="Email" rules={[{ required: true, type: "email" }]}>
+              <Input prefix={<MailOutlined />} />
+            </Form.Item>
+            <Form.Item name="password" label="Password" rules={[{ required: true }]}>
+              <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block disabled={linkSent}>
+                Register
+              </Button>
+            </Form.Item>
+          </>
+        )}
       </Form>
-    </>
+      {referralExists === false && (
+        <div style={{ marginTop: 20 }}>
+          <p>
+            If you have not registered for IBCN 2025,{" "}
+            <a href="https://delegates.ibcn2025.com/register" target="_blank" rel="noopener noreferrer">
+              click here to register
+            </a>.
+            <br />
+            Or if you have registered, contact{" "}
+            <a href="mailto:info@knba.com">info@knba.com</a>.
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 
-const mapStateToProps = ({ auth }) => {
-  const { loading, message, showMessage, token, redirect } = auth;
-  return { loading, message, showMessage, token, redirect };
-};
-
-const mapDispatchToProps = {
-  signUp,
-  showAuthMessage,
-  hideAuthMessage,
-  showLoading,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterForm);
+const mapDispatchToProps = { showLoading };
+export default connect(null, mapDispatchToProps)(RegisterForm);

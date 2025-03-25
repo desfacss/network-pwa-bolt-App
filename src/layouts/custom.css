@@ -9,19 +9,30 @@
 .ant-menu-vertical .ant-menu-item {
   height: 32px;
 }
+
 .ant-menu-item-group-title {
   padding: 6px 26px !important;
 }
 
-.ant-table-wrapper .ant-table-thead >tr>th, :where(.css-dev-only-do-not-override-v22r4a).ant-table-wrapper .ant-table-thead >tr>td {
+.ant-table-wrapper .ant-table-thead>tr>th,
+:where(.css-dev-only-do-not-override-v22r4a).ant-table-wrapper .ant-table-thead>tr>td {
   font-weight: 500;
 }
 
-
+.adm-tab-bar-wrap {
+  padding: 10px
+}
 
 /* Hide logo in app screen but show in print */
 .app-logo {
   display: none;
+}
+
+.ant-tag {
+  background-color: #e6f7ff;
+  /* color: #1890ff; */
+  color: #333;
+  border: 1px solid #91d5ff;
 }
 
 
@@ -41,18 +52,22 @@
   .no-print {
     display: none !important;
   }
+
   .report-container {
     padding: 16px;
   }
+
   .report-header {
     background-color: #f0f0f0;
     padding: 10px;
     text-align: center;
   }
+
   .report-header img {
     width: 150px;
     margin-bottom: 10px;
   }
+
   .app-logo {
     display: block;
   }

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Drawer, Modal, notification, Spin, Tabs, Typography } from 'antd';
-import { FullscreenOutlined, FullscreenExitOutlined, TableOutlined, AppstoreOutlined, ScheduleOutlined, BarsOutlined, FundOutlined, CalendarOutlined, DashboardOutlined } from "@ant-design/icons";
+import { Button, Card, Drawer, Input, Modal, notification, Spin, Tabs, Typography } from 'antd';
+import { FullscreenOutlined, FullscreenExitOutlined, TableOutlined, AppstoreOutlined, ScheduleOutlined, BarsOutlined, FundOutlined, CalendarOutlined, DashboardOutlined, SearchOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -214,6 +214,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [currentPage, setCurrentPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [viewMode, setViewMode] = useState(false);
+    const [searchText, setSearchText] = useState('');
 
     useEffect(() => {
         const filterData = () => {
@@ -471,7 +472,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     // Define view items with icons
     const viewItems = [
         { key: '1', icon: <TableOutlined />, children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
-        { key: '2', icon: <AppstoreOutlined />, children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} openDrawerWithPath={enhancedOpenDrawer} /> },
+        { key: '2', icon: <AppstoreOutlined />, children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} openDrawerWithPath={enhancedOpenDrawer} searchText={searchText} setSearchText={setSearchText} /> },
         { key: '3', icon: <ScheduleOutlined />, children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
         { key: '4', icon: <BarsOutlined />, children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
         { key: '5', icon: <FundOutlined />, children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
@@ -526,9 +527,9 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                                             }}
                                         />
                                     ))}
-                                    <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
+                                    {viewConfig?.global?.showFeatures?.includes('fullScreenView') && <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
                                         {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                                    </Button>
+                                    </Button>}
                                 </div>
                             ),
                         }}
@@ -542,27 +543,30 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                             <Typography.Title level={4} style={{ margin: 0 }}>
                                 {filterTabItems.length > 0 && (filterTabItems[0]?.label || 'Default View')}
                             </Typography.Title>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <div style={{ marginRight: 8 }}>
-                                    {customFilters}
-                                </div>
-                                {renderFilters(viewConfig?.global?.search, data)}
-                                {viewItems.length > 1 && viewItems.map(view => (
-                                    <Button
-                                        key={view.key}
-                                        icon={view.icon}
-                                        onClick={() => setSelectedView(view.key)}
-                                        style={{
-                                            marginRight: 8,
-                                            color: selectedView === view.key ? '#1890ff' : '#000',
-                                            border: selectedView === view.key ? '1px solid #1890ff' : '1px solid #d9d9d9',
-                                        }}
-                                    />
-                                ))}
-                                <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
-                                    {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                                </Button>
+                            {/* <div style={{ display: 'flex', alignItems: 'center' }}> */}
+                            {viewConfig?.global?.showFeatures?.includes('search') && (
+                                <Input style={{ marginRight: 8, width: "50%" }} placeholder="Search" prefix={<SearchOutlined />} value={searchText} onChange={e => setSearchText(e.target.value)} />
+                            )}
+                            <div style={{ marginRight: 0, width: "50%" }}>
+                                {customFilters}
                             </div>
+                            {renderFilters(viewConfig?.global?.search, data)}
+                            {viewItems.length > 1 && viewItems.map(view => (
+                                <Button
+                                    key={view.key}
+                                    icon={view.icon}
+                                    onClick={() => setSelectedView(view.key)}
+                                    style={{
+                                        marginRight: 8,
+                                        color: selectedView === view.key ? '#1890ff' : '#000',
+                                        border: selectedView === view.key ? '1px solid #1890ff' : '1px solid #d9d9d9',
+                                    }}
+                                />
+                            ))}
+                            {viewConfig?.global?.showFeatures?.includes('fullScreenView') && <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
+                                {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                            </Button>}
+                            {/* </div> */}
                         </div>
                         {viewItems.length > 0 ? (viewItems.find(view => view.key === selectedView)?.children || viewItems[0].children) : <div>No views available</div>}
                     </div>

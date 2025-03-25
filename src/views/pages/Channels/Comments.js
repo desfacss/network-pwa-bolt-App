@@ -185,12 +185,13 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
         </div>
       )}
       {!isPrivate && (
-        <ConfigProvider
+        <>
+          {/* <ConfigProvider
           theme={{
             algorithm: theme.defaultAlgorithm,
             token: { colorBorder: "#ccceee", borderRadius: 4, fontFamily: "Inter, sans-serif" },
           }}
-        >
+        > */}
           <CategorySelector //Ravi Post message Post categorySelector
             visible={drawerVisible}
             onClose={() => {
@@ -205,7 +206,8 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
             isSubmitting={isSubmitting}
             session={session}
           />
-        </ConfigProvider>
+          {/* </ConfigProvider> */}
+        </>
       )}
 
       {filteredMessages.length > 0 ? (
@@ -269,14 +271,15 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                 <div className="post-tags">
                   {item.details?.category_id && (
                     <Tag
-                      style={{
-                        borderRadius: 8,
-                        background: "#e3e3e3",
-                        color: "#222",
-                        border: "none",
-                        fontSize: 11,
-                        padding: "2px 6px",
-                      }}
+                    // style={{
+                    //   borderRadius: 8,
+                    //   // background: "#e3e3e3",
+                    //   // color: "#222",
+                    //   border: "none",
+                    //   fontSize: 11,
+                    //   padding: "2px 6px",
+                    // }}
+                    // color="blue"
                     >
                       {idToNameMap.get(item.details.category_id) || item.details.category_id}
                     </Tag>
@@ -284,14 +287,14 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
                   {item.details?.tags?.map(tag => (
                     <Tag
                       key={tag}
-                      style={{
-                        borderRadius: 8,
-                        background: "#e3e3e3",
-                        color: "#222",
-                        border: "1px",
-                        fontSize: 11,
-                        padding: "2px 6px",
-                      }}
+                    // style={{
+                    //   borderRadius: 8,
+                    //   background: "#e3e3e3",
+                    //   color: "#222",
+                    //   border: "1px",
+                    //   fontSize: 11,
+                    //   padding: "2px 6px",
+                    // }}
                     >
                       {idToNameMap.get(tag) || tag}
                     </Tag>

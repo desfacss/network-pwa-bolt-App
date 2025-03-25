@@ -1408,12 +1408,6 @@ const Profile = () => {
 
     if (!userData) return null;
 
-    const dynamicTabs = profileFields?.groups?.sort((a, b) => a.order - b.order).map(group => ({
-        key: group?.name?.toLowerCase(),
-        label: group?.name,
-        children: renderDynamicDescriptionItemsTabs(group),
-    })) || [];
-
     const profileOwner = session?.user?.id === userData?.id;
 
     const tabItems = [
@@ -1571,7 +1565,7 @@ const Profile = () => {
                     </div>
 
                     {/* Tabs */}
-                    <Tabs defaultActiveKey={dynamicTabs[0]?.key || 'info'} items={tabItems} />
+                    <Tabs defaultActiveKey={'info'} items={tabItems} />
                 </Card>
             </div>
 

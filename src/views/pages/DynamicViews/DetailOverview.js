@@ -40,9 +40,9 @@ const DetailOverview = ({ data, config, openMessageModal }) => {
                     {values.map((val, index) => (
                         <Tag
                             key={index}
-                            color={color[val.toLowerCase()] || 'gray'}
-                            style={{ backgroundColor: style.bgColor, margin: '2px' }}
-                            className="tag"
+                            color={color[val.toLowerCase()] || null}
+                        // style={{ backgroundColor: style.bgColor, margin: '2px' }}
+                        // className="tag"
                         >
                             {val}
                         </Tag>
@@ -51,8 +51,11 @@ const DetailOverview = ({ data, config, openMessageModal }) => {
             );
         }
 
-        // Handle links (webLink or regular link)
-        const content = webLink ? (
+        // Determine how to render the content
+        const isNA = value === 'N/A'; // Check if value is "N/A"
+        const content = isNA ? (
+            <Text>{value}</Text> // Render "N/A" as plain text
+        ) : webLink ? (
             <a href={value} target="_blank" rel="noopener noreferrer" style={style}>
                 {value}
             </a>

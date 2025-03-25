@@ -35,7 +35,7 @@
 
 import React from "react";
 import LoginForm from "../../components/LoginForm";
-import { Col, Row } from "antd";
+import { Col, Divider, Row } from "antd";
 import { useLocation, Link } from "react-router-dom";
 import { APP_PREFIX_PATH, SURVEY_PREFIX_PATH } from "configs/AppConfig";
 
@@ -88,13 +88,13 @@ const LoginTwo = (props) => {
                 <Link to={`${APP_PREFIX_PATH}/register`}>Register here</Link> or{" "}
                 <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link>
               </p> */}
-              <h3>Register</h3>
-              <p pb-2>IBCN 2025 Delegates can login with your mobile number and Google account or Email directly!
-                For others, You can <Link to={`${APP_PREFIX_PATH}/register`}> Register here</Link> 
+              <h3>Login</h3>
+              <LoginForm {...props} />
+              <Divider></Divider>
+              <p pb-2>If you have not registered for the app, <Link to={`${APP_PREFIX_PATH}/register`}> Register here...</Link>
                 {/* or Go to{" "}
                 <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link> */}
-                </p>
-              <LoginForm {...props} />
+              </p>
             </div>
           </Col>
         </Row>

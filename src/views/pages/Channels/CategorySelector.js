@@ -363,6 +363,7 @@ const buildTree = (data, parentId = null) => {
 
 export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, onSubmit, isSubmitting, session }) => {
     const [categories, setCategories] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
     const [treeData, setTreeData] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]); // Array of UUIDs (pre-existing)
     const [pendingTags, setPendingTags] = useState([]); // Array of { level, name, parentId }
@@ -475,7 +476,7 @@ export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, o
 
     const handleSubmit = async () => {
         if (!session?.user?.id) return;
-
+        setSubmitting(true)
         try {
             await form.validateFields();
             if (selectedCategories.length < 1) {
@@ -549,12 +550,14 @@ export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, o
             }
 
             setPendingTags([]);
-            fetchCategories(); // Refresh approved categories
-            onClose();
+            window.location.reload();
+            // fetchCategories(); // Refresh approved categories
+            // onClose();
         } catch (err) {
             console.error("Error:", err);
             message.error("Failed to save message");
         }
+        setSubmitting(false)
     };
 
     const renderLevel = (level) => {
@@ -627,14 +630,14 @@ export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, o
             placement="bottom"
             height="85%"
             footer={[
-                <Button key="cancel" onClick={onClose} style={{ width: "48%", marginRight: "4%" }} size="large">
+                <Button key="cancel" onClick={onClose} loading={submitting} style={{ width: "48%", marginRight: "4%" }} size="large">
                     Cancel
                 </Button>,
                 <Button
                     key="submit"
                     type="primary"
                     onClick={handleSubmit}
-                    loading={isSubmitting}
+                    loading={submitting || isSubmitting}
                     disabled={isSubmitting}
                     style={{ width: "48%" }}
                     size="large"
@@ -642,8 +645,8 @@ export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, o
                     {chatId ? "Update" : "Submit"}
                 </Button>,
             ]}
-            footerStyle={{ display: "flex", justifyContent: "space-between", padding: "10px" }}
-            bodyStyle={{ padding: "10px" }}
+        // footerStyle={{ display: "flex", justifyContent: "space-between", padding: "10px" }}
+        // bodyStyle={{ padding: "10px" }}
         >
             <Form
                 form={form}
@@ -662,7 +665,7 @@ export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, o
                             key={id}
                             closable
                             onClose={() => handleTagClose(id)}
-                            color="blue"
+                            // color="blue"
                             style={{ margin: "2px" }}
                         >
                             {idToNameMap.get(id)}
@@ -673,7 +676,7 @@ export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, o
                             key={tag.name}
                             closable
                             onClose={() => handleTagClose(tag.name)}
-                            color="gray"
+                            // color="gray"
                             style={{ margin: "2px" }}
                         >
                             {tag.name}

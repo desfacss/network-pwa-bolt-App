@@ -1005,7 +1005,7 @@ const IntroScreen = () => {
               marginBottom: '10px',
               fontSize: '1rem'
             }}
-            onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}
+            onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}
           >
             Get Started
           </Button>

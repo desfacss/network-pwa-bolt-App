@@ -1,15 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Card, Row, Col, Space, Button, Input, Dropdown, Menu, Badge, Tag, Typography, FloatButton, message } from 'antd';
+import { Card, Row, Col, Space, Button, Input, Dropdown, Menu, Badge, Tag, Typography, FloatButton, message, Alert, Empty } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import * as Icons from '@ant-design/icons';
-import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { SearchOutlined, EllipsisOutlined, WarningOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { ResponsiveButton } from 'views/pages/Trial/ResponsiveButton';
 
 const { Title, Text } = Typography;
 
-const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openDrawer, setCurrentPage, totalItems, openDrawerWithPath, openMessageModal }) => {
-  const [searchText, setSearchText] = useState('');
+const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSearchText, deleteData, openDrawer, setCurrentPage, totalItems, openDrawerWithPath, openMessageModal }) => {
+  // const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
   const { session } = useSelector((state) => state.auth);
   const gridViewConfig = viewConfig?.gridview;
@@ -73,6 +73,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     if (fieldConfig?.display === "comma_separated" && subFields.length > 0) {
       const subFieldValues = subFields?.map(subField => {
         const subValue = getNestedValue(record, subField?.fieldPath);
+        // Check if subValue is truthy before proceeding
+        if (!subValue) {
+          return null; // Skip this subfield if subValue is falsy
+        }
         const SubIconComponent = subField?.icon ? Icons[subField.icon] : null;
         const content = subValue && (
           <Text style={{ ...subField?.style, display: 'inline-block', marginRight: 8 }}>
@@ -96,7 +100,8 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
         <Space wrap>
           {value?.map((tag, index) => (
             <Tag key={index} onClick={() => fieldConfig?.link && navigate(`/app${fieldConfig?.link}${fieldConfig?.linkParam ? record[fieldConfig?.linkParam] : tag}`)}
-              color={style?.bgColor || style?.colorMapping?.[tag?.toLowerCase()] || 'default'}>
+              color={style?.bgColor || style?.colorMapping?.[tag?.toLowerCase()] || null}
+            >
               {tag}
             </Tag>
           ))}
@@ -197,11 +202,11 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-          {showFeatures?.includes('search') && (
+          {/* {showFeatures?.includes('search') && (
             <Space style={{ marginBottom: spacing }}>
               <Input placeholder="Search" prefix={<SearchOutlined />} value={searchText} onChange={e => setSearchText(e.target.value)} />
             </Space>
-          )}
+          )} */}
           {totalItems > data.length && <Button onClick={() => setCurrentPage(prev => prev + 1)}>Load More</Button>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -212,7 +217,20 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, deleteData, openD
           ))}
         </div>
       </div>
-
+      {(data?.length !== filteredData?.length && filteredData?.length === 0) || (filteredData?.length === 0) && (
+        <Empty
+          image={<WarningOutlined style={{ fontSize: "48px", color: "#333333" }} />}
+          description={
+            <>
+              <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#333333" }}>
+                No results found for the criteria.
+              </span>
+              <br />
+              Widen your search!
+            </>
+          }
+        />
+      )}
       <Row gutter={[spacing, spacing]}>
         {filteredData.map((record, index) => {
           const allFieldsSorted = allFields.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));

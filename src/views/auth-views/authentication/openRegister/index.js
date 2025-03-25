@@ -16,7 +16,8 @@
 
 import React from "react";
 import OpenRegisterForm from "../../components/OpenRegisterForm";
-import { Row, Col } from "antd";
+import RegisterForm from "../../components/RegisterForm";
+import { Row, Col, Divider } from "antd";
 import { Link } from "react-router-dom";
 import { APP_PREFIX_PATH } from "configs/AppConfig";
 
@@ -57,14 +58,17 @@ const RegisterTwo = (props) => {
       >
         <Row style={{ width: "100%", padding: "20px" }}>
           <Col span={24}> {/* Full width */}
-            {/* <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#003764" }}>Register</h2> */}
-            {/* <p style={{ textAlign: "center", marginBottom: "20px" }}>
-              Already have an account?{" "}
-              <Link to={`${APP_PREFIX_PATH}/login`}>Login here</Link> or{" "}
-              <Link to={`${APP_PREFIX_PATH}/landing`}>Home</Link>
-            </p> */}
+
             <div style={{ maxWidth: "500px", margin: "0 auto" }}> {/* Constrain form width */}
-              <OpenRegisterForm {...props} />
+              <h3>Register</h3>
+              <p pb-2>NetworkX is open for IBCN 2025 Delegates only for now! Check you registration with your email or mobile and continue with the App!</p>
+              <RegisterForm {...props} />
+              <Divider></Divider>
+              <p>
+                If you have registered for the app,<Link to={`${APP_PREFIX_PATH}/login`}> Login here...</Link>
+              </p>
+              {/* <br />
+              If you want to register for attending IBCN 2025, Please Register here! */}
             </div>
           </Col>
         </Row>
