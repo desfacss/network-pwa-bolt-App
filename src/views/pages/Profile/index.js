@@ -1081,6 +1081,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ProfilePic from './ProfilePic'; // Keep ProfilePic import for editing
 import DynamicViews from '../DynamicViews';
 import Channels from '../Channels';
+import DetailOverview from '../DynamicViews/DetailOverview';
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -1128,15 +1129,17 @@ const Profile = () => {
     useEffect(() => {
         const fetchOrgSettings = async () => {
             const { data, error } = await supabase
-                .from('organizations')
-                .select('user_profile_settings')
-                .eq('app_settings->>workspace', organization)
+                .from('y_view_config')
+                .select('details_overview')
+                .eq('entity_type', "users")
                 .single();
 
             if (error) {
                 console.error("Error fetching organization settings:", error);
             } else if (data) {
-                setProfileFields(data?.user_profile_settings || []);
+                // setProfileFields(data?.user_profile_settings || []);
+                // console.log(data?.details_overview)
+                setProfileFields(data?.details_overview || []);
             }
         };
 
@@ -1415,7 +1418,9 @@ const Profile = () => {
             key: 'info',
             label: 'Info',
             children: (
-                <>{renderDynamicDescriptionItems()}</>
+                // <>{renderDynamicDescriptionItems()}</>
+                <DetailOverview data={userData} config={profileFields} editable={true}
+                    saveConfig={{ table: "users", column: "privacy", entity: userData?.id }} />
             ),
         },
         session?.user?.features?.feature?.profileBusinesses && profileOwner && {

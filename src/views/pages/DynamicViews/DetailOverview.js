@@ -1,49 +1,103 @@
-import React from 'react';
-import { Card, Divider, Tag, Button, Typography } from 'antd';
-import * as Icons from '@ant-design/icons'; // Import all icons dynamically
+import React, { useState, useEffect } from 'react';
+import { Card, Divider, Tag, Button, Typography, Switch } from 'antd';
+import * as Icons from '@ant-design/icons';
+import { supabase } from 'configs/SupabaseConfig';
 
 const { Text, Title } = Typography;
 
 // Helper function to get nested or flat data from an object
 const getNestedValue = (obj, path) => {
-    // Check if the full path exists as a flat key in the object
     if (path in obj) {
         const value = obj[path];
-        // Handle special case for membership_type (object)
         if (path === 'details.membership_type' && typeof value === 'object') {
-            return Object.values(value).join(', '); // Convert object to comma-separated string
+            return Object.values(value).join(', ');
         }
         return value;
     }
-    // Fallback to nested traversal if path is not a direct key
     return path.split('.').reduce((acc, part) => acc && acc[part], obj) || 'N/A';
 };
 
 // Main Component
-const DetailOverview = ({ data, config, openMessageModal }) => {
+const DetailOverview = ({ data, config, openMessageModal, editable = false, saveConfig }) => {
+    const [toggledGroups, setToggledGroups] = useState(new Set());
+
     // Dynamically resolve icons from @ant-design/icons
     const getIcon = (iconName) => {
         return Icons[iconName] ? React.createElement(Icons[iconName]) : null;
+    };
+
+    // Fetch initial toggled groups from Supabase when editable is true
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            if (!editable || !saveConfig) return;
+
+            const { table, column, entity } = saveConfig;
+            const { data: result, error } = await supabase
+                .from(table)
+                .select(column)
+                .eq('id', entity)
+                .single();
+
+            if (error) {
+                console.error('Error fetching initial data from Supabase:', error);
+            } else if (result && result[column] && result[column].groups) {
+                setToggledGroups(new Set(result[column].groups));
+            }
+        };
+
+        fetchInitialData();
+    }, [editable, saveConfig]);
+
+    // Function to save toggled groups to Supabase
+    const saveToSupabase = async (updatedGroups) => {
+        if (!editable || !saveConfig) return;
+
+        const { table, column, entity } = saveConfig;
+        const payload = { [column]: { groups: Array.from(updatedGroups) } };
+
+        const { error } = await supabase
+            .from(table)
+            .update(payload)
+            .eq('id', entity);
+
+        if (error) {
+            console.error('Error saving to Supabase:', error);
+        } else {
+            console.log('Successfully saved to Supabase:', payload);
+        }
+    };
+
+    // Toggle handler for groups
+    const handleToggle = (groupName) => {
+        const newToggledGroups = new Set(toggledGroups);
+        if (newToggledGroups.has(groupName)) {
+            newToggledGroups.delete(groupName);
+        } else {
+            newToggledGroups.add(groupName);
+        }
+        setToggledGroups(newToggledGroups);
+        saveToSupabase(newToggledGroups);
     };
 
     const renderField = (field) => {
         const value = getNestedValue(data, field.fieldPath);
         const { icon, label, style, webLink, link } = field;
 
-        // Handle special rendering (e.g., tags for membership_type)
         if (style && style.render === 'tag') {
-            const values = value.split(', ').map((v) => v.trim()); // Split comma-separated values
-            const color = style.colorMapping || {}; // Use colorMapping if provided
+            let values = [];
+            if (Array.isArray(value)) {
+                values = value.map((v) => v.trim());
+            } else if (typeof value === 'string') {
+                values = value.split(', ').map((v) => v.trim());
+            } else {
+                values = [String(value)];
+            }
+            const color = style.colorMapping || {};
             return (
                 <div key={field.fieldPath} style={{ marginBottom: 8, textAlign: 'left' }}>
                     <Text>{label}: </Text>
                     {values.map((val, index) => (
-                        <Tag
-                            key={index}
-                            color={color[val.toLowerCase()] || null}
-                        // style={{ backgroundColor: style.bgColor, margin: '2px' }}
-                        // className="tag"
-                        >
+                        <Tag key={index} color={color[val.toLowerCase()] || null}>
                             {val}
                         </Tag>
                     ))}
@@ -51,10 +105,9 @@ const DetailOverview = ({ data, config, openMessageModal }) => {
             );
         }
 
-        // Determine how to render the content
-        const isNA = value === 'N/A'; // Check if value is "N/A"
+        const isNA = value === 'N/A';
         const content = isNA ? (
-            <Text>{value}</Text> // Render "N/A" as plain text
+            <Text>{value}</Text>
         ) : webLink ? (
             <a href={value} target="_blank" rel="noopener noreferrer" style={style}>
                 {value}
@@ -78,7 +131,19 @@ const DetailOverview = ({ data, config, openMessageModal }) => {
         const sortedFields = group?.fields?.sort((a, b) => a.order - b.order);
         return (
             <div key={group.name} style={{ textAlign: 'left' }}>
-                {group?.show_group_name && <Title level={4}>{group.name}</Title>}
+                {group?.show_group_name && (
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Title level={4} style={{ marginRight: 8 }}>{group.name}</Title>
+                        {editable && group?.privacy_control && (
+                            <Switch
+                                checked={toggledGroups.has(group.name)}
+                                onChange={() => handleToggle(group.name)}
+                                checkedChildren={<Icons.EyeInvisibleOutlined />}
+                                unCheckedChildren={<Icons.EyeOutlined />}
+                            />
+                        )}
+                    </div>
+                )}
                 {sortedFields?.map(renderField)}
             </div>
         );
@@ -90,13 +155,13 @@ const DetailOverview = ({ data, config, openMessageModal }) => {
                 key={action.name}
                 icon={action.icon && getIcon(action.icon)}
                 style={{ ...action.style, width: '100%', marginBottom: 8 }}
-                type='primary'
+                type="primary"
                 className="action-button"
                 onClick={() => {
                     if (action.name === 'message') {
-                        openMessageModal(data[action.form]); // Trigger modal with data.id
+                        openMessageModal(data[action.form]);
                     } else {
-                        alert(`Action: ${action.name} triggered for ID: ${data.id}`); // Fallback
+                        alert(`Action: ${action.name} triggered for ID: ${data.id}`);
                     }
                 }}
             >
@@ -118,8 +183,12 @@ const DetailOverview = ({ data, config, openMessageModal }) => {
                     {renderGroup(group)}
                 </React.Fragment>
             ))}
-            <Divider />
-            <div className="actions-container">{renderActions()}</div>
+            {!editable &&
+                <>
+                    <Divider />
+                    <div className="actions-container">{renderActions()}</div>
+                </>
+            }
         </Card>
     );
 };
