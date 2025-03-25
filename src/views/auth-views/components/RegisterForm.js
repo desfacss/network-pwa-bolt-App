@@ -190,7 +190,8 @@ export const RegisterForm = (props) => {
     const { data, error } = await supabase
       .from('referrals')
       .select('*')
-      .eq('mobile', mobile)
+      // .eq('mobile', mobile)
+      .or(`details->>mobile.eq.${mobile},details->>registered_email.eq.${mobile}`)
       .single();
 
     if (error || !data) {
@@ -223,7 +224,7 @@ export const RegisterForm = (props) => {
               <Input
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                placeholder="Enter mobile number"
+                placeholder="Enter Email / Mobile"
               />
             </Form.Item>
             <Button type="primary" block onClick={checkReferral}>
