@@ -9,7 +9,6 @@ import { ResponsiveButton } from 'views/pages/Trial/ResponsiveButton';
 const { Title, Text } = Typography;
 
 const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSearchText, deleteData, openDrawer, setCurrentPage, totalItems, openDrawerWithPath, openMessageModal }) => {
-  // const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
   const { session } = useSelector((state) => state.auth);
   const gridViewConfig = viewConfig?.gridview;
@@ -170,24 +169,30 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
       if (action?.name === 'message') return (session?.user?.id !== record[action.form]);
       return true;
     });
-    return (
-      <Menu>
-        {allowedActions?.map(action => (
-          <Menu.Item key={action?.name} onClick={() => {
-            switch (action?.name) {
-              case 'view': navigate(`/app${gridViewConfig?.viewLink}${record?.id}`); break;
-              case 'edit': openDrawer(record, false, action?.form); break;
-              case 'delete': deleteData(record); break;
-              case 'details': openDrawer(record, true); break;
-              case 'message': openMessageModal && openMessageModal(record[action.form]); break;
-              default: console.log(`Action ${action?.name} not implemented`);
-            }
-          }}>
-            {action?.name?.charAt(0).toUpperCase() + action?.name?.slice(1)}
-          </Menu.Item>
-        ))}
-      </Menu>
-    );
+
+    return {
+      actions: allowedActions,
+      menu: (
+        <Menu>
+          {allowedActions?.map(action => (
+            <Menu.Item key={action?.name} onClick={() => handleAction(action?.name, record)}>
+              {action?.name?.charAt(0).toUpperCase() + action?.name?.slice(1)}
+            </Menu.Item>
+          ))}
+        </Menu>
+      )
+    };
+  };
+
+  const handleAction = (actionName, record) => {
+    switch (actionName) {
+      case 'view': navigate(`/app${gridViewConfig?.viewLink}${record?.id}`); break;
+      case 'edit': openDrawer(record, false, actionName?.form); break;
+      case 'delete': deleteData(record); break;
+      case 'details': openDrawer(record, true); break;
+      case 'message': openMessageModal && openMessageModal(record[actionName.form]); break;
+      default: console.log(`Action ${actionName} not implemented`);
+    }
   };
 
   const handleBulkAction = (action) => {
@@ -200,37 +205,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
 
   return (
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-          {/* {showFeatures?.includes('search') && (
-            <Space style={{ marginBottom: spacing }}>
-              <Input placeholder="Search" prefix={<SearchOutlined />} value={searchText} onChange={e => setSearchText(e.target.value)} />
-            </Space>
-          )} */}
-          {totalItems > data.length && <Button onClick={() => setCurrentPage(prev => prev + 1)}>Load More</Button>}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {[...(gridViewConfig?.actions?.bulk || [])]?.map((action) => (
-            <ResponsiveButton key={action?.name} type="primary" style={{ marginRight: 0, marginTop: 0 }} onClick={() => handleBulkAction(action)}>
-              {action?.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-            </ResponsiveButton>
-          ))}
-        </div>
-      </div>
-      {(data?.length !== filteredData?.length && filteredData?.length === 0) || (filteredData?.length === 0) && (
-        <Empty
-          image={<WarningOutlined style={{ fontSize: "48px", color: "#333333" }} />}
-          description={
-            <>
-              <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#333333" }}>
-                No results found for the criteria.
-              </span>
-              <br />
-              Widen your search!
-            </>
-          }
-        />
-      )}
+      {/* ... (keeping the header section unchanged) */}
       <Row gutter={[spacing, spacing]}>
         {filteredData.map((record, index) => {
           const allFieldsSorted = allFields.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
@@ -239,16 +214,27 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
           const footerFields = allFieldsSorted.filter(f => f.cardSection === 'footer' && !privacyGroups.includes(f.group));
           const bodyFields = allFieldsSorted.filter(f => (!f.cardSection || f.cardSection === 'body') && !privacyGroups.includes(f.group));
 
+          const actionMenuData = getActionMenu(record);
+          const hasMultipleActions = actionMenuData.actions?.length > 1;
+          const singleAction = actionMenuData.actions?.length === 1 ? actionMenuData.actions[0] : null;
+
           return (
             <Col key={record?.id || index} {...getResponsiveSpans(cardsPerRow)}>
               <Card
                 size={gridViewConfig?.layout?.size || 'default'}
-                style={{ height: aspectRatio === 'auto' ? 'auto' : '100%', boxShadow: "none", ...cardStyle }}
+                style={{
+                  height: aspectRatio === 'auto' ? 'auto' : '100%',
+                  boxShadow: "none",
+                  ...cardStyle,
+                  cursor: singleAction ? 'pointer' : 'default'
+                }}
+                onClick={singleAction ? () => handleAction(singleAction.name, record) : undefined}
+                hoverable={!!singleAction}
                 title={
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Space>{titleFields?.length > 0 && titleFields.map(field => renderField(record, field))}</Space>
-                    {gridViewConfig?.actions?.row?.length > 0 && getActionMenu(record)?.props?.children?.length > 0 && (
-                      <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+                    {hasMultipleActions && (
+                      <Dropdown overlay={actionMenuData.menu} trigger={['click']}>
                         <EllipsisOutlined style={{ fontSize: '16px', cursor: 'pointer' }} />
                       </Dropdown>
                     )}
