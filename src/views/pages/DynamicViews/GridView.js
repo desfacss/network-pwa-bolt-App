@@ -63,7 +63,11 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
   const renderField = (record, fieldConfig) => {
     const value = getFieldValue(record, fieldConfig);
     const { style = {}, subFields = [], link, linkParam, mode = 'navigate' } = fieldConfig;
-    const IconComponent = fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
+
+    // Check if icon is a field path (e.g., "details.image_url") instead of an icon name
+    const isImageUrlField = fieldConfig?.icon && !Icons[fieldConfig.icon];
+    const imageUrl = isImageUrlField ? getNestedValue(record, fieldConfig.icon) : null;
+    const IconComponent = !isImageUrlField && fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
 
     if (value === null || value === undefined || value === '' || (Array.isArray(value) && value?.length === 0)) {
       return null;
@@ -72,11 +76,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
     if (fieldConfig?.display === "comma_separated" && subFields.length > 0) {
       const subFieldValues = subFields?.map(subField => {
         const subValue = getNestedValue(record, subField?.fieldPath);
-        // Check if subValue is truthy before proceeding
         if (!subValue) {
-          return null; // Skip this subfield if subValue is falsy
+          return null;
         }
-        const SubIconComponent = subField?.icon ? Icons[subField.icon] : null;
+        const SubIconComponent = subField?.icon && !Icons[subField.icon] ? null : Icons[subField.icon];
         const content = subValue && (
           <Text style={{ ...subField?.style, display: 'inline-block', marginRight: 8 }}>
             {SubIconComponent && <SubIconComponent style={{ marginRight: 4 }} />}
@@ -114,7 +117,22 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
 
     const content = value && (
       <Text style={{ ...style, display: 'block', whiteSpace: style?.ellipsis ? 'nowrap' : 'normal', overflow: style?.ellipsis ? 'hidden' : 'visible', textOverflow: style?.ellipsis ? 'ellipsis' : 'clip' }}>
-        {IconComponent && <IconComponent style={{ marginRight: 8 }} />}
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt="Profile"
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              verticalAlign: 'middle',
+              marginRight: 8,
+            }}
+          />
+        ) : IconComponent ? (
+          <IconComponent style={{ marginRight: 8 }} />
+        ) : null}
         {(fieldConfig?.fieldName) && `${fieldConfig?.fieldName}: `}
         {value}
       </Text>
@@ -205,7 +223,6 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
 
   return (
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
-      {/* ... (keeping the header section unchanged) */}
       <Row gutter={[spacing, spacing]}>
         {filteredData.map((record, index) => {
           const allFieldsSorted = allFields.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));

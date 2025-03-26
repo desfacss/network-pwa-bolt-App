@@ -133,14 +133,13 @@ export const LoginForm = (props) => {
       <Form.Item name="email" label="Email" rules={[{ required: true, type: "email" }]}>
         <Input prefix={<MailOutlined />} />
       </Form.Item>
-      <Form.Item name="password" label={
-        <span>
-          Password {" "}
-          <span style={{ paddingLeft: 5 }}>
-            <a href={`${APP_PREFIX_PATH}/confirm-signup`}>Forgot Password?</a>
-          </span>
-        </span>
-      } rules={[{ required: true }]}>
+      <Form.Item
+        name="password"
+        label="Password"
+        labelCol={{ style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } }}
+        extra={<a href={`${APP_PREFIX_PATH}/confirm-signup`}>Forgot Password?</a>}
+        rules={[{ required: true }]}
+      >
         <Input.Password prefix={<LockOutlined />} />
       </Form.Item>
       <Form.Item>

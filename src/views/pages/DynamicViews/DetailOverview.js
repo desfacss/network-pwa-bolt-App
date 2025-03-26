@@ -14,7 +14,7 @@ const getNestedValue = (obj, path) => {
         }
         return value;
     }
-    return path.split('.').reduce((acc, part) => acc && acc[part], obj) || 'N/A';
+    return path?.split('.')?.reduce((acc, part) => acc && acc[part], obj) || 'N/A';
 };
 
 // Main Component
@@ -81,7 +81,46 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
 
     const renderField = (field) => {
         const value = getNestedValue(data, field.fieldPath);
-        const { icon, label, style, webLink, link } = field;
+        const { icon, label, style, webLink, link, imagePath } = field;
+
+        // Handle image-only field when imagePath is provided, no label, and no icon
+        const imageUrl = imagePath ? getNestedValue(data, imagePath) : null;
+        if (imagePath && !label && !icon && !editable) {
+            if (imageUrl && imageUrl !== 'N/A') {
+                return (
+                    <div key={field.fieldPath || imagePath} style={{ marginBottom: 8, textAlign: 'left' }}>
+                        <img
+                            src={imageUrl}
+                            alt="Profile"
+                            style={{
+                                width: 84,
+                                height: 84,
+                                borderRadius: '50%',
+                                objectFit: 'cover',
+                                verticalAlign: 'middle',
+                            }}
+                        />
+                    </div>
+                );
+            }
+            return null; // Don't render anything if imageUrl is 'N/A' or falsy
+        }
+
+        // Render image if imagePath is provided and editable is false (for fields with label/icon)
+        const imageElement = imageUrl && !editable ? (
+            <img
+                src={imageUrl}
+                alt={label || 'Image'}
+                style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    verticalAlign: 'middle',
+                    marginRight: 8,
+                }}
+            />
+        ) : null;
 
         if (style && style.render === 'tag') {
             let values = [];
@@ -122,6 +161,7 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
 
         return (
             <div key={field.fieldPath} style={{ marginBottom: 8, textAlign: 'left' }}>
+                {imageElement}
                 {icon && getIcon(icon)} <Text>{label}: </Text> {content}
             </div>
         );
@@ -176,19 +216,19 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
         <Card className="detail-overview-card">
             {sortedGroups?.filter(group => {
                 const privacyGroups = Object.values(data["privacy.groups"] || {});
-                return !privacyGroups.includes(group.name);
+                return !privacyGroups?.includes(group.name);
             }).map((group, index) => (
                 <React.Fragment key={group.name}>
                     {config.dividers.includes(group.name) && index > 0 && <Divider />}
                     {renderGroup(group)}
                 </React.Fragment>
             ))}
-            {!editable &&
+            {!editable && (
                 <>
                     <Divider />
                     <div className="actions-container">{renderActions()}</div>
                 </>
-            }
+            )}
         </Card>
     );
 };

@@ -789,249 +789,191 @@
 
 import React, { useState, useEffect } from 'react';
 import { Swiper, Button } from 'antd-mobile';
-import { Drawer } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { APP_PREFIX_PATH } from 'configs/AppConfig';
-import DynamicForm from 'views/pages/DynamicForm';
 
 const IntroScreen = () => {
   const slides = [
     {
-      title: "Explore IBCN 2025 Bengaluru",
-      content: [
-        "Stay updated with the event schedule, speakers, and session tracks.",
-        "Access details on keynote sessions and breakout discussions.",
-        "Plan your agenda and make the most of your experience."
-      ]
+      title: "Discover IBCN 2025",
+      content: "Check out the event schedule and speakers.",
+      image: "/img/ibcn/landing/Chetti1.png",
     },
     {
-      title: "Connect & Network",
-      content: [
-        "Engage with industry leaders and fellow attendees.",
-        "Discover new collaborations and business opportunities.",
-        "Join exclusive networking sessions and community meetups."
-      ]
+      title: "Meet & Connect",
+      content: "Network with attendees and leaders.",
+      image: "/img/ibcn/landing/Chetti2.png",
     },
     {
-      title: "Participate in Business Survey",
-      content: [
-        "Get insights into entrepreneurship within the Nagarathar community.",
-        "Understand the aspirations of the next generation.",
-        "Support collaboration and business growth through networking."
-      ]
-    }
+      title: "Join the Survey",
+      content: "Share your thoughts on business trends.",
+      image: "/img/ibcn/landing/Chetti3.png",
+    },
   ];
 
+  // const slides = [
+  //   {
+  //     title: "Explore IBCN 2025 Bengaluru",
+  //     content: [
+  //       "Stay updated with the event schedule, speakers, and session tracks.",
+  //       "Access details on keynote sessions and breakout discussions.",
+  //       "Plan your agenda and make the most of your experience."
+  //     ]
+  //   },
+  //   {
+  //     title: "Connect & Network",
+  //     content: [
+  //       "Engage with industry leaders and fellow attendees.",
+  //       "Discover new collaborations and business opportunities.",
+  //       "Join exclusive networking sessions and community meetups."
+  //     ]
+  //   },
+  //   {
+  //     title: "Participate in Business Survey",
+  //     content: [
+  //       "Get insights into entrepreneurship within the Nagarathar community.",
+  //       "Understand the aspirations of the next generation.",
+  //       "Support collaboration and business growth through networking."
+  //     ]
+  //   }
+  // ];
+
   const navigate = useNavigate();
-  const [visible, setVisible] = useState(false);
-  const [schema, setSchema] = useState(null);
   const [autoPlay, setAutoPlay] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null); // State to store the prompt event
-
-  const generateAbstractShapes = (text) => {
-    const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const shapes = [];
-    const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-    const shapeCount = getRandom(3, 4);
-    const containerMinHeight = 300;
-    const maxShapeSize = 90;
-
-    for (let i = 0; i < shapeCount; i++) {
-      const size = getRandom(50, maxShapeSize);
-      const rotate = `${getRandom(0, 360)}deg`;
-      const lightness = getRandom(60, 85);
-      const bgColor = `hsl(${(hash + i * 40) % 360}, 70%, ${lightness}%)`;
-      const bottom = getRandom(0, 200 - size);
-      const right = getRandom(10, 150);
-
-      shapes.push({
-        width: `${size}px`,
-        height: `${size}px`,
-        backgroundColor: bgColor,
-        position: 'absolute',
-        bottom: `${bottom}px`,
-        right: `${right}px`,
-        borderRadius: '50% 0',
-        transform: `rotate(${rotate})`,
-        opacity: getRandom(40, 70) / 100,
-        zIndex: getRandom(50, 100)
-      });
-    }
-    return shapes;
-  };
-
-  // Handle the install prompt
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
-      // Prevent the default mini-infobar from appearing
-      e.preventDefault();
-      // Store the event
-      setDeferredPrompt(e);
-      // Trigger the prompt immediately
-      e.prompt();
-      // Handle the user's response
-      e.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the A2HS prompt');
-        } else {
-          console.log('User dismissed the A2HS prompt');
-        }
-        setDeferredPrompt(null); // Clear the prompt after use
-      });
-    };
-
-    // Add the event listener
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    // Cleanup the event listener
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
 
   useEffect(() => {
     setAutoPlay(true);
     return () => setAutoPlay(false);
   }, []);
 
-  const showDrawer = () => setVisible(true);
-  const onClose = () => setVisible(false);
-  const onFinish = (values) => {
-    console.log('Form submitted:', values);
-    onClose();
-  };
-
   const headerHeight = 90;
+  const footerHeight = 80;
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "20px",
-          color: "#003764",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px',
+          color: '#003764',
           height: `${headerHeight}px`,
-          background: "#fff",
+          background: '#fff',
         }}
       >
-        <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
+        <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '70px' }} />
         <h2 style={{ margin: 0 }}>IBCN NetworkX</h2>
-        <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} />
+        <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '70px' }} />
       </div>
 
-      <main style={{
-        flex: '1 0 auto',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+      <main
+        style={{
+          flex: '1 0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Swiper
           autoplay={autoPlay}
-          loop
+          loop effect="fade"
           autoplayInterval={4000}
           style={{
             flex: '1 0 auto',
-            minHeight: '300px',
-            maxHeight: 'calc(100vh - 200px)'
+            height: `calc(100vh - ${headerHeight + footerHeight}px)`,
           }}
         >
-          {slides.map((slide, index) => {
-            const shapeStyles = generateAbstractShapes(slide.title + slide.content.join(''));
-            return (
-              <Swiper.Item key={index}>
-                <div style={{
+          {slides.map((slide, index) => (
+            <Swiper.Item key={index}>
+              <div
+                style={{
                   height: '100%',
-                  padding: '15px',
                   position: 'relative',
-                  overflowY: 'auto',
-                  minHeight: '300px'
-                }}>
-                  <div style={{
-                    position: 'relative',
-                    zIndex: 200
-                  }}>
-                    <h2 style={{
-                      marginBottom: '15px',
+                  overflow: 'hidden',
+                }}
+              >
+                <img
+                  src={slide.image}
+                  alt={`Slide ${index + 1}`}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain', // Avoid cropping
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '25%', // Reduced height
+                    backgroundColor: 'rgba(255, 255, 255, 0.5)', // More transparent
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    padding: '15px',
+                    textAlign: 'center',
+                  }}
+                >
+                  <h2
+                    style={{
+                      margin: 0,
                       fontSize: '1.2rem',
-                      color: '#003764'
-                    }}>{slide.title}</h2>
-                    <ul style={{
-                      padding: 0,
-                      listStyleType: 'none'
-                    }}>
-                      {slide.content.map((bullet, bulletIndex) => (
-                        <li key={bulletIndex} style={{
-                          marginBottom: '10px',
-                          paddingLeft: '15px',
-                          position: 'relative'
-                        }}>
-                          <span style={{
-                            position: 'absolute',
-                            left: '0',
-                            fontWeight: 'bold',
-                            color: '#003764'
-                          }}>•</span>
-                          {bullet}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  {shapeStyles.map((style, idx) => <div key={idx} style={style}></div>)}
+                      color: '#003764',
+                    }}
+                  >
+                    {slide.title}
+                  </h2>
+                  <p
+                    style={{
+                      margin: '5px 0 0 0',
+                      fontSize: '1rem',
+                      color: '#333',
+                    }}
+                  >
+                    {slide.content}
+                  </p>
                 </div>
-              </Swiper.Item>
-            );
-          })}
+              </div>
+            </Swiper.Item>
+          ))}
         </Swiper>
 
-        <footer style={{
-          padding: '15px',
-          flexShrink: 0,
-          background: '#fff',
-          borderTop: '1px solid #eee',
-          position: 'sticky',
-          bottom: 0,
-          zIndex: 1000
-        }}>
+        <footer
+          style={{
+            padding: '15px',
+            flexShrink: 0,
+            background: '#fff',
+            borderTop: '1px solid #eee',
+            height: `${footerHeight}px`,
+          }}
+        >
           <Button
             color="primary"
-            // block
-            style={{
-              marginBottom: '10px',
-              fontSize: '1rem', width: "48%"
-            }}
+            style={{ marginBottom: '10px', fontSize: '1rem', width: '48%' }}
             onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}
           >
             Register
           </Button>
           <Button
             color="warning"
-            // block
-            style={{
-              marginBottom: '10px', marginLeft: 5,
-              fontSize: '1rem', width: "48%"
-            }}
+            style={{ marginBottom: '10px', marginLeft: 5, fontSize: '1rem', width: '48%' }}
             onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}
           >
             Login
           </Button>
         </footer>
       </main>
-
-      <Drawer
-        title="Business Survey"
-        placement="right"
-        width={Math.min(520, window.innerWidth - 20)}
-        onClose={onClose}
-        visible={visible}
-      >
-        {schema && <DynamicForm schemas={schema} onFinish={onFinish} />}
-      </Drawer>
     </div>
   );
 };
