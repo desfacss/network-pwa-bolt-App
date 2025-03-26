@@ -892,7 +892,7 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Typography, Button, message } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import Barcode from 'react-barcode';
+import QRCode from 'react-qr-code'; // Replace Barcode with QRCode
 import './TicketPage.css';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
@@ -975,9 +975,8 @@ const TicketPage = () => {
   const trackColor = trackColors[userData?.streams] || trackColors['Finance & Fintech'];
   const foodColor = foodColors[userData?.foodPreference] || '#fff';
 
-  const barcodeValue = userData
-    ? `${userData.name.replace(/\s/g, '')}-${userData.kovil.replace(/\s/g, '')}`
-    : 'Default-Barcode';
+  // Updated QR code URL
+  const qrUrl = `${window.location.origin}/app/members/${session?.user?.id}`;
 
   const getForms = async (formName) => {
     const { data, error } = await supabase
@@ -1107,8 +1106,6 @@ const TicketPage = () => {
           </Text>
           <Title level={3} className="user-name">
             {userData.streams}
-            {/* <p>2 Nights @ Hilton (Double Sharing)</p>
-            <p>Award Nights Party</p> */}
           </Title>
           {session?.user?.id && !isMobile && (
             <Button
@@ -1121,17 +1118,16 @@ const TicketPage = () => {
           )}
         </div>
 
-        {/* Barcode Section */}
+        {/* QR Code Section - Replaced Barcode */}
         <div className="ticket-section barcode-section">
           <div className="color-overlay" style={{ backgroundColor: '#fff' }}></div>
-          <Barcode
-            value={barcodeValue}
-            width={1}
-            height={50}
-            displayValue={true}
-            fontSize={14}
-            margin={0}
-          />
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px' }}>
+            <QRCode
+              value={qrUrl}
+              size={150}
+              level="H"
+            />
+          </div>
         </div>
 
         {/* Food Section */}

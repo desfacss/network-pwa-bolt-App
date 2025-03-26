@@ -12,6 +12,8 @@ export const RegisterForm = (props) => {
   const [mobile, setMobile] = useState("");
   const [referralExists, setReferralExists] = useState(null);
   const [roles, setRoles] = useState();
+  const [referralDetails, setReferralDetails] = useState(null);
+  const [matchedField, setMatchedField] = useState(null);
 
   const { defaultOrganization } = useSelector((state) => state.auth);
 
@@ -46,22 +48,24 @@ export const RegisterForm = (props) => {
       const state = params.get('state');
 
       if (idToken && accessToken) {
-        let stateType, mobileFromState;
+        let stateType, mobileFromState, referralDetailsFromState, matchedFieldFromState;
         try {
           const decodedState = JSON.parse(atob(state));
           stateType = decodedState.type;
           mobileFromState = decodedState.mobile;
+          referralDetailsFromState = decodedState.referralDetails;
+          matchedFieldFromState = decodedState.matchedField;
         } catch (e) {
           stateType = state;
         }
-        handleOAuthCallback(idToken, accessToken, stateType, mobileFromState);
+        handleOAuthCallback(idToken, accessToken, stateType, mobileFromState, referralDetailsFromState, matchedFieldFromState);
       } else {
         notification.error({ message: "Missing tokens from Google response" });
       }
     }
   }, [location]);
 
-  const handleOAuthCallback = async (idToken, accessToken, state, mobileFromState) => {
+  const handleOAuthCallback = async (idToken, accessToken, state, mobileFromState, referralDetailsFromState, matchedFieldFromState) => {
     showLoading();
     try {
       const googleUserResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -83,19 +87,28 @@ export const RegisterForm = (props) => {
           return;
         }
 
-        const { data: existingUser } = await supabase
+        const { data: existingUsers, error: userError } = await supabase
           .from('users')
           .select('details, auth_id')
-          .eq('details->>email', userEmail)
-          .single();
+          .eq('details->>email', userEmail);
 
-        if (!existingUser) {
+        if (userError) {
+          notification.error({ message: "Error checking existing user: " + userError.message });
+          return;
+        }
+
+        const existingUser = existingUsers?.[0];
+
+        if (!existingUser && referralDetailsFromState) {
           const { error: insertError } = await supabase
             .from('users')
             .insert({
               id: session.user.id,
               auth_id: session.user.id,
-              details: { email: userEmail, mobile: userMobile },
+              details: {
+                ...referralDetailsFromState,
+                email: userEmail,
+              },
               user_name: userEmail?.split('@')[0] || userEmail,
               organization_id: defaultOrganization?.id,
               role_type: defaultRole,
@@ -107,17 +120,29 @@ export const RegisterForm = (props) => {
             return;
           }
 
-          await supabase
+          const updateQuery = supabase
             .from('referrals')
-            .update({ email: userEmail })
-            .eq('mobile', userMobile);
+            .update({ email: userEmail });
+
+          // Use matchedFieldFromState instead of component state matchedField
+          if (matchedFieldFromState === 'mobile') {
+            updateQuery.match({ 'details->>mobile': userMobile });
+          } else if (matchedFieldFromState === 'registered_email') {
+            updateQuery.match({ 'details->>registered_email': userMobile });
+          }
+
+          const { error: updateError } = await updateQuery;
+          if (updateError) {
+            notification.error({ message: "Error updating referral: " + updateError.message });
+            return;
+          }
         }
 
         notification.success({ message: "Successfully Registered" });
         window.location.reload();
       }
     } catch (error) {
-      notification.error({ message: "Failed to process Google registration" });
+      notification.error({ message: "Failed to process Google registration: " + error.message });
     }
   };
 
@@ -133,10 +158,13 @@ export const RegisterForm = (props) => {
     url.searchParams.append('response_type', 'id_token token');
     url.searchParams.append('scope', scope);
 
-    const stateObj = { type: stateType };
-    if (stateType === 'referral-check' && mobile) {
-      stateObj.mobile = mobile;
-    }
+    const stateObj = {
+      type: stateType,
+      mobile: mobile,
+      referralDetails: referralDetails,
+      matchedField: matchedField
+    };
+
     const encodedState = btoa(JSON.stringify(stateObj));
     url.searchParams.append('state', encodedState);
 
@@ -160,7 +188,10 @@ export const RegisterForm = (props) => {
       .insert({
         id: data.user.id,
         auth_id: data.user.id,
-        details: { email: values.email, mobile: mobile },
+        details: {
+          ...referralDetails,
+          email: values.email,
+        },
         user_name: values.email?.split('@')[0] || values.email,
         organization_id: defaultOrganization?.id,
         role_type: defaultRole,
@@ -172,10 +203,21 @@ export const RegisterForm = (props) => {
       return;
     }
 
-    await supabase
+    const updateQuery = supabase
       .from('referrals')
-      .update({ email: values.email })
-      .eq('mobile', mobile);
+      .update({ email: values.email });
+
+    if (matchedField === 'mobile') {
+      updateQuery.match({ 'details->>mobile': mobile });
+    } else {
+      updateQuery.match({ 'details->>registered_email': mobile });
+    }
+
+    const { error: updateError } = await updateQuery;
+    if (updateError) {
+      notification.error({ message: "Error updating referral: " + updateError.message });
+      return;
+    }
 
     notification.success({ message: "Successfully Registered" });
     window.location.reload();
@@ -190,24 +232,33 @@ export const RegisterForm = (props) => {
     const { data, error } = await supabase
       .from('referrals')
       .select('*')
-      // .eq('mobile', mobile)
       .or(`details->>mobile.eq.${mobile},details->>registered_email.eq.${mobile}`)
       .single();
 
     if (error || !data) {
       setReferralExists(false);
+      setReferralDetails(null);
+      setMatchedField(null);
       notification.error({
         message: "Registration information not found",
         description: "Please register first or use existing credentials to login"
       });
     } else if (data.email) {
       setReferralExists(false);
+      setReferralDetails(null);
+      setMatchedField(null);
       notification.error({
         message: "Mobile number already registered",
         description: "Please login with your existing credentials"
       });
     } else {
       setReferralExists(true);
+      setReferralDetails(data.details);
+      if (data.details?.mobile === mobile) {
+        setMatchedField('mobile');
+      } else {
+        setMatchedField('registered_email');
+      }
       notification.success({
         message: "Registration available!",
         description: "You can register with Google or email & password"

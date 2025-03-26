@@ -1069,19 +1069,19 @@
 // export default Profile;
 
 
-
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Button, Divider, Tabs, Switch, Drawer, Avatar } from 'antd';
+import { Card, Descriptions, Button, Divider, Tabs, Switch, Drawer, Avatar, message } from 'antd'; // Added message for feedback
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
-import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined, MailOutlined } from '@ant-design/icons'; // Added MailOutlined
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
 import { useNavigate, useParams } from 'react-router-dom';
-import ProfilePic from './ProfilePic'; // Keep ProfilePic import for editing
+import ProfilePic from './ProfilePic';
 import DynamicViews from '../DynamicViews';
 import Channels from '../Channels';
 import DetailOverview from '../DynamicViews/DetailOverview';
+import { sendEmail } from 'components/common/SendEmail';
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -1100,13 +1100,15 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userName = (user_name && decodeURIComponent(user_name)) || session?.user?.user_name;
+            // const userName = (user_name && decodeURIComponent(user_name)) || session?.user?.user_name;
+            const userName = (user_name) || session?.user?.id;
             if (!userName) return;
 
             const { data, error } = await supabase
                 .from('users')
                 .select('*, profile_privacy')
-                .eq('user_name', userName)
+                // .eq('user_name', userName)
+                .eq('id', userName)
                 .single();
 
             if (error) {
@@ -1137,8 +1139,6 @@ const Profile = () => {
             if (error) {
                 console.error("Error fetching organization settings:", error);
             } else if (data) {
-                // setProfileFields(data?.user_profile_settings || []);
-                // console.log(data?.details_overview)
                 setProfileFields(data?.details_overview || []);
             }
         };
@@ -1270,6 +1270,53 @@ const Profile = () => {
             return Array.isArray(value) ? value.join(', ') : value;
         });
         return custom_format?.replace(/{(\d+)}/g, (_, index) => values[index] || '');
+    };
+
+    const handleConnect = async () => {
+        const senderEmail = session?.user?.details?.email;
+        const recipientEmail = userData?.details?.email;
+
+        if (!senderEmail || !recipientEmail) {
+            message.error('Email addresses are missing.');
+            return;
+        }
+
+        const senderName = `${session?.user?.details?.firstName} ${session?.user?.details?.lastName}`;
+        const recipientName = `${userData?.details?.firstName} ${userData?.details?.lastName}`;
+
+        const emails = [
+            {
+                from: `UKPE Timesheet <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
+                to: [recipientEmail],
+                subject: `Connection Request from ${senderName}`,
+                html: `
+                    <p>Hello ${recipientName},</p>
+                    <p>${senderName} would like to connect with you. You can reach them at: <strong>${senderEmail}</strong>.</p>
+                    <p>Please reply directly to this email or contact them to connect.</p>
+                    <p>If you are not the intended recipient, you can safely ignore this message or contact your HR for assistance.</p>
+                    <p>Best Regards,<br/>UKPE Global Admin Team</p>
+                `,
+            },
+            {
+                from: `UKPE Timesheet <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
+                to: [senderEmail],
+                subject: `Connection Request Sent to ${recipientName}`,
+                html: `
+                    <p>Hello ${senderName},</p>
+                    <p>You have sent a connection request to ${recipientName}. They can reach you at: <strong>${senderEmail}</strong>.</p>
+                    <p>Please wait for their response or contact them directly at: <strong>${recipientEmail}</strong>.</p>
+                    <p>If you are not the intended recipient, you can safely ignore this message or contact your HR for assistance.</p>
+                    <p>Best Regards,<br/>UKPE Global Admin Team</p>
+                `,
+            },
+        ];
+
+        const success = await sendEmail(emails);
+        if (success) {
+            message.success('Connection request sent successfully!');
+        } else {
+            message.error('Failed to send connection request.');
+        }
     };
 
     const renderDynamicDescriptionItemsTabs = (group) => {
@@ -1418,7 +1465,6 @@ const Profile = () => {
             key: 'info',
             label: 'Info',
             children: (
-                // <>{renderDynamicDescriptionItems()}</>
                 <DetailOverview data={userData} config={profileFields} editable={true}
                     saveConfig={{ table: "users", column: "privacy", entity: userData?.id }} />
             ),
@@ -1521,7 +1567,7 @@ const Profile = () => {
                 }}
             >
                 <Card style={{ marginBottom: '15px' }}>
-                    {/* Profile Picture and Edit Buttons */}
+                    {/* Profile Picture and Buttons */}
                     <div
                         style={{
                             display: 'flex',
@@ -1535,38 +1581,47 @@ const Profile = () => {
                                 marginBottom: '15px',
                             }}
                         >
-                            {/* Conditional rendering based on profileOwner */}
                             {profileOwner ? (
-                                <ProfilePic /> // Use ProfilePic for editing when viewing your own profile
+                                <ProfilePic />
                             ) : (
                                 <Avatar
-                                    size={64} // Medium size (matches typical profile picture size)
-                                    src={userData?.details?.profile_picture} // Display image if available
-                                    style={{ backgroundColor: '#f1f4f7' }} // Consistent background color
+                                    size={64}
+                                    src={userData?.details?.profile_picture}
+                                    style={{ backgroundColor: '#f1f4f7' }}
                                 >
-                                    {userData?.user_name?.charAt(0) || 'U'} {/* Fallback to first letter */}
+                                    {userData?.user_name?.charAt(0) || 'U'}
                                 </Avatar>
                             )}
                         </div>
-                        {userData && session?.user?.id === userData?.id && (
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                }}
-                            >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '10px',
+                            }}
+                        >
+                            {profileOwner ? (
+                                <>
+                                    <Button
+                                        icon={details ? <EditOutlined /> : <PlusOutlined />}
+                                        onClick={(e) => showModal({ ...details, ...userData?.additional_details }, 'user_self_edit_form')}
+                                        style={{ width: '100%', maxWidth: '200px' }}
+                                    >
+                                        Edit Profile
+                                    </Button>
+                                    <ChangePassword />
+                                </>
+                            ) : (
                                 <Button
-                                    icon={details ? <EditOutlined /> : <PlusOutlined />}
-                                    onClick={(e) => showModal({ ...details, ...userData?.additional_details }, 'user_self_edit_form')}
+                                    icon={<MailOutlined />}
+                                    onClick={handleConnect}
                                     style={{ width: '100%', maxWidth: '200px' }}
                                 >
-                                    Edit Profile
+                                    Connect
                                 </Button>
-                                <ChangePassword />
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     {/* Tabs */}
@@ -1589,11 +1644,9 @@ const Profile = () => {
 
             {/* Inline CSS for Media Queries */}
             <style jsx>{`
-                /* Mobile devices (up to 767px) */
                 @media (max-width: 767px) {
-                    /* No gradient override needed since it’s consistent */
+                    /* Mobile styles */
                 }
-                /* Tablet (iPad) and larger */
                 @media (min-width: 768px) {
                     div[style*="height: 50vh"] {
                         height: 60vh;
@@ -1620,8 +1673,6 @@ const Profile = () => {
                         width: auto !important;
                     }
                 }
-
-                /* Desktop */
                 @media (min-width: 992px) {
                     div[style*="height: 50vh"] {
                         height: 70vh;

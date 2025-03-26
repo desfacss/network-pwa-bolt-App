@@ -1,35 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { DatePicker, Input, Select, Tag } from "antd";
 import dayjs from "dayjs";
-// import EditableTableWidget from "./EditableTable";
-// import EditableTableWidget2 from "./Table";
-import EditableTableWidget from "./TableWidget";
-import { CheckOutlined } from '@ant-design/icons';
+import EditableTableWidget from "./TableWidget"; // Assuming this is the correct import
+import { CheckOutlined } from "@ant-design/icons";
 
 const { RangePicker } = DatePicker;
 
 // Date Range Picker Widget
-const DateRangePickerWidget = (props) => {
-    const { value, onChange } = props;
-
+const DateRangePickerWidget = ({ value, onChange, readonly }) => {
     const handleChange = (dates, dateStrings) => {
-        onChange(dateStrings); // Sends the selected date range as strings
+        if (!readonly) {
+            onChange(dateStrings); // Only update if not readonly
+        }
     };
 
     return (
         <RangePicker
             value={value ? [dayjs(value[0]), dayjs(value[1])] : null}
             onChange={handleChange}
+            disabled={readonly} // Disable the picker when readonly
         />
     );
 };
 
 // Date-Time Range Picker Widget
-const DateTimeRangePickerWidget = (props) => {
-    const { value, onChange } = props;
-
+const DateTimeRangePickerWidget = ({ value, onChange, readonly }) => {
     const handleChange = (dates, dateStrings) => {
-        onChange(dateStrings); // Sends the selected date-time range as strings
+        if (!readonly) {
+            onChange(dateStrings); // Only update if not readonly
+        }
     };
 
     return (
@@ -37,23 +36,20 @@ const DateTimeRangePickerWidget = (props) => {
             showTime
             value={value ? [dayjs(value[0]), dayjs(value[1])] : null}
             onChange={handleChange}
+            disabled={readonly} // Disable the picker when readonly
         />
     );
 };
 
-
-const TagsWidget = ({ options, value, onChange, id, schema }) => {
-    // const options = React.useMemo(() => schema?.options || [], [schema]);
-    const { enumOptions, placeholder, allowClear, mode, showSearch, optionFilterProp } = options;
+// Tags Widget
+const TagsWidget = ({ options, value, onChange, id, schema, readonly }) => {
+    const { enumOptions } = options;
 
     const handleChange = (selectedValues) => {
-        console.log("Selected Values:", selectedValues);
-        onChange(selectedValues);
-        // // Optional: Validate against schema.enum if needed
-        // const validValues = selectedValues.filter((val) =>
-        //     options.includes(val)
-        // );
-        // onChange(validValues); // Pass validated values
+        if (!readonly) {
+            console.log("Selected Values:", selectedValues);
+            onChange(selectedValues);
+        }
     };
 
     return (
@@ -62,9 +58,10 @@ const TagsWidget = ({ options, value, onChange, id, schema }) => {
             showSearch
             mode="tags"
             style={{ width: "100%" }}
-            value={value || []} // Ensure it's always an array
+            value={value || []}
             onChange={handleChange}
             tokenSeparators={[","]}
+            disabled={readonly} // Disable the Select when readonly
             options={enumOptions?.map((option) => ({
                 value: option?.value,
                 label: option?.label,
@@ -73,21 +70,23 @@ const TagsWidget = ({ options, value, onChange, id, schema }) => {
     );
 };
 
-const SelectCustomWidget = ({ options, value, onChange, onBlur, onFocus }) => {
+// Select Custom Widget
+const SelectCustomWidget = ({ options, value, onChange, onBlur, onFocus, readonly }) => {
     const { enumOptions, placeholder, allowClear, mode, showSearch, optionFilterProp } = options;
 
     return (
         <Select
             value={value}
-            onChange={onChange}
+            onChange={readonly ? undefined : onChange} // Prevent changes when readonly
             onBlur={onBlur}
             onFocus={onFocus}
             placeholder={placeholder}
             allowClear={allowClear || true}
-            mode={mode || "multiple"} // Supports "multiple" and "tags"
+            mode={mode || "multiple"}
             showSearch={showSearch || true}
-            optionFilterProp={optionFilterProp || "children"} // Ensure filtering works
+            optionFilterProp={optionFilterProp || "children"}
             style={{ width: "100%" }}
+            disabled={readonly} // Disable the Select when readonly
         >
             {enumOptions?.map(({ value, label }) => (
                 <Select.Option key={value} value={value}>
@@ -98,16 +97,22 @@ const SelectCustomWidget = ({ options, value, onChange, onBlur, onFocus }) => {
     );
 };
 
+// Web Widget
+const WebWidget = ({ value, onChange, readonly }) => {
+    const [inputValue, setInputValue] = useState(value ? value.replace("https://", "").replace(".com", "") : "");
 
-const WebWidget = ({ value, onChange }) => {
-    const [inputValue, setInputValue] = useState(value || '');
+    useEffect(() => {
+        // Sync inputValue with value prop when it changes externally
+        setInputValue(value ? value.replace("https://", "").replace(".com", "") : "");
+    }, [value]);
 
     const handleChange = (e) => {
-        const newValue = e.target.value;
-        setInputValue(newValue);
-        onChange('https://' + newValue + '.com');
+        if (!readonly) {
+            const newValue = e.target.value;
+            setInputValue(newValue);
+            onChange("https://" + newValue + ".com");
+        }
     };
-    console.log("gy", value);
 
     return (
         <Input
@@ -116,28 +121,29 @@ const WebWidget = ({ value, onChange }) => {
             value={inputValue}
             onChange={handleChange}
             placeholder="example"
+            readOnly={readonly} // Use HTML readOnly attribute
         />
     );
 };
 
-const SelectableTags = ({ options, value, onChange }) => {
+// Selectable Tags Widget
+const SelectableTags = ({ options, value, onChange, readonly }) => {
     const { enumOptions, maxItems, title } = options;
     const [selectedTags, setSelectedTags] = useState([]);
 
-    console.log("qe", value, options);
     useEffect(() => {
         if (value) {
-            // Correctly handle initial value from rjsf.  Convert to array if single value.
             setSelectedTags(Array.isArray(value) ? value : [value]);
         } else {
-            setSelectedTags([]); //Important. If value is null or undefined, initialize it to an empty array.
+            setSelectedTags([]);
         }
-
-    }, [value, enumOptions]); // Add enumOptions to the dependency array.
+    }, [value, enumOptions]);
 
     const handleTagClick = (tag) => {
+        if (readonly) return; // Prevent changes when readonly
+
         const isSelected = selectedTags.includes(tag);
-        let newTags = [...selectedTags]; // Create a copy to avoid directly mutating state
+        let newTags = [...selectedTags];
 
         if (isSelected) {
             newTags = newTags.filter((t) => t !== tag);
@@ -146,7 +152,6 @@ const SelectableTags = ({ options, value, onChange }) => {
         } else {
             return;
         }
-        console.log("kl", newTags, selectedTags, value, tag);
 
         setSelectedTags(newTags);
         onChange(newTags);
@@ -154,21 +159,32 @@ const SelectableTags = ({ options, value, onChange }) => {
 
     return (
         <div>
-            {/* <label>{title} (Max {maxItems})</label><br /> */}
             <div>
                 {enumOptions?.map((tag) => {
-                    const isSelected = selectedTags.includes(tag.value); // Access tag.value directly
+                    const isSelected = selectedTags.includes(tag.value);
                     return (
                         <Tag
                             key={tag.value}
                             onClick={() => handleTagClick(tag.value)}
-                            style={{ margin: '5px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
-                            className={isSelected ? 'selected-tag' : ''}
+                            style={{
+                                margin: "5px",
+                                cursor: readonly ? "default" : "pointer", // Disable cursor when readonly
+                                display: "inline-flex",
+                                alignItems: "center",
+                            }}
+                            className={isSelected ? "selected-tag" : ""}
                         >
-                            <CheckOutlined style={{ marginRight: '2px', color: 'green', visibility: 'hidden' }} /> {/* Simplify visibility logic */}
-                            {tag.label} {/* Access tag.label directly */}
-                            <CheckOutlined style={{ marginLeft: '2px', color: 'green', visibility: !isSelected && 'hidden' }} /> {/* Simplify visibility logic */}
-
+                            <CheckOutlined
+                                style={{ marginRight: "2px", color: "green", visibility: "hidden" }}
+                            />
+                            {tag.label}
+                            <CheckOutlined
+                                style={{
+                                    marginLeft: "2px",
+                                    color: "green",
+                                    visibility: !isSelected && "hidden",
+                                }}
+                            />
                         </Tag>
                     );
                 })}
@@ -190,7 +206,6 @@ export default {
     WebWidget,
     DateRangePickerWidget,
     DateTimeRangePickerWidget,
-    // EditableTableWidget,
-    EditableTableWidget,
-    SelectableTags
+    EditableTableWidget, // Note: EditableTableWidget needs its own readonly handling
+    SelectableTags,
 };

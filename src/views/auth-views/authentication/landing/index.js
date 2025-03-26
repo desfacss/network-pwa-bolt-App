@@ -999,15 +999,26 @@ const IntroScreen = () => {
           zIndex: 1000
         }}>
           <Button
-            type="ghost"
-            block
+            color="primary"
+            // block
             style={{
               marginBottom: '10px',
-              fontSize: '1rem'
+              fontSize: '1rem', width: "48%"
             }}
             onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}
           >
-            Get Started
+            Register
+          </Button>
+          <Button
+            color="warning"
+            // block
+            style={{
+              marginBottom: '10px', marginLeft: 5,
+              fontSize: '1rem', width: "48%"
+            }}
+            onClick={() => navigate(`${APP_PREFIX_PATH}/login`)}
+          >
+            Login
           </Button>
         </footer>
       </main>
