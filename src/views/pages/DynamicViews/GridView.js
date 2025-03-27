@@ -122,8 +122,8 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
             src={imageUrl}
             alt="Profile"
             style={{
-              width: 48,
-              height: 48,
+              width: 32,
+              height: 32,
               borderRadius: '50%',
               objectFit: 'cover',
               verticalAlign: 'middle',
