@@ -1,6 +1,6 @@
 /* Main container */
 .ticket-page {
-  height: 100vh;
+  height: 85vh;
   /* Full viewport height */
   display: flex;
   justify-content: center;

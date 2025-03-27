@@ -1,0 +1,52 @@
+/* Animated background */
+.animated-background {
+  background: linear-gradient(45deg, rgba(230, 164, 174, 0.3), rgba(156, 194, 207, 0.3), rgba(216, 207, 126, 0.3));
+  background-size: 200% 200%;
+  animation: gradientMove 15s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Leaf shape styles */
+.leaf {
+  position: absolute;
+  /* Create a leaf shape with smooth, curvilinear edges */
+  clip-path: polygon(
+    50% 0%, /* Top point (tip of the leaf) */
+    75% 20%, /* Right curve */
+    100% 50%, /* Right widest point */
+    75% 80%, /* Right bottom curve */
+    50% 100%, /* Bottom point (base of the leaf) */
+    25% 80%, /* Left bottom curve */
+    0% 50%, /* Left widest point */
+    25% 20% /* Left curve */
+  );
+  transform: rotate(45deg); /* Rotate to match the orientation of the KNBA logo petals */
+}
+
+/* Leaf colors (lighter shades from KNBA logo) */
+.leaf-red {
+  background: rgba(255, 100, 100, 0.3); /* Light red */
+}
+
+.leaf-blue {
+  background: rgba(100, 100, 255, 0.3); /* Light blue */
+}
+
+.leaf-yellow {
+  background: rgba(255, 255, 150, 0.3); /* Light yellow */
+}
+
+.leaf-green {
+  background: rgba(100, 200, 100, 0.3); /* Light green */
+}

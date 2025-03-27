@@ -20,7 +20,8 @@
 }
 
 .adm-tab-bar-wrap {
-  padding: 10px
+  padding: 10px;
+  box-shadow: 0px -2px 10px rgba(60, 60, 60, 0.2);
 }
 
 /* Hide logo in app screen but show in print */

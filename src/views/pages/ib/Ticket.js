@@ -158,7 +158,7 @@ const TicketPage = () => {
     <div className="ticket-page">
       <div className="ticket-card">
         {/* Event Section */}
-        {/* <div className="ticket-section event-section">
+        <div className="ticket-section event-section">
           <Row justify="space-between" align="middle">
             <Col>
               <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} className="ticket-logo" />
@@ -170,7 +170,7 @@ const TicketPage = () => {
               <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '50px' }} className="ticket-logo" />
             </Col>
           </Row>
-        </div> */}
+        </div>
 
         {/* User Section */}
         <div className="ticket-section user-section" style={{ backgroundColor: trackColor }}>
