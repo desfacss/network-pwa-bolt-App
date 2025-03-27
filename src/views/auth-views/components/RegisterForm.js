@@ -120,11 +120,14 @@ export const RegisterForm = (props) => {
             return;
           }
 
+          // Update referrals table with email and user_id
           const updateQuery = supabase
             .from('referrals')
-            .update({ email: userEmail });
+            .update({
+              email: userEmail,
+              user_id: session.user.id // Add the newly created user_id
+            });
 
-          // Use matchedFieldFromState instead of component state matchedField
           if (matchedFieldFromState === 'mobile') {
             updateQuery.match({ 'details->>mobile': userMobile });
           } else if (matchedFieldFromState === 'registered_email') {
@@ -203,9 +206,13 @@ export const RegisterForm = (props) => {
       return;
     }
 
+    // Update referrals table with email and user_id
     const updateQuery = supabase
       .from('referrals')
-      .update({ email: values.email });
+      .update({
+        email: values.email,
+        user_id: data.user.id // Add the newly created user_id
+      });
 
     if (matchedField === 'mobile') {
       updateQuery.match({ 'details->>mobile': mobile });
@@ -225,14 +232,53 @@ export const RegisterForm = (props) => {
 
   const checkReferral = async () => {
     if (!mobile) {
-      notification.error({ message: "Please enter a mobile number" });
+      notification.error({ message: "Please enter a mobile number or email" });
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation
+    const mobileFormatRegex = /^\+\d{1,3}\s\d{6,15}$/; // +<country code> <number>
+
+    let formattedMobile = mobile;
+
+    // Check if the input starts with an alphabet
+    const startsWithAlphabet = /^[a-zA-Z]/.test(mobile.trim());
+
+    if (startsWithAlphabet) {
+      // Treat as potential email, validate it
+      if (!emailRegex.test(mobile)) {
+        notification.error({
+          message: "Invalid email format",
+          description: "Please enter a valid email (e.g., user@example.com) or phone number (e.g., +91 9887771111)",
+        });
+        return;
+      }
+    } else {
+      // Treat as phone number if it doesn't start with an alphabet
+      let cleanedValue = mobile.replace(/\s+/g, "").replace("+", ""); // Remove spaces and +
+      if (!mobile.startsWith("+")) {
+        // Autocorrect to +91 if no + is provided
+        cleanedValue = "91" + cleanedValue;
+      }
+      formattedMobile = `+${cleanedValue.slice(0, 2)} ${cleanedValue.slice(2)}`; // Format as +XX XXXXXX
+
+      if (!mobileFormatRegex.test(formattedMobile)) {
+        notification.error({
+          message: "Invalid phone number format",
+          description: "Please use +<country code> <number> (e.g., +91 9887771111)",
+        });
+        setMobile(formattedMobile); // Set the autocorrected value for user to correct further
+        return;
+      }
+      setMobile(formattedMobile); // Update state with formatted value
+    }
+
     showLoading();
+
     const { data, error } = await supabase
       .from('referrals')
       .select('*')
-      .or(`details->>mobile.eq.${mobile},details->>registered_email.eq.${mobile}`)
+      .or(`details->>mobile.eq.${formattedMobile},details->>registered_email.eq.${formattedMobile}`)
       .single();
 
     if (error || !data) {
@@ -241,27 +287,27 @@ export const RegisterForm = (props) => {
       setMatchedField(null);
       notification.error({
         message: "Registration information not found",
-        description: "Please register first or use existing credentials to login"
+        description: "Please register first or use existing credentials to login",
       });
     } else if (data.email) {
       setReferralExists(false);
       setReferralDetails(null);
       setMatchedField(null);
       notification.error({
-        message: "Mobile number already registered",
-        description: "Please login with your existing credentials"
+        message: "Mobile number or email already registered",
+        description: "Please login with your existing credentials",
       });
     } else {
       setReferralExists(true);
       setReferralDetails(data.details);
-      if (data.details?.mobile === mobile) {
-        setMatchedField('mobile');
+      if (data.details?.mobile === formattedMobile) {
+        setMatchedField("mobile");
       } else {
-        setMatchedField('registered_email');
+        setMatchedField("registered_email");
       }
       notification.success({
         message: "Registration available!",
-        description: "You can register with Google or email & password"
+        description: "You can register with Google or email & password",
       });
     }
   };
@@ -275,7 +321,7 @@ export const RegisterForm = (props) => {
               <Input
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                placeholder="Enter Email / Mobile"
+                placeholder="+91 9887771111 or email"
               />
             </Form.Item>
             <Button type="primary" block onClick={checkReferral}>

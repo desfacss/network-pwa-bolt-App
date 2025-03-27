@@ -1193,15 +1193,20 @@ const Profile = () => {
             instagram: values.instagram,
             company: values.company,
             user_name,
+            food: values.food || userData?.details?.food,
+            gender: values.gender || userData?.details?.gender,
+            primary_stream: values.primary_stream || userData?.details?.primary_stream || [userData?.details?.primary_stream],
+            secondary_stream: values.secondary_stream || userData?.details?.secondary_stream || [userData?.details?.secondary_stream],
+            room: values.room || userData?.details?.room,
         };
 
-        const updatedAdditionalDetails = {
-            ...userData?.additional_details,
-            food: values.food || userData?.additional_details?.food,
-            gender: values.gender || userData?.additional_details?.gender,
-            streams: values.streams || userData?.additional_details?.streams || [userData?.additional_details?.streams?.[0]],
-            room_no: values.room_no || userData?.additional_details?.room_no,
-        };
+        // const updatedAdditionalDetails = {
+        //     ...userData?.additional_details,
+        //     food: values.food || userData?.additional_details?.food,
+        //     gender: values.gender || userData?.additional_details?.gender,
+        //     streams: values.streams || userData?.additional_details?.streams || [userData?.additional_details?.streams?.[0]],
+        //     room_no: values.room_no || userData?.additional_details?.room_no,
+        // };
 
         const { data: updatedUserData, error: userError } = await supabase
             .from('users')
@@ -1209,7 +1214,7 @@ const Profile = () => {
                 role_type: values?.role_type || userData?.role_type,
                 user_name: user_name,
                 details: updatedDetails,
-                additional_details: updatedAdditionalDetails,
+                // additional_details: updatedAdditionalDetails,
             })
             .eq('id', session?.user?.id)
             .select()
@@ -1605,7 +1610,7 @@ const Profile = () => {
                                 <>
                                     <Button
                                         icon={details ? <EditOutlined /> : <PlusOutlined />}
-                                        onClick={(e) => showModal({ ...details, ...userData?.additional_details }, 'user_self_edit_form')}
+                                        onClick={(e) => showModal({ ...details }, 'user_self_edit_form')}
                                         style={{ width: '100%', maxWidth: '200px' }}
                                     >
                                         Edit Profile

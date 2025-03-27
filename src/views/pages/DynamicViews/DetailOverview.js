@@ -12,9 +12,10 @@ const getNestedValue = (obj, path) => {
         if (path === 'details.membership_type' && typeof value === 'object') {
             return Object.values(value).join(', ');
         }
-        return value;
+        return value || ' - - ';
     }
-    return path?.split('.')?.reduce((acc, part) => acc && acc[part], obj) || 'N/A';
+    const result = path?.split('.')?.reduce((acc, part) => acc && acc[part], obj);
+    return result === undefined || result === null || result === '' ? ' - - ' : result;
 };
 
 // Main Component
@@ -83,10 +84,10 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
         const value = getNestedValue(data, field.fieldPath);
         const { icon, label, style, webLink, link, imagePath } = field;
 
-        // Handle image-only field when imagePath is provided, no label, and no icon
+        // Handle image-only field
         const imageUrl = imagePath ? getNestedValue(data, imagePath) : null;
-        if (imagePath && !label && !icon && !editable) {
-            if (imageUrl && imageUrl !== 'N/A') {
+        if (imagePath && !label && !icon) {
+            if (imageUrl && imageUrl !== ' - - ' && !editable) {
                 return (
                     <div key={field.fieldPath || imagePath} style={{ marginBottom: 8, textAlign: 'left' }}>
                         <img
@@ -103,10 +104,10 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
                     </div>
                 );
             }
-            return null; // Don't render anything if imageUrl is 'N/A' or falsy
+            return null; // Skip rendering entirely if imageUrl is ' - - ' or falsy
         }
 
-        // Render image if imagePath is provided and editable is false (for fields with label/icon)
+        // Render image if imagePath is provided and editable is false
         const imageElement = imageUrl && !editable ? (
             <img
                 src={imageUrl}
@@ -122,6 +123,11 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
             />
         ) : null;
 
+        // If editable is true and this is an image-related field, skip rendering if imageUrl is ' - - '
+        if (editable && imagePath && imageUrl === ' - - ') {
+            return null;
+        }
+
         if (style && style.render === 'tag') {
             let values = [];
             if (Array.isArray(value)) {
@@ -134,7 +140,7 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
             const color = style.colorMapping || {};
             return (
                 <div key={field.fieldPath} style={{ marginBottom: 8, textAlign: 'left' }}>
-                    <Text>{label}: </Text>
+                    <Text>{label} : </Text>
                     {values.map((val, index) => (
                         <Tag key={index} color={color[val.toLowerCase()] || null}>
                             {val}
@@ -144,7 +150,7 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
             );
         }
 
-        const isNA = value === 'N/A';
+        const isNA = value === ' - - ';
         const content = isNA ? (
             <Text>{value}</Text>
         ) : webLink ? (
@@ -162,7 +168,7 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
         return (
             <div key={field.fieldPath} style={{ marginBottom: 8, textAlign: 'left' }}>
                 {imageElement}
-                {icon && getIcon(icon)} <Text>{label}: </Text> {content}
+                {icon && getIcon(icon)} <Text>{label} : </Text> {content}
             </div>
         );
     };
