@@ -14,10 +14,10 @@ const uploadConfig = {
 
 const publitio = new Publitio('xr7tJHfDaqk5ov18TkJX', 'aApiZqz6Di1eacmemfof14xwN63lyJHG');
 
-const ProfilePic = () => {
+const ProfilePic = ({ imageUrl }) => {
     const { session } = useSelector((state) => state.auth);
     const [loading, setLoading] = useState(false);
-    const [profilePic, setProfilePic] = useState(session?.user?.details?.profile_pic);
+    const [profilePic, setProfilePic] = useState(imageUrl || session?.user?.details?.profile_pic);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [fileList, setFileList] = useState([]);
@@ -177,10 +177,38 @@ const ProfilePic = () => {
         }
     };
 
+    // const uploadButton = (
+    //     <div>
+    //         <PlusOutlined />
+    //         <div style={{ marginTop: 8 }}>{session?.user?.user_name?.split(' ')[0]}</div>
+    //     </div>
+    // );
+
     const uploadButton = (
-        <div>
-            <PlusOutlined />
-            <div style={{ marginTop: 8 }}>{session?.user?.user_name?.split(' ')[0]}</div>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            <img
+                src="/img/ibcn/profile.png"
+                alt="Upload profile"
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    opacity: 0.5,
+                    borderRadius: '50%' // If you want a circular image
+                }}
+            />
+            <div
+                style={{
+                    position: 'absolute',
+                    top: '30%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'blue', // Adjust color as needed
+                    fontSize: '24px' // Adjust size as needed
+                }}
+            >
+                <PlusOutlined />
+            </div>
         </div>
     );
 
@@ -193,6 +221,7 @@ const ProfilePic = () => {
                     onPreview={handlePreview}
                     onChange={handleChange}
                     beforeUpload={beforeUpload}
+                    showUploadList={{ showRemoveIcon: !profilePic, showPreviewIcon: !profilePic }}
                 >
                     {fileList.length >= 1 ? null : uploadButton}
                 </Upload>

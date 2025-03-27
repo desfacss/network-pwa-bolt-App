@@ -15,6 +15,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
 
   const { showFeatures, exportOptions, globalSearch, groupBy, viewLink } = viewConfig?.gridview || {};
   const { cardsPerRow = 4, spacing = 16, cardStyle = {}, aspectRatio = 'auto' } = gridViewConfig?.layout || {};
+  const defaultImage = '/img/ibcn/profile.png'
 
   const getResponsiveSpans = (cardsPerRow) => {
     return {
@@ -66,7 +67,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
 
     // Check if icon is a field path (e.g., "details.image_url") instead of an icon name
     const isImageUrlField = fieldConfig?.icon && !Icons[fieldConfig.icon];
-    const imageUrl = isImageUrlField ? getNestedValue(record, fieldConfig.icon) : null;
+    const imageUrl = isImageUrlField ? getNestedValue(record, fieldConfig.icon) || defaultImage : null;
     const IconComponent = !isImageUrlField && fieldConfig?.icon ? Icons[fieldConfig.icon] : null;
 
     if (value === null || value === undefined || value === '' || (Array.isArray(value) && value?.length === 0)) {
@@ -128,6 +129,8 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
               objectFit: 'cover',
               verticalAlign: 'middle',
               marginRight: 8,
+              backgroundColor: "#eee",
+              opacity: defaultImage === imageUrl ? 0.5 : null,
             }}
           />
         ) : IconComponent ? (
@@ -223,6 +226,37 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
 
   return (
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+          {/* {showFeatures?.includes('search') && (
+            <Space style={{ marginBottom: spacing }}>
+              <Input placeholder="Search" prefix={<SearchOutlined />} value={searchText} onChange={e => setSearchText(e.target.value)} />
+            </Space>
+          )} */}
+          {totalItems > data.length && <Button onClick={() => setCurrentPage(prev => prev + 1)}>Load More</Button>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {[...(gridViewConfig?.actions?.bulk || [])]?.map((action) => (
+            <ResponsiveButton key={action?.name} type="primary" style={{ marginRight: 0, marginTop: 0 }} onClick={() => handleBulkAction(action)}>
+              {action?.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            </ResponsiveButton>
+          ))}
+        </div>
+      </div>
+      {(data?.length !== filteredData?.length && filteredData?.length === 0) || (filteredData?.length === 0) && (
+        <Empty
+          image={<WarningOutlined style={{ fontSize: "48px", color: "#333333" }} />}
+          description={
+            <>
+              <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#333333" }}>
+                No results found for the criteria.
+              </span>
+              <br />
+              Widen your search!
+            </>
+          }
+        />
+      )}
       <Row gutter={[spacing, spacing]}>
         {filteredData.map((record, index) => {
           const allFieldsSorted = allFields.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));

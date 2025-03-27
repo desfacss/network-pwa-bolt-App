@@ -1,7 +1,7 @@
 export const ROW_GUTTER = 10;
 export const SIDE_NAV_WIDTH = 170;
 export const SIDE_NAV_COLLAPSED_WIDTH = 80;
-export const HEADER_HEIGHT = 50;
+export const HEADER_HEIGHT = 70;
 export const FOOTER_HEIGHT = 40;
 export const TOP_NAV_HEIGHT = 55;
 export const SIDE_NAV_LIGHT = 'SIDE_NAV_LIGHT';
@@ -12,13 +12,13 @@ export const DIR_LTR = 'ltr';
 export const DIR_RTL = 'rtl';
 export const CONTENT_MAX_WIDTH = 1400;
 export const CONTENT_HEIGHT_OFFSET = HEADER_HEIGHT + FOOTER_HEIGHT;
-export const HEADER_BG_DEFAULT_COLOR_LIGHT = '#f7f7f7';
+export const HEADER_BG_DEFAULT_COLOR_LIGHT = '#fff';
 export const HEADER_BG_DEFAULT_COLOR_DARK = '#283142';
 export const LAYOUT_CONTENT_GUTTER = 5;
 export const LAYOUT_CONTENT_GUTTER_SM = 15;
 export const SIDE_NAV_DARK_BG_COLOR = '#001529'
 
-export const BLUE_BASE= '#3e79f7';
+export const BLUE_BASE = '#3e79f7';
 // export const BLUE_BASE = '#1a80c3';
 export const PURPLE_BASE = '#a461d8';
 export const CYAN_BASE = '#04d182';
