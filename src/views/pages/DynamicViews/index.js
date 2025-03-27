@@ -41,7 +41,7 @@ const flattenData = (data, masterObject) => {
     return flatData;
 };
 
-const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters, tabs, tabOptions, customFilters, routes = [] }) => {
+const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilters, tabs, tabOptions, customFilters, routes = [], EmptyMessage }) => {
     const defaultStartDate = dayjs().subtract(30, 'days');
     const defaultEndDate = dayjs();
     const [dateRange, setDateRange] = useState([defaultStartDate, defaultEndDate]);
@@ -472,7 +472,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     // Define view items with icons
     const viewItems = [
         { key: '1', icon: <TableOutlined />, children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
-        { key: '2', icon: <AppstoreOutlined />, children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} openDrawerWithPath={enhancedOpenDrawer} searchText={searchText} setSearchText={setSearchText} /> },
+        { key: '2', icon: <AppstoreOutlined />, children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} openDrawerWithPath={enhancedOpenDrawer} searchText={searchText} setSearchText={setSearchText} EmptyMessage={EmptyMessage} /> },
         { key: '3', icon: <ScheduleOutlined />, children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
         { key: '4', icon: <BarsOutlined />, children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
         { key: '5', icon: <FundOutlined />, children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },

@@ -134,7 +134,7 @@ export const HeaderNav = (props) => {
                     {navCollapsed && <CaretRightOutlined className="nav-icon" style={{ fontSize: '90%', color: '#999' }} />}
                     {/* {isMobile && <MenuUnfoldOutlined className="nav-icon" />} */}
                     {/* {isMobile && <img src={`/img/ibcn/light.png`} alt="Unfold Menu" className="nav-icon" style={{ width: '24px', height: '24px' }} />} */}
-                    {isMobile && <img src={"/img/ibcn/ibcn.jpeg"} alt="ibcn" className="nav-icon" style={{ width: '36px', height: '36px' }} />}
+                    {isMobile && <img src={"/img/ibcn/ibcn.jpeg"} alt="ibcn" className="nav-icon" style={{ height: '56px' }} />}
                     {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
@@ -185,9 +185,14 @@ export const HeaderNav = (props) => {
                 </Row>
               </div>
             )}
-            <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+            {/* <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <h3 style={{ margin: 0 }} className="d-flex align-items-center">IBCN NetworkX</h3>
-            </div>
+            </div> */}
+          </NavEdge>
+          <NavEdge center>
+            {isMobile && <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+              <h3 style={{ margin: 0, textAlign: 'center' }} className="d-flex align-items-center">IBCN NetworkX</h3>
+            </div>}
           </NavEdge>
           <NavEdge right>
             <div className="border-bottom d-flex justify-content-between align-items-center py-2 px-1">
@@ -195,16 +200,16 @@ export const HeaderNav = (props) => {
               {session?.user?.features?.feature?.notifications && session?.user?.organization?.module_features?.notifications && !isMobile && <Notifications />}
               {/* <Button onClick={onLogOut}>LogOut</Button> */}
               <img src="/img/ibcn/knba.png" alt="KNBA Logo" //style={{ height: "70px" }} 
-                style={{ width: '36px', height: '36px' }} //className="nav-icon"
+                style={{ height: '56px' }} //className="nav-icon"
               />
             </div>
+            {session && <NavProfile profileData={session} mode={navMode} />}
             {/* <div className="border-bottom d-flex justify-content-between align-items-center px-3 py-2">
               <Button onClick={onLogOut}>LogOut</Button>
             </div> */}
             {/* <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
             <h1 style={{ margin: 0 }}>IBCN NetworkX</h1> */}
             {/* <LivePollHeaderButton /> */}
-            {session && <NavProfile profileData={session} mode={navMode} />}
           </NavEdge>
         </Nav>
       </HeaderWrapper>

@@ -1070,10 +1070,10 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Button, Divider, Tabs, Switch, Drawer, Avatar, message } from 'antd'; // Added message for feedback
+import { Card, Descriptions, Button, Divider, Tabs, Switch, Drawer, Avatar, message, Empty } from 'antd'; // Added message for feedback
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
-import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined, MailOutlined } from '@ant-design/icons'; // Added MailOutlined
+import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined, MailOutlined, ShopOutlined } from '@ant-design/icons'; // Added MailOutlined
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -1097,6 +1097,20 @@ const Profile = () => {
     const [privacySettings, setPrivacySettings] = useState({});
 
     const filters = [{ column: 'user_id', value: userData?.id || session?.user?.id }];
+    const EmptyMessage = (
+        <Empty
+            image={<ShopOutlined style={{ fontSize: "48px", color: "#333333" }} />}
+            description={
+                <>
+                    <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#333333" }}>
+                        No Business details added!
+                    </span>
+                    <br />
+                    You can add Business details here!
+                </>
+            }
+        />
+    );
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -1478,7 +1492,7 @@ const Profile = () => {
             key: 'businesses',
             label: 'Businesses',
             children: (
-                <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} />
+                <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} EmptyMessage={EmptyMessage} />
             ),
         },
         session?.user?.features?.feature?.privateMessages && profileOwner && {
@@ -1554,6 +1568,8 @@ const Profile = () => {
                         zIndex: 1,
                         padding: '0 15px',
                         lineHeight: '1.2',
+                        // marginTop: "-200px",
+                        // marginLeft: "200px"
                     }}
                 >
                     {userData?.details?.firstName} {userData?.details?.lastName}
@@ -1564,7 +1580,7 @@ const Profile = () => {
             <div
                 style={{
                     position: 'relative',
-                    top: '-100px',
+                    top: '-170px',
                     padding: '15px',
                     maxWidth: '1200px',
                     margin: '0 auto',
@@ -1583,7 +1599,7 @@ const Profile = () => {
                     >
                         <div
                             style={{
-                                marginBottom: '15px',
+                                marginBottom: '15px'
                             }}
                         >
                             {profileOwner ? (

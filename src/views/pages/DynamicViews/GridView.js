@@ -8,7 +8,7 @@ import { ResponsiveButton } from 'views/pages/Trial/ResponsiveButton';
 
 const { Title, Text } = Typography;
 
-const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSearchText, deleteData, openDrawer, setCurrentPage, totalItems, openDrawerWithPath, openMessageModal }) => {
+const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSearchText, deleteData, openDrawer, setCurrentPage, totalItems, openDrawerWithPath, openMessageModal, EmptyMessage }) => {
   const navigate = useNavigate();
   const { session } = useSelector((state) => state.auth);
   const gridViewConfig = viewConfig?.gridview;
@@ -224,6 +224,22 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
     }
   };
 
+  // Default Empty component if no EmptyMessage is provided
+  const DefaultEmpty = (
+    <Empty
+      image={<WarningOutlined style={{ fontSize: "48px", color: "#333333" }} />}
+      description={
+        <>
+          <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#333333" }}>
+            No results found for the criteria.
+          </span>
+          <br />
+          Widen your search!
+        </>
+      }
+    />
+  );
+
   return (
     <div style={{ maxWidth: gridViewConfig?.layout?.maxWidth }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', marginBottom: 16 }}>
@@ -244,18 +260,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
         </div>
       </div>
       {(data?.length !== filteredData?.length && filteredData?.length === 0) || (filteredData?.length === 0) && (
-        <Empty
-          image={<WarningOutlined style={{ fontSize: "48px", color: "#333333" }} />}
-          description={
-            <>
-              <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#333333" }}>
-                No results found for the criteria.
-              </span>
-              <br />
-              Widen your search!
-            </>
-          }
-        />
+        EmptyMessage || DefaultEmpty
       )}
       <Row gutter={[spacing, spacing]}>
         {filteredData.map((record, index) => {
