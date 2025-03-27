@@ -10,31 +10,42 @@ import { useSelector } from "react-redux";
 const Routes = () => {
   const location = useLocation();
   const { session } = useSelector((state) => state.auth);
-  const [filteredProtectedRoutes, setFilteredProtectedRoutes] = useState()
+  const [filteredProtectedRoutes, setFilteredProtectedRoutes] = useState([]);
 
+  // Analytics tracking hook
   useEffect(() => {
-    setFilteredProtectedRoutes(protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features))
-  }, [session])
+    const pagePath = location.pathname + location.search;
 
-  // // Determine the fallback path
-  // const fallbackPath = useMemo(() => {
-  //   console.log("bnm2", session?.user?.features?.feature, session?.user?.organization?.module_features);
-  //   const isValidPath = protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.some(
-  //     (route) => route?.path === location?.pathname
-  //   );
-  //   return isValidPath ? location?.pathname : "/app/dashboard";
-  // }, [location?.pathname]);
+    // Google Analytics (GA4)
+    if (window.gtag) {
+      window.gtag('config', 'G-3JBKDV7VP0', { page_path: pagePath });
+    }
 
+    // Hotjar
+    if (window.hj) {
+      window.hj('vpv', pagePath);
+    }
+
+    // Inspectlet
+    if (window.__insp) {
+      window.__insp.push(['tagSession', { page: pagePath }]);
+    }
+  }, [location]); // Trigger on every route change
+
+  // Filter protected routes based on session
+  useEffect(() => {
+    setFilteredProtectedRoutes(
+      protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)
+    );
+  }, [session]);
+
+  // Determine the fallback path
   const fallbackPath = useMemo(() => {
     const isValidPath = protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.some(
       route => {
-        // Here we need to check if the pathname matches the route path, 
-        // even if it's a dynamic route with parameters
         const routeSegments = route.path.split('/');
         const pathSegments = location.pathname.split('/');
-
         if (routeSegments.length !== pathSegments.length) return false;
-
         for (let i = 0; i < routeSegments.length; i++) {
           if (routeSegments[i].startsWith(':') || routeSegments[i] === pathSegments[i]) {
             continue;
@@ -49,47 +60,37 @@ const Routes = () => {
 
   return (
     <RouterRoutes>
-      {/* <Route path="/" element={<Navigate replace to={'survey'} />} /> */}
       <Route path="/" element={<ProtectedRoute />}>
         <Route index element={<Navigate replace to="/app/dashboard" />} />
-        {/* <Route
-          path="/"
-          // element={<Navigate replace to={AUTHENTICATED_ENTRY} />}
-          element={<Navigate replace to={'app/profile'} />}
-        /> */}
-        {filteredProtectedRoutes?.map((route, index) => {
-          return (
-            <Route
-              key={route?.key + index}
-              path={route?.path}
-              element={
-                <AppRoute
-                  routeKey={route?.key}
-                  component={route?.component}
-                  {...route?.meta}
-                />
-              }
-            />
-          );
-        })}
+        {filteredProtectedRoutes?.map((route, index) => (
+          <Route
+            key={route?.key + index}
+            path={route?.path}
+            element={
+              <AppRoute
+                routeKey={route?.key}
+                component={route?.component}
+                {...route?.meta}
+              />
+            }
+          />
+        ))}
         <Route path="*" element={<Navigate to={fallbackPath} replace />} />
       </Route>
       <Route path="/" element={<PublicRoute />}>
-        {publicRoutes.map((route) => {
-          return (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={
-                <AppRoute
-                  routeKey={route.key}
-                  component={route.component}
-                  {...route.meta}
-                />
-              }
-            />
-          );
-        })}
+        {publicRoutes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              <AppRoute
+                routeKey={route.key}
+                component={route.component}
+                {...route.meta}
+              />
+            }
+          />
+        ))}
       </Route>
     </RouterRoutes>
   );
