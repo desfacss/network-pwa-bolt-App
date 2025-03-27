@@ -1,13 +1,20 @@
 /* Main container */
 .ticket-page {
-  height: 100vh; /* Full viewport height */
+  height: 100vh;
+  /* Full viewport height */
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  padding: 16px; /* Consistent padding */
-  background-color: #f5f5f5; /* Subtle background */
-  overflow: hidden; /* Prevent page-level scrolling */
-  position: relative; /* For FAB positioning */
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
+  padding: 16px;
+  /* Consistent padding */
+  background-color: #f5f5f5;
+  /* Subtle background */
+  overflow: hidden;
+  /* Prevent page-level scrolling */
+  position: relative;
+  /* For FAB positioning */
 }
 
 /* Ticket card */
@@ -17,15 +24,20 @@
   border: 1px dashed #999;
   padding: 0;
   width: 100%;
-  max-width: 400px; /* Consistent width for all screens */
+  max-width: 400px;
+  /* Consistent width for all screens */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   position: relative;
-  overflow: hidden; /* Hide overflow outside card */
+  overflow: hidden;
+  /* Hide overflow outside card */
   display: flex;
   flex-direction: column;
-  height: auto; /* Natural height */
-  max-height: calc(100vh - 32px); /* Account for 16px padding top and bottom */
-  z-index: 1; /* Below FAB */
+  height: auto;
+  /* Natural height */
+  max-height: calc(100vh - 32px);
+  /* Account for 16px padding top and bottom */
+  z-index: 1;
+  /* Below FAB */
 }
 
 /* Common styles for ticket sections */
@@ -38,8 +50,10 @@
   justify-content: space-between;
   border-top: 1px dashed #999;
   border-bottom: 1px dashed #999;
-  width: 100%; /* Ensure full width */
-  box-sizing: border-box; /* Include padding in width */
+  width: 100%;
+  /* Ensure full width */
+  box-sizing: border-box;
+  /* Include padding in width */
 }
 
 .event-section {
@@ -59,7 +73,7 @@
 }
 
 /* Color overlay */
-.ticket-section > .color-overlay {
+.ticket-section>.color-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -69,7 +83,7 @@
   z-index: 0;
 }
 
-.ticket-section > * {
+.ticket-section>* {
   position: relative;
   z-index: 1;
 }
@@ -91,7 +105,7 @@
   position: relative;
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  /* margin-bottom: 16px; */
 }
 
 .profile-image {
@@ -146,34 +160,47 @@
 /* FAB Button Styling */
 .fab-button {
   position: fixed;
-  bottom: 54px; /* Standard spacing from bottom */
-  right: 24px; /* Standard spacing from right */
-  z-index: 10; /* Float above card */
-  background-color: #1890ff; /* Ant Design primary blue */
+  bottom: 84px;
+  /* Standard spacing from bottom */
+  right: 24px;
+  /* Standard spacing from right */
+  z-index: 10;
+  /* Float above card */
+  background-color: #1890ff;
+  /* Ant Design primary blue */
   border: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  /* Subtle shadow */
 }
 
 .fab-button:hover {
-  background-color: #40a9ff; /* Lighter blue on hover */
+  background-color: #40a9ff;
+  /* Lighter blue on hover */
 }
 
 /* Responsive Adjustments */
 @media (min-width: 769px) {
   .ticket-page {
-    padding: 20px; /* Slightly more padding on desktop */
+    padding: 20px;
+    /* Slightly more padding on desktop */
   }
+
   .ticket-card {
-    max-height: none; /* No height restriction on desktop */
+    max-height: none;
+    /* No height restriction on desktop */
   }
+
   .ticket-header h1 {
     font-size: 24px;
   }
+
   .profile-image {
     width: 120px;
     height: 120px;
   }
+
   .fab-button {
-    display: none; /* Hide FAB on desktop */
+    display: none;
+    /* Hide FAB on desktop */
   }
 }

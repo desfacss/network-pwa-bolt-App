@@ -17,7 +17,7 @@ export const ResponsiveButton = ({ groupButtons = [], ...props }) => {
     // If we're in mobile view and there are grouped buttons
     if (isMobile && groupButtons.length > 0) {
         return (
-            <FloatButton.Group shape="circle" style={{ right: 24, bottom: 24 }}>
+            <FloatButton.Group shape="circle" style={{ right: 24, bottom: 74 }}>
                 {groupButtons.map((button, index) => {
                     const IconComponent = Icons[button.floatIcon || 'FileOutlined'];
                     return (
@@ -38,7 +38,7 @@ export const ResponsiveButton = ({ groupButtons = [], ...props }) => {
     const IconComponent = Icons[props.floatIcon || 'FileOutlined'];
     if (isMobile) {
         return (
-            <FloatButton.Group shape="circle" style={{ right: 24, bottom: 24 }}>
+            <FloatButton.Group shape="circle" style={{ right: 24, bottom: 74 }}>
 
                 <FloatButton
                     {...props}

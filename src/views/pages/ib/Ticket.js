@@ -73,7 +73,7 @@ const TicketPage = () => {
     if (session?.user?.id) fetchUserData();
   }, [session]);
 
-  const trackColor = trackColors[userData?.primary_stream] || '#fff';
+  const trackColor = trackColors[userData?.primary_stream] || '#e6f7ff';
   const foodColor = foodColors[userData?.food] || '#fff';
   const qrUrl = `${window.location.origin}/app/members/${session?.user?.id}`;
 
@@ -158,19 +158,19 @@ const TicketPage = () => {
     <div className="ticket-page">
       <div className="ticket-card">
         {/* Event Section */}
-        <div className="ticket-section event-section">
+        {/* <div className="ticket-section event-section">
           <Row justify="space-between" align="middle">
             <Col>
-              <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo"  style={{ height: '50px' }} className="ticket-logo" />
+              <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} className="ticket-logo" />
             </Col>
             <Col>
               <h3 className="event-title">IBCN 2025 Bengaluru</h3>
             </Col>
             <Col>
-              <img src="/img/ibcn/knba.png" alt="KNBA Logo"  style={{ height: '50px' }} className="ticket-logo" />
+              <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '50px' }} className="ticket-logo" />
             </Col>
           </Row>
-        </div>
+        </div> */}
 
         {/* User Section */}
         <div className="ticket-section user-section" style={{ backgroundColor: trackColor }}>
@@ -184,9 +184,11 @@ const TicketPage = () => {
           <Text className="value-text">
             {userData.native} --- {userData.kovil}
           </Text>
-          <Text className="label-text">Stream: </Text>
-          <Text className="value-text">{userData.primary_stream}</Text>
-          <Text className="value-text">{userData.secondary_stream}</Text>
+          <br />
+          <Text className="label-text">Stream: <strong>{userData.primary_stream}</strong></Text>
+          {/* <Text className="value-text">{userData.primary_stream}</Text> */}
+          {/* <h3 className="value-text">{userData.primary_stream}</h3> */}
+          {/* <Text className="value-text">{userData.secondary_stream}</Text> */}
 
           {!isMobile && session?.user?.id && (
             <Button

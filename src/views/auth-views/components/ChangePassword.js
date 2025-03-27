@@ -57,7 +57,7 @@ const ChangePassword = () => {
     return (
         <>
             {/* Trigger button to open modal */}
-            <Button type="primary" onClick={handleOpen}>
+            <Button onClick={handleOpen} >
                 Change Password
             </Button>
 

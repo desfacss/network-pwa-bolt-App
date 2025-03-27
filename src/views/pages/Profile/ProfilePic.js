@@ -221,7 +221,7 @@ const ProfilePic = ({ imageUrl }) => {
                     onPreview={handlePreview}
                     onChange={handleChange}
                     beforeUpload={beforeUpload}
-                    showUploadList={{ showRemoveIcon: !profilePic, showPreviewIcon: !profilePic }}
+                // showUploadList={{ showRemoveIcon: !profilePic, showPreviewIcon: !profilePic }}
                 >
                     {fileList.length >= 1 ? null : uploadButton}
                 </Upload>

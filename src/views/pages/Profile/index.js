@@ -1568,7 +1568,7 @@ const Profile = () => {
                         zIndex: 1,
                         padding: '0 15px',
                         lineHeight: '1.2',
-                        // marginTop: "-200px",
+                        marginTop: "-220px",
                         // marginLeft: "200px"
                     }}
                 >
@@ -1623,8 +1623,8 @@ const Profile = () => {
                             }}
                         >
                             {profileOwner ? (
-                                <>
-                                    <Button
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                    <Button type='primary'
                                         icon={details ? <EditOutlined /> : <PlusOutlined />}
                                         onClick={(e) => showModal({ ...details }, 'user_self_edit_form')}
                                         style={{ width: '100%', maxWidth: '200px' }}
@@ -1632,7 +1632,7 @@ const Profile = () => {
                                         Edit Profile
                                     </Button>
                                     <ChangePassword />
-                                </>
+                                </div>
                             ) : (
                                 <Button
                                     icon={<MailOutlined />}

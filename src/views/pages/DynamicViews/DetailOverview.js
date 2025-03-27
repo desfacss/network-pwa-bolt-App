@@ -181,12 +181,15 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Title level={4} style={{ marginRight: 8 }}>{group.name}</Title>
                         {editable && group?.privacy_control && (
-                            <Switch
-                                checked={toggledGroups.has(group.name)}
-                                onChange={() => handleToggle(group.name)}
-                                checkedChildren={<Icons.EyeInvisibleOutlined />}
-                                unCheckedChildren={<Icons.EyeOutlined />}
-                            />
+                            <div className="mb-2">
+                                <Switch className="mr-2"
+                                    checked={toggledGroups.has(group.name)}
+                                    onChange={() => handleToggle(group.name)}
+                                    checkedChildren={<Icons.EyeInvisibleOutlined />}
+                                    unCheckedChildren={<Icons.EyeOutlined />}
+                                />
+                                {toggledGroups.has(group.name) ? "Hidden" : "Visible"}
+                            </div>
                         )}
                     </div>
                 )}
