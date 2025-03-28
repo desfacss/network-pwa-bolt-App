@@ -10,7 +10,7 @@ const IntroScreen = () => {
       title: "Welcome IBCN NetworkX",
       // content: "Keep track of the event schedule, speakers and prorgam...",
       content: "Stay updated with the event schedule, speakers, & plan for your breakout sessions...",
-//         "Access details on keynote sessions and breakout discussions.",
+      //         "Access details on keynote sessions and breakout discussions.",
       image: "/img/ibcn/landing/Chetti1.png",
       leaves: [
         {
@@ -52,10 +52,10 @@ const IntroScreen = () => {
       content: "Get insights into entrepreneurship landscape within the Nagarathar community & collaborate with each other...",
 
       // title: "Participate in Business Survey",
-//       content: [
-//         "Get insights into entrepreneurship within the Nagarathar community.",
-//         "Understand the aspirations of the next generation.",
-//         "Support collaboration and business growth through networking."
+      //       content: [
+      //         "Get insights into entrepreneurship within the Nagarathar community.",
+      //         "Understand the aspirations of the next generation.",
+      //         "Support collaboration and business growth through networking."
 
       image: "/img/ibcn/landing/Chetti3.png",
       leaves: [
@@ -160,8 +160,8 @@ const IntroScreen = () => {
                   src={slide.image}
                   alt={`Slide ${index + 1}`}
                   style={{
-                    width: '150%',
-                    height: '150%',
+                    width: '100%',
+                    height: '100%',
                     objectFit: 'contain',
                     position: 'absolute',
                     top: '50%',
@@ -224,7 +224,8 @@ const IntroScreen = () => {
           <Button
             color="primary"
             style={{ marginBottom: '10px', fontSize: '1rem', width: '48%' }}
-            
+            onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}
+
           >
             Register
           </Button>

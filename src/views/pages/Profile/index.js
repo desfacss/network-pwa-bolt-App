@@ -1068,12 +1068,11 @@
 
 // export default Profile;
 
-
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Button, Divider, Tabs, Switch, Drawer, Avatar, message, Empty } from 'antd'; // Added message for feedback
+import { Card, Descriptions, Button, Divider, Tabs, Switch, Drawer, Avatar, message, Empty } from 'antd';
 import { supabase } from 'configs/SupabaseConfig';
 import DynamicForm from '../DynamicForm';
-import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined, MailOutlined, ShopOutlined } from '@ant-design/icons'; // Added MailOutlined
+import { EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, LeftOutlined, MailOutlined, ShopOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import ChangePassword from 'views/auth-views/components/ChangePassword';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -1082,6 +1081,7 @@ import DynamicViews from '../DynamicViews';
 import Channels from '../Channels';
 import DetailOverview from '../DynamicViews/DetailOverview';
 import { sendEmail } from 'components/common/SendEmail';
+import trackEvent from 'components/util-components/trackEvent'; // Import the tracking utility
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -1181,6 +1181,12 @@ const Profile = () => {
         setFormData({ ...data, name: data.user_name });
         id && setUpdateId(id);
         setEdit(true);
+        // Track Edit Profile button click
+        trackEvent({
+            eventName: 'edit_profile_click',
+            category: 'Profile',
+            label: 'Edit Profile Button',
+        });
     };
 
     const onFinish = async (values) => {
@@ -1255,6 +1261,12 @@ const Profile = () => {
         setUserData(updatedUserData);
         setEdit(false);
         navigate(0);
+        // Track successful form submission
+        trackEvent({
+            eventName: 'profile_form_submit',
+            category: 'Profile',
+            label: 'Profile Edit Form',
+        });
     };
 
     const handleOk = () => setEdit(false);
@@ -1272,6 +1284,12 @@ const Profile = () => {
         if (error) {
             console.error("Error updating privacy settings:", error);
         }
+        // Track privacy toggle
+        trackEvent({
+            eventName: 'privacy_toggle',
+            category: 'Profile',
+            label: `${key} set to ${isPrivate ? 'private' : 'public'}`,
+        });
     };
 
     const getValueByPath = (obj, path) => {
@@ -1333,6 +1351,12 @@ const Profile = () => {
         const success = await sendEmail(emails);
         if (success) {
             message.success('Connection request sent successfully!');
+            // Track successful connection request
+            trackEvent({
+                eventName: 'connect_email',
+                category: 'Profile',
+                label: 'Connect via Email Button',
+            });
         } else {
             message.error('Failed to send connection request.');
         }
@@ -1495,14 +1519,23 @@ const Profile = () => {
                 <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} EmptyMessage={EmptyMessage} />
             ),
         },
-        session?.user?.features?.feature?.privateMessages && profileOwner && {
-            key: 'inbox',
-            label: 'Messages',
-            children: (
-                <Channels isPrivate={true} />
-            ),
-        },
+        // session?.user?.features?.feature?.privateMessages && profileOwner && {
+        //     key: 'inbox',
+        //     label: 'Messages',
+        //     children: (
+        //         <Channels isPrivate={true} />
+        //     ),
+        // },
     ];
+
+    // Handle tab change with tracking
+    const handleTabChange = (key) => {
+        trackEvent({
+            eventName: 'tab_change',
+            category: 'Profile',
+            label: `Switched to ${key} tab`,
+        });
+    };
 
     return (
         <div
@@ -1646,7 +1679,7 @@ const Profile = () => {
                     </div>
 
                     {/* Tabs */}
-                    <Tabs defaultActiveKey={'info'} items={tabItems} />
+                    <Tabs defaultActiveKey={'info'} items={tabItems} onChange={handleTabChange} />
                 </Card>
             </div>
 
