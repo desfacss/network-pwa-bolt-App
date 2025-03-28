@@ -27,7 +27,6 @@ const themes = {
 //   await indexedDB.init();
 // })();
 
-
 function App() {
   // useEffect(() => {
   //   // Fetch the session and user data
@@ -100,6 +99,32 @@ function App() {
   //   storage: AsyncStorage,
   // });
 
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      window.deferredPrompt = e;
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (window.deferredPrompt) {
+      window.deferredPrompt.prompt();
+      const choiceResult = await window.deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      window.deferredPrompt = null;
+    }
+  };
+
   return (
     <div className="App">
       <StyleProvider>
@@ -111,6 +136,9 @@ function App() {
                 // persistOptions={{ persister }}
                 >
                   <Layouts />
+                  {window.deferredPrompt && (
+                    <button onClick={handleInstallClick}>Install App</button>
+                  )}
                   {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                 </QueryClientProvider>
               </ThemeSwitcherProvider>
