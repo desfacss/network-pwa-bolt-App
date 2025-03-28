@@ -1,6 +1,6 @@
 import {
   DashboardOutlined,
-  TeamOutlined,
+  WechatWorkOutlined,
   ShopOutlined,
   UsergroupAddOutlined,
   FormOutlined,
@@ -51,7 +51,7 @@ const navigationConfig = [
         key: 'channels',
         path: `${APP_PREFIX_PATH}/channels`,
         title: 'Networking',
-        icon: TeamOutlined,
+        icon: WechatWorkOutlined,
         breadcrumb: false,
         submenu: [],
       },

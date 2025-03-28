@@ -1639,7 +1639,7 @@ const Profile = () => {
                                     onClick={handleConnect}
                                     style={{ width: '100%', maxWidth: '200px' }}
                                 >
-                                    Connect
+                                    Connect via Email
                                 </Button>
                             )}
                         </div>

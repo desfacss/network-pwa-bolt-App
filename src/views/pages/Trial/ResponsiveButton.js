@@ -19,7 +19,7 @@ export const ResponsiveButton = ({ groupButtons = [], ...props }) => {
         return (
             <FloatButton.Group shape="circle" style={{ right: 24, bottom: 74 }}>
                 {groupButtons.map((button, index) => {
-                    const IconComponent = Icons[button.floatIcon || 'FileOutlined'];
+                    const IconComponent = Icons[button.floatIcon || 'FileAddOutlined'];
                     return (
                         <FloatButton
                             key={index}
@@ -35,7 +35,7 @@ export const ResponsiveButton = ({ groupButtons = [], ...props }) => {
     }
 
     // For a single button or non-mobile view
-    const IconComponent = Icons[props.floatIcon || 'FileOutlined'];
+    const IconComponent = Icons[props.floatIcon || 'FileAddOutlined'];
     if (isMobile) {
         return (
             <FloatButton.Group shape="circle" style={{ right: 24, bottom: 74 }}>

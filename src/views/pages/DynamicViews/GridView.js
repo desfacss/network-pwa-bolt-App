@@ -185,8 +185,8 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
 
   const getActionMenu = (record) => {
     const allowedActions = gridViewConfig?.actions?.row?.filter(action => {
-      if (action === 'edit') return canEditOrDelete(record, viewConfig?.access_config?.canEdit);
-      if (action === 'delete') return canEditOrDelete(record, viewConfig?.access_config?.canDelete);
+      if (action?.name === 'edit') return canEditOrDelete(record, viewConfig?.access_config?.canEdit);
+      if (action?.name === 'delete') return canEditOrDelete(record, viewConfig?.access_config?.canDelete);
       if (action?.name === 'message') return (session?.user?.id !== record[action.form]);
       return true;
     });
@@ -231,10 +231,10 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
       description={
         <>
           <span style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#333333" }}>
-            No results found for the criteria.
+            No results found for the criteria!
           </span>
           <br />
-          Widen your search!
+          Widen your search...
         </>
       }
     />
