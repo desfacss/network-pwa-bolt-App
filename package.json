@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
-
+    "zustand": "^5.0.2",
     "@ant-design/plots": "^2.1.13",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
