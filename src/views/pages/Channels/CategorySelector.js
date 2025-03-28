@@ -694,7 +694,7 @@ export const CategorySelector = ({ visible, onClose, chatId, channel_id, form, o
                         placeholder="Write your message"
                         style={{
                             width: "100%",
-                            border: "none",
+                            // border: "none",
                             padding: 0,
                             scrollbarWidth: "thin",
                             scrollbarColor: "#333333 #ccceee",
