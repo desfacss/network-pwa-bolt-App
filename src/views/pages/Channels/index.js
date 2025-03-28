@@ -19,7 +19,7 @@ const useMediaQuery = (query) => {
   return matches;
 };
 
-const Channels = ({ isPrivate = false }) => {
+const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChannelChange prop
   const [channels, setChannels] = useState([]);
   const [activeChannel, setActiveChannel] = useState(null);
   const [newChannelSlug, setNewChannelSlug] = useState('');
@@ -28,6 +28,8 @@ const Channels = ({ isPrivate = false }) => {
   const [isMessageDrawerVisible, setIsMessageDrawerVisible] = useState(false);
   const [userNames, setUserNames] = useState({});
   const [searchText, setSearchText] = useState('');
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const { session } = useSelector((state) => state.auth);
   const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -52,10 +54,13 @@ const Channels = ({ isPrivate = false }) => {
       setChannels(data);
       if (data.length > 0 && !activeChannel) {
         setActiveChannel(data[0]);
+        if (!isPrivate && onChannelChange) {
+          onChannelChange(data[0]); // Update tab label with first channel
+        }
       }
-      const uniqueUserIds = [...new Set(data.flatMap(channel => channel.join_requests || []))];
-      fetchUserNames(uniqueUserIds);
     }
+    const uniqueUserIds = [...new Set(data.flatMap(channel => channel.join_requests || []))];
+    fetchUserNames(uniqueUserIds);
   };
 
   const fetchUserNames = async (userIds) => {
@@ -104,6 +109,9 @@ const Channels = ({ isPrivate = false }) => {
     } else {
       fetchChannels();
       setActiveChannel(channels.length > 1 ? channels[0] : null);
+      if (!isPrivate && onChannelChange) {
+        onChannelChange(channels.length > 1 ? channels[0] : null); // Update tab label
+      }
       message.success("Channel deleted successfully!");
     }
   };
@@ -153,9 +161,9 @@ const Channels = ({ isPrivate = false }) => {
     const isSubscribed = session?.user?.subscriptions?.channels?.includes(channel.id);
 
     if (channel.is_public) {
-      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} searchText={searchText} />;
+      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} searchText={searchText} setDrawerVisible={setDrawerVisible} setEditingMessage={setEditingMessage} drawerVisible={drawerVisible} editingMessage={editingMessage} />;
     } else if (isSubscribed || session.user.id === channel.created_by || session.user.role_type === 'superadmin') {
-      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} searchText={searchText} />;
+      return <ForumComment channel_id={channel.id} isPrivate={isPrivate} searchText={searchText} setDrawerVisible={setDrawerVisible} setEditingMessage={setEditingMessage} drawerVisible={drawerVisible} editingMessage={editingMessage} />;
     } else if ((channel?.join_requests || [])?.includes(session.user.id)) {
       return <>Requested to Join</>;
     } else {
@@ -174,6 +182,9 @@ const Channels = ({ isPrivate = false }) => {
       onClick={({ key }) => {
         const selectedChannel = channels.find(c => c.slug === key);
         setActiveChannel(selectedChannel);
+        if (!isPrivate && onChannelChange) {
+          onChannelChange(selectedChannel); // Update tab label when channel is selected
+        }
         setIsChannelsDrawerVisible(false);
       }}
       style={{ width: '100%', border: 'none' }}
@@ -241,47 +252,69 @@ const Channels = ({ isPrivate = false }) => {
           flexWrap: 'wrap'
         }}>
           {!isPrivate && (<h3 style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {activeChannel ? activeChannel.slug : 'Select a Channel'}
+            {/* {activeChannel ? activeChannel.slug : 'Select a Channel'} */}
+            {" "}
           </h3>)}
-          {(!isPrivate) && session?.user?.features?.feature?.channels && (
+          {(!isPrivate) && !isDesktop && session?.user?.features?.feature?.channels && (
             <Button
-              icon={<MenuOutlined />}
-              onClick={() => setIsChannelsDrawerVisible(true)}
-              style={{ marginLeft: 8 }}
+              type="primary" className='fab-button' shape="circle"
+              // onClick={() => setIsMessageDrawerVisible(true)}
+              // style={{ minWidth: 200 }}
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setEditingMessage(null);
+                setDrawerVisible(true);
+              }}
+            // style={{ flex: 1, minWidth: "38%" }}
             >
-              Channels
             </Button>
           )}
         </div>
 
         {/* Search and Post Message Row */}
-        {/* {!isPrivate && (
+        {!isPrivate && (
           <div style={{
             display: 'flex',
             gap: 8,
             marginBottom: 16,
-            flexWrap: 'wrap'
+            flexWrap: 'wrap',
+            width: "100%",
           }}>
             <Input
               placeholder="Search by user name, message or tag"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              style={{ borderColor: '#ccceee', color: '#333333', flex: 1, minWidth: 0 }}
+              style={{ flex: 1, minWidth: isDesktop ? "48%" : "58" }}
+            // style={{ borderColor: '#ccceee', color: '#333333', flex: 1, minWidth: 0 }}
             />
-            <Button
-              type="primary"
-              onClick={() => setIsMessageDrawerVisible(true)}
-              style={{ minWidth: 200 }}
+            <Button type='primary'
+              icon={<MenuOutlined />}
+              onClick={() => setIsChannelsDrawerVisible(true)}
+              style={{ flex: 1, minWidth: isDesktop ? "40%" : "38" }}
             >
-              Post Message
+              Channels
             </Button>
+            {(!isPrivate) && isDesktop && session?.user?.features?.feature?.channels && (
+              <Button
+                type="primary"
+                // onClick={() => setIsMessageDrawerVisible(true)}
+                // style={{ minWidth: 200 }}
+                // icon={<PlusOutlined />}
+                onClick={() => {
+                  setEditingMessage(null);
+                  setDrawerVisible(true);
+                }}
+                style={{ flex: 1, minWidth: "8%" }}
+              >Add Post
+              </Button>
+            )}
           </div>
-        )} */}
+        )}
 
         {/* Channels Drawer (Right Side) */}
         <Drawer
           title="Channels"
-          placement="right"  // Changed to right
+          placement="right"
           onClose={() => setIsChannelsDrawerVisible(false)}
           visible={isChannelsDrawerVisible}
           width={isDesktop ? 300 : '80%'}
@@ -300,7 +333,7 @@ const Channels = ({ isPrivate = false }) => {
         >
           <PostMessage
             user_id={session?.user?.id}
-            receiver_user_id={null} // Adjust as needed
+            receiver_user_id={null}
             closeModal={() => setIsMessageDrawerVisible(false)}
           />
         </Drawer>

@@ -21,17 +21,17 @@ import { useSelector } from "react-redux";
 import CategorySelector from "./CategorySelector";
 import ChannelPostMessages from "./ChannelPostMessages";
 
-const ForumComment = ({ channel_id, isPrivate = false }) => {
+const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText, setDrawerVisible, setEditingMessage, drawerVisible, editingMessage }) => {
   const [form] = Form.useForm();
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
-  const [editingMessage, setEditingMessage] = useState(null);
+  // const [editingMessage, setEditingMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [idToNameMap, setIdToNameMap] = useState(new Map());
-  const [drawerVisible, setDrawerVisible] = useState(false);
+  // const [drawerVisible, setDrawerVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
-  const [searchText, setSearchText] = useState("");
+  // const [searchText, setSearchText] = useState("");
   const [chatDrawerVisible, setChatDrawerVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
@@ -156,7 +156,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
 
   return (
     <div className="forum-container">
-      {!isPrivate && (
+      {/* {!isPrivate && (
         <div
           style={{
             display: "flex",
@@ -183,7 +183,7 @@ const ForumComment = ({ channel_id, isPrivate = false }) => {
             New Post
           </Button>
         </div>
-      )}
+      )} */}
       {!isPrivate && (
         <>
           {/* <ConfigProvider

@@ -232,7 +232,7 @@ export const protectedRoutes = (feature, module_features) => {
         {
             key: 'channels',
             path: `${APP_PREFIX_PATH}/channels`,
-            component: React.lazy(() => import('views/pages/Channels')),
+            component: React.lazy(() => import('views/pages/Channels/Networking')),
         },
         {
             key: 'process',

@@ -19,7 +19,7 @@ const getNestedValue = (obj, path) => {
 };
 
 // Main Component
-const DetailOverview = ({ data, config, openMessageModal, editable = false, saveConfig }) => {
+const DetailOverview = ({ data, config, openMessageModal, editable = false, owner = false, saveConfig }) => {
     const [toggledGroups, setToggledGroups] = useState(new Set());
 
     // Dynamically resolve icons from @ant-design/icons
@@ -180,7 +180,7 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, save
                 {group?.show_group_name && (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Title level={4} style={{ marginRight: 8 }}>{group.name}</Title>
-                        {editable && group?.privacy_control && (
+                        {editable && owner && group?.privacy_control && (
                             <div className="mb-2">
                                 <Switch className="mr-2"
                                     checked={toggledGroups.has(group.name)}

@@ -1484,7 +1484,7 @@ const Profile = () => {
             key: 'info',
             label: 'Info',
             children: (
-                <DetailOverview data={userData} config={profileFields} editable={true}
+                <DetailOverview data={userData} config={profileFields} editable={true} owner={profileOwner}
                     saveConfig={{ table: "users", column: "privacy", entity: userData?.id }} />
             ),
         },
