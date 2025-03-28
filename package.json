@@ -10,6 +10,7 @@
     "@rjsf/antd": "^5.21.1",
     "@rjsf/core": "^5.21.1",
     "@rjsf/utils": "^5.21.1",
+    "react-dnd": "14.0.5",
     "@rjsf/validator-ajv8": "^5.21.1",
     "@supabase/supabase-js": "^2.43.4",
     "@tanstack/query-sync-storage-persister": "^5.62.16",
