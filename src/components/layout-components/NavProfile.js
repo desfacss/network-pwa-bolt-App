@@ -1,9 +1,10 @@
-import React from "react";
-import { Dropdown, Avatar, Select, notification, Space } from "antd";
+import React, { useState } from "react";
+import { Dropdown, Avatar, notification, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   QuestionCircleOutlined,
-  LogoutOutlined, UserOutlined
+  LogoutOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import NavItem from "./NavItem";
 import Flex from "components/shared-components/Flex";
@@ -17,8 +18,9 @@ import {
 } from "constants/ThemeConstant";
 import { supabase } from "configs/SupabaseConfig";
 import { store } from "store";
-import { APP_PREFIX_PATH } from 'configs/AppConfig'
+import { APP_PREFIX_PATH } from "configs/AppConfig";
 import { Link, useNavigate } from "react-router-dom";
+import { ActionSheet } from "antd-mobile"; // Import ActionSheet from antd-mobile
 
 const Icon = styled.div(() => ({
   fontSize: FONT_SIZES.LG,
@@ -46,41 +48,32 @@ const Title = styled.span(() => ({
 }));
 
 const MenuItem = (props) => (
-  // <Flex as="a" href={props.path} alignItems="center" gap={SPACER[2]}>
   <Link to={props.path}>
     <Space>
       <Icon>{props.icon}</Icon>
       <span>{props.label}</span>
     </Space>
   </Link>
-  //  </Flex> 
 );
 
 const MenuItemSignOut = (props) => {
-  // const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const onLogOut = async () => {
-    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    const { error } = await supabase.auth.signOut({ scope: "local" });
     if (error) {
-      console.error('Error signing out:', error.message);
-      notification.error({ message: 'Error signing out' })
-      return
+      console.error("Error signing out:", error.message);
+      notification.error({ message: "Error signing out" });
+      return;
     }
-    store.dispatch(setSelectedOrganization())
-    store.dispatch(setSelectedUser())
-    store.dispatch(setSession())
-    navigate(`${APP_PREFIX_PATH}`)
-  }
-
-
-
-  const handleSignOut = () => {
-    onLogOut()
-    // dispatch(signOut());
+    store.dispatch(setSelectedOrganization());
+    store.dispatch(setSelectedUser());
+    store.dispatch(setSession());
+    navigate(`${APP_PREFIX_PATH}`);
   };
 
   return (
-    <div onClick={handleSignOut}>
+    <div onClick={onLogOut}>
       <Flex alignItems="center" gap={SPACER[2]}>
         <Icon>
           <LogoutOutlined />
@@ -91,9 +84,16 @@ const MenuItemSignOut = (props) => {
   );
 };
 
-export const NavProfile = ({ mode, profileData }) => {
+export const NavProfile = ({ mode, profileData, isMobile }) => {
+  const [visible, setVisible] = useState(false); // State to control ActionSheet visibility
+
+  const navigate = useNavigate();
+  const { userData } = useSelector((state) => state?.profile);
+  const { session } = useSelector((state) => state.auth);
+
+  // Define menu items
   let items = [
-    !profileData && ({
+    !profileData && {
       key: "Login",
       label: (
         <MenuItem
@@ -102,8 +102,9 @@ export const NavProfile = ({ mode, profileData }) => {
           icon={<QuestionCircleOutlined />}
         />
       ),
-    }),
-    profileData?.user?.features?.feature?.profile && ({
+      onClick: () => navigate("/app/login"),
+    },
+    profileData?.user?.features?.feature?.profile && {
       key: "My Profile",
       label: (
         <MenuItem
@@ -112,33 +113,91 @@ export const NavProfile = ({ mode, profileData }) => {
           icon={<UserOutlined />}
         />
       ),
-    }),
-    profileData && ({
+      onClick: () => navigate("/app/profile"),
+    },
+    profileData && {
       key: "Sign Out",
       label: <MenuItemSignOut label="Sign Out" />,
-    })
-  ];
+      onClick: async () => {
+        const { error } = await supabase.auth.signOut({ scope: "local" });
+        if (error) {
+          console.error("Error signing out:", error.message);
+          notification.error({ message: "Error signing out" });
+          return;
+        }
+        store.dispatch(setSelectedOrganization());
+        store.dispatch(setSelectedUser());
+        store.dispatch(setSession());
+        navigate(`${APP_PREFIX_PATH}`);
+      },
+    },
+  ].filter(Boolean); // Remove falsy values
 
-  const { userData } = useSelector((state) => state?.profile);
-
-  const clientMenu = ['Setting', 'Login', 'Forgot Password', 'Sign Out']
-  if (userData?.role_type === 'client') {
-    items = items.filter(item => clientMenu.includes(item.key))
+  const clientMenu = ["Setting", "Login", "Forgot Password", "Sign Out"];
+  if (userData?.role_type === "client") {
+    items = items.filter((item) => clientMenu.includes(item.key));
   }
 
-  const { session } = useSelector((state) => state.auth);
+  // ActionSheet actions for mobile
+  const actions = items.map((item) => ({
+    text: item.key,
+    onClick: item.onClick,
+  }));
 
+  // Handle click to show ActionSheet on mobile
+  const handleMobileClick = () => {
+    if (isMobile) {
+      setVisible(true);
+    }
+  };
+
+  // Render logic
   return (
-    <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
-      <NavItem mode={mode}>
-        {session?.user?.user_name && <Profile>
-          <Avatar src="/img/avatars/thumb-7.jpg" alt={session?.user?.user_name[0]} >{session?.user?.user_name[0] || ""}</Avatar>
-          <UserInfo className="profile-text">
-            <Name>{session?.user?.user_name || ""}</Name>
-          </UserInfo>
-        </Profile>}
-      </NavItem>
-    </Dropdown>
+    <>
+      {isMobile ? (
+        <>
+          <NavItem mode={mode} onClick={handleMobileClick}>
+            {session?.user?.user_name && (
+              <Profile>
+                <Avatar
+                  src="/img/avatars/thumb-7.jpg"
+                  alt={session?.user?.user_name[0]}
+                >
+                  {session?.user?.user_name[0] || ""}
+                </Avatar>
+                <UserInfo className="profile-text">
+                  <Name>{session?.user?.user_name || ""}</Name>
+                </UserInfo>
+              </Profile>
+            )}
+          </NavItem>
+          <ActionSheet
+            visible={visible}
+            actions={actions}
+            onClose={() => setVisible(false)}
+            cancelText="Cancel"
+          />
+        </>
+      ) : (
+        <Dropdown placement="bottomRight" menu={{ items }} trigger={["click"]}>
+          <NavItem mode={mode}>
+            {session?.user?.user_name && (
+              <Profile>
+                <Avatar
+                  src="/img/avatars/thumb-7.jpg"
+                  alt={session?.user?.user_name[0]}
+                >
+                  {session?.user?.user_name[0] || ""}
+                </Avatar>
+                <UserInfo className="profile-text">
+                  <Name>{session?.user?.user_name || ""}</Name>
+                </UserInfo>
+              </Profile>
+            )}
+          </NavItem>
+        </Dropdown>
+      )}
+    </>
   );
 };
 

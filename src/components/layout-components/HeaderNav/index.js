@@ -130,7 +130,6 @@ export const HeaderNav = (props) => {
               <div className="d-flex align-items-center">
                 {navCollapsed || isMobile ? (
                   <>
-
                     {navCollapsed && <CaretRightOutlined className="nav-icon" style={{ fontSize: '90%', color: '#999' }} />}
                     {/* {isMobile && <MenuUnfoldOutlined className="nav-icon" />} */}
                     {/* {isMobile && <img src={`/img/ibcn/light.png`} alt="Unfold Menu" className="nav-icon" style={{ width: '24px', height: '24px' }} />} */}
@@ -203,7 +202,7 @@ export const HeaderNav = (props) => {
                 style={{ height: '56px' }} //className="nav-icon"
               />
             </div>
-            {session && <NavProfile profileData={session} mode={navMode} />}
+            {session && <NavProfile profileData={session} mode={navMode} isMobile={isMobile} />}
             {/* <div className="border-bottom d-flex justify-content-between align-items-center px-3 py-2">
               <Button onClick={onLogOut}>LogOut</Button>
             </div> */}
