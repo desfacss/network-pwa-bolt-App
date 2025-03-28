@@ -196,7 +196,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
       menu: (
         <Menu>
           {allowedActions?.map(action => (
-            <Menu.Item key={action?.name} onClick={() => handleAction(action?.name, record)}>
+            <Menu.Item key={action?.name} onClick={() => handleAction(action, record)}>
               {action?.name?.charAt(0).toUpperCase() + action?.name?.slice(1)}
             </Menu.Item>
           ))}
@@ -205,14 +205,14 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
     };
   };
 
-  const handleAction = (actionName, record) => {
-    switch (actionName) {
+  const handleAction = (action, record) => {
+    switch (action?.name) {
       case 'view': navigate(`/app${gridViewConfig?.viewLink}${record?.id}`); break;
-      case 'edit': openDrawer(record, false, actionName?.form); break;
+      case 'edit': openDrawer(record, false, action?.form); break;
       case 'delete': deleteData(record); break;
       case 'details': openDrawer(record, true); break;
-      case 'message': openMessageModal && openMessageModal(record[actionName.form]); break;
-      default: console.log(`Action ${actionName} not implemented`);
+      case 'message': openMessageModal && openMessageModal(record[action?.form]); break;
+      default: console.log(`Action ${action} not implemented`);
     }
   };
 
@@ -284,7 +284,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
                   ...cardStyle,
                   cursor: singleAction ? 'pointer' : 'default'
                 }}
-                onClick={singleAction ? () => handleAction(singleAction.name, record) : undefined}
+                onClick={singleAction ? () => handleAction(singleAction, record) : undefined}
                 hoverable={!!singleAction}
                 title={
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

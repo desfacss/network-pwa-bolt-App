@@ -577,8 +577,16 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType} visible={visible} viewConfig={viewConfig} onCancel={() => { fetchData(); setVisible(false); }} data={vd} />}
             <Drawer
                 // width={viewMode ? "100%" : "50%"}
-                width={"90%"}
-                title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}
+                width={"100%"}
+                title={
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 32 }}>
+                        <span style={{ fontSize: "16px" }}>{viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}</span>
+                        <Button onClick={closeDrawer} size="small">
+                            Back
+                        </Button>
+                    </div>
+                }
+                // title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}
                 open={isDrawerVisible && !drawerPath}
                 onClose={closeDrawer}
                 footer={null}
@@ -590,9 +598,26 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                     : <DynamicForm schemas={schemas} formData={editItem || {}} onFinish={(formData) => { handleAddOrEdit(formData, editItem); closeDrawer(); }} />}
             </Drawer>
             {messageReceiverId && (
-                <Modal title="Send Message" visible={!!messageReceiverId} onCancel={handleCloseModal} footer={null}>
+                <Drawer placement="bottom"
+                    // width={viewMode ? "100%" : "50%"}
+                    height={"40%"}
+                    title={
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 32 }}>
+                            <span style={{ fontSize: "16px" }}>Send Message</span>
+                            <Button onClick={handleCloseModal} size="small">
+                                Back
+                            </Button>
+                        </div>
+                    }
+                    // title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}
+                    open={!!messageReceiverId}
+                    onClose={handleCloseModal}
+                    footer={null}
+                >
                     <PostMessage user_id={session.user.id} receiver_user_id={messageReceiverId} closeModal={handleCloseModal} />
-                </Modal>
+                    {/* <Modal title="Send Message" visible={!!messageReceiverId} onCancel={handleCloseModal} footer={null}>
+                </Modal> */}
+                </Drawer>
             )}
             {/* Drawer for mode: 'drawer' */}
             <Drawer

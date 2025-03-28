@@ -5,6 +5,8 @@ import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import ForumComment from './Comments';
 import PostMessage from './PostMessage';
+import { Link } from 'react-router-dom';
+import { APP_PREFIX_PATH } from "configs/AppConfig";
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(window.matchMedia(query).matches);
@@ -345,7 +347,10 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
           </div>
         )}
       </Card>
-
+      {/* <h3>Find members and Send private message <span style={{ color: 'blue', cursor: 'pointer' }} onClick={handleNavigateToMembers}>from here...</span></h3> */}
+      <div style={{ textAlign: "center;" }}>
+        <h4>Find members and Send private message <Link to={`${APP_PREFIX_PATH}/members`}> from here...</Link></h4>
+      </div>
       {!isPrivate && (
         <Modal
           title="Add New Channel"

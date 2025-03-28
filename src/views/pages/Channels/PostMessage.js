@@ -3,7 +3,7 @@ import { Form, Button, Mentions, message } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
-import './styles.css';
+// import './styles.css';
 
 const { Option } = Mentions;
 
@@ -14,12 +14,12 @@ const NewPostForm = ({ form, onSubmit, isSubmitting, onClose }) => {
   ]);
 
   return (
-    <div style={{ padding: 16, height: '100%' }}>
+    <div >
       <Form
         form={form}
         onFinish={onSubmit}
         layout="vertical"
-        style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
+      // style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
       >
         <div style={{
           flex: 1,
@@ -31,10 +31,10 @@ const NewPostForm = ({ form, onSubmit, isSubmitting, onClose }) => {
           <Form.Item
             name="message"
             rules={[{ required: true, message: 'Please write your message' }]}
-            style={{ margin: 0, height: '100%' }}
+          // style={{ margin: 0, height: '60%' }}
           >
             <Mentions
-              rows={10}
+              rows={3}
               prefix={['@']}
               placeholder="Write your message"
               style={{
@@ -57,7 +57,10 @@ const NewPostForm = ({ form, onSubmit, isSubmitting, onClose }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Button
             onClick={onClose}
-            style={{ marginTop: 16, width: '48%', height: 40 }} // Adjust width as needed
+            style={{
+              marginTop: 16, width: '48%'
+              // , height: 40
+            }} // Adjust width as needed
           >
             Cancel
           </Button>
@@ -72,7 +75,7 @@ const NewPostForm = ({ form, onSubmit, isSubmitting, onClose }) => {
               background: '#4A90E2',
               border: 'none',
               width: '48%', // Adjust width as needed
-              height: 40,
+              // height: 40,
             }}
           >
             Send Message
