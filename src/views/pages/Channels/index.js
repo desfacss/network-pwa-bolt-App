@@ -347,10 +347,10 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
           </div>
         )}
       </Card>
-      {/* <h3>Find members and Send private message <span style={{ color: 'blue', cursor: 'pointer' }} onClick={handleNavigateToMembers}>from here...</span></h3> */}
+      {/* <h3>Find members and Send private message <span style={{ color: 'blue', cursor: 'pointer' }} onClick={handleNavigateToMembers}>from here...</span></h3>
       <div style={{ textAlign: "center;" }}>
         <h4>Find members and Send private message <Link to={`${APP_PREFIX_PATH}/members`}> from here...</Link></h4>
-      </div>
+      </div> */}
       {!isPrivate && (
         <Modal
           title="Add New Channel"

@@ -164,7 +164,7 @@ const TicketPage = () => {
               <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} className="ticket-logo" />
             </Col>
             <Col>
-              <h3 className="event-title">IBCN 2025 Bengaluru</h3>
+              <h4 level={3}>IBCN 2025 Bengaluru</h4> 
             </Col>
             <Col>
               <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '50px' }} className="ticket-logo" />
@@ -177,18 +177,15 @@ const TicketPage = () => {
           <div className="profile-placeholder">
             <ProfilePic />
           </div>
-          <Title level={3} className="label-text">
-            {userData.name}
-          </Title>
-          <Text className="value-text">{userData.company}, {userData.city}</Text>
-          <Text className="value-text">
-            {userData.native} --- {userData.kovil}
+          <Title level={3}>{userData.name}</Title> 
+          <Text>{userData.company}, {userData.city}</Text>
+          <Text>
+            {userData.native}, {userData.kovil}
           </Text>
           <br />
-          <Text className="label-text">Stream: <strong>{userData.primary_stream}</strong></Text>
-          {/* <Text className="value-text">{userData.primary_stream}</Text> */}
-          {/* <h3 className="value-text">{userData.primary_stream}</h3> */}
-          {/* <Text className="value-text">{userData.secondary_stream}</Text> */}
+          <Text>
+            Stream: <strong>{userData.primary_stream === "" ? "Not Selected" : userData.primary_stream}</strong>
+          </Text>
 
           {!isMobile && session?.user?.id && (
             <Button
@@ -212,12 +209,14 @@ const TicketPage = () => {
         <div className="ticket-section food-section" style={{ backgroundColor: foodColor }}>
           <Row>
             <Col span={16}>
-              <Text className="label-text">Room No: </Text><br />
-              <Text className="value-text">TBA - {userData.room}</Text>
+              <Text strong>Room No: </Text>
+              <br />
+              <Text>TBA - {userData.room}</Text>
             </Col>
             <Col span={8}>
-              <Text className="label-text">Food Preference: </Text>
-              <Text className="value-text">{userData.food}</Text>
+              <Text strong>Food Pref: </Text>
+              <br />
+              <Text>{userData.food}</Text>
             </Col>
           </Row>
         </div>

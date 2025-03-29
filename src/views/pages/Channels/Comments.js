@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  Card,
   Form,
   Button,
   List,
-  Flex,
   message,
   Empty,
-  ConfigProvider,
-  theme,
   Tag,
   Modal,
-  Input,
   Avatar,
 } from "antd";
 import { EditOutlined, DeleteOutlined, RocketOutlined } from "@ant-design/icons";
@@ -25,13 +20,10 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
   const [form] = Form.useForm();
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
-  // const [editingMessage, setEditingMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [idToNameMap, setIdToNameMap] = useState(new Map());
-  // const [drawerVisible, setDrawerVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
-  // const [searchText, setSearchText] = useState("");
   const [chatDrawerVisible, setChatDrawerVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
@@ -156,43 +148,9 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
 
   return (
     <div className="forum-container">
-      {/* {!isPrivate && (
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            marginBottom: 16,
-            flexWrap: "wrap",
-            width: "100%",
-          }}
-        >
-          <Input
-            placeholder="Search by user name, message or tag"
-            value={searchText}
-            onChange={e => setSearchText(e.target.value)}
-            style={{ flex: 1, minWidth: "58%" }}
-          />
-          <Button
-            type="primary"
-            onClick={() => {
-              setEditingMessage(null);
-              setDrawerVisible(true);
-            }}
-            style={{ flex: 1, minWidth: "38%" }}
-          >
-            New Post
-          </Button>
-        </div>
-      )} */}
       {!isPrivate && (
         <>
-          {/* <ConfigProvider
-          theme={{
-            algorithm: theme.defaultAlgorithm,
-            token: { colorBorder: "#ccceee", borderRadius: 4, fontFamily: "Inter, sans-serif" },
-          }}
-        > */}
-          <CategorySelector //Ravi Post message Post categorySelector
+          <CategorySelector
             visible={drawerVisible}
             onClose={() => {
               setDrawerVisible(false);
@@ -206,7 +164,6 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
             isSubmitting={isSubmitting}
             session={session}
           />
-          {/* </ConfigProvider> */}
         </>
       )}
 
@@ -218,13 +175,37 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
               className={`post ${item.user_id === session.user.id ? "post-own" : "post-other"}`}
               onClick={() => openChatDrawer(item.id)}
             >
-              <Avatar size="medium" className="post-avatar">
-                {isPrivate
-                  ? item.user_id === session.user.id
-                    ? item.receiver?.user_name?.charAt(0)
-                    : item.user?.user_name?.charAt(0)
-                  : item.user?.user_name?.charAt(0)}
-              </Avatar>
+              <div className="post-left-section">
+                <Avatar size="small" className="post-avatar">
+                  {isPrivate
+                    ? item.user_id === session.user.id
+                      ? item.receiver?.user_name?.charAt(0)
+                      : item.user?.user_name?.charAt(0)
+                    : item.user?.user_name?.charAt(0)}
+                </Avatar>
+                {(session.user.role_type === "superadmin" || session.user.id === item.user_id) && (
+                  <div className="post-actions-below-avatar">
+                    <Button
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleEdit(item);
+                      }}
+                      type="text"
+                      size="small"
+                      icon={<EditOutlined />}
+                    />
+                    <Button
+                      onClick={e => {
+                        e.stopPropagation();
+                        showDeleteModal(item.id);
+                      }}
+                      type="text"
+                      size="small"
+                      icon={<DeleteOutlined />}
+                    />
+                  </div>
+                )}
+              </div>
               <div className="post-bubble">
                 <div className="post-header">
                   <span className="post-author">
@@ -242,60 +223,18 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
                     ·{" "}
                     {new Date(item.inserted_at).toLocaleDateString([], { month: "short", day: "numeric" })}
                   </span>
-                  {(session.user.role_type === "superadmin" || session.user.id === item.user_id) && (
-                    <div className="post-actions">
-                      <Button
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleEdit(item);
-                        }}
-                        type="text"
-                        size="small"
-                        icon={<EditOutlined />}
-                      />
-                      <Button
-                        onClick={e => {
-                          e.stopPropagation();
-                          showDeleteModal(item.id);
-                        }}
-                        type="text"
-                        size="small"
-                        icon={<DeleteOutlined />}
-                      />
-                    </div>
-                  )}
                 </div>
                 <div className="post-content">
                   <span>{formatMessage(item.message)}</span>
                 </div>
                 <div className="post-tags">
                   {item.details?.category_id && (
-                    <Tag
-                    // style={{
-                    //   borderRadius: 8,
-                    //   // background: "#e3e3e3",
-                    //   // color: "#222",
-                    //   border: "none",
-                    //   fontSize: 11,
-                    //   padding: "2px 6px",
-                    // }}
-                    // color="blue"
-                    >
+                    <Tag>
                       {idToNameMap.get(item.details.category_id) || item.details.category_id}
                     </Tag>
                   )}
                   {item.details?.tags?.map(tag => (
-                    <Tag
-                      key={tag}
-                    // style={{
-                    //   borderRadius: 8,
-                    //   background: "#e3e3e3",
-                    //   color: "#222",
-                    //   border: "1px",
-                    //   fontSize: 11,
-                    //   padding: "2px 6px",
-                    // }}
-                    >
+                    <Tag key={tag}>
                       {idToNameMap.get(tag) || tag}
                     </Tag>
                   ))}
