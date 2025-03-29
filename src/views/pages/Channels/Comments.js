@@ -9,7 +9,7 @@ import {
   Modal,
   Avatar,
 } from "antd";
-import { EditOutlined, DeleteOutlined, RocketOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, RocketOutlined, HeartOutlined } from "@ant-design/icons";
 import "./styles.css";
 import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
@@ -26,6 +26,7 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
   const [messageToDelete, setMessageToDelete] = useState(null);
   const [chatDrawerVisible, setChatDrawerVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const [likes, setLikes] = useState({}); // State to track likes for each post
 
   const { session } = useSelector((state) => state.auth);
 
@@ -68,6 +69,13 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
       }));
       setMessages(processedData);
       setFilteredMessages(processedData);
+
+      // Initialize likes state for each post (for demo purposes)
+      const initialLikes = {};
+      processedData.forEach(item => {
+        initialLikes[item.id] = 0; // In a real app, this would come from the backend
+      });
+      setLikes(initialLikes);
     };
 
     fetchMessages();
@@ -133,6 +141,13 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
   const openChatDrawer = postId => {
     setSelectedPostId(postId);
     setChatDrawerVisible(true);
+  };
+
+  const handleLike = postId => {
+    setLikes(prevLikes => ({
+      ...prevLikes,
+      [postId]: (prevLikes[postId] || 0) + 1,
+    }));
   };
 
   const formatMessage = text => {
@@ -228,6 +243,25 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
                   <span>{formatMessage(item.message)}</span>
                 </div>
                 <div className="post-tags">
+                  {/* GANESH - SHOW COUNT AND LIKE ICON LATER WITH COUNTS and show them in profile - posts.. */}
+{/* WE ALSO NEED A NOTIFICATION ICON< SO WE CAN SHOW APPROVED CHANNEL REQUESTS, and messages from someone use RPC FUNCTION */}
+                  {/* <span className="post-actions">
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<HeartOutlined />}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleLike(item.id);
+                      }}
+                    />
+                    {likes[item.id] > 0 && <span className="like-count">{likes[item.id]}</span>}
+                    {item.reply_count > 0 && (
+                      <span className="post-reply-count">
+                        {item.reply_count} {item.reply_count === 1 ? "Reply" : "Replies"}
+                      </span>
+                    )}
+                  </span> */}
                   {item.details?.category_id && (
                     <Tag>
                       {idToNameMap.get(item.details.category_id) || item.details.category_id}

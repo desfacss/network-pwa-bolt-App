@@ -2,6 +2,53 @@
     height: 800px;
 } */
 
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+  }
+  
+  #root {
+    width: 100%; /* Allow natural width on mobile */
+    height: 100vh;
+    overflow: hidden; /* Prevent scrolling outside bounds */
+    position: relative;
+  }
+  
+  /* Restrict to 1080px on larger screens */
+  @media (min-width: 1081px) {
+    #root {
+      max-width: 1080px; /* Standard iPad landscape width */
+      margin: 0 auto; /* Center on desktop */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for app-like feel */
+    }
+  
+    body {
+      background-color: #f0f0f0; /* Gray background outside the app on desktop */
+    }
+  }
+  
+  /* Encourage landscape mode on larger screens */
+  @media (min-width: 1081px) and (orientation: portrait) {
+    #root::before {
+      content: "Please rotate your device to landscape mode for the best experience.";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      z-index: 9999;
+    }
+  }
+
+  
 /* FAB Button Styling */
 .fab-button {
     position: fixed;
@@ -22,3 +69,4 @@
     background-color: #40a9ff;
     /* Lighter blue on hover */
 }
+

@@ -139,7 +139,6 @@
   }
 } */
 
-
 .forum-container {
   padding: 0;
   margin: 0;
@@ -148,13 +147,9 @@
 .post {
   display: flex;
   align-items: flex-start;
-  /*padding: 4px 6px; /* Reduced padding */
-  /*gap: 6px; /* Reduced gap between avatar and bubble */
-  /*margin-bottom: 8px; /* Reduced margin between posts */
   padding: 6px 0px;
   gap: 10px;
   margin-bottom: 12px;
-  
   cursor: pointer;
 }
 
@@ -166,42 +161,41 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 4px; /* Reduced margin */
+  margin-right: 6px;
 }
 
 .post-avatar {
   flex-shrink: 0;
-  margin-bottom: 14px; /* Reduced margin */
+  margin-bottom: 14px;
 }
 
 .post-actions-below-avatar {
   display: flex;
-  flex-direction: column;
-  gap: 14px; /* Reduced gap between icons */
+  flex-direction: row;
+  gap: 14px;
   justify-content: center;
 }
 
 .post-actions-below-avatar .ant-btn {
-  padding: 0; /* Remove padding to make buttons smaller */
+  padding: 0;
 }
 
 .post-actions-below-avatar .ant-btn-icon-only {
-  width: 16px; /* Smaller button size */
-  height: 16px; /* Smaller button size */
+  width: 16px;
+  height: 16px;
 }
 
 .post-actions-below-avatar .anticon {
-  font-size: 12px; /* Smaller icon size */
+  font-size: 12px;
 }
 
 .post-bubble {
   flex: 1;
   background: #f0f2f5;
-  padding: 6px 8px; /* Reduced padding */
-  border-radius: 8px; /* Slightly smaller border radius */
+  padding: 6px 8px;
+  border-radius: 8px;
   word-break: break-word;
   white-space: pre-wrap;
-  /* margin-right: 6px; */
 }
 
 .post-own .post-bubble {
@@ -216,18 +210,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px; /* Reduced margin */
+  margin-bottom: 10px;
 }
 
 .post-author {
   font-weight: bold;
-  font-size: 12px; /* Slightly smaller font */
+  font-size: 12px;
   font-style: italic;
   color: #888;
 }
 
 .post-timestamp {
-  font-size: 10px; /* Smaller font */
+  font-size: 10px;
   font-style: italic;
   color: #888;
   text-align: right;
@@ -235,16 +229,44 @@
 }
 
 .post-content {
-  font-size: 12px; /* Smaller font */
+  font-size: 12px;
   color: #666666;
-  line-height: 1.4; /* Slightly tighter line height */
-  margin-bottom: 14px; /* Reduced margin */
+  line-height: 1.4;
+  margin-bottom: 14px;
 }
 
 .post-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px; /* Reduced gap */
+  gap: 4px;
+  align-items: center;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 8px;
+}
+
+.post-actions .ant-btn {
+  padding: 0;
+}
+
+.post-actions .ant-btn-icon-only {
+  width: 16px;
+  height: 16px;
+}
+
+.post-actions .anticon {
+  font-size: 12px;
+  color: #888;
+}
+
+.like-count,
+.post-reply-count {
+  font-size: 10px;
+  color: #888;
 }
 
 /* Mobile adjustments */
@@ -255,15 +277,11 @@
   }
 
   .post {
-    padding: 6px 0; /* Even smaller padding for mobile */
+    padding: 6px 0;
     gap: 4px;
   }
 
   .post-bubble {
-    padding: 10px 10px; /* Even smaller padding for mobile */
+    padding: 10px 10px;
   }
-
-  /* .post-content {
-    font-size: 11px; /* Slightly smaller font for mobile 
-  } */
 }
