@@ -1327,8 +1327,8 @@ const Profile = () => {
         const recipientMobile = userData?.details?.mobile;
 
         // Construct profile links
-        const senderProfileLink = `${window.location.origin}/profile/${session?.user?.id}`; // Assuming profile route is /profile/:user_id
-        const recipientProfileLink = `${window.location.origin}/profile/${userData?.id}`;
+        const senderProfileLink = `${window.location.origin}/members/${session?.user?.id}`; // Assuming profile route is /profile/:user_id
+        const recipientProfileLink = `${window.location.origin}/members/${userData?.id}`;
 
         if (!senderEmail || !recipientEmail) {
             message.error('Email addresses are missing.');
