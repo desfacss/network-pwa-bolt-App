@@ -9,10 +9,18 @@ body, html {
     overflow-x: hidden; /* Prevent horizontal scrolling */
   }
   
-  #root {
-    width: 100%; /* Allow natural width on mobile */
+  /* #root {
+    width: 100%; /* Allow natural width on mobile 
     height: 100vh;
-    overflow: hidden; /* Prevent scrolling outside bounds */
+    overflow: hidden; /* Prevent scrolling outside bounds 
+    position: relative;
+  } */
+
+  #root {
+    width: 100%;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
   }
   
