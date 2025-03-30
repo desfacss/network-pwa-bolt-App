@@ -1082,6 +1082,8 @@ import Channels from '../Channels';
 import DetailOverview from '../DynamicViews/DetailOverview';
 import { sendEmail } from 'components/common/SendEmail';
 import trackEvent from 'components/util-components/trackEvent'; // Import the tracking utility
+import { REACT_APP_RESEND_FROM_EMAIL } from 'configs/AppConfig';
+// import App
 
 const Profile = () => {
     const { user_name } = useParams();
@@ -1321,45 +1323,91 @@ const Profile = () => {
         const senderName = `${session?.user?.details?.firstName} ${session?.user?.details?.lastName}`;
         const recipientName = `${userData?.details?.firstName} ${userData?.details?.lastName}`;
 
+        const senderMobile = session?.user?.details?.mobile;
+        const recipientMobile = userData?.details?.mobile;
+
+        // Construct profile links
+        const senderProfileLink = `${window.location.origin}/profile/${session?.user?.id}`; // Assuming profile route is /profile/:user_id
+        const recipientProfileLink = `${window.location.origin}/profile/${userData?.id}`;
+
+        if (!senderEmail || !recipientEmail) {
+            message.error('Email addresses are missing.');
+            return;
+        }
+
         const emails = [
             {
-                from: `UKPE Timesheet <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
-                to: [recipientEmail],
-                subject: `Connection Request from ${senderName}`,
+                from: `IBCN2025 NO-REPLY <${REACT_APP_RESEND_FROM_EMAIL}>`,
+                to: [recipientEmail, senderEmail],
+                subject: `Connection Request: ${senderName} & ${recipientName}`,
                 html: `
-                    <p>Hello ${recipientName},</p>
-                    <p>${senderName} would like to connect with you. You can reach them at: <strong>${senderEmail}</strong>.</p>
-                    <p>Please reply directly to this email or contact them to connect.</p>
-                    <p>If you are not the intended recipient, you can safely ignore this message or contact your HR for assistance.</p>
-                    <p>Best Regards,<br/>UKPE Global Admin Team</p>
+                    <p>Hello ${recipientName} & ${senderName},</p>
+                    <p>${senderName} wants to connect with ${recipientName}.</p>
+                    <p>Here's how you can reach each other:</p>
+                    <ul>
+                        <li>
+                            ${senderName}:
+                            <ul>
+                                <li>Email: <strong>${senderEmail}</strong></li>
+                                <li>Mobile: <strong>${senderMobile || 'N/A'}</strong></li>
+                                <li>Profile: <a href="${senderProfileLink}">${senderProfileLink}</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            ${recipientName}:
+                            <ul>
+                                <li>Email: <strong>${recipientEmail}</strong></li>
+                                <li>Mobile: <strong>${recipientMobile || 'N/A'}</strong></li>
+                                <li>Profile: <a href="${recipientProfileLink}">${recipientProfileLink}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p>Connect directly using the information above. Do not reply here.</p>
+                    <p>Ignore if not intended. Contact ibcnblr@gmail.com for help.</p>
+                    <p>Best Regards,<br/>IBCN NetworkX Team</p>
                 `,
             },
-            {
-                from: `UKPE Timesheet <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
-                to: [senderEmail],
-                subject: `Connection Request Sent to ${recipientName}`,
-                html: `
-                    <p>Hello ${senderName},</p>
-                    <p>You have sent a connection request to ${recipientName}. They can reach you at: <strong>${senderEmail}</strong>.</p>
-                    <p>Please wait for their response or contact them directly at: <strong>${recipientEmail}</strong>.</p>
-                    <p>If you are not the intended recipient, you can safely ignore this message or contact your HR for assistance.</p>
-                    <p>Best Regards,<br/>UKPE Global Admin Team</p>
-                `,
-            },
+            // {
+            //     // from: `UKPE Timesheet <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
+            //     from: `IBCN2025 NO-REPLY<${REACT_APP_RESEND_FROM_EMAIL}>`,
+            //     to: [recipientEmail, senderEmail],
+            //     subject: `Connection Request from ${senderName}`,
+            //     html: `
+            //         <p>Hello ${recipientName},</p>
+            //         <p>${senderName} would like to connect with you. You can reach ${senderName} at: <strong>${senderEmail}</strong>.</p>
+            //         <p>Do not reply directly to this email. Contact them directly on email.</p>
+            //         <p>If you are not the intended recipient, you can safely ignore this message or contact ibcnblr@gmail.com for assistance.</p>
+            //         <p>Best Regards,<br/>IBCN NetworkX Team</p>
+            //     `,
+            // },
+            // {
+            //     // from: `UKPE Timesheet <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
+            //     from: `IBCN2025 NO-REPLY <${REACT_APP_RESEND_FROM_EMAIL}>`,
+            //     to: [senderEmail],
+            //     subject: `Connection Request Sent to ${recipientName}`,
+            //     html: `
+            //         <p>Hello ${senderName},</p>
+            //         <p>You have sent a connection request to ${recipientName}. You can reach at: <strong>${recipientEmail}</strong>.</p>
+            //         <p>Do not reply directly to this email. Contact them directly on email.</p>
+            //         <p>If you are not the intended recipient, you can safely ignore this message or contact ibcnblr@gmail.com for assistance.</p>
+            //         <p>Best Regards,<br/>IBCN NetworkX Team</p>
+            //     `,
+            // },
         ];
 
         const success = await sendEmail(emails);
-        if (success) {
-            message.success('Connection request sent successfully!');
-            // Track successful connection request
-            trackEvent({
-                eventName: 'connect_email',
-                category: 'Profile',
-                label: 'Connect via Email Button',
-            });
-        } else {
-            message.error('Failed to send connection request.');
-        }
+        console.log('success',success)
+        // if (success) {
+        //     message.success('Connection request sent successfully!');
+        //     // Track successful connection request
+        //     trackEvent({
+        //         eventName: 'connect_email',
+        //         category: 'Profile',
+        //         label: 'Connect via Email Button',
+        //     });
+        // } else {
+        //     message.error('Failed to send connection request.');
+        // }
     };
 
     const renderDynamicDescriptionItemsTabs = (group) => {
