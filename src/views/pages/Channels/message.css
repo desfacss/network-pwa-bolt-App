@@ -1,90 +1,120 @@
 .message-list {
-    flex: 1;
-    overflow-y: auto;
-    list-style: none;
-    padding: 0;
-    margin: 0 0 10px 0; /* Margin bottom to avoid overlap with footer */
-  }
-  
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 10px;
+  gap: 10px;
+}
+
+.message-own {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+}
+
+.message-bubble {
+  position: relative;
+  max-width: 70%;
+  padding: 8px 12px;
+  background: #f1f4f7;
+  border-radius: 12px;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.message-own .message-bubble {
+  background: #eaf2fd;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.message-author {
+  font-size: 12px;
+  font-style: italic;
+  color: #888;
+}
+
+.message-own .message-author {
+  color: #888;
+}
+
+.message-actions {
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  /* Reduced from 4px to bring buttons closer */
+}
+
+.message-actions .ant-btn {
+  padding: 0;
+  /* Removed all padding inside buttons */
+  height: 20px;
+  /* Consistent height */
+  width: 20px;
+  /* Added fixed width to make buttons square */
+  display: flex;
+  /* Added to center icons */
+  align-items: center;
+  /* Added to center icons vertically */
+  justify-content: center;
+  /* Added to center icons horizontally */
+}
+
+.message-actions .ant-btn .anticon {
+  margin: 0;
+  /* Removed any margin around icons */
+  font-size: 14px;
+  /* Optional: adjust icon size if needed */
+}
+
+.message-content {
+  position: relative;
+}
+
+.message-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-textarea {
+  transition: height 0.3s ease;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
   .message {
-    display: flex;
-    align-items: flex-start;
-    padding: 8px 10px;
-    gap: 10px;
+    padding: 6px 8px;
   }
-  
-  .message-own {
-    flex-direction: row-reverse;
-  }
-  
-  .message-avatar {
-    flex-shrink: 0;
-  }
-  
+
   .message-bubble {
-    position: relative;
-    max-width: 70%;
-    padding: 8px 12px;
-    background: #f1f4f7;
-    border-radius: 12px;
-    word-break: break-word;
-    white-space: pre-wrap;
+    max-width: 80%;
+    padding: 6px 10px;
+    font-size: 14px;
   }
-  
-  .message-own .message-bubble {
-    background: #eaf2fd;
-    /* color: #333; */
-  }
-  
-  .message-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
-  
-  .message-author {
-    font-size: 12px;
-    font-style: italic;
-    color: #888;
-  }
-  
-  .message-own .message-author {
-    /* color: #d9e8ff; Lighter color for readability on blue background */
-    color: #888;
-  }
-  
-  .message-actions {
-    margin-left: 8px;
-  }
-  
-  .message-content {
-    position: relative;
-  }
-  
+
   .message-input {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 0;
   }
-  
-  .message-textarea {
-    transition: height 0.3s ease; /* Smooth height transition for animation */
+
+  .message-actions .ant-btn {
+    height: 18px;
+    width: 18px;
+    /* Adjusted for mobile */
   }
-  
-  /* Mobile adjustments */
-  @media (max-width: 768px) {
-    .message {
-      padding: 6px 8px;
-    }
-  
-    .message-bubble {
-      max-width: 80%;
-      padding: 6px 10px;
-      font-size: 14px;
-    }
-  
-    .message-input {
-      padding: 0;
-    }
-  }
+}

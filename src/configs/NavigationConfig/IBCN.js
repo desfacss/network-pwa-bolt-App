@@ -56,7 +56,7 @@ const navigationConfig = [
         submenu: [],
       },
       feature?.businessDirectory && {
-        key: 'ib_businesses',
+        key: 'businesses',
         path: `${APP_PREFIX_PATH}/businesses`,
         title: 'Businesses',
         icon: ShopOutlined,
@@ -64,7 +64,7 @@ const navigationConfig = [
         submenu: [],
       },
       feature?.memberDirectory && {
-        key: 'ib_members',
+        key: 'members',
         path: `${APP_PREFIX_PATH}/members`,
         title: 'Members',
         icon: UsergroupAddOutlined,

@@ -1,10 +1,10 @@
-import { Button, Drawer, Input, Modal, Avatar, Tooltip } from "antd";
+import { Button, Drawer, Input, Modal, Avatar, Tooltip, Popconfirm } from "antd";
 import { supabase } from "configs/SupabaseConfig";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import PostCard from "./Post";
 import { addMessage, fetchMessages } from "./utils";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import "./message.css";
 
@@ -134,6 +134,20 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
     }
   };
 
+  const handleDeleteMessage = async (messageId) => {
+    const { error } = await supabase
+      .from("channel_post_messages")
+      .delete()
+      .eq("id", messageId);
+
+    if (error) {
+      console.error("Error deleting message:", error);
+    } else {
+      const updatedMessages = await fetchMessages(channel_post_id);
+      setMessages(updatedMessages);
+    }
+  };
+
   return (
     <Drawer
       title={
@@ -192,13 +206,27 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
               <div className="message-header">
                 <span className="message-author">{message?.name}</span>
                 {message?.user_id === session?.user?.id && (
-                  <Button
-                    onClick={() => showEditModal(message.id, message.message)}
-                    type="text"
-                    size="small"
-                    icon={<EditOutlined />}
-                    className="message-actions"
-                  />
+                  <div className="message-actions">
+                    <Button
+                      onClick={() => showEditModal(message.id, message.message)}
+                      type="text"
+                      size="small"
+                      icon={<EditOutlined />}
+                    />
+                    <Popconfirm
+                      title="Are you sure you want to delete this message?"
+                      onConfirm={() => handleDeleteMessage(message.id)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        danger
+                      />
+                    </Popconfirm>
+                  </div>
                 )}
               </div>
               <div className="message-content">

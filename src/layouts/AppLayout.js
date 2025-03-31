@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import SideNav from "components/layout-components/SideNav";
@@ -110,9 +110,6 @@ export const AppLayout = ({
     navigate(path); // Navigate to the clicked item's path
   };
 
-  useEffect(() => {
-    // dispatch(getUserProfile());
-  }, []);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -142,6 +139,7 @@ export const AppLayout = ({
           unselectedTintColor="#949494"
           tintColor="#1890ff"
           barTintColor="#f5f5f5"
+          activeKey={location.pathname}
         >
           {/* {tabBarItems.map((item) => (
             <TabBar.Item
@@ -152,13 +150,13 @@ export const AppLayout = ({
               onPress={() => handleTabClick(item.path)} // Handle navigation
             />
           ))} */}
-          {tabBarItems.map((item) => (
+          {tabBarItems?.map((item) => (
             <TabBar.Item
-              key={item.key}
-              title={item.title}
-              icon={item.icon} // THIS IS THE CRITICAL CHANGE!
-              selected={location.pathname === item.path}
-              onClick={() => handleTabClick(item.path)}
+              key={item?.path}
+              title={item?.title}
+              icon={item?.icon} // THIS IS THE CRITICAL CHANGE!
+              selected={location.pathname === item?.path}
+              onClick={() => handleTabClick(item?.path)}
             />
           ))}
         </StyledTabBar>

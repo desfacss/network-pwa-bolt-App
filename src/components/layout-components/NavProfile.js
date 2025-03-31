@@ -47,6 +47,53 @@ const MenuItem = (props) => (
 );
 
 // RAVI - WHY SIGNOUT NOT WORKING HERE>>
+// const MenuItemSignOut = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+
+//   const onLogOut = async () => {
+//     try {
+//       await dispatch(signOut()).unwrap();
+//       dispatch(setSelectedOrganization(null));
+//       dispatch(setSelectedUser(null));
+//       navigate(`${APP_PREFIX_PATH}/login`);
+//     } catch (error) {
+//       notification.error({ message: "Error signing out" });
+//     }
+//   };
+
+
+//   // TRIAL FROM OLD - WHY SIGNOUT NOT WORKING HERE>>
+// // const MenuItemSignOut = () => {
+// //   const dispatch = useDispatch();
+// //   const navigate = useNavigate();
+
+// //   const onLogOut = async () => {
+// //     try {
+// //       await dispatch(signOut()).unwrap();
+// //       // dispatch(setSelectedOrganization(null));
+// //       // dispatch(setSelectedUser(null));
+// //       // navigate(`${APP_PREFIX_PATH}/login`);
+// //     store.dispatch(setSelectedOrganization());
+// //     store.dispatch(setSelectedUser());
+// //     store.dispatch(setSession());
+// //     navigate(`${APP_PREFIX_PATH}`);
+// //     } catch (error) {
+// //       notification.error({ message: "Error signing out" });
+// //     }
+// //   };
+
+//   return (
+//     <div onClick={onLogOut}>
+//       <Flex alignItems="center" gap={SPACER[2]}>
+//         <Icon><LogoutOutlined /></Icon>
+//         {/* <span>{props.label}</span> */}
+//         <span>Sign Out</span>
+//       </Flex>
+//     </div>
+//   );
+// };
+
 const MenuItemSignOut = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -62,42 +109,27 @@ const MenuItemSignOut = () => {
     }
   };
 
-
-  // TRIAL FROM OLD - WHY SIGNOUT NOT WORKING HERE>>
-// const MenuItemSignOut = () => {
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   const onLogOut = async () => {
-//     try {
-//       await dispatch(signOut()).unwrap();
-//       // dispatch(setSelectedOrganization(null));
-//       // dispatch(setSelectedUser(null));
-//       // navigate(`${APP_PREFIX_PATH}/login`);
-//     store.dispatch(setSelectedOrganization());
-//     store.dispatch(setSelectedUser());
-//     store.dispatch(setSession());
-//     navigate(`${APP_PREFIX_PATH}`);
-//     } catch (error) {
-//       notification.error({ message: "Error signing out" });
-//     }
-//   };
-
-  return (
-    <div onClick={onLogOut}>
-      <Flex alignItems="center" gap={SPACER[2]}>
-        <Icon><LogoutOutlined /></Icon>
-        {/* <span>{props.label}</span> */}
-        <span>Sign Out</span>
-      </Flex>
-    </div>
-  );
+  return onLogOut; // Return the function directly
 };
+
 
 export const NavProfile = ({ mode, profileData, isMobile }) => {
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
   const { session } = useSelector((state) => state.auth);
+
+  const SignOutMenuItem = ({ onLogOut }) => {
+    return (
+      <div onClick={onLogOut}>
+        <Flex alignItems="center" gap={SPACER[2]}>
+          <Icon>
+            <LogoutOutlined />
+          </Icon>
+          <span>Sign Out</span>
+        </Flex>
+      </div>
+    );
+  };
 
   const items = [
     !profileData && {
@@ -112,7 +144,9 @@ export const NavProfile = ({ mode, profileData, isMobile }) => {
     },
     profileData && {
       key: "Sign Out",
-      label: <MenuItemSignOut />,
+      // label: <MenuItemSignOut />,
+      label: <SignOutMenuItem onLogOut={MenuItemSignOut()} />,
+      onClick: MenuItemSignOut(),
     },
   ].filter(Boolean);
 

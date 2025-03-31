@@ -9,6 +9,7 @@ import DynamicForm from '../DynamicForm';
 import Drawer from 'antd/es/drawer';
 import { useNavigate } from 'react-router-dom';
 import ProfilePic from '../Profile/ProfilePic';
+import LoadingComponent from 'components/layout-components/LoadingComponent';
 
 const { Title, Text } = Typography;
 
@@ -140,7 +141,7 @@ const TicketPage = () => {
 
   const handleClose = () => setEdit(false);
 
-  if (!userData) return <div>Loading...</div>;
+  if (!userData) return <LoadingComponent />;
 
   const editProfileData = {
     ...userData,
@@ -164,7 +165,7 @@ const TicketPage = () => {
               <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} className="ticket-logo" />
             </Col>
             <Col>
-              <h4 level={3}>IBCN 2025 Bengaluru</h4> 
+              <h4 level={3}>IBCN 2025 Bengaluru</h4>
             </Col>
             <Col>
               <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '50px' }} className="ticket-logo" />
@@ -177,7 +178,7 @@ const TicketPage = () => {
           <div className="profile-placeholder">
             <ProfilePic />
           </div>
-          <Title level={3}>{userData.name}</Title> 
+          <Title level={3}>{userData.name}</Title>
           <Text>{userData.company}, {userData.city}</Text>
           <Text>
             {userData.native}, {userData.kovil}

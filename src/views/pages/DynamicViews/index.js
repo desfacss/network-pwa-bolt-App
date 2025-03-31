@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, Drawer, Input, Modal, notification, Spin, Tabs, Typography } from 'antd';
+import { Button, Card, Drawer, Input, Modal, notification, Tabs, Typography } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined, TableOutlined, AppstoreOutlined, ScheduleOutlined, BarsOutlined, FundOutlined, CalendarOutlined, DashboardOutlined, SearchOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import { Route, Routes, useNavigate } from 'react-router-dom';
@@ -22,6 +22,7 @@ import DetailsView from './DetailsView';
 import { removeNullFields, transformData } from './utils';
 import PostMessage from '../Channels/PostMessage';
 import { protectedRoutes } from 'configs/RoutesConfig';
+import LoadingComponent from 'components/layout-components/LoadingComponent';
 
 const flattenData = (data, masterObject) => {
     let flatData = {};
@@ -503,7 +504,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         <Card ref={divRef}>
             {loading ? (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                    <Spin size="large" />
+                    <LoadingComponent />
                 </div>
             ) : (data && viewConfig) ? (
                 filterTabItems.length > 1 ? (

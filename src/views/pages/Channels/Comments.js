@@ -15,6 +15,7 @@ import { supabase } from "configs/SupabaseConfig";
 import { useSelector } from "react-redux";
 import CategorySelector from "./CategorySelector";
 import ChannelPostMessages from "./ChannelPostMessages";
+import LoadingComponent from "components/layout-components/LoadingComponent";
 
 const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText, setDrawerVisible, setEditingMessage, drawerVisible, editingMessage }) => {
   const [form] = Form.useForm();
@@ -27,13 +28,14 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
   const [chatDrawerVisible, setChatDrawerVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [likes, setLikes] = useState({}); // State to track likes for each post
+  const [loading, setLoading] = useState(true);
 
   const { session } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchMessages = async () => {
       if (!channel_id) return;
-
+      setLoading(true);
       let query = supabase
         .from("channel_posts")
         .select(
@@ -49,6 +51,7 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
 
       if (error) {
         console.error("Error fetching messages:", error);
+        setLoading(false);
         return;
       }
 
@@ -76,8 +79,8 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
         initialLikes[item.id] = 0; // In a real app, this would come from the backend
       });
       setLikes(initialLikes);
+      setLoading(false);
     };
-
     fetchMessages();
   }, [channel_id, session]);
 
@@ -160,6 +163,12 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
       </span>
     );
   };
+
+  if (loading) {
+    return (
+      <LoadingComponent />
+    );
+  }
 
   return (
     <div className="forum-container">
@@ -244,7 +253,7 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
                 </div>
                 <div className="post-tags">
                   {/* GANESH - SHOW COUNT AND LIKE ICON LATER WITH COUNTS and show them in profile - posts.. */}
-{/* WE ALSO NEED A NOTIFICATION ICON< SO WE CAN SHOW APPROVED CHANNEL REQUESTS, and messages from someone use RPC FUNCTION */}
+                  {/* WE ALSO NEED A NOTIFICATION ICON< SO WE CAN SHOW APPROVED CHANNEL REQUESTS, and messages from someone use RPC FUNCTION */}
                   {/* <span className="post-actions">
                     <Button
                       type="text"
@@ -262,6 +271,11 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
                       </span>
                     )}
                   </span> */}
+                  {item?.reply_count > 0 && (
+                    <span className="post-reply-count">
+                      {item?.reply_count} {item?.reply_count === 1 ? "Reply" : "Replies"}
+                    </span>
+                  )}
                   {item.details?.category_id && (
                     <Tag>
                       {idToNameMap.get(item.details.category_id) || item.details.category_id}
