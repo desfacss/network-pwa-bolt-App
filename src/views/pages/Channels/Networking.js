@@ -116,7 +116,8 @@ const ChannelTabs = ({ onTotalUnreadChange }) => {
       <Tabs.Tab
         title={
           <span>
-            {privateActiveChannel ? privateActiveChannel.slug : 'Private Messages'}{" "}
+            {/* {privateActiveChannel ? privateActiveChannel.slug : 'Private Messages'}{" "} */}
+            Private Messages
             {privateUnreadCount > 0 && (
               <Badge dot={privateUnreadCount}
                 style={{ backgroundColor: '#f5222d' }}
