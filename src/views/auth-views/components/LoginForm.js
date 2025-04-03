@@ -12,6 +12,7 @@ import { APP_PREFIX_PATH } from 'configs/AppConfig';
 export const LoginForm = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const from = localStorage.getItem('redirectFrom') || `${APP_PREFIX_PATH}/dashboard`;
   const { showLoading } = props;
 
   useEffect(() => {
@@ -85,7 +86,8 @@ export const LoginForm = (props) => {
         }
 
         notification.success({ message: "Successfully Logged In" });
-        navigate(`${APP_PREFIX_PATH}/dashboard`);
+        // navigate(`${APP_PREFIX_PATH}/dashboard`);
+        navigate(from);
       }
     } catch (error) {
       notification.error({ message: "Failed to process Google login" });
@@ -113,7 +115,8 @@ export const LoginForm = (props) => {
     const { data, error } = await supabase.auth.signInWithPassword(values);
     if (!error) {
       notification.success({ message: 'Successfully Logged In' });
-      navigate(`${APP_PREFIX_PATH}/dashboard`);
+      // navigate(`${APP_PREFIX_PATH}/dashboard`);
+      navigate(from);
     } else {
       notification.error({ message: error.message || "Invalid credentials" });
     }

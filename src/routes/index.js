@@ -6,11 +6,13 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import AppRoute from "./AppRoute";
 import { useSelector } from "react-redux";
+import { APP_PREFIX_PATH } from 'configs/AppConfig'
 
 const Routes = () => {
   const location = useLocation();
   const { session } = useSelector((state) => state.auth);
   const [filteredProtectedRoutes, setFilteredProtectedRoutes] = useState([]);
+  const from = localStorage.getItem('redirectFrom') || `${APP_PREFIX_PATH}/dashboard`;
 
   // Analytics tracking hook
   useEffect(() => {
@@ -55,13 +57,13 @@ const Routes = () => {
         return true;
       }
     );
-    return isValidPath ? location.pathname : "/app/dashboard";
+    return isValidPath ? location.pathname : from;
   }, [location.pathname, session]);
 
   return (
     <RouterRoutes>
       <Route path="/" element={<ProtectedRoute />}>
-        <Route index element={<Navigate replace to="/app/dashboard" />} />
+        <Route index element={<Navigate replace to={from} />} />
         {filteredProtectedRoutes?.map((route, index) => (
           <Route
             key={route?.key + index}

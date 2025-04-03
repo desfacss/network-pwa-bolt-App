@@ -5,7 +5,7 @@ import { APP_PREFIX_PATH } from 'configs/AppConfig'
 // import { supabase } from 'configs/SupabaseConfig';
 
 const ProtectedRoute = () => {
-	console.log("PR")
+	const location = useLocation();
 	// const location = useLocation();
 	// const PREFIX_PATH = location.pathname.startsWith("/survey") ? SURVEY_PREFIX_PATH : APP_PREFIX_PATH;
 
@@ -16,6 +16,7 @@ const ProtectedRoute = () => {
 	if (!session) {
 		// return <Navigate to={`${AUTH_PREFIX_PATH}${UNAUTHENTICATED_ENTRY}?${REDIRECT_URL_KEY}=${location.pathname}`} replace />;
 		// return <Navigate to={`${AUTH_PREFIX_PATH}/register`} replace />;
+		localStorage.setItem('redirectFrom', location.pathname);
 		return <Navigate to={`${APP_PREFIX_PATH}`} replace />;
 	}
 
