@@ -8,6 +8,7 @@ import {
   Tag,
   Modal,
   Avatar,
+  Badge,
 } from "antd";
 import { EditOutlined, DeleteOutlined, RocketOutlined, HeartOutlined } from "@ant-design/icons";
 import "./styles.css";
@@ -29,6 +30,7 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [likes, setLikes] = useState({}); // State to track likes for each post
   const [loading, setLoading] = useState(true);
+  const [unreadPostCounts, setUnreadPostCounts] = useState({}); // New state for unread counts per post
 
   const { session } = useSelector((state) => state.auth);
 
@@ -79,6 +81,22 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
         initialLikes[item.id] = 0; // In a real app, this would come from the backend
       });
       setLikes(initialLikes);
+
+      // Fetch unread counts for posts
+      const { data: unreadData, error: unreadError } = await supabase.rpc("get_unread_counts", {
+        user_id: session.user.id,
+      });
+
+      if (unreadError) {
+        console.error("Error fetching unread counts:", unreadError);
+      } else {
+        const unreadCounts = unreadData.reduce((acc, row) => {
+          acc[row.channel_post_id] = row.unread_count;
+          return acc;
+        }, {});
+        setUnreadPostCounts(unreadCounts);
+      }
+
       setLoading(false);
     };
     fetchMessages();
@@ -240,12 +258,12 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
                       : item.user?.user_name}
                   </span>
                   <span className="post-timestamp">
-                    {new Date(item.inserted_at).toLocaleTimeString([], {
+                    {new Date(item.updated_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}{" "}
                     ·{" "}
-                    {new Date(item.inserted_at).toLocaleDateString([], { month: "short", day: "numeric" })}
+                    {new Date(item.updated_at).toLocaleDateString([], { month: "short", day: "numeric" })}
                   </span>
                 </div>
                 <div className="post-content">
@@ -273,7 +291,18 @@ const ForumComment = ({ channel_id, isPrivate = false, searchText, setSearchText
                   </span> */}
                   {item?.reply_count > 0 && (
                     <span className="post-reply-count">
-                      {item?.reply_count} {item?.reply_count === 1 ? "Reply" : "Replies"}
+                      <span style={{ color: "#1890ff" }}>
+
+                        {item?.reply_count} {item?.reply_count === 1 ? "Reply" : "Replies"}
+                      </span>
+                      {unreadPostCounts[item.id] > 0 && (
+                        <Badge dot={unreadPostCounts[item.id]}
+                          style={{ backgroundColor: '#f5222d' }} >
+                          {/* <span style={{ color: "red", marginLeft: 8 }}>
+                          ({unreadPostCounts[item.id]} new)
+                        </span> */}
+                        </Badge>
+                      )}
                     </span>
                   )}
                   {item.details?.category_id && (

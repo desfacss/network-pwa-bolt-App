@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import SideNav from "components/layout-components/SideNav";
@@ -7,7 +7,7 @@ import Loading from "components/shared-components/Loading";
 import HeaderNav from "components/layout-components/HeaderNav";
 import PageHeader from "components/layout-components/PageHeader";
 import Footer from "components/layout-components/Footer";
-import { Layout, Grid } from "antd";
+import { Layout, Grid, Badge } from "antd";
 import { TabBar } from "antd-mobile";
 import { TEMPLATE, MEDIA_QUERIES } from "constants/ThemeConstant";
 import styled from "@emotion/styled";
@@ -15,6 +15,7 @@ import utils from "utils";
 import './custom.css';
 import { REACT_APP_WORKSPACE } from "configs/AppConfig";
 import { getNavigationConfig } from "configs/NavigationConfig/navigationUtils";
+import { supabase } from "configs/SupabaseConfig";
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -67,7 +68,26 @@ export const AppLayout = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [unreadCount, setUnreadCount] = useState(0);
   const { session } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (!session?.user?.id) return;
+
+      const { data, error } = await supabase.rpc("get_unread_counts", { user_id: session.user.id });
+      if (error) {
+        console.error("Error fetching unread counts:", error);
+        return;
+      }
+
+      const totalUnread = data.reduce((sum, row) => sum + row.unread_count, 0);
+      setUnreadCount(totalUnread);
+    };
+
+    fetchUnreadCount();
+  }, [session]);
+
   const workspace = session?.user?.organization?.app_settings?.workspace || REACT_APP_WORKSPACE || 'dev';
   const navigationConfig = getNavigationConfig(workspace);
 
@@ -101,7 +121,17 @@ export const AppLayout = ({
     .map((item) => ({
       key: item.key,
       title: item.title,
-      icon: <item.icon />,
+      icon: item.key === 'channels' ?
+        (
+          <span style={{ display: 'flex', alignItems: 'center' }}>
+            <item.icon />
+            <Badge
+              dot={unreadCount}
+              style={{ marginLeft: 8, backgroundColor: '#f5222d' }}
+            />
+          </span>
+        )
+        : <item.icon />,
       path: item.path,
     }));
 

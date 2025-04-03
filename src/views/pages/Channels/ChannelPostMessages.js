@@ -17,6 +17,37 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
   const { session } = useSelector((state) => state.auth);
   const [isInbox, setIsInbox] = useState(null);
 
+  // Function to update last_read in post_read_statuses
+  const updateLastRead = async () => {
+    if (!channel_post_id || !session?.user?.id) return;
+
+    const { data: userData, error: fetchError } = await supabase
+      .from("users")
+      .select("post_read_statuses")
+      .eq("id", session.user.id)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching user data:", fetchError);
+      return;
+    }
+
+    const currentPostReadStatuses = userData?.post_read_statuses || {};
+    const updatedPostReadStatuses = {
+      ...currentPostReadStatuses,
+      [channel_post_id]: new Date().toISOString(), // Set current timestamp
+    };
+
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({ post_read_statuses: updatedPostReadStatuses })
+      .eq("id", session.user.id);
+
+    if (updateError) {
+      console.error("Error updating last_read:", updateError);
+    }
+  };
+
   useEffect(() => {
     const fetchMessagesForChat = async () => {
       if (channel_post_id) {
@@ -52,8 +83,10 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
         }
       }
     };
+
     if (visible) {
       fetchMessagesForChat();
+      updateLastRead(); // Update last_read when drawer opens
     }
 
     const channel = supabase
@@ -66,8 +99,8 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
           table: "channel_post_messages",
           filter: `channel_post_id=eq.${channel_post_id}`,
         },
-        payload => {
-          setMessages(prevMessages => [...prevMessages, payload.new]);
+        (payload) => {
+          setMessages((prevMessages) => [...prevMessages, payload.new]);
         }
       )
       .subscribe();
@@ -80,6 +113,7 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
   const handleAddMessage = async () => {
     if (newMessage.trim() === "" || !channel_post_id) return;
     await addMessage(channel_post_id, session?.user?.user_name, newMessage, session?.user?.id, isInbox);
+    console.log("vv", channel_post_id, session?.user?.user_name, newMessage, session?.user?.id, isInbox)
     setNewMessage("");
   };
 
@@ -153,7 +187,7 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
       title={
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 32 }}>
           <span style={{ fontSize: "16px" }}>Messages</span>
-          <Button onClick={onClose} size="small">
+          <Button onClick={() => { updateLastRead(); onClose() }} size="small">
             Back
           </Button>
         </div>
@@ -161,16 +195,16 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
       placement="bottom"
       height="100%"
       open={visible}
-      onClose={onClose}
+      onClose={() => { updateLastRead(); onClose() }}
       bodyStyle={{ padding: "10px", display: "flex", flexDirection: "column" }}
       headerStyle={{ padding: "8px 16px" }}
       footer={
         <div className="message-input">
           <Input.TextArea
             value={newMessage}
-            onChange={e => setNewMessage(e.target.value)}
+            onChange={(e) => setNewMessage(e.target.value)}
             autoSize={{ minRows: 1, maxRows: 2 }}
-            onPressEnter={e => {
+            onPressEnter={(e) => {
               e.preventDefault();
               handleAddMessage();
             }}
@@ -192,7 +226,7 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
     >
       <PostCard channel_post_id={channel_post_id} />
       <ul className="message-list">
-        {messages?.map(message => (
+        {messages?.map((message) => (
           <li
             key={message.id}
             className={`message ${message.user_id === session?.user?.id ? "message-own" : "message-other"}`}
@@ -219,12 +253,7 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
                       okText="Yes"
                       cancelText="No"
                     >
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        danger
-                      />
+                      <Button type="text" size="small" icon={<DeleteOutlined />} danger />
                     </Popconfirm>
                   </div>
                 )}
@@ -262,7 +291,7 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
       >
         <Input.TextArea
           value={editMessageContent}
-          onChange={e => setEditMessageContent(e.target.value)}
+          onChange={(e) => setEditMessageContent(e.target.value)}
           autoSize={{ minRows: 3, maxRows: 6 }}
         />
       </Modal>

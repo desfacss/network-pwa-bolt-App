@@ -21,7 +21,7 @@ const useMediaQuery = (query) => {
   return matches;
 };
 
-const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChannelChange prop
+const Channels = ({ isPrivate = false, onChannelChange, onUnreadCountChange, setUnreadCounts }) => {
   const [channels, setChannels] = useState([]);
   const [activeChannel, setActiveChannel] = useState(null);
   const [newChannelSlug, setNewChannelSlug] = useState('');
@@ -32,12 +32,15 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
   const [searchText, setSearchText] = useState('');
   const [editingMessage, setEditingMessage] = useState(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [unreadCounts, setLocalUnreadCounts] = useState({}); // Renamed local state to avoid conflict
+  const [totalPublicMinusActive, setTotalPublicMinusActive] = useState(0);
 
   const { session } = useSelector((state) => state.auth);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   useEffect(() => {
     fetchChannels();
+    fetchUnreadCounts();
   }, [isPrivate]);
 
   const fetchChannels = async () => {
@@ -53,11 +56,12 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
       console.error('Error fetching channels:', error);
       message.error("Failed to load channels.");
     } else {
+      console.log(`Fetched ${isPrivate ? 'private' : 'public'} channels:`, data);
       setChannels(data);
       if (data.length > 0 && !activeChannel) {
         setActiveChannel(data[0]);
-        if (!isPrivate && onChannelChange) {
-          onChannelChange(data[0]); // Update tab label with first channel
+        if (onChannelChange) {
+          onChannelChange(data[0]);
         }
       }
     }
@@ -80,6 +84,70 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
     }
   };
 
+  const fetchUnreadCounts = async () => {
+    if (!session?.user?.id) return;
+
+    const { data: channelData, error: channelError } = await supabase
+      .from('channels')
+      .select('id')
+      .eq('is_inbox', isPrivate);
+
+    if (channelError) {
+      console.error('Error fetching channels for unread count:', channelError);
+      return;
+    }
+
+    const channelIds = channelData.map(channel => channel.id);
+    console.log(`Channel IDs for ${isPrivate ? 'private' : 'public'}:`, channelIds);
+
+    const { data, error } = await supabase.rpc("get_unread_counts", { user_id: session.user.id });
+
+    if (error) {
+      console.error("Error fetching unread counts:", error);
+      return;
+    }
+
+    console.log('Raw unread counts from RPC:', data);
+
+    const countsByChannel = data
+      .filter(row => channelIds.includes(row.channel_id))
+      .reduce((acc, row) => {
+        acc[row.channel_id] = (acc[row.channel_id] || 0) + row.unread_count;
+        return acc;
+      }, {});
+
+    console.log(`Filtered unread counts for ${isPrivate ? 'private' : 'public'}:`, countsByChannel);
+
+    setLocalUnreadCounts(countsByChannel); // Update local state
+    setUnreadCounts(prev => ({ ...prev, ...countsByChannel })); // Update parent state
+
+    const totalUnread = Object.values(countsByChannel).reduce((sum, count) => sum + count, 0);
+    console.log(`Total unread for ${isPrivate ? 'private' : 'public'}: ${totalUnread}`);
+    if (onUnreadCountChange) {
+      onUnreadCountChange(totalUnread, activeChannel?.id);
+    }
+
+    // Calculate total public minus active channel count
+    if (!isPrivate) {
+      const totalMinusActive = Object.entries(countsByChannel)
+        .filter(([channelId]) => channelId !== activeChannel?.id)
+        .reduce((sum, [, count]) => sum + count, 0);
+      setTotalPublicMinusActive(totalMinusActive);
+    }
+  };
+
+  useEffect(() => {
+    if (!isPrivate && activeChannel) {
+      const totalMinusActive = Object.entries(unreadCounts)
+        .filter(([channelId]) => channelId !== activeChannel.id)
+        .reduce((sum, [, count]) => sum + count, 0);
+      setTotalPublicMinusActive(totalMinusActive);
+      if (onUnreadCountChange) {
+        onUnreadCountChange(unreadCounts[activeChannel.id] || 0, activeChannel.id);
+      }
+    }
+  }, [activeChannel, unreadCounts, isPrivate, onUnreadCountChange]);
+
   const showModal = () => setIsModalVisible(true);
   const handleOk = () => {
     handleAddChannel();
@@ -100,6 +168,7 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
     } else {
       setNewChannelSlug('');
       fetchChannels();
+      fetchUnreadCounts();
     }
   };
 
@@ -110,9 +179,10 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
       message.error("Failed to delete channel.");
     } else {
       fetchChannels();
+      fetchUnreadCounts();
       setActiveChannel(channels.length > 1 ? channels[0] : null);
-      if (!isPrivate && onChannelChange) {
-        onChannelChange(channels.length > 1 ? channels[0] : null); // Update tab label
+      if (onChannelChange) {
+        onChannelChange(channels.length > 1 ? channels[0] : null);
       }
       message.success("Channel deleted successfully!");
     }
@@ -157,6 +227,7 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
 
     await supabase.from('users').update({ subscriptions: newSubscriptions }).eq('id', userId);
     fetchChannels();
+    fetchUnreadCounts();
   };
 
   const renderChannelContent = (channel) => {
@@ -184,8 +255,8 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
       onClick={({ key }) => {
         const selectedChannel = channels.find(c => c.slug === key);
         setActiveChannel(selectedChannel);
-        if (!isPrivate && onChannelChange) {
-          onChannelChange(selectedChannel); // Update tab label when channel is selected
+        if (onChannelChange) {
+          onChannelChange(selectedChannel);
         }
         setIsChannelsDrawerVisible(false);
       }}
@@ -195,6 +266,11 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
         <Menu.Item key={channel.slug}>
           <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {channel.slug}
+            {unreadCounts[channel.id] > 0 && (
+              <span style={{ color: 'red', marginLeft: 8 }}>
+                ({unreadCounts[channel.id]})
+              </span>
+            )}
             {(session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
               <Popconfirm
                 title={`Are you sure to delete ${channel.slug}?`}
@@ -246,7 +322,6 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
   return (
     <div style={{ padding: 0 }}>
       <Card style={{ width: '100%' }}>
-        {/* Top Row: Channel Name and Channels Button */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -254,26 +329,20 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
           flexWrap: 'wrap'
         }}>
           {!isPrivate && (<h3 style={{ margin: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {/* {activeChannel ? activeChannel.slug : 'Select a Channel'} */}
             {" "}
           </h3>)}
           {(!isPrivate) && !isDesktop && session?.user?.features?.feature?.channels && (
             <Button
               type="primary" className='fab-button' shape="circle"
-              // onClick={() => setIsMessageDrawerVisible(true)}
-              // style={{ minWidth: 200 }}
               icon={<PlusOutlined />}
               onClick={() => {
                 setEditingMessage(null);
                 setDrawerVisible(true);
               }}
-            // style={{ flex: 1, minWidth: "38%" }}
-            >
-            </Button>
+            />
           )}
         </div>
 
-        {/* Search and Post Message Row */}
         {!isPrivate && (
           <div style={{
             display: 'flex',
@@ -287,21 +356,21 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               style={{ flex: 1, minWidth: isDesktop ? "48%" : "58" }}
-            // style={{ borderColor: '#ccceee', color: '#333333', flex: 1, minWidth: 0 }}
             />
             <Button type='primary'
               icon={<MenuOutlined />}
               onClick={() => setIsChannelsDrawerVisible(true)}
               style={{ flex: 1, minWidth: isDesktop ? "40%" : "38" }}
             >
-              Channels
+              Channels {totalPublicMinusActive > 0 && `(${totalPublicMinusActive})`}
+              {/* Channels{" "}
+              {totalPublicMinusActive > 0 && (
+                <span style={{ color: "red" }}>({totalPublicMinusActive})</span>
+              )} */}
             </Button>
             {(!isPrivate) && isDesktop && session?.user?.features?.feature?.channels && (
               <Button
                 type="primary"
-                // onClick={() => setIsMessageDrawerVisible(true)}
-                // style={{ minWidth: 200 }}
-                // icon={<PlusOutlined />}
                 onClick={() => {
                   setEditingMessage(null);
                   setDrawerVisible(true);
@@ -313,7 +382,6 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
           </div>
         )}
 
-        {/* Channels Drawer (Right Side) */}
         <Drawer
           title="Channels"
           placement="right"
@@ -324,7 +392,6 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
           {renderMenu()}
         </Drawer>
 
-        {/* Message Drawer */}
         <Drawer
           title="New Message"
           placement="bottom"
@@ -340,17 +407,12 @@ const Channels = ({ isPrivate = false, onChannelChange }) => { // Added onChanne
           />
         </Drawer>
 
-        {/* Channel Content */}
         {activeChannel && (
           <div>
             {renderChannelContent(activeChannel)}
           </div>
         )}
       </Card>
-      {/* <h3>Find members and Send private message <span style={{ color: 'blue', cursor: 'pointer' }} onClick={handleNavigateToMembers}>from here...</span></h3>
-      <div style={{ textAlign: "center;" }}>
-        <h4>Find members and Send private message <Link to={`${APP_PREFIX_PATH}/members`}> from here...</Link></h4>
-      </div> */}
       {!isPrivate && (
         <Modal
           title="Add New Channel"
