@@ -162,7 +162,7 @@ const TicketPage = () => {
         <div className="ticket-section event-section">
           <Row justify="space-between" align="middle">
             <Col>
-              <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '50px' }} className="ticket-logo" loading="lazy"/>
+              <img src="/img/ibcn/ibcn.png" alt="IBCN Logo" style={{ height: '50px' }} className="ticket-logo" loading="lazy"/>
             </Col>
             <Col>
               <h4 level={3}>IBCN 2025 Bengaluru</h4>

@@ -10,7 +10,7 @@ const IntroScreen = () => {
     {
       title: "Welcome IBCN NetworkX",
       content: "Stay updated with the event schedule, speakers, & plan for your breakout sessions...",
-      image: "/img/ibcn/landing/Chetti1.png",
+      image: "/img/ibcn/landing/Chetti1.webp",
       leaves: [
         { color: 'red', position: { top: '10%', left: '20%' }, size: { width: '350px', height: '200px' } },
         { color: 'blue', position: { top: '60%', left: '-10%' }, size: { width: '400px', height: '280px' } },
@@ -19,7 +19,7 @@ const IntroScreen = () => {
     {
       title: "Meet & Connect",
       content: "Engage with industry leaders and fellow attendees & Discover new collaborations and business opportunities.",
-      image: "/img/ibcn/landing/Chetti2.png",
+      image: "/img/ibcn/landing/Chetti2.webp",
       leaves: [
         {
           color: 'yellow', // Light yellow
@@ -48,7 +48,7 @@ const IntroScreen = () => {
       //         "Understand the aspirations of the next generation.",
       //         "Support collaboration and business growth through networking."
 
-      image: "/img/ibcn/landing/Chetti3.png",
+      image: "/img/ibcn/landing/Chetti3.webp",
       leaves: [
         {
           color: 'blue', // Light blue
@@ -154,7 +154,7 @@ const IntroScreen = () => {
           background: '#fff',
         }}
       >
-        <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: '70px' }} loading="lazy"/>
+        <img src="/img/ibcn/ibcn.png" alt="IBCN Logo" style={{ height: '70px' }} loading="lazy"/>
         <h2 style={{ margin: 0 }}>IBCN NetworkX</h2>
         <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: '70px' }} loading="lazy"/>
       </div>

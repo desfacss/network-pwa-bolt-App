@@ -133,7 +133,7 @@ export const HeaderNav = (props) => {
                     {navCollapsed && <CaretRightOutlined className="nav-icon" style={{ fontSize: '90%', color: '#999' }} />}
                     {/* {isMobile && <MenuUnfoldOutlined className="nav-icon" />} */}
                     {/* {isMobile && <img src={`/img/ibcn/light.png`} alt="Unfold Menu" className="nav-icon" style={{ width: '24px', height: '24px' }} />} */}
-                    {isMobile && <img src={"/img/ibcn/ibcn.jpeg"} loading="lazy" alt="ibcn" className="nav-icon" style={{ height: '56px' }} />}
+                    {isMobile && <img src={"/img/ibcn/ibcn.png"} loading="lazy" alt="ibcn" className="nav-icon" style={{ height: '56px' }} />}
                     {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
@@ -206,7 +206,7 @@ export const HeaderNav = (props) => {
             {/* <div className="border-bottom d-flex justify-content-between align-items-center px-3 py-2">
               <Button onClick={onLogOut}>LogOut</Button>
             </div> */}
-            {/* <img src="/img/ibcn/ibcn.jpeg" alt="IBCN Logo" style={{ height: "70px" }} />
+            {/* <img src="/img/ibcn/ibcn.png" alt="IBCN Logo" style={{ height: "70px" }} />
             <h1 style={{ margin: 0 }}>IBCN NetworkX</h1> */}
             {/* <LivePollHeaderButton /> */}
           </NavEdge>

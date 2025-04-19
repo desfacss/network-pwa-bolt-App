@@ -1599,7 +1599,7 @@ const Profile = () => {
                 style={{
                     height: '50vh',
                     minHeight: '200px',
-                    backgroundImage: `url('/img/ibcn/ibcn-banner.jpg')`,
+                    backgroundImage: `url('/img/ibcn/ibcn-banner.webp')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center -55px',
                     position: 'relative',

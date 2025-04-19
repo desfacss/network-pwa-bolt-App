@@ -390,13 +390,13 @@ const Schedule = () => {
     '/img/sponsors/platinum/3.png',
   ];
   const goldSponsors = [
-    '/img/sponsors/gold/2.png',
-    '/img/sponsors/gold/3.png',
-    '/img/sponsors/gold/4.png',
-    '/img/sponsors/gold/5.png',
-    '/img/sponsors/gold/6.png',
-    '/img/sponsors/gold/7.png',
-    '/img/sponsors/gold/8.png',
+    '/img/sponsors/gold/2.webp',
+    '/img/sponsors/gold/3.webp',
+    '/img/sponsors/gold/4.webp',
+    '/img/sponsors/gold/5.webp',
+    '/img/sponsors/gold/6.webp',
+    '/img/sponsors/gold/7.webp',
+    '/img/sponsors/gold/8.webp',
   ];
 
   // Carousel settings for sponsors (only used for Gold Sponsors now)
@@ -440,7 +440,7 @@ const Schedule = () => {
         style={{
           height: '40vh',
           minHeight: '300px',
-          backgroundImage: `url('/img/ibcn/ibcn-banner.jpg')`,
+          backgroundImage: `url('/img/ibcn/ibcn-banner.webp')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center -55px',
           position: 'relative',
