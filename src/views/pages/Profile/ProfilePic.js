@@ -186,7 +186,7 @@ const ProfilePic = ({ imageUrl }) => {
 
     const uploadButton = (
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-            <img
+            <img loading="lazy"
                 src="/img/ibcn/profile.png"
                 alt="Upload profile"
                 style={{

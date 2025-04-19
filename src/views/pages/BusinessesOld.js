@@ -45,7 +45,7 @@ const Businesses = () => {
                         title={business.info?.companyName || 'Business Name'}
                         style={{ width: 300, cursor: 'pointer', transition: 'box-shadow 0.3s' }}
                         cover={
-                            <img
+                            <img loading="lazy"
                                 alt="Business Profile"
                                 src={`https://via.placeholder.com/300x200?text=${business.info?.companyName || 'Business'}`}
                             />

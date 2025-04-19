@@ -133,7 +133,7 @@ export const HeaderNav = (props) => {
                     {navCollapsed && <CaretRightOutlined className="nav-icon" style={{ fontSize: '90%', color: '#999' }} />}
                     {/* {isMobile && <MenuUnfoldOutlined className="nav-icon" />} */}
                     {/* {isMobile && <img src={`/img/ibcn/light.png`} alt="Unfold Menu" className="nav-icon" style={{ width: '24px', height: '24px' }} />} */}
-                    {isMobile && <img src={"/img/ibcn/ibcn.jpeg"} alt="ibcn" className="nav-icon" style={{ height: '56px' }} />}
+                    {isMobile && <img src={"/img/ibcn/ibcn.jpeg"} loading="lazy" alt="ibcn" className="nav-icon" style={{ height: '56px' }} />}
                     {/* <Input
                       placeholder="Search Tasks..." style={{ width: 300 }}
                       prefix={
@@ -199,7 +199,7 @@ export const HeaderNav = (props) => {
               {session?.user?.features?.feature?.notifications && session?.user?.organization?.module_features?.notifications && !isMobile && <Notifications />}
               {/* <Button onClick={onLogOut}>LogOut</Button> */}
               <img src="/img/ibcn/knba.png" alt="KNBA Logo" //style={{ height: "70px" }} 
-                style={{ height: '56px' }} //className="nav-icon"
+                style={{ height: '56px' }} loading="lazy"//className="nav-icon"
               />
             </div>
             {session && <NavProfile profileData={session} mode={navMode} isMobile={isMobile} />}

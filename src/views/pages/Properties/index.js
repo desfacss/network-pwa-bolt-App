@@ -179,7 +179,7 @@ const PropertyListing = () => {
           </Select>
         </Col>
         <Col>
-          <Button icon={<img src="https://img.icons8.com/?size=100&id=609&format=png" alt="Expert Pro Agents" style={{ width: 20, height: 20 }} />} style={{ border: 'none', padding: '0 8px' }}>
+          <Button icon={<img loading="lazy" src="https://img.icons8.com/?size=100&id=609&format=png" alt="Expert Pro Agents" style={{ width: 20, height: 20 }} />} style={{ border: 'none', padding: '0 8px' }}>
             Expert Pro Agents
           </Button>
         </Col>
@@ -213,7 +213,7 @@ const PropertyListing = () => {
           >
             <Card
               cover={
-                <img
+                <img loading="lazy"
                   alt={property.title}
                   src={property.image_url || 'https://picsum.photos/300/200?random'}
                   style={{ objectFit: 'cover', height: 200, width: '100%' }}

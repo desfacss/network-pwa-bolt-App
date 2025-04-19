@@ -322,7 +322,7 @@ const SurveyLayout = ({ children }) => {
                       justifyContent: 'center',
                     }}
                   >
-                    <img
+                    <img loading="lazy"
                       className="img-fluid mb-5"
                       src="/img/others/img-19.png"
                       alt=""
@@ -332,7 +332,7 @@ const SurveyLayout = ({ children }) => {
                       // src="/img/ukpe_logo.png"
                       src={`/img/${workspace}/logo_light.png`}
                       alt={`${workspace}`} style={{ height: '30px' }} /> */}
-                      <img
+                      <img loading="lazy"
                         src={`/img/${workspace}/logo_light.png`}
                         alt={`${workspace}`}
                         style={{ height: '30px' }}

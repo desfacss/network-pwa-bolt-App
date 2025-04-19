@@ -248,7 +248,7 @@ const Profile = () => {
                 <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '20px' }}>
                     {/* Cover and Profile Picture */}
                     <div style={{ position: 'relative', height: '300px', overflow: 'hidden', borderRadius: '8px', marginBottom: '20px' }}>
-                        <img
+                        <img loading="lazy"
                             src="https://via.placeholder.com/1920x300" // Replace with your cover image URL
                             alt="Cover"
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}

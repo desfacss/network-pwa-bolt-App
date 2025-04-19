@@ -34,7 +34,7 @@ const IBCNLayout = ({ children }) => {
                         </div>
                         <Row justify="center">
                             <Col xs={0} sm={0} md={0} lg={20}>
-                                <img
+                                <img loading="lazy"
                                     className="img-fluid mb-5"
                                     src="/img/others/img-19.png"
                                     alt=""

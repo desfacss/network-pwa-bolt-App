@@ -87,7 +87,7 @@ const PropertyListing = () => {
           >
             <Card
               cover={
-                <img
+                <img loading="lazy"
                   alt={property.title}
                   src={property.image_url || 'https://picsum.photos/300/200?random'}
                   style={{ objectFit: 'cover', height: 200, width: '100%' }}

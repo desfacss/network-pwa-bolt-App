@@ -24,7 +24,7 @@ const ErrorOne = () => {
 							</Link>
 						</Col>
 						<Col xs={24} sm={24} md={{ span: 14, offset: 2 }}>
-							<img className="img-fluid mt-md-0 mt-4" src="/img/others/img-20.png" alt="" />
+							<img className="img-fluid mt-md-0 mt-4" src="/img/others/img-20.png" alt="" loading="lazy" />
 						</Col>
 					</Row>
 				</div>

@@ -32,7 +32,7 @@ const Template = () => {
     return (
       <div style={{ display: 'flex', justifyContent: alignment, marginBottom: '10px' }}>
         {field?.type === 'image' ? (
-          <img src={field?.source} alt={field?.label} style={{ maxWidth: field?.width || 'auto' }} />
+          <img loading="lazy" src={field?.source} alt={field?.label} style={{ maxWidth: field?.width || 'auto' }} />
         ) : field?.type === 'text' ? (
           <p>{field?.value}</p>
         ) : field?.type === 'signature' ? (
