@@ -40,10 +40,10 @@ const IBCNLayout = ({ children }) => {
                                     alt=""
                                 />
                                 <div>
-                                    <h6>TimeTrack</h6>
+                                    <h6>IBCN</h6>
                                     {/* <img src="/img/ibcn.png" alt="logo" style={{ height: '200px' }} /> */}
                                 </div><br /><br />
-                                <h1 className="text-white">TimeTrack</h1>
+                                <h1 className="text-white">IBCN</h1>
                             </Col>
                         </Row>
                         <div className="d-flex justify-content-end pb-4">
