@@ -66,7 +66,7 @@ export const Logo = ({ mobileLogo, logoType }) => {
       style={{ width: `${getLogoWidthGutter()}` }}
     >
       {/* <img src={getLogo()} alt={`${workspace} logo`} height={isMobile ? '25px' : '25px'} /> */}
-      <img
+      <img loading="lazy"
         // src={`/img/${workspace}/logo_light.png`}
         // alt={`${workspace}`}
         src={getLogo()} alt={`${workspace} logo`} height={isMobile ? '25px' : '25px'}

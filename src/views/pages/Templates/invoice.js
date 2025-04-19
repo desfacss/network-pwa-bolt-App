@@ -149,7 +149,7 @@ const InvoiceEntryPage = () => {
       {/* Header Section */}
       <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col span={12}>
-          <img
+          <img loading="lazy"
             src="https://via.placeholder.com/150"
             alt="Company Logo"
             style={{ height: '80px', marginBottom: 16 }}

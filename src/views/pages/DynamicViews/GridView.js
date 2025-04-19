@@ -119,7 +119,7 @@ const GridView = ({ data, viewConfig, fetchConfig, updateData, searchText, setSe
     const content = value && (
       <Text style={{ ...style, display: 'block', whiteSpace: style?.ellipsis ? 'nowrap' : 'normal', overflow: style?.ellipsis ? 'hidden' : 'visible', textOverflow: style?.ellipsis ? 'ellipsis' : 'clip' }}>
         {imageUrl ? (
-          <img
+          <img loading="lazy"
             src={imageUrl}
             alt="Profile"
             style={{

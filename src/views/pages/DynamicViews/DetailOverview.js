@@ -90,7 +90,7 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, owne
             if (imageUrl && imageUrl !== ' - - ' && !editable) {
                 return (
                     <div key={field.fieldPath || imagePath} style={{ marginBottom: 8, textAlign: 'left' }}>
-                        <img
+                        <img loading="lazy"
                             src={imageUrl}
                             alt="Profile"
                             style={{
@@ -109,7 +109,7 @@ const DetailOverview = ({ data, config, openMessageModal, editable = false, owne
 
         // Render image if imagePath is provided and editable is false
         const imageElement = imageUrl && !editable ? (
-            <img
+            <img loading="lazy"
                 src={imageUrl}
                 alt={label || 'Image'}
                 style={{

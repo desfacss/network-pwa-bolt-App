@@ -168,7 +168,7 @@ const ReportComponent = () => {
                         <div style={{ marginTop: '24px' }} ref={reportDataRef} className="report-container">
                             {/* Print-specific Header */}
                             <div className="report-header">
-                                <img src="/img/ukpe_logo_dark.png" alt="Logo" className="app-logo" />
+                                <img loading="lazy" src="/img/ukpe_logo_dark.png" alt="Logo" className="app-logo" />
                                 <Title level={4} style={{ color: '#fa8c16' }}>
                                     Report Summary - {users.find((user) => user.id === userId)?.user_name || "N/A"}
                                 </Title>

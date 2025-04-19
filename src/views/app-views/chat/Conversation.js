@@ -61,7 +61,7 @@ const Conversation = () => {
 			case 'text':
 				return <span>{obj.text}</span>
 			case 'image':
-				return <img src={obj.text} alt={obj.text} />
+				return <img src={obj.text} alt={obj.text} loading="lazy"/>
 			case 'file':
 				return (
 					<Flex alignItems="center" className="msg-file">

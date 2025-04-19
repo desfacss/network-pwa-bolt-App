@@ -574,7 +574,7 @@ const Schedule = () => {
         <Row gutter={[16, 16]} justify="center" style={{ marginBottom: '15px' }}>
           {platinumSponsors.map((src, index) => (
             <Col xs={8} sm={8} md={4} key={index}>
-              <img
+              <img loading="lazy"
                 src={`${window.location.origin}${src}`}
                 alt={`Platinum Sponsor ${index + 1}`}
                 style={{
@@ -600,7 +600,7 @@ const Schedule = () => {
         <Carousel {...sponsorCarouselSettings}>
           {goldSponsors.map((src, index) => (
             <div key={index} style={{ textAlign: 'center' }}>
-              <img
+              <img loading="lazy"
                 src={`${window.location.origin}${src}`}
                 alt={`Gold Sponsor ${index + 1}`}
                 style={{
