@@ -1,21 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { Button, Card, Drawer, Input, Modal, notification, Tabs, Typography } from 'antd';
 import { FullscreenOutlined, FullscreenExitOutlined, TableOutlined, AppstoreOutlined, ScheduleOutlined, BarsOutlined, FundOutlined, CalendarOutlined, DashboardOutlined, SearchOutlined } from "@ant-design/icons";
 import { supabase } from 'configs/SupabaseConfig';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import TableView from './TableView';
-import GridView from './GridView';
-import KanbanView from './KanbanView';
-import GanttView from './GanttView';
-import CalendarView from './CalendarView';
 import { renderFilters, snakeCaseToTitleCase } from 'components/util-components/utils';
-import Schedule from './TimelineView';
 import { useSelector } from 'react-redux';
 import WorkflowStageModal from './WorkflowStageModal';
 import { toggleFullscreen } from 'components/common/utils';
 import useTabWithHistory from 'components/common/TabHistory';
-import Dashboard from './Dashboard';
 import ExportImportButtons from './CSVOptions';
 import DynamicForm from '../DynamicForm';
 import DetailsView from './DetailsView';
@@ -23,6 +16,15 @@ import { removeNullFields, transformData } from './utils';
 import PostMessage from '../Channels/PostMessage';
 import { protectedRoutes } from 'configs/RoutesConfig';
 import LoadingComponent from 'components/layout-components/LoadingComponent';
+
+// Lazy load view components
+// const TableView = React.lazy(() => import('./TableView'));
+const GridView = React.lazy(() => import('./GridView'));
+// const KanbanView = React.lazy(() => import('./KanbanView'));
+// const GanttView = React.lazy(() => import('./GanttView'));
+// const CalendarView = React.lazy(() => import('./CalendarView'));
+// const Schedule = React.lazy(() => import('./TimelineView'));
+// const Dashboard = React.lazy(() => import('./Dashboard'));
 
 const flattenData = (data, masterObject) => {
     let flatData = {};
@@ -56,12 +58,10 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [loading, setLoading] = useState(true);
     const [messageReceiverId, setMessageReceiverId] = useState(null);
     const [selectedTab, setSelectedTab] = useState(tabOptions?.[0]?.key || '');
-    const [selectedView, setSelectedView] = useState(null); // Initially null, set after viewItems is computed
-
+    const [selectedView, setSelectedView] = useState(null);
     const [drawerPath, setDrawerPath] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalPath, setModalPath] = useState(null);
-    // const history = useHistory();
     const navigate = useNavigate();
 
     const openDrawerWithPath = (path) => {
@@ -88,22 +88,21 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         if (path) {
             switch (mode) {
                 case 'navigate':
-                    navigate(path); // Navigate in current tab
+                    navigate(path);
                     break;
                 case 'new-tab':
-                    window.open(path, '_blank', 'noopener,noreferrer'); // Open in new tab
+                    window.open(path, '_blank', 'noopener,noreferrer');
                     break;
                 case 'modal':
-                    openModalWithPath(path); // Open in Modal
+                    openModalWithPath(path);
                     break;
                 case 'drawer':
-                    openDrawerWithPath(path); // Open in Drawer
+                    openDrawerWithPath(path);
                     break;
                 default:
-                    navigate(path); // Default to navigate
+                    navigate(path);
             }
         } else {
-            // Handle existing form/view logic
             setEditItem(item);
             setViewMode(view);
             setIsDrawerVisible(true);
@@ -111,12 +110,10 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         }
     };
 
-    // Render routes dynamically based on the provided routes prop
     const renderRoutes = (path) => {
-        console.log('Rendering routes for path:', path); // Debug log
+        console.log('Rendering routes for path:', path);
         return (
             <Routes>
-                {/* {routes.map((route, index) => ( */}
                 {protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.map((route, index) => (
                     <Route
                         key={index}
@@ -252,7 +249,6 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
         let query = supabase.from(entityType).select('*').eq('organization_id', session?.user?.organization_id).eq('is_active', true);
 
-        // Apply fetchFilters from parent component
         if (fetchFilters && fetchFilters.length > 0) {
             fetchFilters.forEach(filter => {
                 const { column, value } = filter;
@@ -470,32 +466,33 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
     console.log("GTD", data);
 
-    // Define view items with icons
     const viewItems = [
-        { key: '1', icon: <TableOutlined />, children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
+        // { key: '1', icon: <TableOutlined />, children: <TableView data={data} viewConfig={viewConfig} fetchConfig={fetchConfig} users={users} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
         { key: '2', icon: <AppstoreOutlined />, children: <GridView data={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} setCurrentPage={setCurrentPage} totalItems={totalItems} openMessageModal={handleOpenMessageModal} openDrawerWithPath={enhancedOpenDrawer} searchText={searchText} setSearchText={setSearchText} EmptyMessage={EmptyMessage} /> },
-        { key: '3', icon: <ScheduleOutlined />, children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
-        { key: '4', icon: <BarsOutlined />, children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
-        { key: '5', icon: <FundOutlined />, children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
-        { key: '6', icon: <CalendarOutlined />, children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
-        { key: '8', icon: <DashboardOutlined />, children: <Dashboard data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
+        // { key: '3', icon: <ScheduleOutlined />, children: <Schedule data1={data} viewConfig={viewConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} /> },
+        // { key: '4', icon: <BarsOutlined />, children: <KanbanView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
+        // { key: '5', icon: <FundOutlined />, children: <GanttView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
+        // { key: '6', icon: <CalendarOutlined />, children: <CalendarView data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
+        // { key: '8', icon: <DashboardOutlined />, children: <Dashboard data={data} viewConfig={viewConfig} workflowConfig={workflowConfig} updateData={updateData} deleteData={deleteData} openDrawer={openDrawer} onFinish={handleAddOrEdit} /> },
     ].filter(item =>
         (tabs ? tabs.includes(item.key === '1' ? 'tableview' : item.key === '2' ? 'gridview' : item.key === '3' ? 'timelineview' : item.key === '4' ? 'kanbanview' : item.key === '5' ? 'ganttview' : item.key === '6' ? 'calendarview' : 'dashboardview') : true) &&
         viewConfig?.[item.key === '1' ? 'tableview' : item.key === '2' ? 'gridview' : item.key === '3' ? 'timelineview' : item.key === '4' ? 'kanbanview' : item.key === '5' ? 'ganttview' : item.key === '6' ? 'calendarview' : 'dashboardview']?.showFeatures?.includes('enable_view')
     );
 
-    // Set selectedView to the first available view’s key after viewItems is computed
     useEffect(() => {
         if (viewItems.length > 0 && !selectedView) {
             setSelectedView(viewItems[0].key);
         }
     }, [viewItems, selectedView]);
 
-    // Define filter tab items from tabOptions
     const filterTabItems = tabOptions?.map(option => ({
         label: option.label,
         key: option.key,
-        children: viewItems.length > 0 ? (viewItems.find(view => view.key === selectedView)?.children || viewItems[0].children) : null,
+        children: viewItems.length > 0 ? (
+            <Suspense fallback={<LoadingComponent />}>
+                {viewItems.find(view => view.key === selectedView)?.children || viewItems[0].children}
+            </Suspense>
+        ) : null,
     })) || [];
 
     const memoizedViewConfig = useMemo(() => viewConfig, [viewConfig]);
@@ -507,77 +504,80 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                     <LoadingComponent />
                 </div>
             ) : (data && viewConfig) ? (
-                filterTabItems.length > 1 ? (
-                    <Tabs
-                        tabBarExtraContent={{
-                            right: (
-                                <div style={{ display: "flex", alignItems: "center" }}>
-                                    <div style={{ marginRight: 8 }}>
-                                        {customFilters}
+                <Suspense fallback={<LoadingComponent />}>
+                    {filterTabItems.length > 1 ? (
+                        <Tabs
+                            tabBarExtraContent={{
+                                right: (
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <div style={{ marginRight: 8 }}>
+                                            {customFilters}
+                                        </div>
+                                        {renderFilters(viewConfig?.global?.search, data)}
+                                        {viewItems.length > 1 && viewItems.map(view => (
+                                            <Button
+                                                key={view.key}
+                                                icon={view.icon}
+                                                onClick={() => setSelectedView(view.key)}
+                                                style={{
+                                                    marginRight: 8,
+                                                    color: selectedView === view.key ? '#1890ff' : '#000',
+                                                    border: selectedView === view.key ? '1px solid #1890ff' : '1px solid #d9d9d9',
+                                                }}
+                                            />
+                                        ))}
+                                        {viewConfig?.global?.showFeatures?.includes('fullScreenView') && <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
+                                            {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                                        </Button>}
                                     </div>
-                                    {renderFilters(viewConfig?.global?.search, data)}
-                                    {viewItems.length > 1 && viewItems.map(view => (
-                                        <Button
-                                            key={view.key}
-                                            icon={view.icon}
-                                            onClick={() => setSelectedView(view.key)}
-                                            style={{
-                                                marginRight: 8,
-                                                color: selectedView === view.key ? '#1890ff' : '#000',
-                                                border: selectedView === view.key ? '1px solid #1890ff' : '1px solid #d9d9d9',
-                                            }}
-                                        />
-                                    ))}
-                                    {viewConfig?.global?.showFeatures?.includes('fullScreenView') && <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
-                                        {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                                    </Button>}
+                                ),
+                            }}
+                            activeKey={selectedTab}
+                            onChange={setSelectedTab}
+                            items={filterTabItems}
+                        />
+                    ) : (
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                                <Typography.Title level={4} style={{ margin: 0 }}>
+                                    {filterTabItems.length > 0 && (filterTabItems[0]?.label || 'Default View')}
+                                </Typography.Title>
+                                {viewConfig?.global?.showFeatures?.includes('search') && (
+                                    <Input style={{ marginRight: 8, width: "50%" }} placeholder="Search" prefix={<SearchOutlined />} value={searchText} onChange={e => setSearchText(e.target.value)} />
+                                )}
+                                <div style={{ marginRight: 0, width: "50%" }}>
+                                    {customFilters}
                                 </div>
-                            ),
-                        }}
-                        activeKey={selectedTab}
-                        onChange={setSelectedTab}
-                        items={filterTabItems}
-                    />
-                ) : (
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                            <Typography.Title level={4} style={{ margin: 0 }}>
-                                {filterTabItems.length > 0 && (filterTabItems[0]?.label || 'Default View')}
-                            </Typography.Title>
-                            {/* <div style={{ display: 'flex', alignItems: 'center' }}> */}
-                            {viewConfig?.global?.showFeatures?.includes('search') && (
-                                <Input style={{ marginRight: 8, width: "50%" }} placeholder="Search" prefix={<SearchOutlined />} value={searchText} onChange={e => setSearchText(e.target.value)} />
-                            )}
-                            <div style={{ marginRight: 0, width: "50%" }}>
-                                {customFilters}
+                                {renderFilters(viewConfig?.global?.search, data)}
+                                {viewItems.length > 1 && viewItems.map(view => (
+                                    <Button
+                                        key={view.key}
+                                        icon={view.icon}
+                                        onClick={() => setSelectedView(view.key)}
+                                        style={{
+                                            marginRight: 8,
+                                            color: selectedView === view.key ? '#1890ff' : '#000',
+                                            border: selectedView === view.key ? '1px solid #1890ff' : '1px solid #d9d9d9',
+                                        }}
+                                    />
+                                ))}
+                                {viewConfig?.global?.showFeatures?.includes('fullScreenView') && <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
+                                    {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                                </Button>}
                             </div>
-                            {renderFilters(viewConfig?.global?.search, data)}
-                            {viewItems.length > 1 && viewItems.map(view => (
-                                <Button
-                                    key={view.key}
-                                    icon={view.icon}
-                                    onClick={() => setSelectedView(view.key)}
-                                    style={{
-                                        marginRight: 8,
-                                        color: selectedView === view.key ? '#1890ff' : '#000',
-                                        border: selectedView === view.key ? '1px solid #1890ff' : '1px solid #d9d9d9',
-                                    }}
-                                />
-                            ))}
-                            {viewConfig?.global?.showFeatures?.includes('fullScreenView') && <Button onClick={handleFullscreenToggle} style={{ fontSize: "16px", padding: "8px", cursor: "pointer" }}>
-                                {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                            </Button>}
-                            {/* </div> */}
+                            {viewItems.length > 0 ? (
+                                <Suspense fallback={<LoadingComponent />}>
+                                    {viewItems.find(view => view.key === selectedView)?.children || viewItems[0].children}
+                                </Suspense>
+                            ) : <div>No views available</div>}
                         </div>
-                        {viewItems.length > 0 ? (viewItems.find(view => view.key === selectedView)?.children || viewItems[0].children) : <div>No views available</div>}
-                    </div>
-                )
+                    )}
+                </Suspense>
             ) : (
                 <div>No data or configuration available</div>
             )}
             {vd && <WorkflowStageModal handleWorkflowTransition={handleWorkflowTransition} entityType={entityType} visible={visible} viewConfig={viewConfig} onCancel={() => { fetchData(); setVisible(false); }} data={vd} />}
             <Drawer
-                // width={viewMode ? "100%" : "50%"}
                 width={"100%"}
                 title={
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 32 }}>
@@ -587,7 +587,6 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                         </Button>
                     </div>
                 }
-                // title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}
                 open={isDrawerVisible && !drawerPath}
                 onClose={closeDrawer}
                 footer={null}
@@ -600,7 +599,6 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             </Drawer>
             {messageReceiverId && (
                 <Drawer placement="bottom"
-                    // width={viewMode ? "100%" : "50%"}
                     height={"40%"}
                     title={
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 32 }}>
@@ -610,17 +608,13 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                             </Button>
                         </div>
                     }
-                    // title={viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}
                     open={!!messageReceiverId}
                     onClose={handleCloseModal}
                     footer={null}
                 >
                     <PostMessage user_id={session.user.id} receiver_user_id={messageReceiverId} closeModal={handleCloseModal} />
-                    {/* <Modal title="Send Message" visible={!!messageReceiverId} onCancel={handleCloseModal} footer={null}>
-                </Modal> */}
                 </Drawer>
             )}
-            {/* Drawer for mode: 'drawer' */}
             <Drawer
                 width="90%"
                 title="Details"
@@ -630,8 +624,6 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             >
                 {drawerPath && renderRoutes(drawerPath)}
             </Drawer>
-
-            {/* Modal for mode: 'modal' */}
             <Modal
                 title="Details"
                 visible={isModalVisible}
