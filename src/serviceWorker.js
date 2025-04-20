@@ -9,6 +9,7 @@
 
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
+// importScripts("https://progressier.app/3ugV7gbSxaeE7cuTKjxB/sw.js" );
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||

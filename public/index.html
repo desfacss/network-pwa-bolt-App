@@ -5,11 +5,40 @@
   <meta charset="utf-8" />
   <link rel="icon" type="image/png" sizes="192x192" href="/img/ibcn-192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="/img/ibcn-512.png">
-  <meta name="viewport" content="width=device-width, initial-scale=0.9" id="viewport-meta" />
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=0.9" id="viewport-meta" /> -->
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, viewport-fit=cover" id="viewport-meta" />
+
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="" />
-  <link rel="apple-touch-icon" href="/img/ibcn-192.png" />
+
+
+  <!-- <link rel="apple-touch-icon" href="/img/ibcn-180.png" /> -->
+  <!-- <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"> -->
   <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
+
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" sizes="180x180" href="/img/ibcn-180.png">
+<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 1)" href="LaunchImage~iphone-320x480.png">
+<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-568h@2x~iphone_640x1136.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-750@2x~iphone6-portrait_750x1334.png">
+<link rel="apple-touch-startup-image" media="(device-width: 667px) and (device-height: 375px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-750@2x~iphone6-landscape_1334x750.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-828@2x~iphoneXr-portrait_828x1792.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-1792@2x~iphoneXr-landscape_1792x828.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="LaunchImage-1125@3x~iphoneX-portrait_1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 812px) and (device-height: 375px) and (-webkit-device-pixel-ratio: 3)" href="LaunchImage-2436@3x~iphoneX-landscape_2436x1125.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="LaunchImage-1242@3x~iphoneXsMax-portrait_1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 896px) and (device-height: 414px) and (-webkit-device-pixel-ratio: 3)" href="LaunchImage-2688@3x~iphoneXsMax-landscape_2688x1242.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-1242@3x~iphone6s-portrait_1242x2208.png">
+<link rel="apple-touch-startup-image" media="(device-width: 667px) and (device-height: 375px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-1242@3x~iphone6s-landscape_2208x1242.png">
+<link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-Portrait@2x~ipad_1536x2048.png">
+<link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 768px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-Landscape@2x~ipad_2048x1536.png">
+<link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-Portrait@2x~ipad_1668x2224.png">
+<link rel="apple-touch-startup-image" media="(device-width: 1112px) and (device-height: 834px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-Landscape@2x~ipad_2224x1668.png">
+<link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-Portrait@2x~ipad_2048x2732.png">
+<link rel="apple-touch-startup-image" media="(device-width: 1366px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" href="LaunchImage-Landscape@2x~ipad_2732x2048.png">
+
   <title>IBCN2025 NetworkX</title>
 
 <head>
@@ -18,7 +47,7 @@
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-  <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
   <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -37,6 +66,8 @@
     gtag('js', new Date());
     gtag('config', 'G-3JBKDV7VP0');
   </script>
+
+  
 
   <!-- Hotjar Tracking Code for Site 5352569 -->
   <!-- <script>
@@ -64,7 +95,7 @@
   <!-- End Inspectlet Asynchronous Code -->
 
   <!-- Dynamic Viewport Adjustment -->
-  <script>
+  <!-- <script>
     function adjustViewport() {
       const viewport = document.getElementById('viewport-meta');
       if (!viewport) {
@@ -83,22 +114,36 @@
     // Run after DOM is fully loaded
     document.addEventListener('DOMContentLoaded', adjustViewport);
     window.addEventListener('resize', adjustViewport);
-  </script>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="apple-touch-icon" sizes="180x180" href="/img/ibcn-180.png">
-<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 1)" href="/splash/apple-splash-320x480.png">
-<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" href="/splash/apple-splash-320x568-640x1136@2x.png">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="/splash/apple-splash-375x667-750x1334@2x.png">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" href="/splash/apple-splash-414x736-1242x2208@3x.png">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="/splash/apple-splash-375x812-1125x2436@3x.png">
-<link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" href="/splash/apple-splash-768x1024-1536x2048@2x.png">
-<link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)" href="/splash/apple-splash-834x1112-1668x2224@2x.png">
-<link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)" href="/splash/apple-splash-834x1194-1668x2388@2x.png">
-<link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" href="/splash/apple-splash-1024x1366-2048x2732@2x.png">
+  </script> -->
 
-<link rel="manifest" href="https://progressier.app/3ugV7gbSxaeE7cuTKjxB/progressier.json"/>
-<script defer src="https://progressier.app/3ugV7gbSxaeE7cuTKjxB/script.js"></script>
+
+<script>
+  function adjustViewport() {
+    const viewport = document.getElementById('viewport-meta');
+    if (!viewport) return;
+
+    const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const height = window.innerHeight;
+
+    let content = 'width=device-width, viewport-fit=cover';
+
+    if (isiOS) {
+      content += ', initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    } else {
+      content += height < 700
+        ? ', initial-scale=0.8'
+        : ', initial-scale=0.9';
+    }
+
+    viewport.setAttribute('content', content);
+  }
+
+  document.addEventListener('DOMContentLoaded', adjustViewport);
+  window.addEventListener('resize', adjustViewport);
+</script>
+
+<!-- <link rel="manifest" href="https://progressier.app/3ugV7gbSxaeE7cuTKjxB/progressier.json"/>
+<script defer src="https://progressier.app/3ugV7gbSxaeE7cuTKjxB/script.js"></script> -->
 
 </head>
 

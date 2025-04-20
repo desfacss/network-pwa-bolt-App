@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 // import Channels from "../Channels";
 // import Events from "../ib/Events";
 // import Networking from "../ib/Networking";
-// import Schedule from "../ib/Schedule";
+import Schedule from "../ib/Schedule";
 // import DefaultDashboard from "./DefaultDashboard";
-import DashboaardUKPE from "./ukpe";
+// import DashboaardUKPE from "./ukpe";
 
 const Dashboaard = () => {
     const { session } = useSelector((state) => state.auth);
@@ -15,9 +15,10 @@ const Dashboaard = () => {
     return (
         <>
             {workspace === "ukpe" ? (
-                <DashboaardUKPE />
+                // <DashboaardUKPE />
+                <></>
             ) : workspace === "ibcn" ? (
-                <></>// <Schedule /> //<Channels />//<Networking />
+                <Schedule /> //<Channels />//<Networking />
             ) : (
                 // <Channels />// 
                 // <DefaultDashboard />
