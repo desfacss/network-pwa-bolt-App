@@ -9,7 +9,6 @@
 
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
-// importScripts("https://progressier.app/3ugV7gbSxaeE7cuTKjxB/sw.js" );
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -21,7 +20,7 @@ const isLocalhost = Boolean(
     )
 );
 
-export function register(config) {
+function register(config) {
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
@@ -127,10 +126,15 @@ function checkValidServiceWorker(swUrl, config) {
     });
 }
 
-export function unregister() {
+function unregister() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(registration => {
       registration.unregister();
     });
   }
 }
+
+export default {
+  register,
+  unregister,
+};
