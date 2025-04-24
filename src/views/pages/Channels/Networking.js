@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Badge, Button, Popover } from 'antd-mobile';
-import { LockOutline, MoreOutline } from 'antd-mobile-icons';
+import { LockOutline,MoreOutline } from 'antd-mobile-icons';
 import Channels from './index';
 import { APP_PREFIX_PATH } from 'configs/AppConfig';
 import { Link } from 'react-router-dom';
@@ -183,9 +183,9 @@ const ChannelTabs = ({ onTotalUnreadChange }) => {
               fill={activePill === option.value ? 'solid' : 'outline'}
               style={{
                 ...pillStyle,
-                backgroundColor: activePill === option.value ? '#1890ff' : 'transparent',
-                color: activePill === option.value ? '#fff' : '#000',
-                borderColor: activePill === option.value ? '#1890ff' : '#d9d9d9',
+                // backgroundColor: activePill === option.value ? '#1890ff' : 'transparent',
+                // color: activePill === option.value ? '#fff' : '#000',
+                // borderColor: activePill === option.value ? '#1890ff' : '#d9d9d9',
               }}
               onClick={() => setActivePill(option.value)}
             >
@@ -204,9 +204,10 @@ const ChannelTabs = ({ onTotalUnreadChange }) => {
                 color={activePill === option.value ? 'primary' : 'default'}
                 fill={activePill === option.value ? 'solid' : 'none'}
                 style={{
+                  ...pillStyle,
                   marginBottom: 4,
-                  backgroundColor: activePill === option.value ? '#1890ff' : 'transparent',
-                  color: activePill === option.value ? '#fff' : '#000',
+                  // backgroundColor: activePill === option.value ? '#1890ff' : 'transparent',
+                  // color: activePill === option.value ? '#fff' : '#000',
                 }}
                 onClick={() => {
                   setActivePill(option.value);
@@ -218,7 +219,7 @@ const ChannelTabs = ({ onTotalUnreadChange }) => {
             trigger="click"
             placement="bottom-end"
           >
-            <Button size="small" icon={<MoreOutline />} style={{ marginLeft: '8px' }} />
+            <Button size="small" style={{ marginLeft: '8px',color:"blue" }} ><MoreOutline /></Button>
           </Popover>
         )}
       </div>

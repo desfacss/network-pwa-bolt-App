@@ -309,6 +309,58 @@ setChannels(prevChannels =>
     // fetchUnreadCounts();
   };
 
+  const handleUnsubscribe = async (channelId) => {
+    Modal.confirm({
+      title: 'Unsubscribe from Channel',
+      content: 'Are you sure you want to unsubscribe from this channel?',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        const { data: user, error: userError } = await supabase
+          .from('users')
+          .select('subscriptions')
+          .eq('id', session.user.id)
+          .single();
+  
+        if (userError) {
+          console.error('Error fetching user:', userError);
+          message.error('Failed to unsubscribe from channel.');
+          return;
+        }
+  
+        const currentChannels = user?.subscriptions?.channels || [];
+        const updatedChannels = currentChannels.filter(id => id !== channelId);
+  
+        const newSubscriptions = {
+          ...user?.subscriptions,
+          channels: updatedChannels,
+        };
+  
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ subscriptions: newSubscriptions })
+          .eq('id', session.user.id);
+  
+        if (updateError) {
+          console.error('Error updating subscriptions:', updateError);
+          message.error('Failed to unsubscribe from channel.');
+        } else {
+          setActiveChannel(prev => (prev.id === channelId ? { ...prev, subscriptions: updatedChannels } : prev));
+          setChannels(prevChannels =>
+            prevChannels.map(ch => (ch.id === channelId ? { ...ch, subscriptions: updatedChannels } : ch))
+          );
+          message.success('Unsubscribed from channel successfully!');
+          window.location.reload();
+          if (isPrivate) {
+            fetchChannels();
+          } else {
+            fetchChannel();
+          }
+        }
+      },
+    });
+  };
+
   const renderChannelContent = (targetChannel) => {
     if (!targetChannel) return null;
 
@@ -332,7 +384,8 @@ setChannels(prevChannels =>
     } else if (
       isSubscribed ||
       session.user.id === targetChannel.created_by ||
-      session.user.role_type === 'superadmin'
+      session.user.role_type === 'superadmin'||
+      session.user.role_type === 'admin'
     ) {
       return (
         <ForumComment
@@ -375,7 +428,7 @@ setChannels(prevChannels =>
             {unreadCounts[channel.id] > 0 && (
               <span style={{ color: 'red', marginLeft: 8 }}>({unreadCounts[channel.id]})</span>
             )}
-            {(session.user.id === channel.created_by || session?.user?.role_type === 'superadmin') && (
+            {(session.user.id === channel.created_by || session?.user?.role_type === 'superadmin'|| session?.user?.role_type === 'admin') && (
               <Popconfirm
                 title={`Are you sure to delete ${channel.slug}?`}
                 onConfirm={() => handleDeleteChannel(channel.id)}
@@ -386,7 +439,7 @@ setChannels(prevChannels =>
               </Popconfirm>
             )}
             {channel.join_requests?.length > 0 &&
-              (session.user.id === channel?.created_by || session?.user?.role_type === 'superadmin') && (
+              (session.user.id === channel?.created_by || session?.user?.role_type === 'superadmin'|| session?.user?.role_type === 'admin') && (
                 <Button
                   size="small"
                   onClick={() => {
@@ -411,7 +464,7 @@ setChannels(prevChannels =>
           </span>
         </Menu.Item>
       ))}
-      {session?.user?.role_type === 'superadmin' && (
+      {(session?.user?.role_type === 'superadmin'|| session?.user?.role_type === 'admin') && (
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -476,7 +529,7 @@ setChannels(prevChannels =>
             placeholder="Search by user name, message or tag"
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
-            style={{ flex: 1, minWidth: isDesktop ? '48%' : '58%' }}
+            style={{ flex: 1, minWidth: isDesktop ? '48%' : '48%' }}
           />
           {isPrivate && (
             // <Button
@@ -491,7 +544,7 @@ setChannels(prevChannels =>
               type="primary"
               // icon={<MenuOutlined />}
               onClick={() => navigate(`${APP_PREFIX_PATH}/members`)}
-              style={{ flex: 1, minWidth: isDesktop ? '40%' : '38%' }}
+              style={{ flex: 1, minWidth: isDesktop ? '40%' : '24%' }}
             >
               Members
             </Button>
@@ -508,9 +561,18 @@ setChannels(prevChannels =>
               Add Post
             </Button>
           )}
+          {session?.user?.subscriptions?.channels?.includes(activeChannel?.id) && (
+        <Button  color="primary" variant="outlined"
+          //  type="default" variant="outlined"
+          onClick={() => handleUnsubscribe(activeChannel?.id)}
+          style={{ flex: 1, minWidth: '24%' }}
+        >
+          Unsubscribe
+        </Button>
+      )}
         </div>
         {activeChannel?.join_requests?.length > 0 &&
-              (session?.user?.id === activeChannel?.created_by || session?.user?.role_type === 'superadmin') && (
+              (session?.user?.id === activeChannel?.created_by || session?.user?.role_type === 'superadmin'|| session?.user?.role_type === 'admin') && (
                 <Button type='primary'
                   size="small"
                   onClick={() => {
@@ -562,7 +624,7 @@ setChannels(prevChannels =>
 
         {activeChannel && renderChannelContent(activeChannel)}
       </Card>
-      {!isPrivate && session?.user?.role_type === 'superadmin' && (
+      {!isPrivate && (session?.user?.role_type === 'superadmin'|| session?.user?.role_type === 'admin') && (
         <Modal
           title="Add New Channel"
           visible={isModalVisible}
