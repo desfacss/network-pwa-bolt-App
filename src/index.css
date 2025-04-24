@@ -78,3 +78,15 @@ body, html {
     /* Lighter blue on hover */
 }
 
+/* optional scroll hide */
+::-webkit-scrollbar {
+  display: none;
+}
+
+.pill-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+.pill-scroll-wrapper {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
