@@ -430,6 +430,7 @@ const SurveyLayout = ({ children }) => {
   const [isPromptVisible, setIsPromptVisible] = useState(false); // State for full prompt (drawer) visibility
   const [isBanner, setIsBanner] = useState(false); // State for banner mode
   const [isDismissed, setIsDismissed] = useState(false); // State for dismissed status
+  const [isIOSDevice, setIsIOSDevice] = useState(false); // State to track if device is iOS
 
   // Check if the app is already installed
   const isAppInstalled = () => {
@@ -437,6 +438,13 @@ const SurveyLayout = ({ children }) => {
     console.log('[isAppInstalled] App installed:', installed);
     return installed;
   };
+
+  // Detect if the device is iOS
+  useEffect(() => {
+    const ios = isIOS();
+    setIsIOSDevice(ios);
+    console.log('[useEffect] Is iOS device:', ios);
+  }, []);
 
   // Handle the beforeinstallprompt event for Android
   useEffect(() => {
@@ -461,25 +469,41 @@ const SurveyLayout = ({ children }) => {
     console.log('[useEffect] Dismissed state from localStorage:', dismissed);
     setIsDismissed(dismissed);
 
-    // Show the prompt or banner if the app isn't installed and deferredPromptRef exists
-    if (!isAppInstalled() && showInstallButton && deferredPromptRef.current) {
-      if (dismissed) {
-        // If previously dismissed, show the banner
-        console.log('[useEffect] Showing banner: isPromptVisible=false, isBanner=true');
-        setIsPromptVisible(false);
-        setIsBanner(true);
+    // Show the prompt or banner if the app isn't installed
+    if (!isAppInstalled()) {
+      if (isIOSDevice) {
+        // For iOS, show the prompt or banner regardless of beforeinstallprompt
+        if (dismissed) {
+          console.log('[useEffect] iOS - Showing banner: isPromptVisible=false, isBanner=true');
+          setIsPromptVisible(false);
+          setIsBanner(true);
+        } else {
+          console.log('[useEffect] iOS - Showing prompt: isPromptVisible=true, isBanner=false');
+          setIsPromptVisible(true);
+          setIsBanner(false);
+        }
+      } else if (showInstallButton && deferredPromptRef.current) {
+        // For Android, rely on beforeinstallprompt
+        if (dismissed) {
+          console.log('[useEffect] Android - Showing banner: isPromptVisible=false, isBanner=true');
+          setIsPromptVisible(false);
+          setIsBanner(true);
+        } else {
+          console.log('[useEffect] Android - Showing prompt: isPromptVisible=true, isBanner=false');
+          setIsPromptVisible(true);
+          setIsBanner(false);
+        }
       } else {
-        // If not dismissed, show the full prompt (drawer)
-        console.log('[useEffect] Showing prompt: isPromptVisible=true, isBanner=false');
-        setIsPromptVisible(true);
+        console.log('[useEffect] Hiding prompt and banner: isPromptVisible=false, isBanner=false');
+        setIsPromptVisible(false);
         setIsBanner(false);
       }
     } else {
-      console.log('[useEffect] Hiding prompt and banner: isPromptVisible=false, isBanner=false');
+      console.log('[useEffect] App installed - Hiding prompt and banner');
       setIsPromptVisible(false);
       setIsBanner(false);
     }
-  }, [showInstallButton]);
+  }, [showInstallButton, isIOSDevice]);
 
   // Handle collapsing the prompt into a banner
   const handleCollapse = () => {
@@ -492,7 +516,13 @@ const SurveyLayout = ({ children }) => {
 
   // Handle install click
   const handleInstallClick = async () => {
-    if (deferredPromptRef.current) {
+    if (isIOSDevice) {
+      // For iOS, show instructions (no direct install prompt)
+      alert("To install the app on your iPhone, tap the Share button in Safari and select 'Add to Home Screen'.");
+      // Optionally, you could collapse to banner after showing instructions
+      handleCollapse();
+    } else if (deferredPromptRef.current) {
+      // For Android, trigger the install prompt
       console.log('[handleInstallClick] Triggering install prompt');
       deferredPromptRef.current.prompt();
       const choiceResult = await deferredPromptRef.current.userChoice;
@@ -524,7 +554,7 @@ const SurveyLayout = ({ children }) => {
               position: 'relative', // Ensure the prompt/banner can be positioned relative to this container
             }}
           >
-            {/* Install prompt (drawer) or banner for Android */}
+            {/* Install prompt (drawer) or banner */}
             <AnimatePresence>
               {(isPromptVisible || isBanner) && !isAppInstalled() && (
                 <>
@@ -569,7 +599,7 @@ const SurveyLayout = ({ children }) => {
                         </button>
                       </div>
                       <div
-                        onClick={handleInstallClick} // Directly install on click
+                        onClick={handleInstallClick} // Show instructions for iOS, install for Android
                         style={{
                           marginTop: '10px',
                           padding: '12px', // Slightly larger padding for better tap area
@@ -582,7 +612,9 @@ const SurveyLayout = ({ children }) => {
                         }}
                       >
                         <span style={{ marginRight: '8px', fontSize: '20px', color: '#fff' }}>⬇</span> {/* Larger white icon */}
-                        <span style={{ color: '#fff', fontSize: '16px' }}>Tap to Install</span>
+                        <span style={{ color: '#fff', fontSize: '16px' }}>
+                          {isIOSDevice ? "Tap for Install Instructions" : "Tap to Install"}
+                        </span>
                       </div>
                     </motion.div>
                   )}
@@ -604,7 +636,7 @@ const SurveyLayout = ({ children }) => {
                         textAlign: 'center',
                         cursor: 'pointer',
                       }}
-                      onClick={handleInstallClick} // Directly install on tap
+                      onClick={handleInstallClick} // Show instructions for iOS, install for Android
                     >
                       <span style={{ color: '#fff', fontSize: '16px', fontWeight: 'bold' }}>
                         Install IBCN App
