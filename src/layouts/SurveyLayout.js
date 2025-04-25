@@ -403,15 +403,20 @@
 // };
 
 // export default SurveyLayout;
-
-
-
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Row, Col } from "antd";
 import { useSelector } from "react-redux";
 import { store } from "store";
+import { motion, AnimatePresence } from 'framer-motion'; 
 
 const state = store.getState();
+
+// Utility: iOS detection
+const isIOS = () =>
+  /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+
+const isInStandaloneMode = () =>
+  "standalone" in window.navigator && window.navigator.standalone;
 
 const SurveyLayout = ({ children }) => {
   const theme = useSelector((state) => state.theme.currentTheme);
@@ -419,6 +424,90 @@ const SurveyLayout = ({ children }) => {
 
   const workspace = session?.user?.organization?.app_settings?.workspace || defaultOrganization?.app_settings?.workspace || 'dev';
   const name = session?.user?.organization?.app_settings?.name || defaultOrganization?.app_settings?.name || 'dev';
+
+  const [showInstallButton, setShowInstallButton] = useState(false);
+  const deferredPromptRef = useRef(null);
+  const [isPromptVisible, setIsPromptVisible] = useState(false); // State for full prompt (drawer) visibility
+  const [isBanner, setIsBanner] = useState(false); // State for banner mode
+  const [isDismissed, setIsDismissed] = useState(false); // State for dismissed status
+
+  // Check if the app is already installed
+  const isAppInstalled = () => {
+    const installed = isInStandaloneMode() || window.matchMedia('(display-mode: standalone)').matches;
+    console.log('[isAppInstalled] App installed:', installed);
+    return installed;
+  };
+
+  // Handle the beforeinstallprompt event for Android
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      const installed = isAppInstalled();
+      console.log('[Install Prompt] beforeinstallprompt fired, isAppInstalled:', installed);
+      deferredPromptRef.current = e;
+      setShowInstallButton(!installed);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  // Check if the prompt or banner should be shown based on dismissed state and installation status
+  useEffect(() => {
+    const dismissed = localStorage.getItem('installPromptDismissed') === 'true';
+    console.log('[useEffect] Dismissed state from localStorage:', dismissed);
+    setIsDismissed(dismissed);
+
+    // Show the prompt or banner if the app isn't installed and deferredPromptRef exists
+    if (!isAppInstalled() && showInstallButton && deferredPromptRef.current) {
+      if (dismissed) {
+        // If previously dismissed, show the banner
+        console.log('[useEffect] Showing banner: isPromptVisible=false, isBanner=true');
+        setIsPromptVisible(false);
+        setIsBanner(true);
+      } else {
+        // If not dismissed, show the full prompt (drawer)
+        console.log('[useEffect] Showing prompt: isPromptVisible=true, isBanner=false');
+        setIsPromptVisible(true);
+        setIsBanner(false);
+      }
+    } else {
+      console.log('[useEffect] Hiding prompt and banner: isPromptVisible=false, isBanner=false');
+      setIsPromptVisible(false);
+      setIsBanner(false);
+    }
+  }, [showInstallButton]);
+
+  // Handle collapsing the prompt into a banner
+  const handleCollapse = () => {
+    console.log('[handleCollapse] Collapsing prompt into banner');
+    setIsPromptVisible(false);
+    setIsBanner(true);
+    setIsDismissed(true);
+    localStorage.setItem('installPromptDismissed', 'true');
+  };
+
+  // Handle install click
+  const handleInstallClick = async () => {
+    if (deferredPromptRef.current) {
+      console.log('[handleInstallClick] Triggering install prompt');
+      deferredPromptRef.current.prompt();
+      const choiceResult = await deferredPromptRef.current.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+        setIsPromptVisible(false);
+        setIsBanner(false);
+        localStorage.removeItem('installPromptDismissed'); // Clear dismissed state
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      deferredPromptRef.current = null;
+      setShowInstallButton(false);
+    }
+  };
 
   return (
     <div className={`h-100 ${theme === "light" ? "bg-white" : ""}`}>
@@ -432,8 +521,99 @@ const SurveyLayout = ({ children }) => {
               margin: '0 auto',
               padding: '0 16px',
               boxSizing: 'border-box',
+              position: 'relative', // Ensure the prompt/banner can be positioned relative to this container
             }}
           >
+            {/* Install prompt (drawer) or banner for Android */}
+            <AnimatePresence>
+              {(isPromptVisible || isBanner) && !isAppInstalled() && (
+                <>
+                  {/* Full prompt (drawer) */}
+                  {isPromptVisible && !isBanner && (
+                    <motion.div
+                      initial={{ y: -100 }} // Start off-screen (top)
+                      animate={{ y: 0 }} // Slide to top (0px from top when full)
+                      exit={{ y: -100 }} // Slide back up when removed
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0, // Full width
+                        right: 0,
+                        background: '#fff',
+                        borderRadius: '0', // No rounded corners for full-width
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                        padding: '1rem',
+                        zIndex: 1000,
+                        width: '100%', // Full width
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <img
+                            src="path/to/icon.png" // Replace with your app icon path
+                            alt="App Icon"
+                            style={{ width: '40px', height: '40px', marginRight: '10px' }}
+                          />
+                          <div>
+                            <strong>IBCN NetworkX</strong>
+                            <div style={{ fontSize: '12px', color: '#666' }}>app.ibcn2025.com</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleCollapse} // Collapse into banner on click
+                          style={{ background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer' }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div
+                        onClick={handleInstallClick} // Directly install on click
+                        style={{
+                          marginTop: '10px',
+                          padding: '12px', // Slightly larger padding for better tap area
+                          background: '#1890ff', // Blue background to capture attention
+                          borderRadius: '5px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <span style={{ marginRight: '8px', fontSize: '20px', color: '#fff' }}>⬇</span> {/* Larger white icon */}
+                        <span style={{ color: '#fff', fontSize: '16px' }}>Tap to Install</span>
+                      </div>
+                    </motion.div>
+                  )}
+                  {/* Persistent Banner */}
+                  {isBanner && (
+                    <motion.div
+                      initial={{ y: -100 }}
+                      animate={{ y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        background: '#1890ff', // Blue background for the banner
+                        padding: '12px',
+                        zIndex: 1000,
+                        width: '100%', // Full width
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                      }}
+                      onClick={handleInstallClick} // Directly install on tap
+                    >
+                      <span style={{ color: '#fff', fontSize: '16px', fontWeight: 'bold' }}>
+                        Install IBCN App
+                      </span>
+                    </motion.div>
+                  )}
+                </>
+              )}
+            </AnimatePresence>
             {children}
           </div>
         </Col>

@@ -1,19 +1,21 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import serviceWorker from './serviceWorker'; // Changed import
 import 'antd/dist/reset.css';
 import './index.css';
 
 const container = document.getElementById('root');
-const root = createRoot(container); // createRoot(container!) if you use TypeScript
-root.render(
-  // <React.StrictMode>
-  <App />
-  // </React.StrictMode>
-);
+const root = createRoot(container);
+root.render(<App />);
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.register(); // Changed to use default import
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(registration => {
+      console.log('Service worker registered:', registration.scope);
+    })
+    .catch(error => {
+      console.error('Service worker registration failed:', error);
+    });
+} else {
+  console.log('Service workers not supported');
+}

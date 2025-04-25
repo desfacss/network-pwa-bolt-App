@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Badge, Button, Popover } from 'antd-mobile';
-import { LockOutline,MoreOutline } from 'antd-mobile-icons';
+import { LockOutline } from 'antd-mobile-icons';
 import Channels from './index';
 import { APP_PREFIX_PATH } from 'configs/AppConfig';
 import { Link } from 'react-router-dom';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
+import { UnorderedListOutlined } from '@ant-design/icons';
 
 const ChannelTabs = ({ onTotalUnreadChange }) => {
   const [publicUnreadCount, setPublicUnreadCount] = useState(0);
@@ -219,7 +220,7 @@ const ChannelTabs = ({ onTotalUnreadChange }) => {
             trigger="click"
             placement="bottom-end"
           >
-            <Button size="small" style={{ marginLeft: '8px',color:"blue" }} ><MoreOutline /></Button>
+            <Button size="small" style={{ marginLeft: '8px',color:"blue" }} ><UnorderedListOutlined /></Button>
           </Popover>
         )}
       </div>

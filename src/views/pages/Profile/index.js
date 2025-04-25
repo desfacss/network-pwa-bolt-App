@@ -1083,6 +1083,7 @@ import DetailOverview from '../DynamicViews/DetailOverview';
 import { sendEmail } from 'components/common/SendEmail';
 import trackEvent from 'components/util-components/trackEvent'; // Import the tracking utility
 import { REACT_APP_RESEND_FROM_EMAIL } from 'configs/AppConfig';
+import NotificationPermission from 'components/common/NotificationPermission';
 // import App
 
 const Profile = () => {
@@ -1713,6 +1714,7 @@ const Profile = () => {
                                         Edit Profile
                                     </Button>
                                     <ChangePassword />
+                                    <NotificationPermission/>
                                 </div>
                             ) : (
                                 <Button
