@@ -215,7 +215,8 @@ export const NavProfile = ({ mode, profileData, isMobile }) => {
           <NavItem mode={mode} onClick={handleMobileClick}>
             {session?.user?.user_name && (
               <Profile>
-                <Avatar src="/img/avatars/thumb-7.jpg" alt={session?.user?.user_name[0]}>
+                {/* <Avatar src="/img/avatars/thumb-7.jpg" alt={session?.user?.user_name[0]}> */}
+                <Avatar alt={session?.user?.user_name[0]}>
                   {session?.user?.user_name[0] || ""}
                 </Avatar>
                 <UserInfo className="profile-text">
