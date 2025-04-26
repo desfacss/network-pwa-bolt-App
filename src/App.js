@@ -72,7 +72,7 @@ function App() {
             <BrowserRouter history={history}>
               <ThemeSwitcherProvider themeMap={themes} defaultTheme={THEME_CONFIG.currentTheme} insertionPoint="styles-insertion-point">
                 <QueryClientProvider client={queryClient}>
-                  <Suspense fallback={<div>Loading Layouts...</div>}>
+                  <Suspense fallback={<div></div>}>
                     <Layouts />
                   </Suspense>
 

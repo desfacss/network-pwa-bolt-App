@@ -104,15 +104,15 @@ const IntroScreen = () => {
   }, []);
 
   // Handle the install button click
-  const handleInstallClick = async () => {
-    if (installPrompt) {
-      installPrompt.prompt(); // Show the install prompt
-      const { outcome } = await installPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setInstallPrompt(null); // Clear the prompt after acceptance
-      }
-    }
-  };
+  // const handleInstallClick = async () => {
+  //   if (installPrompt) {
+  //     installPrompt.prompt(); // Show the install prompt
+  //     const { outcome } = await installPrompt.userChoice;
+  //     if (outcome === 'accepted') {
+  //       setInstallPrompt(null); // Clear the prompt after acceptance
+  //     }
+  //   }
+  // };
 
   return (
     <div
@@ -123,7 +123,7 @@ const IntroScreen = () => {
       }}
     >
       {/* PWA Install Banner */}
-      {!isStandalone && installPrompt && (
+      {/* {!isStandalone && installPrompt && (
         <div
           style={{
             height: `${bannerHeight}px`,
@@ -140,7 +140,7 @@ const IntroScreen = () => {
         >
           Install IBCN NetworkX as an app for a better experience!
         </div>
-      )}
+      )} */}
 
       {/* Header */}
       <div
