@@ -13,6 +13,7 @@ const Routes = () => {
   const { session } = useSelector((state) => state.auth);
   const [filteredProtectedRoutes, setFilteredProtectedRoutes] = useState([]);
   const from = localStorage.getItem('redirectFrom') || `${APP_PREFIX_PATH}/dashboard`;
+  console.log('Routes: Rendering, location.pathname=', location.pathname, 'from=', from, 'session=', session);
 
   // Analytics tracking hook
   useEffect(() => {
@@ -41,7 +42,6 @@ const Routes = () => {
     );
   }, [session]);
 
-  // Determine the fallback path
   const fallbackPath = useMemo(() => {
     const isValidPath = protectedRoutes(session?.user?.features?.feature, session?.user?.organization?.module_features)?.some(
       route => {
