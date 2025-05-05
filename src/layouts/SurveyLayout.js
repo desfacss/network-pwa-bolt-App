@@ -411,17 +411,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const state = store.getState();
 
-// Utility: Enhanced iOS detection
-const isIOS = () => {
-  const userAgent = window.navigator.userAgent.toLowerCase();
-  const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-  const isSafari = /safari/.test(userAgent) && !/crios|chrome|fxios|edgios/.test(userAgent); // Exclude Chrome, Firefox, Edge on iOS
-  return isIOSDevice && isSafari;
-};
+// Utility: iOS detection
+const isIOS = () =>
+  /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
 
 const isInStandaloneMode = () =>
-  "standalone" in window.navigator && window.navigator.standalone ||
-  window.matchMedia("(display-mode: standalone)").matches;
+  "standalone" in window.navigator && window.navigator.standalone;
 
 // Shared animation variants for modal and banner
 const slideVariants = {
@@ -463,22 +458,25 @@ const SurveyLayout = ({ children }) => {
 
   // Check if the app is already installed
   const isAppInstalled = () => {
-    const isStandalone = isInStandaloneMode();
-    console.log("[isAppInstalled] Standalone:", isStandalone);
-    return isStandalone;
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      ("standalone" in window.navigator && window.navigator.standalone);
+    const isIOSNonSafari = isIOS() && !/safari/i.test(window.navigator.userAgent.toLowerCase());
+    console.log("[isAppInstalled] Standalone:", isStandalone, "iOS Non-Safari:", isIOSNonSafari);
+    return isStandalone || isIOSNonSafari;
   };
 
   // Calculate dynamic height based on mode
   const layoutHeight = isAppInstalled() ? "100%" : "calc(100% - 30px)";
 
-  // Detect if the device is iOS and using Safari
+  // Detect if the device is iOS
   useEffect(() => {
     const ios = isIOS();
     setIsIOSDevice(ios);
-    console.log("[useEffect] Is iOS device (Safari):", ios);
+    console.log("[useEffect] Is iOS device:", ios);
   }, []);
 
-  // Handle the beforeinstallprompt event for non-iOS devices
+  // Handle the beforeinstallprompt event for Android
   useEffect(() => {
     if (!isIOSDevice) {
       const handleBeforeInstallPrompt = (e) => {
@@ -509,34 +507,20 @@ const SurveyLayout = ({ children }) => {
       setIsDismissed(false);
       localStorage.removeItem("installPromptDismissed");
     } else {
-      if (isIOSDevice) {
-        // Show iOS prompt or banner
-        if (dismissed) {
-          setIsPromptVisible(false);
-          setIsBanner(true);
-        } else {
-          setIsPromptVisible(true);
-          setIsBanner(false);
-        }
-      } else if (showInstallButton) {
-        // Show Android prompt or banner
-        if (dismissed) {
-          setIsPromptVisible(false);
-          setIsBanner(true);
-        } else {
-          setIsPromptVisible(true);
-          setIsBanner(false);
-        }
-      } else {
+      if (dismissed) {
         setIsPromptVisible(false);
+        setIsBanner(true);
+      } else {
+        setIsPromptVisible(true);
         setIsBanner(false);
       }
     }
-  }, [isIOSDevice, showInstallButton]);
+  }, [isIOSDevice]);
 
   // Reset dismissal state if app is installed
   useEffect(() => {
-    if (isAppInstalled()) {
+    const installed = isAppInstalled();
+    if (installed) {
       localStorage.removeItem("installPromptDismissed");
     }
   }, []);
@@ -570,12 +554,20 @@ const SurveyLayout = ({ children }) => {
       }
       deferredPromptRef.current = null;
       setShowInstallButton(false);
-    } else {
-      // Fallback for non-iOS, non-PWA-supporting browsers (e.g., Chrome on iOS)
-      alert("To install this app, please use a browser that supports installation, such as Safari on iOS or Chrome on Android.");
-      handleCollapse();
     }
   };
+
+  // Debug state
+  // console.log("[SurveyLayout] State:", {
+  //   isAppInstalled: isAppInstalled(),
+  //   isDismissed: localStorage.getItem("installPromptDismissed"),
+  //   isPromptVisible,
+  //   isBanner,
+  //   isIOSDevice,
+  //   showInstallButton,
+  //   deferredPrompt: !!deferredPromptRef.current,
+  //   layoutHeight,
+  // });
 
   return (
     <div className={`h-100 ${theme === "light" ? "bg-white" : ""}`} style={{ height: layoutHeight }}>
