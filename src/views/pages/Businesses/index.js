@@ -1,6 +1,6 @@
 import { Select } from 'antd';
 import React, { useState } from 'react';
-import DynamicViews from '../DynamicViews';
+import DynamicViews from '../DynamicViews/indexBasic';
 const { Option } = Select;
 
 const Index = () => {

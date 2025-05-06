@@ -1,0 +1,369 @@
+[
+    {
+      "id": "9727e04b-1830-460c-b75f-8f8b12069824",
+      "created_at": "2025-02-07 10:13:30.735047+00",
+      "name": "ib_business",
+      "data_schema": {
+        "type": "object",
+        "title": "",
+        "required": [
+          "details.positionTitle",
+          "details.companyName",
+          "details.location",
+          "details.productsOrServices",
+          "details.briefDescription",
+          "details.industrySector",
+          "details.subSector"
+        ],
+        "properties": {
+          "details.web": {
+            "type": "string",
+            "title": "Web"
+          },
+          "details.twitter": {
+            "type": "string",
+            "title": "Twitter"
+          },
+          "details.facebook": {
+            "type": "string",
+            "title": "Facebook"
+          },
+          "details.linkedin": {
+            "type": "string",
+            "title": "Linkedin"
+          },
+          "details.location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "details.instagram": {
+            "type": "string",
+            "title": "Instagram"
+          },
+          "details.subSector": {
+            "type": "string",
+            "title": "SubSector"
+          },
+          "details.companyName": {
+            "type": "string",
+            "title": "CompanyName"
+          },
+          "details.positionTitle": {
+            "type": "string",
+            "title": "Position Title"
+          },
+          "details.industrySector": {
+            "enum": [
+              "Agriculture & ESG",
+              "Consumer Goods",
+              "E-commerce, D2C & Retail",
+              "Financial Services",
+              "IT and Software Services",
+              "Logistics & Transport",
+              "Manufacturing",
+              "Media and Entertainment",
+              "Pharma & Healthcare",
+              "Professional Services",
+              "Public Administration",
+              "Real Estate & Construction",
+              "Sales and Distribution",
+              "Tourism and Hospitality",
+              "Utility Services",
+              "Others"
+            ],
+            "type": "string",
+            "title": "Industry Sector"
+          },
+          "details.legalStructure": {
+            "enum": [
+              "Home Business / Unregistered",
+              "Limited Liability Partnership (LLP)",
+              "Partnership",
+              "Private Limited Company",
+              "Public Limited Company",
+              "Sole Proprietorship"
+            ],
+            "type": "string",
+            "title": "Legal Structure **"
+          },
+          "details.briefDescription": {
+            "type": "string",
+            "title": "Brief Description"
+          },
+          "details.directEmployment": {
+            "enum": [
+              "1 to 20",
+              "20 to 50",
+              "50 to 100",
+              "more than 100",
+              "more than 500",
+              "more than 1000",
+              "Others"
+            ],
+            "type": "string",
+            "title": "Direct Employment **"
+          },
+          "details.establishmentYear": {
+            "type": "string",
+            "title": "Establishment Year **"
+          },
+          "details.indirectEmployment": {
+            "enum": [
+              "1 to 20",
+              "20 to 50",
+              "50 to 100",
+              "more than 100",
+              "more than 500",
+              "more than 1000",
+              "Others"
+            ],
+            "type": "string",
+            "title": "Indirect Employment **"
+          },
+          "details.productsOrServices": {
+            "type": "string",
+            "title": "Products Or Services"
+          },
+          "details.annualTurnoverRange": {
+            "enum": [
+              "Prefer not to disclose",
+              "Below 1 crore",
+              "1 Crore to 5 Crore",
+              "5 Crore to 10 Crore",
+              "Above 10 Crore",
+              "Above 100 Crore",
+              "Others"
+            ],
+            "type": "string",
+            "title": "Annual Turnover Range (Optional) **"
+          },
+          "details.nagaratharInvolvement": {
+            "enum": [
+              "100% ownership",
+              "Less than 50%",
+              "Less than 25%",
+              "Others"
+            ],
+            "type": "string",
+            "title": "Nagarathar Involvement **"
+          }
+        },
+        "definitions": {},
+        "description": "**The survey fields are only for collective statistics, and shall not show up in profile or published"
+      },
+      "ui_schema": {
+        "ui:grid": [
+          {
+            "user_id": 12
+          },
+          {
+            "details.companyName": 12,
+            "details.positionTitle": 12
+          },
+          {
+            "details.briefDescription": 12,
+            "details.productsOrServices": 12
+          },
+          {
+            "details.subSector": 12,
+            "details.industrySector": 12
+          },
+          {
+            "details.legalStructure": 12,
+            "details.establishmentYear": 12
+          },
+          {
+            "details.web": 12,
+            "details.location": 12
+          },
+          {
+            "details.twitter": 12,
+            "details.linkedin": 12
+          },
+          {
+            "details.facebook": 12,
+            "details.instagram": 12
+          },
+          {
+            "details.directEmployment": 12,
+            "details.indirectEmployment": 12
+          },
+          {
+            "details.annualTurnoverRange": 12,
+            "details.nagaratharInvolvement": 12
+          }
+        ],
+        "user_id": {
+          "ui:order": 0,
+          "ui:widget": "SelectCustomWidget",
+          "ui:options": {
+            "mode": "multiple",
+            "allowClear": true,
+            "showSearch": true
+          },
+          "ui:placeholder": "Select an option"
+        },
+        "ui:order": [
+          "user_id",
+          "details.positionTitle",
+          "details.companyName",
+          "details.location",
+          "details.briefDescription",
+          "details.productsOrServices",
+          "details.industrySector",
+          "details.subSector",
+          "details.legalStructure",
+          "details.establishmentYear",
+          "details.nagaratharInvolvement",
+          "details.annualTurnoverRange",
+          "details.directEmployment",
+          "details.indirectEmployment",
+          "details.web",
+          "details.twitter",
+          "details.facebook",
+          "details.linkedin",
+          "details.instagram"
+        ],
+        "pageFields": [
+          [
+            "details.positionTitle",
+            "details.companyName",
+            "details.location",
+            "details.briefDescription",
+            "details.productsOrServices",
+            "details.industrySector",
+            "details.subSector",
+            "details.legalStructure",
+            "details.establishmentYear",
+            "details.web",
+            "details.twitter",
+            "details.facebook",
+            "details.linkedin",
+            "details.instagram"
+          ],
+          [
+            "details.nagaratharInvolvement",
+            "details.annualTurnoverRange",
+            "details.directEmployment",
+            "details.indirectEmployment"
+          ]
+        ],
+        "details.web": {
+          "ui:order": 1,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.twitter": {
+          "ui:order": 2,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.facebook": {
+          "ui:order": 3,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.linkedin": {
+          "ui:order": 4,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.location": {
+          "ui:order": 5,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.instagram": {
+          "ui:order": 6,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.subSector": {
+          "ui:order": 7,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.companyName": {
+          "ui:order": 8,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.positionTitle": {
+          "ui:order": 9,
+          "ui:widget": "text",
+          "ui:placeholder": "Enter text"
+        },
+        "details.industrySector": {
+          "ui:order": 11,
+          "ui:widget": "SelectCustomWidget",
+          "ui:options": {
+            "mode": "single",
+            "showSearch": true
+          }
+        },
+        "details.legalStructure": {
+          "ui:order": 12,
+          "ui:widget": "SelectCustomWidget",
+          "ui:options": {
+            "mode": "single",
+            "showSearch": true
+          }
+        },
+        "ui:submitButtonOptions": {
+          "props": {
+            "disabled": false,
+            "className": "ant-btn-variant-solid ant-btn-block"
+          },
+          "norender": false,
+          "submitText": "Save"
+        },
+        "details.briefDescription": {
+          "ui:order": 14,
+          "ui:widget": "textarea",
+          "ui:placeholder": "Enter text"
+        },
+        "details.directEmployment": {
+          "ui:order": 15,
+          "ui:widget": "select"
+        },
+        "details.establishmentYear": {
+          "ui:order": 16,
+          "ui:widget": "text",
+          "ui:placeholder": "Year of establishment"
+        },
+        "details.indirectEmployment": {
+          "ui:order": 17,
+          "ui:widget": "select"
+        },
+        "details.productsOrServices": {
+          "ui:order": 18,
+          "ui:widget": "textarea",
+          "ui:placeholder": "Describe your products or service..."
+        },
+        "details.annualTurnoverRange": {
+          "ui:order": 19,
+          "ui:widget": "select"
+        },
+        "details.nagaratharInvolvement": {
+          "ui:order": 20,
+          "ui:widget": "select"
+        }
+      },
+      "form_type": null,
+      "x_next_step": null,
+      "x_db_schema": {},
+      "notes": null,
+      "org_notes": null,
+      "organization_id": null,
+      "data_config": [
+        {
+          "key": "details2.web",
+          "type": "text"
+        },
+        {
+          "key": "details2.companyName",
+          "type": "text"
+        }
+      ]
+    }
+  ]

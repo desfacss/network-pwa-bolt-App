@@ -1,0 +1,883 @@
+[
+    {
+      "created_at": "2025-01-15 04:30:46.576298+00",
+      "data_config": {},
+      "tableview_old": {},
+      "ganttview": {},
+      "entity_type": "users",
+      "id": "016f01fb-797e-4399-b9a8-239fd115cef6",
+      "cardView": {},
+      "data_schema": {},
+      "ui_schema": {},
+      "kanbanview": {},
+      "global": {
+        "showFeatures": [
+          "search"
+        ]
+      },
+      "calendarview": {},
+      "form_schema": [],
+      "notes": {},
+      "master_data_schema": {},
+      "dashboardview": {},
+      "X_object": {},
+      "gridview_old": {
+        "fields": [
+          {
+            "icon": "UserOutlined",
+            "link": "/members/",
+            "mode": "drawer",
+            "label": "dt",
+            "order": 1,
+            "style": {
+              "fontSize": "16px",
+              "fontWeight": "bold",
+              "marginBottom": "8px"
+            },
+            "fieldName": "",
+            "fieldPath": "user_name",
+            "linkParam": "",
+            "subFields": [],
+            "cardSection": "title",
+            "display_name": "User Name"
+          },
+          {
+            "icon": "UpCircleOutlined",
+            "label": "",
+            "order": 4,
+            "style": {},
+            "fieldName": "",
+            "fieldPath": "details.kovil",
+            "linkParam": "",
+            "subFields": [],
+            "display_name": "kovil"
+          },
+          {
+            "icon": "HomeOutlined",
+            "link": "",
+            "label": "",
+            "order": 5,
+            "style": {},
+            "fieldName": "",
+            "fieldPath": "details.native",
+            "linkParam": "",
+            "subFields": [],
+            "cardSection": ""
+          },
+          {
+            "icon": "EnvironmentOutlined",
+            "link": "",
+            "label": "",
+            "order": 6,
+            "style": {},
+            "fieldName": "",
+            "fieldPath": "details.location",
+            "linkParam": "",
+            "subFields": [],
+            "cardSection": ""
+          },
+          {
+            "label": "",
+            "order": 7,
+            "style": {},
+            "display": "comma_separated",
+            "fieldName": "",
+            "fieldPath": "",
+            "linkParam": "",
+            "subFields": [
+              {
+                "icon": "TwitterOutlined",
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldName": "",
+                "fieldPath": "details.twitter"
+              },
+              {
+                "icon": "LinkedinOutlined",
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldName": "",
+                "fieldPath": "details.linkedin"
+              },
+              {
+                "icon": "FacebookOutlined",
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldName": "",
+                "fieldPath": "details.facebook"
+              },
+              {
+                "icon": "InstagramOutlined",
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldName": "",
+                "fieldPath": "details.instagram"
+              }
+            ],
+            "display_name": ""
+          },
+          {
+            "icon": "",
+            "link": "",
+            "label": "",
+            "order": 8,
+            "style": {
+              "render": "tag",
+              "bgColor": "#ccc",
+              "colorMapping": {
+                "low": "green",
+                "normal": "blue",
+                "urgent": "red"
+              }
+            },
+            "fieldName": "",
+            "fieldPath": "details.membership_type",
+            "linkParam": "",
+            "subFields": [],
+            "cardSection": ""
+          }
+        ],
+        "layout": {
+          "size": "small",
+          "spacing": 16,
+          "maxWidth": "100%",
+          "cardStyle": {
+            "_boxShadow": "0 1px 4px rgba(0,0,0,0.1)",
+            "_borderRadius": "20px"
+          },
+          "cardsPerRow": 3
+        },
+        "actions": {
+          "row": [
+            {
+              "form": "id",
+              "name": "message"
+            }
+          ],
+          "bulk": []
+        },
+        "groupBy": [],
+        "viewLink": "/tableview/",
+        "viewName": "GridView",
+        "showFeatures": [
+          "search",
+          "enable_view"
+        ],
+        "exportOptions": [
+          "csv"
+        ]
+      },
+      "views_config": {
+        "gridview": true,
+        "tableview": false
+      },
+      "access_config": {},
+      "master_object": [
+        {
+          "key": "id",
+          "type": "uuid",
+          "display_name": "id"
+        },
+        {
+          "key": "privacy.groups",
+          "type": "text",
+          "display_name": "privacy"
+        },
+        {
+          "key": "organization_id",
+          "type": "uuid",
+          "foreign_key": {
+            "source_table": "organizations",
+            "source_column": "id",
+            "display_column": "name"
+          },
+          "display_name": "organization_id"
+        },
+        {
+          "key": "details.role",
+          "type": "text",
+          "display_name": "role"
+        },
+        {
+          "key": "details.web",
+          "type": "text",
+          "display_name": "web"
+        },
+        {
+          "key": "details.twitter",
+          "type": "text",
+          "display_name": "twitter"
+        },
+        {
+          "key": "details.linkedin",
+          "type": "text",
+          "display_name": "linkedin"
+        },
+        {
+          "key": "details.facebook",
+          "type": "text",
+          "display_name": "facebook"
+        },
+        {
+          "key": "details.instagram",
+          "type": "text",
+          "display_name": "instagram"
+        },
+        {
+          "key": "details.email",
+          "type": "text",
+          "display_name": "email"
+        },
+        {
+          "key": "details.intro",
+          "type": "text",
+          "display_name": "intro"
+        },
+        {
+          "key": "details.kovil",
+          "type": "text",
+          "display_name": "kovil"
+        },
+        {
+          "key": "details.mobile",
+          "type": "numeric",
+          "display_name": "mobile"
+        },
+        {
+          "key": "details.native",
+          "type": "text",
+          "display_name": "native"
+        },
+        {
+          "key": "details.lastName",
+          "type": "text",
+          "display_name": "lastName"
+        },
+        {
+          "key": "details.location",
+          "type": "text",
+          "display_name": "location"
+        },
+        {
+          "key": "details.firstName",
+          "type": "text",
+          "display_name": "firstName"
+        },
+        {
+          "key": "details.user_name",
+          "type": "text",
+          "display_name": "user_name"
+        },
+        {
+          "key": "details.profile_pic",
+          "type": "text",
+          "display_name": "profile_pic"
+        },
+        {
+          "key": "details.membership_type",
+          "type": "text",
+          "display_name": "membership_type"
+        },
+        {
+          "key": "created_by",
+          "type": "uuid",
+          "display_name": "created_by"
+        },
+        {
+          "key": "created_at",
+          "type": "timestamp with time zone",
+          "display_name": "created_at"
+        },
+        {
+          "key": "updated_at",
+          "type": "timestamp with time zone",
+          "display_name": "updated_at"
+        },
+        {
+          "key": "user_name",
+          "type": "text",
+          "display_name": "user_name"
+        },
+        {
+          "key": "is_active",
+          "type": "boolean",
+          "display_name": "is_active"
+        },
+        {
+          "key": "password_confirmed",
+          "type": "boolean",
+          "display_name": "password_confirmed"
+        },
+        {
+          "key": "role_id",
+          "type": "uuid",
+          "foreign_key": {
+            "source_table": "roles",
+            "source_column": "id",
+            "display_column": "role_name"
+          },
+          "display_name": "role_id"
+        },
+        {
+          "key": "details.food",
+          "type": "text",
+          "display_name": "food"
+        },
+        {
+          "key": "details.gender",
+          "type": "text",
+          "display_name": "gender"
+        },
+        {
+          "key": "details.room_no",
+          "type": "text",
+          "display_name": "room_no"
+        },
+        {
+          "key": "details.primary_stream",
+          "type": "text",
+          "display_name": "primary_stream"
+        },
+        {
+          "key": "details.room",
+          "type": "text",
+          "display_name": "room"
+        },
+        {
+          "key": "role_type",
+          "type": "text",
+          "display_name": "role_type"
+        },
+        {
+          "key": "status",
+          "type": "USER-DEFINED",
+          "display_name": "status"
+        },
+        {
+          "key": "profile_privacy.Contact Info",
+          "type": "bool",
+          "display_name": "Contact Info"
+        }
+      ],
+      "allocations": [
+        {
+          "key": "created_at",
+          "type": "timestamp with time zone",
+          "display_name": "Created At"
+        },
+        {
+          "key": "user_id",
+          "type": "uuid",
+          "foreign_key": {
+            "source_table": "users",
+            "source_column": "id",
+            "display_column": "user_name"
+          },
+          "display_name": "user_id"
+        },
+        {
+          "key": "short_name",
+          "type": "text",
+          "display_name": "Short Name"
+        },
+        {
+          "key": "user_name",
+          "type": "text",
+          "display_name": "user Name"
+        },
+        {
+          "key": "details.email",
+          "type": "text",
+          "display_name": "Email"
+        },
+        {
+          "key": "details.kovil",
+          "type": "text",
+          "display_name": "kovil"
+        },
+        {
+          "key": "details.mobile",
+          "type": "numeric",
+          "display_name": "Mobile"
+        },
+        {
+          "key": "details.native",
+          "type": "text",
+          "display_name": "Native"
+        },
+        {
+          "key": "details.lastName",
+          "type": "text",
+          "display_name": "lastName"
+        },
+        {
+          "key": "details.firstName",
+          "type": "text",
+          "display_name": "firstName"
+        },
+        {
+          "key": "details.user_name",
+          "type": "text",
+          "display_name": "user_name"
+        },
+        {
+          "key": "details.membership_type",
+          "type": "text",
+          "display_name": "Membership Type"
+        },
+        {
+          "key": "is_active",
+          "type": "boolean",
+          "display_name": "is_active"
+        },
+        {
+          "key": "organization_id",
+          "type": "uuid",
+          "foreign_key": {
+            "source_table": "organizations",
+            "source_column": "id",
+            "display_column": "name"
+          },
+          "display_name": "organization_id"
+        }
+      ],
+      "gridview": {
+        "groups": [
+          {
+            "name": "Personal Info",
+            "order": 1,
+            "fields": [
+              {
+                "icon": "details.profile_pic",
+                "mode": "navigate",
+                "_link": "/members/",
+                "label": "dt",
+                "order": 1,
+                "style": {
+                  "fontSize": "16px",
+                  "fontWeight": "bold",
+                  "marginBottom": "8px"
+                },
+                "fieldName": "",
+                "fieldPath": "user_name",
+                "linkParam": "",
+                "subFields": [],
+                "cardSection": "title",
+                "display_name": "User Name"
+              },
+              {
+                "icon": "UpCircleOutlined",
+                "mode": "navigate",
+                "label": "",
+                "order": 4,
+                "style": {},
+                "fieldName": "",
+                "fieldPath": "details.kovil",
+                "linkParam": "",
+                "subFields": [],
+                "display_name": "kovil"
+              },
+              {
+                "icon": "HomeOutlined",
+                "link": "",
+                "mode": "navigate",
+                "label": "",
+                "order": 5,
+                "style": {},
+                "fieldName": "",
+                "fieldPath": "details.native",
+                "linkParam": "",
+                "subFields": [],
+                "cardSection": ""
+              },
+              {
+                "icon": "EnvironmentOutlined",
+                "link": "",
+                "mode": "navigate",
+                "label": "",
+                "order": 6,
+                "style": {},
+                "fieldName": "",
+                "fieldPath": "details.location",
+                "linkParam": "",
+                "subFields": [],
+                "cardSection": ""
+              },
+              {
+                "mode": "navigate",
+                "label": "",
+                "order": 7,
+                "style": {},
+                "display": "comma_separated",
+                "fieldName": "",
+                "fieldPath": "",
+                "linkParam": "",
+                "subFields": [
+                  {
+                    "icon": "TwitterOutlined",
+                    "style": {
+                      "color": "#1890ff"
+                    },
+                    "webLink": true,
+                    "fieldName": "",
+                    "fieldPath": "details.twitter"
+                  },
+                  {
+                    "icon": "LinkedinOutlined",
+                    "style": {
+                      "color": "#1890ff"
+                    },
+                    "webLink": true,
+                    "fieldName": "",
+                    "fieldPath": "details.linkedin"
+                  },
+                  {
+                    "icon": "FacebookOutlined",
+                    "style": {
+                      "color": "#1890ff"
+                    },
+                    "webLink": true,
+                    "fieldName": "",
+                    "fieldPath": "details.facebook"
+                  },
+                  {
+                    "icon": "InstagramOutlined",
+                    "style": {
+                      "color": "#1890ff"
+                    },
+                    "webLink": true,
+                    "fieldName": "",
+                    "fieldPath": "details.instagram"
+                  }
+                ],
+                "display_name": ""
+              },
+              {
+                "icon": "",
+                "link": "",
+                "mode": "navigate",
+                "label": "",
+                "order": 8,
+                "style": {
+                  "render": "tag",
+                  "bgColor": "",
+                  "_colorMapping": {
+                    "low": "green",
+                    "normal": "blue",
+                    "urgent": "red"
+                  }
+                },
+                "fieldName": "",
+                "fieldPath": "details.membership_type",
+                "linkParam": "",
+                "subFields": [],
+                "cardSection": ""
+              }
+            ]
+          },
+          {
+            "name": "Contact Info",
+            "order": 2,
+            "fields": [
+              {
+                "icon": "UserOutlined",
+                "link": "",
+                "mode": "drawer",
+                "label": "dt",
+                "order": 1,
+                "style": {},
+                "fieldName": "",
+                "fieldPath": "details.email",
+                "linkParam": "",
+                "subFields": [],
+                "cardSection": "body",
+                "display_name": "Email"
+              },
+              {
+                "icon": "PhoneOutlined",
+                "link": "",
+                "mode": "navigate",
+                "label": "",
+                "order": 2,
+                "style": {},
+                "fieldName": "",
+                "fieldPath": "details.mobile",
+                "linkParam": "",
+                "subFields": [],
+                "cardSection": ""
+              }
+            ]
+          }
+        ],
+        "layout": {
+          "size": "small",
+          "spacing": 16,
+          "maxWidth": "100%",
+          "cardStyle": {
+            "_boxShadow": "0 1px 4px rgba(0,0,0,0.1)",
+            "_borderRadius": "20px"
+          },
+          "cardsPerRow": 3
+        },
+        "actions": {
+          "row": [
+            {
+              "form": "details",
+              "name": "details"
+            }
+          ],
+          "bulk": []
+        },
+        "groupBy": [],
+        "viewLink": "/tableview/",
+        "viewName": "GridView",
+        "showFeatures": [
+          "enable_view"
+        ],
+        "exportOptions": [
+          "csv"
+        ]
+      },
+      "tableview": {
+        "fields": [
+          {
+            "order": 1,
+            "fieldName": "short_name",
+            "fieldPath": "short_name"
+          },
+          {
+            "order": 2,
+            "fieldName": "Email",
+            "fieldPath": "details.email"
+          },
+          {
+            "order": 3,
+            "fieldName": "kovil",
+            "fieldPath": "details.kovil"
+          },
+          {
+            "order": 4,
+            "fieldName": "mobile",
+            "fieldPath": "details.mobile"
+          },
+          {
+            "order": 5,
+            "fieldName": "user_name",
+            "fieldPath": "details.user_name"
+          }
+        ],
+        "actions": {
+          "row": [
+            {
+              "form": "ib_members",
+              "name": "Edit"
+            },
+            {
+              "form": "ib_members",
+              "name": "Delete"
+            },
+            {
+              "form": "details",
+              "name": "details"
+            }
+          ],
+          "bulk": [
+            {
+              "form": "ib_members",
+              "name": "add_"
+            }
+          ]
+        },
+        "groupBy": [],
+        "showFeatures": [
+          "columnVisibility",
+          "pagination",
+          "groupBy",
+          "basicSearch",
+          "sorting"
+        ],
+        "exportOptions": [
+          "csv"
+        ]
+      },
+      "detailview": {
+        "staticTabs": [
+          {
+            "tab": "overview"
+          }
+        ],
+        "dynamicTabs": []
+      },
+      "details_overview": {
+        "groups": [
+          {
+            "name": "Personal Info",
+            "order": 1,
+            "fields": [
+              {
+                "icon": "",
+                "label": "",
+                "order": 0.5,
+                "imagePath": "details.profile_pic"
+              },
+              {
+                "icon": "UserOutlined",
+                "link": "",
+                "label": "Name",
+                "order": 1,
+                "style": {
+                  "fontSize": "16px",
+                  "fontWeight": "bold"
+                },
+                "fieldPath": "details.user_name"
+              },
+              {
+                "icon": "UpCircleOutlined",
+                "label": "Kovil",
+                "order": 2,
+                "fieldPath": "details.kovil"
+              },
+              {
+                "icon": "HomeOutlined",
+                "label": "Native",
+                "order": 3,
+                "fieldPath": "details.native"
+              },
+              {
+                "icon": "EnvironmentOutlined",
+                "label": "Location",
+                "order": 4,
+                "fieldPath": "details.location"
+              },
+              {
+                "label": "Company",
+                "order": 5,
+                "fieldPath": "details.company"
+              },
+              {
+                "label": "Intro",
+                "order": 6,
+                "fieldPath": "details.intro"
+              }
+            ],
+            "private": true,
+            "show_group_name": false
+          },
+          {
+            "name": "Contact Info",
+            "order": 2,
+            "fields": [
+              {
+                "icon": "MailOutlined",
+                "label": "Email",
+                "order": 1,
+                "fieldPath": "details.email"
+              },
+              {
+                "icon": "PhoneOutlined",
+                "label": "Mobile",
+                "order": 2,
+                "fieldPath": "details.mobile"
+              },
+              {
+                "icon": "HomeOutlined",
+                "label": "Address",
+                "order": 3,
+                "fieldPath": "details.address"
+              }
+            ],
+            "privacy_control": true,
+            "show_group_name": true
+          },
+          {
+            "name": "Social Media",
+            "order": 3,
+            "fields": [
+              {
+                "icon": "TwitterOutlined",
+                "label": "X (Twitter)",
+                "order": 4,
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldPath": "details.twitter"
+              },
+              {
+                "icon": "LinkedinOutlined",
+                "label": "Linkedin",
+                "order": 1,
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldPath": "details.linkedin"
+              },
+              {
+                "icon": "FacebookOutlined",
+                "label": "Facebook",
+                "order": 2,
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldPath": "details.facebook"
+              },
+              {
+                "icon": "InstagramOutlined",
+                "label": "Instagram",
+                "order": 3,
+                "style": {
+                  "color": "#1890ff"
+                },
+                "webLink": true,
+                "fieldPath": "details.instagram"
+              }
+            ],
+            "show_group_name": true
+          },
+          {
+            "name": "Professional Affiliations",
+            "order": 4,
+            "fields": [
+              {
+                "label": "Professional Affiliations",
+                "order": 1,
+                "style": {
+                  "render": "tag",
+                  "bgColor": "",
+                  "colorMapping": {
+                    "low": "green",
+                    "normal": "blue",
+                    "urgent": "red"
+                  }
+                },
+                "fieldPath": "details.membership_type"
+              }
+            ],
+            "show_group_name": false
+          }
+        ],
+        "actions": [
+          {
+            "form": "id",
+            "name": "message"
+          }
+        ],
+        "dividers": [
+          "Personal Info",
+          "Contact Info",
+          "Social Media",
+          "Professional Affiliations"
+        ]
+      }
+    }
+  ]
