@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Typography, Button, message } from 'antd';
+import { Row, Col, Typography, Button, message, Card } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import QRCode from 'react-qr-code';
 import './TicketPage.css';
@@ -222,7 +222,11 @@ const TicketPage = () => {
           </Row>
         </div>
       </div>
-
+      <div className="info-card">
+  <Text style={{ color: '#666' }}>
+    Use this pass for quick registration at venue and also to share contacts like a virtual card with other delegates
+  </Text>
+</div>
       {isMobile && session?.user?.id && (
         <Button
           type="primary"

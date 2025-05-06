@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dropdown, Avatar, notification, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { QuestionCircleOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, LogoutOutlined, UserOutlined, ToolOutlined, SettingOutlined } from "@ant-design/icons";
 import NavItem from "./NavItem";
 import Flex from "components/shared-components/Flex";
 import { setSelectedOrganization, setSelectedUser, signOut } from "store/slices/authSlice";
@@ -141,6 +141,11 @@ export const NavProfile = ({ mode, profileData, isMobile }) => {
       key: "My Profile",
       label: <MenuItem path="/app/profile" label="My Profile" icon={<UserOutlined />} />,
       onClick: () => navigate("/app/profile"),
+    },
+    profileData?.user?.features?.feature?.profile && {
+      key: "Settings",
+      label: <MenuItem path="/app/settings" label="Settings" icon={<SettingOutlined />} />,
+      onClick: () => navigate("/app/settings"),
     },
     profileData && {
       key: "Sign Out",

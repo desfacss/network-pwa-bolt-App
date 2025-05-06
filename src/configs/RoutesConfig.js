@@ -63,6 +63,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/profile`,
             component: React.lazy(() => import('views/pages/Profile/index')),
         },
+        {
+            key: 'settings',
+            path: `${APP_PREFIX_PATH}/settings`,
+            component: React.lazy(() => import('views/pages/Permissions/index')),
+        },
 
 
 
