@@ -8,7 +8,7 @@ import { ResponsiveButton } from 'views/pages/Trial/ResponsiveButton';
 
 const { Title, Text } = Typography;
 
-const GridView = ({ data, viewConfig, updateData, searchText, setSearchText, deleteData, openDrawer, setCurrentPage, totalItems, openDrawerWithPath, openMessageModal, EmptyMessage, loadMore }) => {
+const GridView = ({ data, viewConfig, updateData, searchText, setSearchText, deleteData, openDrawer, setCurrentPage, totalItems, openDrawerWithPath, openMessageModal, EmptyMessage, loadMore, isLoadingMore }) => {
     const navigate = useNavigate();
     const { session } = useSelector((state) => state.auth);
     const gridViewConfig = viewConfig?.gridview;
@@ -79,7 +79,7 @@ const GridView = ({ data, viewConfig, updateData, searchText, setSearchText, del
                 if (!subValue) {
                     return null;
                 }
-                const SubIconComponent = subField?.icon && !Icons[subField.icon] ? null :Icons[subField.icon];
+                const SubIconComponent = subField?.icon && !Icons[subField.icon] ? null : Icons[subField.icon];
                 const content = subValue && (
                     <Text style={{ ...subField?.style, display: 'inline-block', marginRight: 8 }}>
                         {SubIconComponent && <SubIconComponent style={{ marginRight: 4 }} />}
@@ -304,6 +304,7 @@ const GridView = ({ data, viewConfig, updateData, searchText, setSearchText, del
                     type="primary"
                     onClick={loadMore}
                     block
+                    loading={isLoadingMore}
                     // style={{
                     //     position: 'fixed',
                     //     bottom: 130,

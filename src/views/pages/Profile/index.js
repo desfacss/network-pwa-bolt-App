@@ -675,49 +675,49 @@ const Profile = () => {
             )}
 
             {/* Inline CSS for Media Queries */}
-            <style jsx>{`
-                @media (max-width: 767px) {
-                    /* Mobile styles */
-                }
-                @media (min-width: 768px) {
-                    div[style*="height: 50vh"] {
-                        height: 60vh;
-                        background-position: '75px center' !important;
-                    }
-                    h1 {
-                        font-size: 2rem !important;
-                    }
-                    div[style*="top: -100px"] {
-                        top: -150px;
-                    }
-                    div[style*="padding: 15px"] {
-                        padding: 20px;
-                    }
-                    div[style*="flex-direction: column"][style*="alignItems: center"] {
-                        flex-direction: row;
-                        justify-content: space-between;
-                    }
-                    div[style*="flex-direction: column"][style*="gap: 10px"] {
-                        flex-direction: row;
-                        gap: 15px;
-                    }
-                    button {
-                        width: auto !important;
-                    }
-                }
-                @media (min-width: 992px) {
-                    div[style*="height: 50vh"] {
-                        height: 70vh;
-                        max-height: 500px;
-                    }
-                    h1 {
-                        font-size: 2.5rem !important;
-                    }
-                    div[style*="top: -100px"] {
-                        top: -180px;
-                    }
-                }
-            `}</style>
+            <style>{`
+  @media (max-width: 767px) {
+    /* Mobile styles */
+  }
+  @media (min-width: 768px) {
+    div[style*="height: 50vh"] {
+      height: 60vh;
+      background-position: center !important;
+    }
+    h1 {
+      font-size: 2rem !important;
+    }
+    div[style*="top: -170px"] {
+      top: -150px;
+    }
+    div[style*="padding: 15px"] {
+      padding: 20px;
+    }
+    div[style*="flex-direction: column"][style*="align-items: center"] {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    div[style*="flex-direction: column"][style*="gap: 10px"] {
+      flex-direction: row;
+      gap: 15px;
+    }
+    button {
+      width: auto !important;
+    }
+  }
+  @media (min-width: 992px) {
+    div[style*="height: 50vh"] {
+      height: 70vh;
+      max-height: 500px;
+    }
+    h1 {
+      font-size: 2.5rem !important;
+    }
+    div[style*="top: -170px"] {
+      top: -180px;
+    }
+  }
+`}</style>
         </div>
     );
 };

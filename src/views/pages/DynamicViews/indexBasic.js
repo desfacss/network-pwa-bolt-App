@@ -38,6 +38,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [editItem, setEditItem] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false); // New state for "Load More"
     const [messageReceiverId, setMessageReceiverId] = useState(null);
     const [selectedTab, setSelectedTab] = useState(tabOptions?.[0]?.key || '');
     const [selectedView, setSelectedView] = useState(null);
@@ -136,8 +137,8 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             }
             const data = await response.json();
             console.log("Data fetched:", data);
-            setSchemas(data[0]);
-            // console.log("ttr", formData, data?.data_config, transformData(formData, data?.data_config));
+            setSchemas(data[0]); // Use data[0] as requested
+            console.log("ttr", formData, data[0]?.data_config, transformData(formData, data[0]?.data_config));
         } catch (err) {
             console.error("Error in fetchFormSchema:", err);
             notification.error({ message: err.message || "Failed to fetch form schema" });
@@ -162,7 +163,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [viewMode, setViewMode] = useState(false);
     const [searchText, setSearchText] = useState('');
 
-    const ROWS_PER_PAGE = 2;
+    const ROWS_PER_PAGE = 50; // Set to 2 as requested
 
     useEffect(() => {
         const filterData = () => {
@@ -183,8 +184,11 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     }, [uiFilters, allData]);
 
     const fetchData = async (page = 1, append = false) => {
-        setLoading(true);
-        console.log("viewConfig", viewConfig);
+        if (append) {
+            setIsLoadingMore(true); // Set loading state for "Load More"
+        } else {
+            setLoading(true); // Set loading state for initial fetch or reset
+        }
 
         let query = supabase
             .from(entityType)
@@ -226,6 +230,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
         if (error) {
             notification.error({ message: error?.message || "Failed to fetch Data" });
             setLoading(false);
+            setIsLoadingMore(false);
             return;
         }
 
@@ -243,6 +248,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
         setTotalItems(count || 0);
         setLoading(false);
+        setIsLoadingMore(false);
     };
 
     const loadMore = () => {
@@ -259,7 +265,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
             }
             const data = await response.json();
             console.log("viewConfigT", data);
-            setViewConfig(data[0]);
+            setViewConfig(data[0]); // Use data[0] as requested
         } catch (error) {
             console.error("Error in fetchViewConfigs:", error);
             notification.error({ message: error.message || "Failed to fetch View Config" });
@@ -272,6 +278,11 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
 
     useEffect(() => {
         if (viewConfig) {
+            setCurrentPage(1); // Reset currentPage when fetchFilters change
+            setData([]); // Clear existing data
+            setAllData([]);
+            setRawData([]);
+            setTotalItems(0);
             fetchData(1, false);
             if (setCallFetch && typeof setCallFetch === "function") {
                 setCallFetch(() => () => fetchData(1, false));
@@ -376,14 +387,14 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                     setSearchText={setSearchText}
                     EmptyMessage={EmptyMessage}
                     loadMore={loadMore}
+                    isLoadingMore={isLoadingMore} // Pass new loading state
                 />
             )
         },
-    ]
-    // .filter(item =>
-    //     (tabs ? tabs.includes(item.key === '1' ? 'tableview' : item.key === '2' ? 'gridview' : item.key === '3' ? 'timelineview' : item.key === '4' ? 'kanbanview' : item.key === '5' ? 'ganttview' : item.key === '6' ? 'calendarview' : 'dashboardview') : true) &&
-    //     viewConfig?.[item.key === '1' ? 'tableview' : item.key === '2' ? 'gridview' : item.key === '3' ? 'timelineview' : item.key === '4' ? 'kanbanview' : item.key === '5' ? 'ganttview' : item.key === '6' ? 'calendarview' : 'dashboardview']?.showFeatures?.includes('enable_view')
-    // );
+    ]; /* .filter(item =>
+        (tabs ? tabs.includes(item.key === '1' ? 'tableview' : item.key === '2' ? 'gridview' : item.key === '3' ? 'timelineview' : item.key === '4' ? 'kanbanview' : item.key === '5' ? 'ganttview' : item.key === '6' ? 'calendarview' : 'dashboardview') : true) &&
+        viewConfig?.[item.key === '1' ? 'tableview' : item.key === '2' ? 'gridview' : item.key === '3' ? 'timelineview' : item.key === '4' ? 'kanbanview' : item.key === '5' ? 'ganttview' : item.key === '6' ? 'calendarview' : 'dashboardview']?.showFeatures?.includes('enable_view')
+    ); */ // Commented out as requested
 
     useEffect(() => {
         if (viewItems.length > 0 && !selectedView) {
