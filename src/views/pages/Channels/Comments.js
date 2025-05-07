@@ -780,7 +780,7 @@ import LoadingComponent from 'components/layout-components/LoadingComponent';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
 
-const PAGE_SIZE = 10; // Number of posts to fetch per page
+const PAGE_SIZE = 30; // Number of posts to fetch per page
 
 const ForumComment = ({
   channel_id,
@@ -1097,11 +1097,11 @@ const ForumComment = ({
           />
           {hasMore && (
             <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <Button
+              <Button block
                 onClick={handleLoadMore}
                 loading={isFetching}
                 type="primary"
-                style={{ width: '200px' }}
+                // style={{ width: '200px' }}
               >
                 Load More
               </Button>

@@ -163,7 +163,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
     const [viewMode, setViewMode] = useState(false);
     const [searchText, setSearchText] = useState('');
 
-    const ROWS_PER_PAGE = 50; // Set to 2 as requested
+    const ROWS_PER_PAGE = 30; // Set to 2 as requested
 
     useEffect(() => {
         const filterData = () => {
