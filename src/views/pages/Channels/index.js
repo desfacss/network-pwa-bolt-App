@@ -1292,7 +1292,7 @@ const Channels = ({ channelId, isPrivate = false, onChannelChange, onUnreadCount
 
     const isSubscribed = session?.user?.subscriptions?.channels?.includes(targetChannel.id);
     const isAuthorized =
-      isSubscribed ||
+      isSubscribed || !isPrivate ||
       session.user.id === targetChannel.created_by ||
       session.user.role_type === 'superadmin' ||
       session.user.role_type === 'admin';

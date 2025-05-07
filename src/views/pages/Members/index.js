@@ -8,24 +8,30 @@ const Index = () => {
     const [nativeFilter, setNativeFilter] = useState(null);
     const [kovilFilter, setKovilFilter] = useState(null);
 
+    // const nativeOptions = [
+    //     "A.Muthupattinam (Attangudi)", "A.Siruvayal (Aranmanai)", "A.Thekkur (Aathikkadu)", "Aavinippatti", "Alavakkottai",
+    //     "Amaravathi Puthoor", "Arimalam", "Ariyakkudi", "Attangudi", "Chokkalingam Pudur", "Chokkanathapuram", "Devakottai",
+    //     "Madagu Patti", "Mahibalan Patti", "Managiri", "Melaisivapuri", "Mithilaippatti", "Nachandu Patti", "Nachiapuram",
+    //     "Natarajapuram", "Nattarasankottai", "Nemathanpatti", "Nerkuppai", "Okkur", "P.Alagapuri (Pillamangalam)",
+    //     "P.Pudupatti (Ponnamaravathi)", "Paganeri", "Palavangudi", "Pallathur", "Panangudi", "Panayappatti", "Pattamangalam",
+    //     "Poolankurichi", "Puduvayal", "Rangiem", "Rayavaram", "Sakkanthy", "Sembanoor", "Sevvoor", "Shanmuganathapuram (Aaravayal)",
+    //     "Sholapuram", "Siruvayal", "Sirukoodal Patti", "Siruvayal (Oyyakundan)", "Thanichaoorani", "Thenipatti", "Ulagampatti",
+    //     "V.Lakshmipuram (Virachilai)", "Valayapatti", "Vegupatti", "Venthanpatti", "Vetriyur", "Virachilai", "Viramathi",
+    //     "K.Alagapuri (Kollangudi)", "K.Alagapuri (Kottaiyur)", "K.Lakshmipuram (Kothamangalam)", "Kaanadu Kathan", "Kadiyapatti",
+    //     "Kalayar Mangalam", "Kallal", "Kalluppatti", "Kandanoor", "Kandaramanikkam", "Kandavarayan Patti", "Karaikudi",
+    //     "Karungulam", "Kila Poongudi", "Kilachival Patti", "Konapattu", "Koppanapatti", "Kothamangalam", "Kottaiyur",
+    //     "Kulipirai", "Kuruvikkondan Patti"
+    // ];
     const nativeOptions = [
-        "A.Muthupattinam (Attangudi)", "A.Siruvayal (Aranmanai)", "A.Thekkur (Aathikkadu)", "Aavinippatti", "Alavakkottai",
-        "Amaravathi Puthoor", "Arimalam", "Ariyakkudi", "Attangudi", "Chokkalingam Pudur", "Chokkanathapuram", "Devakkottai",
-        "Madagu Patti", "Mahibalan Patti", "Managiri", "Melaisivapuri", "Mithilaippatti", "Nachandu Patti", "Nachiapuram",
-        "Natarajapuram", "Nattarasankottai", "Nemathanpatti", "Nerkuppai", "Okkur", "P.Alagapuri (Pillamangalam)",
-        "P.Pudupatti (Ponnamaravathi)", "Paganeri", "Palavangudi", "Pallathur", "Panangudi", "Panayappatti", "Pattamangalam",
-        "Poolankurichi", "Puduvayal", "Rangiem", "Rayavaram", "Sakkanthy", "Sembanoor", "Sevvoor", "Shanmuganathapuram (Aaravayal)",
-        "Sholapuram", "Siruvayal", "Sirukoodal Patti", "Siruvayal (Oyyakundan)", "Thanichaoorani", "Thenipatti", "Ulagampatti",
-        "V.Lakshmipuram (Virachilai)", "Valayapatti", "Vegupatti", "Venthanpatti", "Vetriyur", "Virachilai", "Viramathi",
-        "K.Alagapuri (Kollangudi)", "K.Alagapuri (Kottaiyur)", "K.Lakshmipuram (Kothamangalam)", "Kaanadu Kathan", "Kadiyapatti",
-        "Kalayar Mangalam", "Kallal", "Kalluppatti", "Kandanoor", "Kandaramanikkam", "Kandavarayan Patti", "Karaikudi",
-        "Karungulam", "Kila Poongudi", "Kilachival Patti", "Konapattu", "Koppanapatti", "Kothamangalam", "Kottaiyur",
-        "Kulipirai", "Kuruvikkondan Patti"
+        "A.Muthupattinam","A.Siruvayal","Alavakkottai","Amaravathiputhur","Arimalam","Ariyakuddi","A.Thekkoor","Attangudi","Avinippatti","Chokkalingam Pudur","Chokkanathapuram","Devakottai","K.Alagapuri","K.Lakshmipuram","Kadiyapatti","Kalaiyarmangalam","Kallal","Kallupatti","Kanadukathaan","Kandanoor","Kandramanickam","Kandavarayanpatti","Karaikkudi","Karunkulam","Keezhapoongudi","Keezhasivapatti","Konapattu","Koppanapatti","Kottaiyoor","Kothamangalam","Kulipirai","Kuruvikkondanpatti","Madagupatti","Mahibalanpatti","Managiri","Melachivalpuri","Mithilaipatti","N.Alagapuri","Nachiapuram","Nachandupatti","Natarajapuram","Nattarasankottai","Nemathanpatti","Nerkuppai","O.Siruvayal","Okkur","P.Alagapuri","Paganeri","Palavankudi","Pallathur","Panangudi","Panayapatti","Pattamangalam","Poolankurichi","Pon Pudupatti","Puduvayal","Rangiam","Rayavaram","Sakkanthi","Sembanoor","Sevoor","Shanmuganathapuram","Siravayal","Sirukoodalpatti","Solapuram","Thenipatti","Ulagampatti","V.Lakshmipuram","Valayapatti","Vegupatti","Venthanpatti","Vetriyur","Virachalai","Viramathi"
     ];
 
+    // const kovilOptions = [
+    //     "Iliyatrangudi", "Ilupakkudi", "Iranniyur", "Mathur", "Nemam", "Pillayarpatti", "Soorakudi", "Vairavankovil", "Velangudi"
+    // ];
     const kovilOptions = [
-        "Iliyatrangudi", "Ilupakkudi", "Iranniyur", "Mathur", "Nemam", "Pillayarpatti", "Soorakudi", "Vairavankovil", "Velangudi"
-    ];
+        "Illaiyathangudi","Illuppaikudi","Iraniyur","Mathur","Nemam","Pillaiyarpatti","Soorakuddi","Vairavan","Velankudi"
+        ];
 
     // Construct fetchFilters based on selected values
     const fetchFilters = [
