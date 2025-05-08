@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Drawer, message } from "antd";
+import { Button, Card, Drawer, message, notification } from "antd";
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from "react-redux";
 import DynamicForm from "./DynamicForm";
@@ -10,26 +10,40 @@ const Survey = () => {
     const { session } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        const fetchFormSchema = async () => {
-            console.log("ud", session?.user?.organization?.id);
-            if (session?.user?.organization?.id) {
-                const { data, error } = await supabase
-                    .from('forms')
-                    .select('data_schema, ui_schema')
-                    .eq('name', 'business_survey_form')
-                    .eq('organization_id', session.user.organization.id);
+        // const fetchFormSchema = async () => {
+        //     console.log("ud", session?.user?.organization?.id);
+        //     if (session?.user?.organization?.id) {
+        //         const { data, error } = await supabase
+        //             .from('forms')
+        //             .select('data_schema, ui_schema')
+        //             .eq('name', 'business_survey_form')
+        //             .eq('organization_id', session.user.organization.id);
 
-                if (error) {
-                    console.error('Error fetching schema:', error);
-                } else if (data && data.length > 0) {
-                    console.log("ui", data);
-                    setSchema({
-                        data_schema: data[0].data_schema,
-                        ui_schema: data[0].ui_schema
-                    });
+        //         if (error) {
+        //             console.error('Error fetching schema:', error);
+        //         } else if (data && data.length > 0) {
+        //             console.log("ui", data);
+        //             setSchema({
+        //                 data_schema: data[0].data_schema,
+        //                 ui_schema: data[0].ui_schema
+        //             });
+        //         }
+        //     }
+        // };
+
+        const fetchFormSchema = async () => {
+                try {
+                    const response = await fetch(`/data/forms/business_survey_form.json`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch form schema: ${response.statusText}`);
+                    }
+                    const data = await response.json();
+                    setSchema(data[0]); // Use data[0] as requested
+                } catch (err) {
+                    console.error("Error in fetchFormSchema:", err);
+                    notification.error({ message: err.message || "Failed to fetch form schema" });
                 }
-            }
-        };
+            };
 
         fetchFormSchema();
     }, [session]);

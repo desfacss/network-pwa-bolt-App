@@ -1,0 +1,244 @@
+[
+  {
+    "id": "1fff1f1e-a45b-4592-a0f3-2da3dc741dc1",
+    "created_at": "2025-02-21 17:06:28.889241+00",
+    "name": "business_survey_form",
+    "data_schema": {
+      "type": "object",
+      "required": [
+        "PositionTitle",
+        "IndustrySector",
+        "SubSector",
+        "LegalStructure",
+        "NagaratharInvolvement",
+        "AnnualTurnoverRange",
+        "DirectEmployment",
+        "location"
+      ],
+      "properties": {
+        "location": {
+          "type": "string",
+          "title": "Main Location"
+        },
+        "SubSector": {
+          "type": "string",
+          "title": "Sub Sector"
+        },
+        "CompanyName": {
+          "type": "string",
+          "title": "Company Name (Completely Optional)"
+        },
+        "PositionTitle": {
+          "type": "string",
+          "title": "Your Position/Title"
+        },
+        "IndustrySector": {
+          "enum": [
+            "Agriculture & ESG",
+            "Consumer Goods",
+            "E-commerce, D2C & Retail",
+            "Financial Services",
+            "IT and Software Services",
+            "Logistics & Transport",
+            "Manufacturing",
+            "Media and Entertainment",
+            "Pharma & Healthcare",
+            "Professional Services",
+            "Public Administration",
+            "Real Estate & Construction",
+            "Sales and Distribution",
+            "Tourism and Hospitality",
+            "Utility Services",
+            "Others"
+          ],
+          "type": "string",
+          "title": "Industry/Sector"
+        },
+        "LegalStructure": {
+          "enum": [
+            "Home Business / Unregistered",
+            "Limited Liability Partnership (LLP)",
+            "Partnership",
+            "Private Limited Company",
+            "Public Limited Company",
+            "Sole Proprietorship"
+          ],
+          "type": "string",
+          "title": "Legal Structure of Business"
+        },
+        "DirectEmployment": {
+          "enum": [
+            "1 to 20",
+            "20 to 50",
+            "50 to 100",
+            "more than 100",
+            "more than 500",
+            "more than 1000",
+            "Others"
+          ],
+          "type": "string",
+          "title": "Direct Employment"
+        },
+        "briefDescription": {
+          "type": "string",
+          "title": "Business Description (Completely Optional)",
+          "format": "textarea"
+        },
+        "IndirectEmployment": {
+          "enum": [
+            "1 to 20",
+            "20 to 50",
+            "50 to 100",
+            "more than 100",
+            "more than 500",
+            "more than 1000",
+            "Others"
+          ],
+          "type": "string",
+          "title": "Indirect Employment"
+        },
+        "AnnualTurnoverRange": {
+          "enum": [
+            "Prefer not to disclose",
+            "Below 1 crore",
+            "1 Crore to 5 Crore",
+            "5 Crore to 10 Crore",
+            "Above 10 Crore",
+            "Above 100 Crore",
+            "Others"
+          ],
+          "type": "string",
+          "title": "Annual Turnover Range"
+        },
+        "YearOfEstablishment": {
+          "type": "number",
+          "title": "Year of Establishment"
+        },
+        "NagaratharInvolvement": {
+          "enum": [
+            "100% ownership",
+            "Less than 50%",
+            "Less than 25%",
+            "Others"
+          ],
+          "type": "string",
+          "title": "Nagarathar Ownership"
+        }
+      }
+    },
+    "ui_schema": {
+      "location": {
+        "ui:options": {
+          "placeholder": "Enter main location"
+        }
+      },
+      "ui:order": [
+        "IndustrySector",
+        "SubSector",
+        "LegalStructure",
+        "YearOfEstablishment",
+        "NagaratharInvolvement",
+        "AnnualTurnoverRange",
+        "DirectEmployment",
+        "IndirectEmployment",
+        "PositionTitle",
+        "location",
+        "CompanyName",
+        "briefDescription"
+      ],
+      "SubSector": {
+        "ui:placeholder": "Specify the sub sector"
+      },
+      "CompanyName": {
+        "ui:autofocus": true,
+        "ui:placeholder": "Enter company name"
+      },
+      "PositionTitle": {
+        "ui:placeholder": "Enter your position/title"
+      },
+      "IndustrySector": {
+        "ui:widget": "SelectCustomWidget",
+        "_ui:widget": "select",
+        "ui:options": {
+          "mode": "single",
+          "showSearch": true
+        }
+      },
+      "LegalStructure": {
+        "ui:widget": "SelectCustomWidget",
+        "_ui:widget": "select",
+        "ui:options": {
+          "mode": "single",
+          "showSearch": true
+        }
+      },
+      "DirectEmployment": {
+        "ui:widget": "select"
+      },
+      "briefDescription": {
+        "ui:widget": "textarea",
+        "ui:options": {
+          "rows": 5,
+          "placeholder": "Enter a brief description of your business"
+        }
+      },
+      "IndirectEmployment": {
+        "ui:widget": "select"
+      },
+      "AnnualTurnoverRange": {
+        "ui:widget": "select"
+      },
+      "YearOfEstablishment": {
+        "ui:widget": "updown"
+      },
+      "SelectIndustrySector": {
+        "ui:widget": "select",
+        "ui:options": {
+          "emptyValue": null
+        }
+      },
+      "SelectLegalStructure": {
+        "ui:widget": "select",
+        "ui:options": {
+          "emptyValue": null
+        }
+      },
+      "NagaratharInvolvement": {
+        "ui:widget": "select"
+      },
+      "SelectDirectEmployment": {
+        "ui:widget": "select",
+        "ui:options": {
+          "emptyValue": null
+        }
+      },
+      "ui:submitButtonOptions": {
+        "props": {
+          "disabled": false,
+          "className": "ant-btn css-dev-only-do-not-override-1stfoss ant-btn-submit ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-block"
+        },
+        "norender": false,
+        "submitText": "Submit"
+      },
+      "SelectAnnualTurnoverRange": {
+        "ui:widget": "select",
+        "ui:options": {
+          "emptyValue": null
+        }
+      },
+      "SelectNagaratharInvolvement": {
+        "ui:widget": "select",
+        "ui:options": {
+          "emptyValue": null
+        }
+      }
+    },
+    "form_type": null,
+    "x_next_step": null,
+    "x_db_schema": {},
+    "notes": null,
+    "org_notes": null,
+    "organization_id": "20e899a5-6261-40d9-8c9a-00666248d91a",
+    "data_config": {}
+  }
+]

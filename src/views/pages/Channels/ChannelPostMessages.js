@@ -1,6 +1,6 @@
 import { Button, Drawer, Input, Modal, Avatar, Tooltip, Popconfirm } from "antd";
 import { supabase } from "configs/SupabaseConfig";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react"; // Import useRef
 import { useSelector } from "react-redux";
 import PostCard from "./Post";
 import { addMessage, fetchMessages } from "./utils";
@@ -16,6 +16,12 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
   const [editMessageContent, setEditMessageContent] = useState("");
   const { session } = useSelector((state) => state.auth);
   const [isInbox, setIsInbox] = useState(null);
+  const messagesEndRef = useRef(null); // Create a ref for the message list
+
+  // Function to scroll to the bottom of the message list
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Function to update last_read in post_read_statuses
   const updateLastRead = async () => {
@@ -110,14 +116,19 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
     };
   }, [channel_post_id, visible]);
 
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const handleAddMessage = async () => {
     if (newMessage.trim() === "" || !channel_post_id) return;
     await addMessage(channel_post_id, session?.user?.user_name, newMessage, session?.user?.id, isInbox);
-    console.log("vv", channel_post_id, session?.user?.user_name, newMessage, session?.user?.id, isInbox)
     setNewMessage("");
+    scrollToBottom(); // Scroll to bottom after adding a new message
   };
 
-  const convertMessageToLinks = messageText => {
+  const convertMessageToLinks = (messageText) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     let messageWithLinks = [];
 
@@ -164,6 +175,7 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
         const updatedMessages = await fetchMessages(channel_post_id);
         setMessages(updatedMessages);
         setIsModalVisible(false);
+        scrollToBottom(); // Scroll to bottom after updating a message
       }
     }
   };
@@ -179,6 +191,7 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
     } else {
       const updatedMessages = await fetchMessages(channel_post_id);
       setMessages(updatedMessages);
+      scrollToBottom(); // Scroll to bottom after deleting a message
     }
   };
 
@@ -264,6 +277,8 @@ const ChannelPostMessages = ({ visible, onClose, channel_post_id }) => {
             </div>
           </li>
         ))}
+        {/* Add a div at the end of the message list to use as the scroll target */}
+        <div ref={messagesEndRef} />
       </ul>
       <Modal
         title="Edit Message"

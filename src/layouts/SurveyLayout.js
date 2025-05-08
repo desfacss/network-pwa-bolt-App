@@ -415,9 +415,8 @@ const state = store.getState();
 const isIOS = () =>
   /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
 
-const isInStandaloneMode = () =>
-  "standalone" in window.navigator && window.navigator.standalone;
-
+// const isInStandaloneMode = () =>
+//   "standalone" in window.navigator && window.navigator.standalone;
 // Shared animation variants for modal and banner
 const slideVariants = {
   initial: { y: -100, opacity: 0 },
@@ -455,6 +454,7 @@ const SurveyLayout = ({ children }) => {
   const [isBanner, setIsBanner] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
+  const [appIsInstalled, setAppIsInstalled] = useState(false);
 
   // Check if the app is already installed
   const isAppInstalled = () => {
@@ -462,12 +462,12 @@ const SurveyLayout = ({ children }) => {
       window.matchMedia("(display-mode: standalone)").matches ||
       ("standalone" in window.navigator && window.navigator.standalone);
     const isIOSNonSafari = isIOS() && !/safari/i.test(window.navigator.userAgent.toLowerCase());
-    console.log("[isAppInstalled] Standalone:", isStandalone, "iOS Non-Safari:", isIOSNonSafari);
+    console.log("[isAppInstalled] Standalone:", isStandalone, "iOS Non-Safari:", isIOSNonSafari, "Result:", isStandalone || isIOSNonSafari);
     return isStandalone || isIOSNonSafari;
   };
 
   // Calculate dynamic height based on mode
-  const layoutHeight = isAppInstalled() ? "100%" : "calc(100% - 30px)";
+  const layoutHeight = appIsInstalled ? "100%" : "calc(100% - 30px)";
 
   // Detect if the device is iOS
   useEffect(() => {
@@ -476,54 +476,77 @@ const SurveyLayout = ({ children }) => {
     console.log("[useEffect] Is iOS device:", ios);
   }, []);
 
+  // Monitor installation status
+  useEffect(() => {
+    const checkInstallation = () => {
+      const installed = isAppInstalled();
+      console.log("[checkInstallation] App installed status:", installed);
+      setAppIsInstalled(installed);
+      if (installed) {
+        setIsPromptVisible(false);
+        setIsBanner(false);
+        setIsDismissed(false);
+        setShowInstallButton(false);
+        localStorage.removeItem("installPromptDismissed");
+      }
+    };
+
+    checkInstallation(); // Initial check
+
+    const mediaQuery = window.matchMedia("(display-mode: standalone)");
+    const handleMediaChange = () => {
+      console.log("[MediaQuery] Display mode changed");
+      checkInstallation();
+    };
+    mediaQuery.addEventListener("change", handleMediaChange);
+
+    return () => mediaQuery.removeEventListener("change", handleMediaChange);
+  }, []);
+
   // Handle the beforeinstallprompt event for Android
   useEffect(() => {
-    if (!isIOSDevice) {
-      const handleBeforeInstallPrompt = (e) => {
-        e.preventDefault();
-        console.log("[Install Prompt] beforeinstallprompt fired");
-        deferredPromptRef.current = e;
-        setShowInstallButton(true);
-      };
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      console.log("[Install Prompt] beforeinstallprompt fired:", e);
+      deferredPromptRef.current = e;
+      setShowInstallButton(true);
+    };
 
-      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    console.log("[useEffect] Added beforeinstallprompt listener");
 
-      return () => {
-        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      };
-    }
-  }, [isIOSDevice]);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      console.log("[useEffect] Removed beforeinstallprompt listener");
+    };
+  }, []);
 
   // Control modal and banner visibility
   useEffect(() => {
-    const dismissed = localStorage.getItem("installPromptDismissed") === "true";
-    const installed = isAppInstalled();
-
-    console.log("[useEffect] Dismissed:", dismissed, "Installed:", installed, "iOS:", isIOSDevice);
-
-    if (installed) {
+    if (appIsInstalled) {
+      console.log("[Visibility] App is installed, hiding prompt and banner");
       setIsPromptVisible(false);
       setIsBanner(false);
       setIsDismissed(false);
+      setShowInstallButton(false);
       localStorage.removeItem("installPromptDismissed");
-    } else {
-      if (dismissed) {
-        setIsPromptVisible(false);
-        setIsBanner(true);
-      } else {
-        setIsPromptVisible(true);
-        setIsBanner(false);
-      }
+      return;
     }
-  }, [isIOSDevice]);
 
-  // Reset dismissal state if app is installed
-  useEffect(() => {
-    const installed = isAppInstalled();
-    if (installed) {
-      localStorage.removeItem("installPromptDismissed");
+    const dismissed = localStorage.getItem("installPromptDismissed") === "true";
+    console.log("[Visibility] Dismissed:", dismissed, "iOS:", isIOSDevice, "ShowInstallButton:", showInstallButton);
+
+    if (dismissed) {
+      setIsPromptVisible(false);
+      setIsBanner(true);
+      setIsDismissed(true);
+    } else {
+      // Always show prompt for non-iOS devices, even if beforeinstallprompt hasn't fired yet
+      setIsPromptVisible(isIOSDevice || !isIOSDevice);
+      setIsBanner(false);
+      setIsDismissed(false);
     }
-  }, []);
+  }, [isIOSDevice, appIsInstalled]);
 
   // Handle collapsing the prompt into a banner
   const handleCollapse = () => {
@@ -534,40 +557,83 @@ const SurveyLayout = ({ children }) => {
     localStorage.setItem("installPromptDismissed", "true");
   };
 
-  // Handle install click
+  // Handle install click with extended retry mechanism
   const handleInstallClick = async () => {
+    if (appIsInstalled) {
+      console.log("[handleInstallClick] App already installed, no action needed");
+      setIsPromptVisible(false);
+      setIsBanner(false);
+      return;
+    }
+
     if (isIOSDevice) {
+      console.log("[handleInstallClick] Showing iOS install instructions");
       alert("To install the app on your iPhone, tap the Share button in Safari and select 'Add to Home Screen'.");
       handleCollapse();
-    } else if (deferredPromptRef.current) {
-      console.log("[handleInstallClick] Triggering install prompt");
-      deferredPromptRef.current.prompt();
-      const choiceResult = await deferredPromptRef.current.userChoice;
-      if (choiceResult.outcome === "accepted") {
-        console.log("User accepted the install prompt");
-        setIsPromptVisible(false);
-        setIsBanner(false);
-        localStorage.removeItem("installPromptDismissed");
+    } else {
+      console.log("[handleInstallClick] DeferredPrompt:", deferredPromptRef.current);
+      if (deferredPromptRef.current) {
+        console.log("[handleInstallClick] Triggering Android install prompt");
+        deferredPromptRef.current.prompt();
+        const choiceResult = await deferredPromptRef.current.userChoice;
+        if (choiceResult.outcome === "accepted") {
+          console.log("User accepted the install prompt");
+          setIsPromptVisible(false);
+          setIsBanner(false);
+          setAppIsInstalled(true);
+          localStorage.removeItem("installPromptDismissed");
+        } else {
+          console.log("User dismissed the install prompt");
+          handleCollapse();
+        }
+        deferredPromptRef.current = null;
+        setShowInstallButton(false);
       } else {
-        console.log("User dismissed the install prompt");
-        handleCollapse();
+        console.log("[handleInstallClick] No deferred prompt available. Starting retry...");
+        let retryCount = 0;
+        const maxRetries = 5; // Retry up to 5 times (10 seconds total)
+        const retryInterval = setInterval(() => {
+          retryCount++;
+          console.log(`[handleInstallClick Retry ${retryCount}] Checking deferred prompt...`);
+          if (deferredPromptRef.current) {
+            console.log("[handleInstallClick Retry] Deferred prompt now available, triggering prompt");
+            clearInterval(retryInterval);
+            deferredPromptRef.current.prompt();
+            deferredPromptRef.current.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === "accepted") {
+                console.log("User accepted the install prompt");
+                setIsPromptVisible(false);
+                setIsBanner(false);
+                setAppIsInstalled(true);
+                localStorage.removeItem("installPromptDismissed");
+              } else {
+                console.log("User dismissed the install prompt");
+                handleCollapse();
+              }
+              deferredPromptRef.current = null;
+              setShowInstallButton(false);
+            });
+          } else if (retryCount >= maxRetries) {
+            console.log("[handleInstallClick Retry] Max retries reached, prompt not available");
+            clearInterval(retryInterval);
+            alert("Install prompt is not available at the moment. Please ensure your browser supports app installation and try again later.");
+          }
+        }, 2000); // Retry every 2 seconds
       }
-      deferredPromptRef.current = null;
-      setShowInstallButton(false);
     }
   };
 
   // Debug state
-  // console.log("[SurveyLayout] State:", {
-  //   isAppInstalled: isAppInstalled(),
-  //   isDismissed: localStorage.getItem("installPromptDismissed"),
-  //   isPromptVisible,
-  //   isBanner,
-  //   isIOSDevice,
-  //   showInstallButton,
-  //   deferredPrompt: !!deferredPromptRef.current,
-  //   layoutHeight,
-  // });
+  console.log("[SurveyLayout] State:", {
+    appIsInstalled,
+    isDismissed: localStorage.getItem("installPromptDismissed"),
+    isPromptVisible,
+    isBanner,
+    isIOSDevice,
+    showInstallButton,
+    deferredPrompt: deferredPromptRef.current,
+    layoutHeight,
+  });
 
   return (
     <div className={`h-100 ${theme === "light" ? "bg-white" : ""}`} style={{ height: layoutHeight }}>
@@ -585,7 +651,7 @@ const SurveyLayout = ({ children }) => {
             }}
           >
             <AnimatePresence>
-              {(isPromptVisible || isBanner) && !isAppInstalled() && (
+              {(isPromptVisible || isBanner) && !appIsInstalled && (
                 <>
                   {isPromptVisible && !isBanner && (
                     <motion.div
