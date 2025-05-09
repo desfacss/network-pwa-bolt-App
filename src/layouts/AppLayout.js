@@ -2,11 +2,11 @@ import React, { Suspense, useEffect, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import SideNav from "components/layout-components/SideNav";
-import TopNav from "components/layout-components/TopNav";
+// import TopNav from "components/layout-components/TopNav";
 import Loading from "components/shared-components/Loading";
 import HeaderNav from "components/layout-components/HeaderNav";
-import PageHeader from "components/layout-components/PageHeader";
-import Footer from "components/layout-components/Footer";
+// import PageHeader from "components/layout-components/PageHeader";
+// import Footer from "components/layout-components/Footer";
 import { Layout, Grid, Badge } from "antd";
 import { TabBar } from "antd-mobile";
 import { TEMPLATE, MEDIA_QUERIES } from "constants/ThemeConstant";
@@ -144,23 +144,23 @@ export const AppLayout = ({
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <HeaderNav profileData={profile} isMobile={isMobile} />
-      {isNavTop && !isMobile ? <TopNav routeInfo={currentRouteInfo} /> : null}
+      {/* {isNavTop && !isMobile ? <TopNav routeInfo={currentRouteInfo} /> : null} */}
       <Layout>
         {isNavSide && !isMobile ? (
           <SideNav routeInfo={currentRouteInfo} />
         ) : null}
         <Layout style={getLayoutDirectionGutter()}>
           <AppContent isNavTop={isNavTop}>
-            <PageHeader
+            {/* <PageHeader
               display={currentRouteInfo?.breadcrumb}
               title={currentRouteInfo?.title}
-            />
+            /> */}
             <Content className="h-100">
               <Suspense fallback={<Loading cover="content" />}>
                 {children}
               </Suspense>
             </Content>
-            <Footer />
+            {/* <Footer /> */}
           </AppContent>
         </Layout>
       </Layout>

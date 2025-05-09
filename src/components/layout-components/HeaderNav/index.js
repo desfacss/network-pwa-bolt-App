@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { TEMPLATE } from "constants/ThemeConstant";
 import { CaretLeftOutlined, CaretRightOutlined, UserOutlined, MenuUnfoldOutlined } from "@ant-design/icons";  // Changed icons
-import Logo from "../Logo";
+// import Logo from "../Logo";
 import NavProfile from "../NavProfile";
 import Header from "./Header";
 import HeaderWrapper from "./HeaderWrapper";
@@ -18,7 +18,6 @@ import {
 } from "constants/ThemeConstant";
 import utils from "utils";
 import { Button, Col, Form, Input, Modal, notification, Row, Select, Tooltip, Typography } from "antd";
-import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
 
 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -123,7 +122,7 @@ export const HeaderNav = (props) => {
       headerNavColor={headerNavColor || navBgColor}
     >
       <HeaderWrapper isNavTop={isNavTop}>
-        <Logo logoType={navMode} />
+        {/* <Logo logoType={navMode} /> */}
         <Nav navWidth={getNavWidth()}>
           <NavEdge left>
             <NavItem onClick={onToggle} mode={navMode}>
