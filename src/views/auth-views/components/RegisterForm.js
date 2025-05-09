@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { connect, useSelector } from "react-redux";
-import { Button, Form, Input, notification, Divider, message } from "antd";
+import { Button, Form, Input, notification, Divider } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { showLoading } from "store/slices/authSlice";
 import { supabase } from "configs/SupabaseConfig";
-import { useNavigate, useLocation } from "react-router-dom";
-import { APP_PREFIX_PATH } from 'configs/AppConfig';
+import { useLocation } from "react-router-dom";
+import { sendEmail } from "components/common/SendEmail";
 
 export const RegisterForm = (props) => {
   const [linkSent, setLinkSent] = useState(false);
@@ -17,11 +17,46 @@ export const RegisterForm = (props) => {
 
   const { defaultOrganization } = useSelector((state) => state.auth);
 
-  const navigate = useNavigate();
   const location = useLocation();
   const { showLoading } = props;
 
   const defaultRole = "delegate";
+
+  // Function to send registration confirmation email
+  const sendRegistrationEmail = async (userEmail, username) => {
+    const emailData = {
+      from: `IBCN2025 NO-REPLY <${process.env.REACT_APP_RESEND_FROM_EMAIL}>`,
+      to: [userEmail],
+      subject: "Welcome to IBCN NetworkX! Your Connection Hub for IBCN 2025 & Beyond! 👋",
+      html: `
+        <p>Hi ${username},</p>
+        <p>Welcome to the IBCN NetworkX! We're thrilled to have you join for the upcoming IBCN 2025 event and to connect with the wider community members. 🎉</p>
+        <p>IBCN NetworkX is your central platform to:</p>
+        <ul>
+          <li><strong>Plan Your Event:</strong> Explore the schedule and learn about our speakers.<br/>
+            <a href="[Link to Schedule & Speakers - Dynamic Placeholder Link]">Schedule & Speakers</a></li>
+          <li><strong>Network Seamlessly:</strong> Exchange virtual contacts by scanning QR codes on event passes during the July event.</li>
+          <li><strong>Connect Virtually:</strong> Join networking channels to share what you're looking for and what you can offer, fostering connections within the community.</li>
+        </ul>
+        <p><strong>Access Anywhere:</strong> Install IBCN NetworkX as a web app on your iOS, Android, or Chrome browser for easy access on all your devices.</p>
+        <ul>
+          <li><strong>Login:</strong> <a href="${window.location.origin}/app/login">Login Page</a></li>
+          <li><strong>Forgot Password?</strong> <a href="${window.location.origin}/app/confirm-signup">Forgot Password</a></li>
+          <li><strong>Install as a Web App (PWA):</strong> Get easy access directly from your home screen. Find instructions here: <a href="[Link to PWA Install Instructions - Dynamic Placeholder Link]">PWA Install Instructions</a></li>
+        </ul>
+        <p>We're excited for you to experience the power of connection with IBCN NetworkX!</p>
+        <p>Best regards,<br/>Ravi Shankar<br/>IBCN 2025 Team</p>
+      `,
+    };
+  
+    try {
+      await sendEmail([emailData]);
+      console.log("Registration confirmation email sent to:", userEmail);
+    } catch (error) {
+      console.error("Error sending registration email:", error);
+      notification.error({ message: "Failed to send registration confirmation email" });
+    }
+  };
 
   const getRoles = async () => {
     const { data, error } = await supabase.from('roles').select('*').eq('organization_id', defaultOrganization?.id);
@@ -139,6 +174,9 @@ export const RegisterForm = (props) => {
             notification.error({ message: "Error updating referral: " + updateError.message });
             return;
           }
+
+          // Send registration confirmation email
+          await sendRegistrationEmail(userEmail, userEmail.split('@')[0]);
         }
 
         notification.success({ message: "Successfully Registered" });
@@ -226,6 +264,9 @@ export const RegisterForm = (props) => {
       return;
     }
 
+    // Send registration confirmation email
+    await sendRegistrationEmail(values.email, values.email.split('@')[0]);
+
     notification.success({ message: "Successfully Registered" });
     window.location.reload();
   };
@@ -312,8 +353,8 @@ export const RegisterForm = (props) => {
     }
   };
 
-  const message="IBCN NetworkX App Registration - IBCN 2025"
-  const number="918073662457"
+  const message = "IBCN NetworkX App Registration - IBCN 2025";
+  const number = "918073662457";
   const url = `https://wa.me/${number}?text=${encodeURIComponent(message || '')}`;
 
   return (
@@ -361,11 +402,11 @@ export const RegisterForm = (props) => {
       {referralExists === false && (
         <div style={{ marginTop: 20 }}>
           <p>
-          Having issues? Contact <a href="mailto:ibcnblr@gmail.com">ibcnblr@gmail.com</a> or {" "}
-          <a href={url} target="_blank" rel="noopener noreferrer">
-      Message us on WhatsApp{" "}
-    </a>
-           for any help.
+            Having issues? Contact <a href="mailto:ibcnblr@gmail.com">ibcnblr@gmail.com</a> or{" "}
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              Message us on WhatsApp{" "}
+            </a>
+            for any help.
           </p>
           {/* <p>
             If you have not registered for IBCN 2025,{" "}

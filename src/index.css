@@ -29,7 +29,7 @@ body, html {
     #root {
       /* max-width: 1080px; Standard iPad landscape width */
       margin: 0 auto; /* Center on desktop */
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for app-like feel */
+      /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); Optional: Add a subtle shadow for app-like feel */
     }
   
     body {

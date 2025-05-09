@@ -432,7 +432,7 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 <div>No data or configuration available</div>
             )}
             <Drawer
-                width={"100%"}
+                width={"90%"}
                 title={
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 32 }}>
                         {/* <span style={{ fontSize: "16px" }}>{viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}</span> */}
