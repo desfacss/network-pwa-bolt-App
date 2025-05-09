@@ -28,7 +28,11 @@ export const protectedRoutes = (feature, module_features) => {
             path: `${APP_PREFIX_PATH}/dashboard`,
             component: React.lazy(() => import('views/pages/Dashboard')),
         },
-        
+        feature?.eventPass && {
+            key: 'pass',
+            path: `${APP_PREFIX_PATH}/pass`,
+            component: React.lazy(() => import('views/pages/ib/Ticket')),
+        },
 
     ].filter(Boolean)
 }

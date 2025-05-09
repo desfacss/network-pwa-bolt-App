@@ -5,6 +5,6 @@ export const getNavigationConfig = (workspace) => {
         case "ibcn":
             return require("configs/NavigationConfig/IBCN").default;
         default:
-            return require("configs/NavigationConfig/IBCN").default;
+            return require("configs/NavigationConfig/Default").default;
     }
 };
