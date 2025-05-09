@@ -6,6 +6,7 @@ import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
 import { UnorderedListOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
+import LoadingComponent from 'components/layout-components/LoadingComponent';
 
 const ChannelTabs = ({ onTotalUnreadChange }) => {
   const [publicUnreadCount, setPublicUnreadCount] = useState(0);
@@ -135,7 +136,7 @@ const ChannelTabs = ({ onTotalUnreadChange }) => {
   `;
 
   if (channelsLoading) {
-    return <div>Loading channels...</div>;
+    return <LoadingComponent/>;
   }
 
   return (

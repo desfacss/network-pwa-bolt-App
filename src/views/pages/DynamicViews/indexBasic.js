@@ -435,7 +435,8 @@ const Index = ({ entityType, addEditFunction, setCallFetch, fetchFilters, uiFilt
                 width={"100%"}
                 title={
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 32 }}>
-                        <span style={{ fontSize: "16px" }}>{viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}</span>
+                        {/* <span style={{ fontSize: "16px" }}>{viewMode ? snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}</span> */}
+                        <span style={{ fontSize: "16px" }}>{viewMode ? entityType==="users"?"Members Profile":snakeCaseToTitleCase(entityType) : (editItem ? 'Edit' : 'Add New')}</span>
                         <Button onClick={closeDrawer} size="small">
                             Back
                         </Button>

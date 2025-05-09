@@ -312,6 +312,10 @@ export const RegisterForm = (props) => {
     }
   };
 
+  const message="IBCN NetworkX App Registration - IBCN 2025"
+  const number="918073662457"
+  const url = `https://wa.me/${number}?text=${encodeURIComponent(message || '')}`;
+
   return (
     <div>
       <Form layout="vertical" name="register-form" onFinish={onRegister}>
@@ -357,6 +361,13 @@ export const RegisterForm = (props) => {
       {referralExists === false && (
         <div style={{ marginTop: 20 }}>
           <p>
+          Having issues? Contact <a href="mailto:ibcnblr@gmail.com">ibcnblr@gmail.com</a> or {" "}
+          <a href={url} target="_blank" rel="noopener noreferrer">
+      Message us on WhatsApp{" "}
+    </a>
+           for any help.
+          </p>
+          {/* <p>
             If you have not registered for IBCN 2025,{" "}
             <a href="https://delegates.ibcn2025.com/register" target="_blank" rel="noopener noreferrer">
               click here to register
@@ -364,7 +375,7 @@ export const RegisterForm = (props) => {
             <br />
             Or if you have registered, contact{" "}
             <a href="mailto:info@knba.com">info@knba.com</a>.
-          </p>
+          </p> */}
         </div>
       )}
     </div>

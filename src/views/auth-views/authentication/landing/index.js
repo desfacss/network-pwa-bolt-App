@@ -256,7 +256,7 @@ const IntroScreen = () => {
             style={{ marginBottom: '10px', fontSize: '1rem', width: '48%' }}
             onClick={() => navigate(`${APP_PREFIX_PATH}/register`)}
           >
-            Register
+            Register for App
           </Button>
           <Button
             color="primary"

@@ -484,7 +484,7 @@ const Profile = () => {
     const tabItems = [
         {
             key: 'information',
-            label: (profileOwner && 'My ') + 'Information',
+            label: (profileOwner ? 'My ': "" ) + 'Profile',
             children: (
                 <DetailOverview data={userData} config={profileFields} editable={true} owner={profileOwner}
                     saveConfig={{ table: "users", column: "privacy", entity: userData?.id }} />
@@ -492,7 +492,7 @@ const Profile = () => {
         },
         session?.user?.features?.feature?.profileBusinesses && profileOwner && {
             key: 'businesses',
-            label: (profileOwner && 'My ') + 'Businesses',
+            label: (profileOwner ? 'My ': "" ) + 'Businesses',
             children: (
                 <DynamicViews entityType={'ib_businesses'} fetchFilters={filters} tabs={["gridview"]} EmptyMessage={EmptyMessage} />
             ),

@@ -60,12 +60,51 @@ const RegisterTwo = (props) => {
           <Col span={24}> {/* Full width */}
 
             <div style={{ maxWidth: "500px", margin: "0 auto" }}> {/* Constrain form width */}
-              <h3>Register</h3>
-              <p pb-2>NetworkX is open for IBCN 2025 Delegates only for now! Check you registration with your email or mobile and continue with the App!</p>
-              <RegisterForm {...props} />
-              <Divider></Divider>
+              {/* <h3>Register</h3> */}
               <p>
-                If you have registered for the app,<Link to={`${APP_PREFIX_PATH}/login`}> Login here...</Link>
+              <div 
+              // style={{ padding: '1rem' }}
+              >
+      {/* <h4>Not Registered for IBCN 2025 Yet?</h4>
+      <ul>
+        <li>
+          Please register for the main IBCN 2025 event first:{' '}
+          <a href="link-to-web-registration" target="_blank" rel="noopener noreferrer">
+            Register here
+          </a>
+        </li>
+        <li>Then return here to complete your app registration.</li>
+      </ul> */}
+      <h4>Registered IBCN 2025 Delegates:</h4>
+      <ul>
+        <li>Welcome!, Please register for the IBCN NetworkX app to access its features.</li>
+        <li>Enter the email address or mobile number you used for your IBCN 2025 registration.</li>
+        <li>Tap the <strong>"Check Registration"</strong> button to proceed.</li>
+        <li>
+          If you have already registered for the app,<br/>
+          <a href="/app/login">click here to login...</a>
+        </li>
+      </ul>
+      <RegisterForm {...props} />
+      <Divider></Divider>
+      <h4>Not Registered for IBCN 2025 Yet?</h4>
+      <ul>
+        <li>
+          Please register for the main IBCN 2025 event first:{' '}
+          <a href="https://delegates.ibcn2025.com/register" target="_blank" rel="noopener noreferrer">
+            Register here
+          </a>
+        </li>
+        <li>Then return here to complete your app registration.</li>
+      </ul>
+
+    </div>
+                {/* NetworkX is open for IBCN 2025 Delegates only for now! Check you registration with your email or mobile and continue with the App! */}
+              </p>
+              {/* <RegisterForm {...props} />
+              <Divider></Divider> */}
+              <p>
+                {/* If you have registered for the app,<Link to={`${APP_PREFIX_PATH}/login`}> Login here...</Link> */}
               </p>
               {/* <br />
               If you want to register for attending IBCN 2025, Please Register here! */}
