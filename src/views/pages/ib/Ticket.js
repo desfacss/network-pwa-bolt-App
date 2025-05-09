@@ -57,16 +57,18 @@ const TicketPage = () => {
       } else {
         const details = data?.details || {};
         setUserData({
-          name: details.user_name || `${details.firstName} ${details.lastName}`,
-          company: details.company || 'Company Name',
-          city: details.location || 'Location',
-          native: details.native || 'Native',
-          kovil: details.kovil || 'Kovil',
-          food: details.food || 'Veg',
-          gender: details.gender || 'Male',
-          primary_stream: details.primary_stream || 'Not Selected',
-          secondary_stream: details.secondary_stream || 'Not Selected',
-          room: details.room || 'Double Sharing',
+          name: details?.user_name || `${details?.firstName} ${details?.lastName}`,
+          company: details?.company || 'Company Name',
+          city: details?.location || 'Location',
+          native: details?.native || 'Native',
+          kovil: details?.kovil || 'Kovil',
+          food: details?.food || 'Veg',
+          gender: details?.gender || 'Male',
+          primary_stream: details?.primary_stream || 'Not Selected',
+          secondary_stream: details?.secondary_stream || 'Not Selected',
+          room: details?.room || 'Double Sharing',
+          email: details?.email,
+          profile_pic: details?.profile_pic,
         });
       }
     };
@@ -98,19 +100,20 @@ const TicketPage = () => {
     const user_name = `${values?.firstName} ${values?.lastName}`;
     const updatedDetails = {
       ...userData,
-      firstName: values.firstName,
-      lastName: values.lastName,
-      email: values.email,
-      mobile: values.mobile,
-      kovil: values.kovil,
-      native: values.native,
-      location: values.location,
-      company: values.company,
+      firstName: values?.firstName,
+      lastName: values?.lastName,
+      email: values?.email,
+      mobile: values?.mobile,
+      kovil: values?.kovil,
+      native: values?.native,
+      location: values?.location,
+      company: values?.company,
       user_name,
-      food: values.food,
-      gender: values.gender,
-      primary_stream: values.primary_stream || userData.primary_stream,
-      secondary_stream: values.secondary_stream || userData.secondary_stream,
+      food: values?.food,
+      gender: values?.gender,
+      primary_stream: values?.primary_stream || userData?.primary_stream,
+      secondary_stream: values?.secondary_stream || userData?.secondary_stream,
+      profile_pic: values?.profile_pic || userData?.profile_pic,
     };
 
     const { error } = await supabase
@@ -123,15 +126,17 @@ const TicketPage = () => {
     } else {
       setUserData({
         name: user_name,
-        company: values.company || userData.company,
-        city: values.location || userData.city,
-        native: values.native || userData.native,
-        kovil: values.kovil || userData.kovil,
-        food: values.food || userData.food,
-        gender: values.gender || userData.gender,
-        primary_stream: values.primary_stream || userData.primary_stream,
-        secondary_stream: values.secondary_stream || userData.secondary_stream,
-        room: values.room || userData.room,
+        company: values?.company || userData?.company,
+        city: values?.location || userData?.city,
+        native: values?.native || userData?.native,
+        kovil: values?.kovil || userData?.kovil,
+        food: values?.food || userData?.food,
+        gender: values?.gender || userData?.gender,
+        primary_stream: values?.primary_stream || userData?.primary_stream,
+        secondary_stream: values?.secondary_stream || userData?.secondary_stream,
+        room: values?.room || userData?.room,
+        email: values?.email || userData?.email,
+        profile_pic: values?.profile_pic || userData?.profile_pic,
       });
       setEdit(false);
       message.success('Updated Successfully');
@@ -145,14 +150,16 @@ const TicketPage = () => {
 
   const editProfileData = {
     ...userData,
-    firstName: userData.name.split(' ')[0],
-    lastName: userData.name.split(' ').slice(1).join(' '),
-    company: userData.company,
-    location: userData.city,
-    food: userData.food,
-    primary_stream: userData.primary_stream,
-    secondary_stream: userData.secondary_stream,
-    room: userData.room,
+    firstName: userData?.name?.split(' ')[0],
+    lastName: userData?.name?.split(' ').slice(1).join(' '),
+    company: userData?.company,
+    location: userData?.city,
+    food: userData?.food,
+    primary_stream: userData?.primary_stream,
+    secondary_stream: userData?.secondary_stream,
+    room: userData?.room,
+    email: userData?.email,
+    profile_pic: userData?.profile_pic,
   };
 
   return (
