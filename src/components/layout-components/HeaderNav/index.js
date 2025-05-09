@@ -22,12 +22,12 @@ import { AUTH_PREFIX_PATH, APP_PREFIX_PATH } from 'configs/AppConfig'
 
 
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { supabase } from "configs/SupabaseConfig";
-import { setSession } from "store/slices/authSlice";
-import { store } from "store";
-import Notifications from "components/common/Notifications";
-import OrganiztionSelect from "./OrganiztionSelect";
-import LivePollHeaderButton from "./LivePollHeaderButton";
+// import { supabase } from "configs/SupabaseConfig";
+// import { setSession } from "store/slices/authSlice";
+// import { store } from "store";
+// import Notifications from "components/common/Notifications";
+// import OrganiztionSelect from "./OrganiztionSelect";
+// import LivePollHeaderButton from "./LivePollHeaderButton";
 // import lightIcon from 'img/ibcn/light.png'; // 
 
 export const HeaderNav = (props) => {
@@ -56,20 +56,20 @@ export const HeaderNav = (props) => {
   const navType = useSelector((state) => state.theme.navType);
   const headerNavColor = useSelector((state) => state.theme.headerNavColor);
   const currentTheme = useSelector((state) => state.theme.currentTheme);
-  const {
-    brokerAccounts: brokerAccountsList,
-    getBrokerAccountsLoading,
-    selectedAccount,
-    brokerPortfolios,
-    getBrokerPortfoliosLoading,
-    selectedPortfolio,
-    userData,
-    selectedDate
-  } = useSelector((state) => state?.profile);
+  // const {
+  //   brokerAccounts: brokerAccountsList,
+  //   getBrokerAccountsLoading,
+  //   selectedAccount,
+  //   brokerPortfolios,
+  //   getBrokerPortfoliosLoading,
+  //   selectedPortfolio,
+  //   userData,
+  //   selectedDate
+  // } = useSelector((state) => state?.profile);
 
   const { session } = useSelector((state) => state.auth);
 
-  const brokerAccounts = brokerAccountsList?.filter((account) => account?.broker_login_status === true)
+  // const brokerAccounts = brokerAccountsList?.filter((account) => account?.broker_login_status === true)
 
   // const workspace = state?.auth?.session?.user?.organization?.app_settings?.workspace || state?.auth?.defaultOrganization?.app_settings?.workspace || 'dev';
 
@@ -195,8 +195,8 @@ export const HeaderNav = (props) => {
           </NavEdge>
           <NavEdge right>
             <div className="border-bottom d-flex justify-content-between align-items-center py-2 px-1">
-              {session?.user?.role_type === 'superadmin' && !isMobile && <OrganiztionSelect />}
-              {session?.user?.features?.feature?.notifications && session?.user?.organization?.module_features?.notifications && !isMobile && <Notifications />}
+              {/* {session?.user?.role_type === 'superadmin' && !isMobile && <OrganiztionSelect />} */}
+              {/* {session?.user?.features?.feature?.notifications && session?.user?.organization?.module_features?.notifications && !isMobile && <Notifications />} */}
               {/* <Button onClick={onLogOut}>LogOut</Button> */}
               <img src="/img/ibcn/knba.png" alt="KNBA Logo" //style={{ height: "70px" }} 
                 style={{ height: '56px' }} loading="lazy"//className="nav-icon"

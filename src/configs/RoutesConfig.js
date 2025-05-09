@@ -13,21 +13,21 @@ export const publicRoutes = [
         component: React.lazy(() => import('views/auth-views/authentication/landing')),
     },
     //ONLY APPLICABLE ON A SAAS WEBSITE(FOR NEW COMPANY REGISTRATION)
-    {
-        key: 'web-register',
-        path: `${APP_PREFIX_PATH}/web-register`,
-        component: React.lazy(() => import('views/auth-views/authentication/webRegister')),
-    },
-    {
-        key: 'register',
-        path: `${APP_PREFIX_PATH}/register`,
-        component: React.lazy(() => import('views/auth-views/authentication/openRegister')),
-    },
-    {
-        key: 'confirm-signup',
-        path: `${APP_PREFIX_PATH}/confirm-signup`,
-        component: React.lazy(() => import('views/auth-views/authentication/ConfirmSignUp')),
-    },
+    // {
+    //     key: 'web-register',
+    //     path: `${APP_PREFIX_PATH}/web-register`,
+    //     component: React.lazy(() => import('views/auth-views/authentication/webRegister')),
+    // },
+    // {
+    //     key: 'register',
+    //     path: `${APP_PREFIX_PATH}/register`,
+    //     component: React.lazy(() => import('views/auth-views/authentication/openRegister')),
+    // },
+    // {
+    //     key: 'confirm-signup',
+    //     path: `${APP_PREFIX_PATH}/confirm-signup`,
+    //     component: React.lazy(() => import('views/auth-views/authentication/ConfirmSignUp')),
+    // },
     {
         key: 'error',
         path: `${APP_PREFIX_PATH}/error`,
@@ -46,82 +46,82 @@ export const protectedRoutes = (feature, module_features) => {
         },
         
         // module_features?.notifications && feature?.notifications && 
-        {
-            key: 'notifications',
-            path: `${APP_PREFIX_PATH}/notifications`,
-            component: React.lazy(() => import('views/pages/Notifications')),
-        },
+        // {
+        //     key: 'notifications',
+        //     path: `${APP_PREFIX_PATH}/notifications`,
+        //     component: React.lazy(() => import('views/pages/Notifications')),
+        // },
        
-        // module_features?.survey && feature?.survey && 
-        {
-            key: 'survey',
-            path: `${APP_PREFIX_PATH}/survey`,
-            component: React.lazy(() => import('views/pages/Survey')),
-        },
-        {
-            key: 'profile',
-            path: `${APP_PREFIX_PATH}/profile`,
-            component: React.lazy(() => import('views/pages/Profile/index')),
-        },
-        {
-            key: 'settings',
-            path: `${APP_PREFIX_PATH}/settings`,
-            component: React.lazy(() => import('views/pages/Permissions/index')),
-        },
+        // // module_features?.survey && feature?.survey && 
+        // {
+        //     key: 'survey',
+        //     path: `${APP_PREFIX_PATH}/survey`,
+        //     component: React.lazy(() => import('views/pages/Survey')),
+        // },
+        // {
+        //     key: 'profile',
+        //     path: `${APP_PREFIX_PATH}/profile`,
+        //     component: React.lazy(() => import('views/pages/Profile/index')),
+        // },
+        // {
+        //     key: 'settings',
+        //     path: `${APP_PREFIX_PATH}/settings`,
+        //     component: React.lazy(() => import('views/pages/Permissions/index')),
+        // },
 
 
 
-        feature?.businessDirectory && {
-            key: 'ib_businesses',
-            path: `${APP_PREFIX_PATH}/businesses`,
-            component: React.lazy(() => import('views/pages/Businesses')),
-        },
-        feature?.memberDirectory && {
-            key: 'ib_members',
-            path: `${APP_PREFIX_PATH}/members`,
-            component: React.lazy(() => import('views/pages/Members')),
-        },
-        {
-            key: 'channels',
-            path: `${APP_PREFIX_PATH}/channels`,
-            component: React.lazy(() => import('views/pages/Channels/Networking')),
-        },
+        // feature?.businessDirectory && {
+        //     key: 'ib_businesses',
+        //     path: `${APP_PREFIX_PATH}/businesses`,
+        //     component: React.lazy(() => import('views/pages/Businesses')),
+        // },
+        // feature?.memberDirectory && {
+        //     key: 'ib_members',
+        //     path: `${APP_PREFIX_PATH}/members`,
+        //     component: React.lazy(() => import('views/pages/Members')),
+        // },
+        // {
+        //     key: 'channels',
+        //     path: `${APP_PREFIX_PATH}/channels`,
+        //     component: React.lazy(() => import('views/pages/Channels/Networking')),
+        // },
         
         // module_features?.ibChat && feature?.ibChat && 
-        {
-            key: 'ib_chat',
-            path: `${APP_PREFIX_PATH}/net/:chatId`,
-            component: React.lazy(() => import('views/pages/ib/Chat')),
-        },
-        {
-            key: 'channel_post_messages',
-            path: `${APP_PREFIX_PATH}/networking/:channel_post_id`,
-            component: React.lazy(() => import('views/pages/Channels/ChannelPostMessages')),
-        },
-        {
-            key: 'ib_networking',
-            path: `${APP_PREFIX_PATH}/networking`,
-            component: React.lazy(() => import('views/pages/ib/Networking')),
-        },
-        // module_features?.ibNetworking && feature?.ibNetworking && 
-        {
-            key: 'tags',
-            path: `${APP_PREFIX_PATH}/tags`,
-            component: React.lazy(() => import('views/pages/ib/Heirarchy')),
-        },
-        // module_features?.ibPoll && feature?.ibPoll && 
-        {
-            key: 'poll',
-            path: `${APP_PREFIX_PATH}/poll`,
-            component: React.lazy(() => import('views/pages/ib/Poll')),
-        },
+        // {
+        //     key: 'ib_chat',
+        //     path: `${APP_PREFIX_PATH}/net/:chatId`,
+        //     component: React.lazy(() => import('views/pages/ib/Chat')),
+        // },
+        // {
+        //     key: 'channel_post_messages',
+        //     path: `${APP_PREFIX_PATH}/networking/:channel_post_id`,
+        //     component: React.lazy(() => import('views/pages/Channels/ChannelPostMessages')),
+        // },
+        // {
+        //     key: 'ib_networking',
+        //     path: `${APP_PREFIX_PATH}/networking`,
+        //     component: React.lazy(() => import('views/pages/ib/Networking')),
+        // },
+        // // module_features?.ibNetworking && feature?.ibNetworking && 
+        // {
+        //     key: 'tags',
+        //     path: `${APP_PREFIX_PATH}/tags`,
+        //     component: React.lazy(() => import('views/pages/ib/Heirarchy')),
+        // },
+        // // module_features?.ibPoll && feature?.ibPoll && 
+        // {
+        //     key: 'poll',
+        //     path: `${APP_PREFIX_PATH}/poll`,
+        //     component: React.lazy(() => import('views/pages/ib/Poll')),
+        // },
         
         // module_features?.trial && feature?.trial && 
-        feature?.liveSurvey && {
-            key: 'live',
-            path: `${APP_PREFIX_PATH}/live`,
-            component: React.lazy(() => import('views/pages/Live')),
-        },
+        // feature?.liveSurvey && {
+        //     key: 'live',
+        //     path: `${APP_PREFIX_PATH}/live`,
+        //     component: React.lazy(() => import('views/pages/Live')),
+        // },
         feature?.eventPass && {
             key: 'pass',
             path: `${APP_PREFIX_PATH}/pass`,
@@ -132,11 +132,11 @@ export const protectedRoutes = (feature, module_features) => {
         //     path: `${APP_PREFIX_PATH}/conf`,
         //     component: React.lazy(() => import('views/pages/Conference')),
         // },
-        {
-            key: 'member_info',
-            path: `${APP_PREFIX_PATH}/members/:user_name`,
-            component: React.lazy(() => import('views/pages/Profile/index')),
-        },
+        // {
+        //     key: 'member_info',
+        //     path: `${APP_PREFIX_PATH}/members/:user_name`,
+        //     component: React.lazy(() => import('views/pages/Profile/index')),
+        // },
 
 
 

@@ -5,10 +5,10 @@ import QRCode from 'react-qr-code';
 import './TicketPage.css';
 import { supabase } from 'configs/SupabaseConfig';
 import { useSelector } from 'react-redux';
-import DynamicForm from '../DynamicForm';
+// import DynamicForm from '../DynamicForm';
 import Drawer from 'antd/es/drawer';
 import { useNavigate } from 'react-router-dom';
-import ProfilePic from '../Profile/ProfilePic';
+// import ProfilePic from '../Profile/ProfilePic';
 import LoadingComponent from 'components/layout-components/LoadingComponent';
 
 const { Title, Text } = Typography;
@@ -183,7 +183,7 @@ const TicketPage = () => {
         {/* User Section */}
         <div className="ticket-section user-section" style={{ backgroundColor: trackColor }}>
           <div className="profile-placeholder">
-            <ProfilePic />
+            {/* <ProfilePic /> */}
           </div>
           <Title level={3}>{userData.name}</Title>
           <Text>{userData.company}, {userData.city}</Text>
@@ -252,7 +252,7 @@ const TicketPage = () => {
           onClose={handleClose}
           width="90%"
         >
-          <DynamicForm schemas={schema} formData={formData} onFinish={onFinish} />
+          {/* <DynamicForm schemas={schema} formData={formData} onFinish={onFinish} /> */}
         </Drawer>
       )}
     </div>
