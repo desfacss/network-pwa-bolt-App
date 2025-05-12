@@ -9,7 +9,7 @@ import { SIDE_NAV_LIGHT, NAV_TYPE_SIDE } from "constants/ThemeConstant";
 import utils from 'utils'
 import { onMobileNavToggle } from 'store/slices/themeSlice';
 import { REACT_APP_WORKSPACE } from 'configs/AppConfig';
-import { getNavigationConfig } from 'configs/NavigationConfig/navigationUtils';
+// import { getNavigationConfig } from 'configs/NavigationConfig/navigationUtils';
 
 const { useBreakpoint } = Grid;
 
@@ -77,7 +77,7 @@ const SideNavContent = (props) => {
 	const { userData } = useSelector((state) => state?.profile);
 	const { session } = useSelector((state) => state.auth);
 	const workspace = session?.user?.organization?.app_settings?.workspace || REACT_APP_WORKSPACE || 'dev'
-	const navigationConfig = getNavigationConfig(workspace);
+	const navigationConfig = require("configs/NavigationConfig/IBCN").default;
 	// const { feature } = session?.user?.features?.feature
 	const clientSubmenu = ['Dashboard']
 	// useEffect(() => {
@@ -133,7 +133,7 @@ const TopNavContent = () => {
 	const topNavColor = useSelector(state => state.theme.topNavColor);
 	const { session } = useSelector((state) => state.auth);
 	const workspace = session?.user?.organization?.app_settings?.workspace || REACT_APP_WORKSPACE || 'dev'
-	const navigationConfig = getNavigationConfig(workspace);
+	const navigationConfig = require("configs/NavigationConfig/IBCN").default;
 	const menuItems = useMemo(() => getTopNavMenuItem(navigationConfig), [])
 
 	return (
