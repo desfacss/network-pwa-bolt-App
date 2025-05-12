@@ -1,5 +1,5 @@
 import {
-  DashboardOutlined,
+  DashboardOutlined,BookOutlined
 } from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig';
 import { store } from 'store';
@@ -25,7 +25,7 @@ const navigationConfig = [
         breadcrumb: false,
         submenu: [],
       },
-      feature?.eventPass && {
+     {
         key: 'pass',
         path: `${APP_PREFIX_PATH}/pass`,
         title: 'Event Pass',
