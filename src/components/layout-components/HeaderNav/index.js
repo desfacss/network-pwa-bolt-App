@@ -74,8 +74,11 @@ export const HeaderNav = ({ isMobile }) => {
                 {navCollapsed ? <CaretRightOutlined style={{ fontSize: "90%", color: "#999" }} /> : <CaretLeftOutlined style={{ fontSize: "90%", color: "#999" }} />}
               </div>
             )}
+            {/* {isMobile && (
+              IBCN LOGO // <img src="/img/ibcn/ibcn.png" alt="IBCN Logo" style={{ height: "56px" }} loading="lazy" />
+            )} */}
             {isMobile && (
-              <img src="/img/ibcn/ibcn.png" alt="IBCN Logo" style={{ height: "56px" }} loading="lazy" />
+              <p>IBCN LOGO</p> 
             )}
           </NavEdge>
           <NavEdge style={{ flex: 1, justifyContent: "center" }}>

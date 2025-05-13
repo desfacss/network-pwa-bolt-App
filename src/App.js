@@ -223,11 +223,11 @@ const SurveyLayout = ({ children }) => {
                     >
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <div style={{ display: "flex", alignItems: "center" }}>
-                          <img
+                          {/* <img
                             src="/img/ibcn/ibcn.png"
                             alt="App Icon"
                             style={{ width: "40px", height: "40px", marginRight: "10px" }}
-                          />
+                          /> */}
                           <div>
                             <strong>IBCN NetworkX</strong>
                             <div style={{ fontSize: "12px", color: "#666" }}>app.ibcn2025.com</div>

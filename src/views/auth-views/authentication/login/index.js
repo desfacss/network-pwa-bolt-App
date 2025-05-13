@@ -27,9 +27,9 @@ const LoginTwo = (props) => {
           background: "#fff",
         }}
       >
-        <img src="/img/ibcn/ibcn.png" alt="IBCN Logo" style={{ height: "70px" }} loading="lazy" />
+        IBCN LOGO{/* <img src="/img/ibcn/ibcn.png" alt="IBCN Logo" style={{ height: "70px" }} loading="lazy" /> */}
         <h2 style={{ margin: 0 }}>IBCN NetworkX</h2>
-        <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} loading="lazy" />
+        KNBA LOGO{/* <img src="/img/ibcn/knba.png" alt="KNBA Logo" style={{ height: "70px" }} loading="lazy" /> */}
       </div>
 
       {/* Main Content Area */}
